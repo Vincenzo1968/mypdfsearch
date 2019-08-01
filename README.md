@@ -9,15 +9,15 @@ mypdfsearch Options
 
 Options(at least one of):
 	
-	'-h, --help' (optional)	Print help message and exit.
+	'-h', '--help' (optional)	Print help message and exit.
 	
-	'-v, --version' (optional)	Print version info and exit.
+	'-v', '--version' (optional)	Print version info and exit.
 	
-	'-e, --extracttextfrom' (optional)	Extract text from specified file and exit.
+	'-e', '--extracttextfrom' (optional)	Extract text from specified file and exit.
 		Arguments for option '-e, --extracttextfrom': a string indicating the pdf file
 		                                              from which to extract the text.
 	
-	'-f, --frompage' (optional)	Start search(or extract text) from pagenum specified.
+	'-f', '--frompage' (optional)	Start search(or extract text) from pagenum specified.
 		Arguments for option '-f, --frompage': an integer indicating the start page of the pdf file
 		                                       from which to start the search (or extract the text).
 	

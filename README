@@ -1,3 +1,5 @@
+# mypdfsearch
+Searching program for words(or extracting text) from the pages of a pdf file.
 
 mypdfsearch version 1.0.0
 
@@ -7,15 +9,15 @@ mypdfsearch Options
 
 Options(at least one of):
 	
-	'-h, --help' (optional)	Print help message and exit.
+	'-h', '--help' (optional)	Print help message and exit.
 	
-	'-v, --version' (optional)	Print version info and exit.
+	'-v', '--version' (optional)	Print version info and exit.
 	
-	'-e, --extracttextfrom' (optional)	Extract text from specified file and exit.
+	'-e', '--extracttextfrom' (optional)	Extract text from specified file and exit.
 		Arguments for option '-e, --extracttextfrom': a string indicating the pdf file
 		                                              from which to extract the text.
 	
-	'-f, --frompage' (optional)	Start search(or extract text) from pagenum specified.
+	'-f', '--frompage' (optional)	Start search(or extract text) from pagenum specified.
 		Arguments for option '-f, --frompage': an integer indicating the start page of the pdf file
 		                                       from which to start the search (or extract the text).
 	
@@ -57,6 +59,4 @@ Options(at least one of):
 		look for the words "hello" and "world" in all the pdf files contained in
 		"/myhome/myfiles" directory and in all its subdirectories
 		and stores the results in the "myresults.txt" file instead of showing them on the screen.
-		
-		
 
