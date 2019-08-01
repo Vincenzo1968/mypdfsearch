@@ -5,7 +5,7 @@ mypdfsearch version 1.0.0
 
 Usage:
 	
-./mypdfsearch Options
+mypdfsearch Options
 
 Options(at least one of):
 	
