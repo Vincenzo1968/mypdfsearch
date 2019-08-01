@@ -26,8 +26,8 @@ Options(at least one of):
 		                                     in which to stop the search (or extract the text).
 	
 	'-p', '--path' (optional)	Specifies the input file.
-		Arguments for option '-p, --path': a string indicating the directory on which the program will search
-		                                   for the pdf files to be searched.
+		Arguments for option '-p, --path': a string indicating the directory on which
+                                           the program will search for the pdf files to be searched.
 		                                   The program will search for the words indicated
 		                                   in the '--words' option in the directory indicated
 		                                   and in its subdirectories.
