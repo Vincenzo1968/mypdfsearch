@@ -1,0 +1,13 @@
+
+bin_PROGRAMS = mypdfsearch
+
+mypdfsearch_SOURCES = main.c myintqueuelist.c myScopeHashTable.c scanner.c mycontentqueuelist.c mynumstacklist.c mystringqueuelist.c mydecode.c myobjrefqueuelist.c myTernarySearchTree.c mydictionaryqueuelist.c myoctal.c parser.c mycontentqueuelist.h mydecode.h mydictionaryqueuelist.h myintqueuelist.h mynumstacklist.h myobjrefqueuelist.h myoctal.h mypdfsearch.h myScopeHashTable.h mystringqueuelist.h myTernarySearchTree.h parser.h scanner.h
+
+mypdfsearch_CFLAGS = -Wall -W -pedantic -O3
+#mypdfsearch_LDFLAGS = -lz
+
+#libmyoptParser_la_CFLAGS = -Wall -W -pedantic -O3
+#include_HEADERS = myoptParser.h
+
+ACLOCAL_AMFLAGS = -I m4 --install
+#EXTRA_DIST = m4/NOTES

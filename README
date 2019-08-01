@@ -1,5 +1,3 @@
-# mypdfsearch
-Searching program for words(or extracting text) from the pages of a pdf file.
 
 mypdfsearch version 1.0.0
 
@@ -59,3 +57,6 @@ Options(at least one of):
 		look for the words "hello" and "world" in all the pdf files contained in
 		"/myhome/myfiles" directory and in all its subdirectories
 		and stores the results in the "myresults.txt" file instead of showing them on the screen.
+		
+		
+
