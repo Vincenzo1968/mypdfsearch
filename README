@@ -28,8 +28,9 @@ Options(at least one of):
 	'-p', '--path' (optional)	Specifies the input file.
 		Arguments for option '-p, --path': a string indicating the directory on which the program will search
 		                                   for the pdf files to be searched.
-		                                   The program will search for the words indicated in the '--words' option
-		                                   in the directory indicated and in its subdirectories.
+		                                   The program will search for the words indicated
+		                                   in the '--words' option in the directory indicated
+		                                   and in its subdirectories.
 	
 	'-w', '--words' (optional)	Words to search
 		Arguments for option '-w, --words': A string enclosed in double quotation marks ",
@@ -59,4 +60,3 @@ Options(at least one of):
 		look for the words "hello" and "world" in all the pdf files contained in
 		"/myhome/myfiles" directory and in all its subdirectories
 		and stores the results in the "myresults.txt" file instead of showing them on the screen.
-
