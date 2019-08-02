@@ -38,59 +38,21 @@
 
 #include <pthread.h>
 
+#include <wchar.h>
+
+#if defined(_WIN64) || defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#include <windows.h>
+#endif
+
 #include "mypdfsearch.h"
 #include "parser.h"
-
-/* -------------------------------------------------------------------------------------------------- */
-
-/*
-Per generare le dipendenze per il Makefile, usare -MM:
-
-[vincenzo]$ gcc -MM -D_GNU_SOURCE myoctal.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz
-
-myoctal.o: myoctal.c myoctal.h mypdfsearch.h
-
-mydictionaryqueuelist.o: mydictionaryqueuelist.c scanner.h mypdfsearch.h \
- myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h \
- mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h \
- myScopeHashTable.h myTernarySearchTree.h mydecode.h
-
-mystringqueuelist.o: mystringqueuelist.c mystringqueuelist.h
-
-mycontentqueuelist.o: mycontentqueuelist.c mycontentqueuelist.h \
- mystringqueuelist.h mydictionaryqueuelist.h
-
-mynumstacklist.o: mynumstacklist.c mynumstacklist.h
-
-myintqueuelist.o: myintqueuelist.c myintqueuelist.h
-
-mydecode.o: mydecode.c mydecode.h myoctal.h mypdfsearch.h
-scanner.o: scanner.c myoctal.h mypdfsearch.h scanner.h \
- myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h \
- mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h \
- myScopeHashTable.h myTernarySearchTree.h mydecode.h
-
-parser.o: parser.c parser.h mypdfsearch.h scanner.h myobjrefqueuelist.h \
- mynumstacklist.h myintqueuelist.h mystringqueuelist.h \
- mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h \
- myTernarySearchTree.h mydecode.h
-
-main.o: main.c mypdfsearch.h parser.h scanner.h myobjrefqueuelist.h \
- mynumstacklist.h myintqueuelist.h mystringqueuelist.h \
- mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h \
- myTernarySearchTree.h mydecode.h
-*/
-
-/* -------------------------------------------------------------------------------------------------- */
 
 void printError(int numError);
 
 FilesList* addFileToFilesList(FilesList *first, FilesList *newFile);
 void freeFilesList(FilesList *first);
-
-FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList);
-
-/* -------------------------------------------------------------------------------------------------- */
 
 FilesList* addFileToFilesList(FilesList *first, FilesList *newFile)
 {
@@ -100,10 +62,12 @@ FilesList* addFileToFilesList(FilesList *first, FilesList *newFile)
 
 	if( n == NULL )
 		return NULL;
-
+	
+	#if !defined(_WIN64) && !defined(_WIN32)
 	strcpy(n->myPathName, newFile->myPathName);
+	#endif
 	strcpy(n->myFileName, newFile->myFileName);
-	//strcpy(n->relativeName, newFile->relativeName);
+	
 	n->next = NULL;
 	
 	if ( first != NULL )
@@ -123,6 +87,98 @@ void freeFilesList(FilesList *first)
 	}
 }
 
+
+#if defined(_WIN64) || defined(_WIN32)
+void GetErrorString(DWORD err, char *szError, int len)
+{
+	// Retrieve the system error message for the last-error code
+
+	LPVOID lpMsgBuf;
+
+	FormatMessageA(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		err,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(char*)&lpMsgBuf,
+		0, NULL);
+
+	strncpy(szError, lpMsgBuf, len);
+
+	LocalFree(lpMsgBuf);
+}
+
+FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
+{
+	char pathName[MAX_PATH + 1];
+
+	WIN32_FIND_DATAA data;
+
+	char fname[_MAX_DIR];
+	
+	FilesList myFile;
+
+	strncpy(fname, dirName, _MAX_DIR - 1);
+	//strncpy(fname, dirName, strnlen(dirName, _MAX_DIR));
+	//strncat(fname, "\\*.pdf", _MAX_DIR - 1);
+	strncat(fname, "\\*.*", _MAX_DIR - 1);
+
+	HANDLE h = FindFirstFileA(fname, &data);
+	if (h != INVALID_HANDLE_VALUE)
+	{
+		do {
+
+			strncpy(pathName, dirName, MAX_PATH);
+			strncat(pathName, "\\", MAX_PATH);
+			strncat(pathName, data.cFileName, MAX_PATH);
+			
+			
+			//int lung = strnlen(pathName, MAX_LEN_STR);
+			//wprintf(L"PATH NAME = <");
+			//for ( int idx = 0; idx < lung; idx++ )
+			//{
+			//	wprintf(L"%c", pathName[idx]);
+			//}
+			//wprintf(L">\n\n");
+			
+
+			if ((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+			{
+				//if (!(data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) && !(data.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
+				if ( !(data.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) )
+				{
+					if (strncmp(data.cFileName, ".", _MAX_DIR) != 0 && strncmp(data.cFileName, "..", _MAX_DIR) != 0)
+					{
+						myFilesList = getFilesRecursive(pathName, lenOrig, myFilesList);
+					}
+				}
+			}
+			else
+			{
+				int len = strnlen(pathName, MAX_LEN_STR);
+				if ( len > 4 ) // .pdf = 4
+				{
+					if ( tolower(pathName[len - 1]) == 'f' && tolower(pathName[len - 2]) == 'd' && tolower(pathName[len - 3]) == 'p' && pathName[len - 4] == '.' )
+					{
+						strncpy(myFile.myFileName, pathName, len + 1);										
+						myFilesList = addFileToFilesList(myFilesList, &myFile);
+						if ( !myFilesList )
+							goto uscita;
+					}
+				}
+				
+			}
+		} while (FindNextFileA(h, &data) != 0);
+		FindClose(h);
+	}
+	
+	uscita:
+
+	return myFilesList;
+}
+#else
 FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 {
 	FilesList myFile;		
@@ -217,6 +273,49 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 	
 	return myFilesList;
 }
+#endif
+
+/* -------------------------------------------------------------------------------------------------- */
+
+/*
+Per generare le dipendenze per il Makefile, usare -MM:
+
+[vincenzo]$ gcc -MM -D_GNU_SOURCE myoctal.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz
+
+myoctal.o: myoctal.c myoctal.h mypdfsearch.h
+
+mydictionaryqueuelist.o: mydictionaryqueuelist.c scanner.h mypdfsearch.h \
+ myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h \
+ mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h \
+ myScopeHashTable.h myTernarySearchTree.h mydecode.h
+
+mystringqueuelist.o: mystringqueuelist.c mystringqueuelist.h
+
+mycontentqueuelist.o: mycontentqueuelist.c mycontentqueuelist.h \
+ mystringqueuelist.h mydictionaryqueuelist.h
+
+mynumstacklist.o: mynumstacklist.c mynumstacklist.h
+
+myintqueuelist.o: myintqueuelist.c myintqueuelist.h
+
+mydecode.o: mydecode.c mydecode.h myoctal.h mypdfsearch.h
+scanner.o: scanner.c myoctal.h mypdfsearch.h scanner.h \
+ myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h \
+ mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h \
+ myScopeHashTable.h myTernarySearchTree.h mydecode.h
+
+parser.o: parser.c parser.h mypdfsearch.h scanner.h myobjrefqueuelist.h \
+ mynumstacklist.h myintqueuelist.h mystringqueuelist.h \
+ mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h \
+ myTernarySearchTree.h mydecode.h
+
+main.o: main.c mypdfsearch.h parser.h scanner.h myobjrefqueuelist.h \
+ mynumstacklist.h myintqueuelist.h mystringqueuelist.h \
+ mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h \
+ myTernarySearchTree.h mydecode.h
+*/
+
+/* -------------------------------------------------------------------------------------------------- */
 
 long GetProcessors()
 {
@@ -964,13 +1063,14 @@ int MakeAndOpenOutputFile(Params *pParams)
 {
 	int retValue = 1;
 			
+	#if !defined(_WIN64) && !defined(_WIN32)
 	unsigned char szBOM[21];
-	
 	// UTF-8 BOM -> EF BB BF 
 	szBOM[0] = 0xEF;
 	szBOM[1] = 0xBB;
 	szBOM[2] = 0xBF;
 	szBOM[3] = '\0';
+	#endif
 	
 	pParams->fpOutput = fopen(pParams->szOutputFile, "rb");
 	if ( pParams->fpOutput != NULL )
@@ -988,8 +1088,14 @@ int MakeAndOpenOutputFile(Params *pParams)
 		goto uscita;
 	}	
 	
+	#if defined(_WIN64) || defined(_WIN32)
+	_setmode(_fileno(pParams->fpOutput), _O_U8TEXT);
+	#endif	
+	
+	#if !defined(_WIN64) && !defined(_WIN32)
 	// UTF-8 BOM -> EF BB BF 
 	fwprintf(pParams->fpOutput, L"%s", szBOM);
+	#endif
 		
 	uscita:
 	
@@ -1000,13 +1106,14 @@ int MakeAndOpenErrorsFile(Params *pParams)
 {
 	int retValue = 1;
 			
+	#if !defined(_WIN64) && !defined(_WIN32)
 	unsigned char szBOM[21];
-	
 	// UTF-8 BOM -> EF BB BF 
 	szBOM[0] = 0xEF;
 	szBOM[1] = 0xBB;
 	szBOM[2] = 0xBF;
 	szBOM[3] = '\0';
+	#endif
 	
 	pParams->fpErrors = fopen("AAA_mypdfsearch_parsing_errors.txt", "wb");
 	if ( pParams->fpErrors == NULL )
@@ -1016,13 +1123,50 @@ int MakeAndOpenErrorsFile(Params *pParams)
 		goto uscita;
 	}	
 	
+	#if defined(_WIN64) || defined(_WIN32)
+	_setmode(_fileno(pParams->fpErrors), _O_U8TEXT);	
+	#endif	
+	
+	#if !defined(_WIN64) && !defined(_WIN32)
 	// UTF-8 BOM -> EF BB BF 
 	fwprintf(pParams->fpErrors, L"%s", szBOM);
+	#endif
 		
 	uscita:
 	
 	return retValue;
 }
+
+/*
+IMPORTANTE, ATTENZIONE!!! compilare su Windows con MINGW64, richiede di specificare '-liconv' alla fine, dopo '-lz'
+                          altrimenti il linker dà errore.
+*/
+
+/*
+MINGW:
+ 
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
+
+vanno bene entrambe le modalità: e con slash, e con backslash:
+mypdfsearch --path="C:\AAA_ProgrammiLibrerie\myPdfSearch\Files\Prova" --words="Virginia campidoglio Orbán"
+mypdfsearch --path="C:/AAA_ProgrammiLibrerie/myPdfSearch/Files/Prova" --words="Virginia campidoglio Orbán"
+*/
+
+/*
+MSYS2:
+
+cd /c/AAA_ProgrammiLibrerie/myPdfSearch
+
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
+
+
+C:\AAA_ProgrammiLibrerie\myPdfSearch\Files
+./mypdfsearch --path="/c/AAA_ProgrammiLibrerie/myPdfSearch/Files/Prova" --words="Virginia campidoglio Orbán"
+./mypdfsearch --path="C:\AAA_ProgrammiLibrerie\myPdfSearch\Files\Prova" --words="Virginia campidoglio Orbán"
+ 
+mypdfsearch --path="C:\AAA_ProgrammiLibrerie\myPdfSearch\Files\Prova" --words="Virginia campidoglio Orbán"
+mypdfsearch --path="C:/AAA_ProgrammiLibrerie/myPdfSearch/Files/Prova" --words="Virginia campidoglio Orbán"
+*/
 
 /*
 ATTENZIONE: IMPORTANTE:
@@ -1067,12 +1211,10 @@ int main(int argc, char **argv)
 	Params myParams;
 					
 	FilesList* myFilesList = NULL;
-	int len;
 	
 	long numProcessors;
-	
-	int x;
-	int y;
+		
+	int len;
 		
 	myParams.countWordsToSearch = 0;
 	myParams.pWordsToSearchArray = NULL;
@@ -1137,10 +1279,14 @@ int main(int argc, char **argv)
 		
 	if ( myParams.szFilePdf[0] != '\0' )
 	{
+		#if !defined(_WIN64) && !defined(_WIN32)
+		char* psz = NULL;
+		int x;
+		int y;		
+		#endif
+		
 		myFilesList = (FilesList*)malloc(sizeof(FilesList));
 		
-		char* psz = NULL;
-
 		if( myFilesList == NULL )
 		{
 			wprintf(L"Errore main: impossibile aggiungere il file alla lista.\n");
@@ -1148,6 +1294,7 @@ int main(int argc, char **argv)
 			goto uscita;			
 		}
 
+		#if !defined(_WIN64) && !defined(_WIN32)
 		strcpy(myFilesList->myPathName, myParams.szFilePdf);
 		myFilesList->next = NULL;
 						
@@ -1161,14 +1308,18 @@ int main(int argc, char **argv)
 			}
 			x--;
 		}
-
+		
 		if ( x > 0 )
 			x++;
 		psz = &(myParams.szFilePdf[x]);
 		y = 0;
 		while ( *psz != '\0' )
 			myFilesList->myFileName[y++] = *(psz++);
-		myFilesList->myFileName[y] = '\0';
+		myFilesList->myFileName[y] = '\0';		
+		#else
+		strcpy(myFilesList->myFileName, myParams.szFilePdf);
+		myFilesList->next = NULL;	
+		#endif
 	}
 	else
 	{
@@ -1183,10 +1334,37 @@ int main(int argc, char **argv)
 	}
 				
 	wprintf(L"\n");
+	
+	/*
+	if ( myParams.szPath[0] != '0' )
+	{
+		int idxCazzo = 0;
+		int lung;
+		
+		lung = strnlen(myParams.szPath, MAX_LEN_STR);
+		if ( '/' == myParams.szPath[0] )
+		{
+			for ( idxCazzo = 0; idxCazzo < lung; idxCazzo++ )
+			{
+				myParams.szPath[idxCazzo] = myParams.szPath[idxCazzo + 1];
+			}
+		}
+		else
+		{
+			wprintf(L"\n\nECCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n\n", myParams.szPath);
+			retValue = EXIT_FAILURE;
+			goto uscita;			
+		}
+		
+		 
+		//wprintf(L"PATH = '%s'.\n", myParams.szPath);
+		//retValue = EXIT_FAILURE;
+		//goto uscita;
+	}	
+	*/
 			
 	Parse(&myParams, myFilesList, 0);
-			
-	
+				
 uscita:
 	
 	
@@ -1209,9 +1387,10 @@ uscita:
 		myParams.pWordsToSearchArray = NULL;
 	}
 	
-	//wprintf(L"\n");
+	wprintf(L"\n");
 	
-	fclose(myParams.fpErrors);
+	if ( NULL != myParams.fpErrors )
+		fclose(myParams.fpErrors);
 				
 	return retValue;
 }

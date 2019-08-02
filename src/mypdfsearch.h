@@ -49,7 +49,9 @@
 
 typedef struct tagFilesList
 {
+	#if !defined(_WIN64) && !defined(_WIN32)
 	char myPathName[PATH_MAX + 1];
+	#endif
 	char myFileName[PATH_MAX + 1];
 	//char relativeName[PATH_MAX + 1];
 	struct tagFilesList *next;

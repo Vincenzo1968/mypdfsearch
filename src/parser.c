@@ -4300,14 +4300,27 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 			free(pParams->pPagesArray);
 			pParams->pPagesArray = NULL;
 		}
-						
+					
+		/*
+		int lung = strnlen(n->myPathName, MAX_LEN_STR);
+		wprintf(L"COPIO IL FILE = <");
+		for ( int idx = 0; idx < lung; idx++ )
+		{
+			wprintf(L"%c", n->myPathName[idx]);
+		}
+		wprintf(L">\n\n");
+		*/
+			
+		#if !defined(_WIN64) && !defined(_WIN32)
 		len = strnlen(n->myPathName, PATH_MAX);
 		strncpy(pParams->szFileName, n->myPathName, len + 1);
-		
 		strncat(pParams->szFileName, "/", len + 1);
-		
 		len = strnlen(n->myFileName, PATH_MAX);
 		strncat(pParams->szFileName, n->myFileName, len + 1);
+		#else	
+		len = strnlen(n->myFileName, PATH_MAX);
+		strncpy(pParams->szFileName, n->myFileName, len + 1);
+		#endif
 				
 		if ( pParams->fp != NULL )
 		{
@@ -4318,17 +4331,50 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 		pParams->fp = fopen(pParams->szFileName, "rb");
 		if ( pParams->fp == NULL )
 		{
-			//wprintf(L"ERRORE Parse 5: nell'apertura del file '%s'.\n\n", pParams->szFileName);
+			wprintf(L"ERRORE Parse 5: nell'apertura del file '%s'.\n", pParams->szFileName);
 			fwprintf(pParams->fpErrors, L"ERRORE Parse 5: nell'apertura del file '%s'.\n\n", pParams->szFileName);
+			
+			int lung = strnlen(pParams->szFileName, MAX_LEN_STR);
+			wprintf(L"FILE SCHIFOSO = <");
+			for ( int idx = 0; idx < lung; idx++ )
+			{
+				wprintf(L"%c", pParams->szFileName[idx]);
+			}
+			wprintf(L">\n\n");
+							
 			retValue = 0;
 			goto successivo;
 		}
 		
 		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FN)	
 		if ( pParams->szOutputFile[0] != '\0' )
+		{
+			#if !defined(_WIN64) && !defined(_WIN32)
 			fwprintf(pParams->fpOutput, L"File: '%s'\n", pParams->szFileName);
+			#else
+			int lung = strnlen(pParams->szFileName, MAX_LEN_STR);
+			fwprintf(pParams->fpOutput, L"FILE = <");
+			for ( int idx = 0; idx < lung; idx++ )
+			{
+				fwprintf(pParams->fpOutput, L"%c", pParams->szFileName[idx]);
+			}
+			fwprintf(pParams->fpOutput, L">\n");			
+			#endif
+		}
 		else
+		{
+			#if !defined(_WIN64) && !defined(_WIN32)
 			wprintf(L"File: '%s'\n", pParams->szFileName);
+			#else
+			int lung = strnlen(pParams->szFileName, MAX_LEN_STR);
+			wprintf(L"FILE = <");
+			for ( int idx = 0; idx < lung; idx++ )
+			{
+				wprintf(L"%c", pParams->szFileName[idx]);
+			}
+			wprintf(L">\n");
+			#endif
+		}
 		//#endif		
 
 		if ( !ReadHeader(pParams) )
@@ -6937,7 +6983,7 @@ int OnTraverseTST(const wchar_t* key, void* data, uint32_t dataSize)
 		#if defined(_WIN64) || defined(_WIN32)
 		wchar_t *pWideCharString = NULL;
 		//wprintf(L"'%ls' <-> '%s' dataSize = %d\n", (wchar_t*)key, (char*)data, dataSize);
-		pWideCharString = (wchar_t*)AsciiToUtf8WideCharString((char*)data, dataSize);
+		//pWideCharString = (wchar_t*)AsciiToUtf8WideCharString((char*)data, dataSize);
 		wprintf(L"KEY = '%ls' <-> DATA = '%ls' dataSize = %d\n", (wchar_t*)key, (wchar_t*)pWideCharString, dataSize);
 		#else
 		wprintf(L"KEY = '%ls' <->  DATA = '%s' dataSize = %d\n", (wchar_t*)key, (char*)data, dataSize);
