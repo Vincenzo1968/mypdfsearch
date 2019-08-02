@@ -4981,7 +4981,7 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 						else
 							wprintf(L"%c", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
 					}
-					wprintf(L"PushXObjDecodedContent -> FINE STREAM DECODIFICATO DOPO myInflate:\n");
+					wprintf(L"\nPushXObjDecodedContent -> FINE STREAM DECODIFICATO DOPO myInflate:\n");
 					#endif
 										
 					//fwrite("\xEF\xBB\xBF", 3, 1, fpTemp);
@@ -6332,7 +6332,7 @@ gestiscodecodedcontent:
 		else
 			wprintf(L"%c", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
 	}
-	wprintf(L"ManageContent -> FINE STREAM DECODIFICATO DOPO myInflate:\n\n");
+	wprintf(L"\nManageContent -> FINE STREAM DECODIFICATO DOPO myInflate:\n\n");
 	#endif
 	
 	
@@ -6786,10 +6786,12 @@ int ParseObject(Params *pParams, int objNum)
 			myobjreflist_Free(&(pParams->myFontsRefList));
 		}
 	}
-							
+								
 	if ( pParams->fromPage <= 0 )
 		nFromPage = 1;
-		
+	else
+		nFromPage = pParams->fromPage;
+				
 	if ( pParams->toPage <= 0 )
 		nToPage = pParams->nCountPageFound;
 	else
@@ -6797,7 +6799,7 @@ int ParseObject(Params *pParams, int objNum)
 		
 	if ( nToPage > pParams->nCountPageFound )
 		nToPage = pParams->nCountPageFound;
-								
+											
 	for ( nInt = nFromPage; nInt <= nToPage; nInt++ )
 	{		
 		pParams->nCurrentPageNum = nInt;
