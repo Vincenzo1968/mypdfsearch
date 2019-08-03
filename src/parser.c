@@ -5903,6 +5903,235 @@ uscita:
 
 int ManageContent(Params *pParams, int nPageNumber)
 {
+	int retValue = 1;	
+	
+	int ret = 0;
+	
+	MyContent_t myContent;
+	MyContent_t *pContent;
+	MyContentQueueItem_t* pContentItem;
+	unsigned long int totalLengthFromPdf = 0;
+	
+	unsigned long int k;
+	
+	unsigned long int DecodedStreamSize = 0;
+	
+	unsigned char szTemp[4096];
+	
+	unsigned char *pszEncodedStream = NULL;
+	unsigned long int offsetEncodedStream = 0;
+	
+	unsigned char *pszDecodedStream = NULL;
+	unsigned long int offsetDecodedStream = 0;
+	
+	int nTemp;
+	
+	size_t bytesRead;
+		
+	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)	
+	UNUSED(k);
+	#endif
+	
+	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_ManageContent_FN)	
+	UNUSED(nPageNumber);
+	#endif	
+	
+	szTemp[0] = '\0';
+	
+	for ( nTemp = 0; nTemp < STREAMS_STACK_SIZE; nTemp++ )
+		pParams->myStreamsStack[nTemp].pszDecodedStream = NULL;	
+	
+	pContentItem = pParams->pPagesArray[nPageNumber].queueContens.head;
+	totalLengthFromPdf = 0;
+	while ( NULL != pContentItem )
+	{
+		totalLengthFromPdf += pContentItem->myContent.LengthFromPdf;
+		pContentItem = pContentItem->next;
+		//countContents++;
+	}
+	
+	if ( totalLengthFromPdf <= 0 )
+		goto uscita;
+				
+	// PUSH BEGIN
+	pParams->nStreamsStackTop = 0;
+		
+	DecodedStreamSize = ( totalLengthFromPdf * sizeof(unsigned char) ) * 5 + sizeof(unsigned char);
+		
+	pszEncodedStream = (unsigned char*)malloc( totalLengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char) );
+	if ( NULL == pszEncodedStream )
+	{
+		wprintf(L"ERRORE ManageContent: impossibile allocare %lu byte per leggere lo stream\n", totalLengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
+		fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile allocare %lu byte per leggere lo stream\n", totalLengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
+		retValue = 0;
+		goto uscita;
+	}			
+	
+	pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
+	if ( NULL == pszDecodedStream )
+	{
+		wprintf(L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
+		fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
+		pParams->nStreamsStackTop--;
+		retValue = 0;
+		goto uscita;		
+	}	
+		
+	pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
+	if ( NULL == pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream )
+	{
+		wprintf(L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
+		fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
+		pParams->nStreamsStackTop--;
+		retValue = 0;
+		goto uscita;		
+	}		
+			
+	myContent.bExternalFile = 0;
+	myContent.LengthFromPdf = 0;
+	myContent.Offset = 0;
+	mydictionaryqueuelist_Init(&(myContent.decodeParms), 1, 1);
+	mystringqueuelist_Init(&(myContent.queueFilters));	
+
+	pContent = &myContent;
+		
+	if ( pContent->bExternalFile )
+	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)		
+		wprintf(L"\nSTAMPO LO STREAM(Pag. %d) *********************:\n", nPageNumber);
+		wprintf(L"Lo stream e' riferito a un file esterno\n");
+		wprintf(L"FINE STREAM(Pag. %d)     *********************.\n", nPageNumber);
+		#endif
+		
+		goto uscita;
+	}
+					
+	offsetEncodedStream = 0;
+	while ( mycontentqueuelist_Dequeue(&(pParams->pPagesArray[nPageNumber].queueContens), &myContent) )
+	{			
+		szTemp[0] = '\0';
+		while ( mystringqueuelist_Dequeue(&(pContent->queueFilters), (char*)szTemp) )
+		{
+			if (pContent->decodeParms.count <= 0)
+			{
+				if ( strncmp((char*)szTemp, "FlateDecode", 4096) == 0 )
+				{						
+					fseek(pParams->fp, pContent->Offset, SEEK_SET);
+						
+					bytesRead = fread(pszEncodedStream, 1, pContent->LengthFromPdf, pParams->fp);
+					if ( bytesRead < pContent->LengthFromPdf )
+					{
+						wprintf(L"\nERRORE ManageContent: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pContent->LengthFromPdf);
+						fwprintf(pParams->fpErrors, L"\nERRORE ManageContent: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pContent->LengthFromPdf);
+						retValue = 0;
+						goto uscita;
+					}
+						
+					offsetEncodedStream += pContent->LengthFromPdf;
+					
+					pszEncodedStream[pContent->LengthFromPdf] = '\0';						
+		
+					pszDecodedStream[0] = '\0';
+					
+					DecodedStreamSize = ( totalLengthFromPdf * sizeof(unsigned char) ) * 5 + sizeof(unsigned char);	
+								
+					ret = myInflate(&(pszDecodedStream), &DecodedStreamSize, pszEncodedStream, pContent->LengthFromPdf);
+					if ( Z_OK != ret )
+					{
+						zerr(ret);
+						if ( NULL != pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream )
+						{
+							free(pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream);
+							pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = NULL;
+						}
+						pParams->nStreamsStackTop--;
+						retValue = 0;
+						goto uscita;
+					}
+					pszDecodedStream[DecodedStreamSize] = '\0';
+																
+					memcpy(pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream + offsetDecodedStream, pszDecodedStream, DecodedStreamSize);
+					offsetDecodedStream += DecodedStreamSize;
+				}
+				else
+				{
+					fwprintf(pParams->fpErrors, L"ERRORE ManageContent: filtro '%s' non supportato in questa versione del programma.\n", szTemp);
+					retValue = 0;
+					goto uscita;
+				}
+			}
+			else
+			{
+				fwprintf(pParams->fpErrors, L"ERRORE ManageContent: filtro FlateDecode con parametri non supportato in questa versione del programma.\n");
+				retValue = 0;
+				goto uscita;				
+			}
+		}
+	}
+	pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[offsetDecodedStream] = '\0';
+	
+	pParams->myStreamsStack[pParams->nStreamsStackTop].DecodedStreamSize = DecodedStreamSize;
+	pParams->myStreamsStack[pParams->nStreamsStackTop].blockLen = DecodedStreamSize;
+	pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState = 1;
+	pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded = 1;
+	pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = 0;	
+	// PUSH END	
+		
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+	wprintf(L"STREAM -> Length = %lu", totalLengthFromPdf);
+	wprintf(L"\n");
+	#endif	
+
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)
+	wprintf(L"\n\nManageContent -> INIZIO STREAM DECODIFICATO DOPO myInflate:\n");
+	for ( k = 0; k < offsetDecodedStream; k++ )
+	{
+		if ( pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k] == '\0' )
+			wprintf(L"\\0");
+		else
+			wprintf(L"%c", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
+	}
+	wprintf(L"ManageContent -> FINE STREAM DECODIFICATO DOPO myInflate.\n\n");
+	#endif
+		
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)		
+	wprintf(L"FINE STREAM(Pag. %d)     *********************.\n", nPageNumber);
+	#endif	
+
+	//#define MYDEBUG_PRINT_ON_GetNextToken_FN
+	ManageDecodedContent(pParams, nPageNumber);
+	//#undef MYDEBUG_PRINT_ON_GetNextToken_FN
+			
+uscita:
+
+	if ( NULL != pszEncodedStream )
+	{
+		free(pszEncodedStream);
+		pszEncodedStream = NULL;
+	}
+
+	if ( NULL != pszDecodedStream )
+	{
+		free(pszDecodedStream);
+		pszDecodedStream = NULL;
+	}
+	
+		
+	while ( pParams->nStreamsStackTop >= 0 )
+	{
+		if ( NULL != pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream )
+			free(pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream);			
+		pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = NULL;
+		
+		pParams->nStreamsStackTop--;
+	}
+			
+	return retValue;
+}
+
+int ManageContent_OLD(Params *pParams, int nPageNumber)
+{
 	int retValue = 1;
 	
 	int nNumFilter;
@@ -6030,6 +6259,18 @@ int ManageContent(Params *pParams, int nPageNumber)
 		fread(pszEncodedStream, 1, pContent->LengthFromPdf, pParams->fp);
 		
 		pszEncodedStream[pContent->LengthFromPdf] = '\0';
+		
+		
+						
+		wprintf(L"\n");
+		for ( unsigned long int q = 0; q < pContent->LengthFromPdf; q++ )
+		{
+			if ( '\0' == pszEncodedStream[q] )
+				wprintf(L"pszEncodedStream[%d] = '\\0' -> CARATTERE NULLO, ACCIDENTACCIO A ME MEDESIMO!!!\n", q);
+		}
+		wprintf(L"\n");
+						
+								
 							
 		//retPeek = 0;
 		//bBreak = 0;
@@ -6120,7 +6361,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 							retValue = 0;
 							goto uscita;
 						}												
-						
+																		
 						ret = myInflate(&pszDecodedStream, &DecodedStreamSize, pszEncodedStream, pContent->LengthFromPdf);
 						if ( Z_OK != ret )
 						{
@@ -6131,7 +6372,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 							retValue = 0;
 							goto uscita;
 						}
-						pszDecodedStream[DecodedStreamSize] = '\0';
+						pszDecodedStream[DecodedStreamSize] = '\0';												
 						
 						ProgressiveDecodedStreamSize += DecodedStreamSize;
 																	
@@ -6156,14 +6397,14 @@ int ManageContent(Params *pParams, int nPageNumber)
 								retValue = 0;
 								goto uscita;
 							}
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+							//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 							else
 							{
 								wprintf(L"\nManageContent Y (PAGE %d) -> REALLOCATI CORRETTAMENTE %lu BYTES\n", nPageNumber,
 								       (pParams->myStreamsStack[pParams->nStreamsStackTop].DecodedStreamSize + DecodedStreamSize) * 8 + sizeof(unsigned char)
 								      );
 							}
-							#endif
+							//#endif
 							pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = pszDecodedStreamNew;
 						} 
 						
