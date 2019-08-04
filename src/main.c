@@ -1334,34 +1334,6 @@ int main(int argc, char **argv)
 	}
 				
 	wprintf(L"\n");
-	
-	/*
-	if ( myParams.szPath[0] != '0' )
-	{
-		int idxCazzo = 0;
-		int lung;
-		
-		lung = strnlen(myParams.szPath, MAX_LEN_STR);
-		if ( '/' == myParams.szPath[0] )
-		{
-			for ( idxCazzo = 0; idxCazzo < lung; idxCazzo++ )
-			{
-				myParams.szPath[idxCazzo] = myParams.szPath[idxCazzo + 1];
-			}
-		}
-		else
-		{
-			wprintf(L"\n\nECCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n\n", myParams.szPath);
-			retValue = EXIT_FAILURE;
-			goto uscita;			
-		}
-		
-		 
-		//wprintf(L"PATH = '%s'.\n", myParams.szPath);
-		//retValue = EXIT_FAILURE;
-		//goto uscita;
-	}	
-	*/
 			
 	Parse(&myParams, myFilesList, 0);
 				
