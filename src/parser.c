@@ -4407,7 +4407,7 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 				if ( !bPrintObjsAndExit )
 					wprintf(L"Obj[%d] = <%d %d> Offset: %d\n", x, pParams->myObjsTable[x]->Obj.Number, pParams->myObjsTable[x]->Obj.Generation, pParams->myObjsTable[x]->Offset);
 				if ( bPrintObjsAndExit && x > 0 )
-					PrintThisObject(pParams, x, 0, 0, NULL);
+					PrintThisObject(pParams, x, 0, 0, pParams->fpOutput);
 			}
 		}
 		if ( bPrintObjsAndExit )
@@ -5901,7 +5901,7 @@ uscita:
 	return retValue;
 }
 
-int ManageContent(Params *pParams, int nPageNumber)
+int ManageContent_NEW(Params *pParams, int nPageNumber)
 {
 	int retValue = 1;	
 	
@@ -6130,7 +6130,7 @@ uscita:
 	return retValue;
 }
 
-int ManageContent_OLD(Params *pParams, int nPageNumber)
+int ManageContent(Params *pParams, int nPageNumber)
 {
 	int retValue = 1;
 	
@@ -6259,19 +6259,7 @@ int ManageContent_OLD(Params *pParams, int nPageNumber)
 		fread(pszEncodedStream, 1, pContent->LengthFromPdf, pParams->fp);
 		
 		pszEncodedStream[pContent->LengthFromPdf] = '\0';
-		
-		
-						
-		wprintf(L"\n");
-		for ( unsigned long int q = 0; q < pContent->LengthFromPdf; q++ )
-		{
-			if ( '\0' == pszEncodedStream[q] )
-				wprintf(L"pszEncodedStream[%d] = '\\0' -> CARATTERE NULLO, ACCIDENTACCIO A ME MEDESIMO!!!\n", q);
-		}
-		wprintf(L"\n");
-						
-								
-							
+									
 		//retPeek = 0;
 		//bBreak = 0;
 		nNumFilter = 0;
@@ -6397,14 +6385,14 @@ int ManageContent_OLD(Params *pParams, int nPageNumber)
 								retValue = 0;
 								goto uscita;
 							}
-							//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 							else
 							{
 								wprintf(L"\nManageContent Y (PAGE %d) -> REALLOCATI CORRETTAMENTE %lu BYTES\n", nPageNumber,
 								       (pParams->myStreamsStack[pParams->nStreamsStackTop].DecodedStreamSize + DecodedStreamSize) * 8 + sizeof(unsigned char)
 								      );
 							}
-							//#endif
+							#endif
 							pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = pszDecodedStreamNew;
 						} 
 						
