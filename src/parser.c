@@ -5901,7 +5901,7 @@ uscita:
 	return retValue;
 }
 
-int ManageContent_NEW(Params *pParams, int nPageNumber)
+int ManageContent(Params *pParams, int nPageNumber)
 {
 	int retValue = 1;	
 	
@@ -5918,11 +5918,15 @@ int ManageContent_NEW(Params *pParams, int nPageNumber)
 	
 	unsigned char szTemp[4096];
 	
+	unsigned char *pszDecodedStreamNew = NULL;
+	
 	unsigned char *pszEncodedStream = NULL;
 	unsigned long int offsetEncodedStream = 0;
 	
 	unsigned char *pszDecodedStream = NULL;
 	unsigned long int offsetDecodedStream = 0;
+	
+	unsigned long int bytesAllocatedForDecodedStreamOnStack = 0;
 	
 	int nTemp;
 	
@@ -5955,8 +5959,15 @@ int ManageContent_NEW(Params *pParams, int nPageNumber)
 				
 	// PUSH BEGIN
 	pParams->nStreamsStackTop = 0;
-		
-	DecodedStreamSize = ( totalLengthFromPdf * sizeof(unsigned char) ) * 5 + sizeof(unsigned char);
+	
+	//wprintf(L"totalLengthFromPdf = %lu BYTE\n", totalLengthFromPdf);
+	
+	DecodedStreamSize = ( totalLengthFromPdf * sizeof(unsigned char) ) * 55 + sizeof(unsigned char);
+	
+	if ( DecodedStreamSize > 409600000 )
+		DecodedStreamSize = 409600000;
+	
+	//wprintf(L"DecodedStreamSize = %lu BYTE -> ( totalLengthFromPdf * sizeof(unsigned char) ) * 5 + sizeof(unsigned char)\n", DecodedStreamSize);
 		
 	pszEncodedStream = (unsigned char*)malloc( totalLengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char) );
 	if ( NULL == pszEncodedStream )
@@ -5965,7 +5976,8 @@ int ManageContent_NEW(Params *pParams, int nPageNumber)
 		fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile allocare %lu byte per leggere lo stream\n", totalLengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
 		retValue = 0;
 		goto uscita;
-	}			
+	}
+	//wprintf(L"ALLOCATI %lu BYTE PER pszEncodedStream\n", totalLengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
 	
 	pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
 	if ( NULL == pszDecodedStream )
@@ -5975,7 +5987,9 @@ int ManageContent_NEW(Params *pParams, int nPageNumber)
 		pParams->nStreamsStackTop--;
 		retValue = 0;
 		goto uscita;		
-	}	
+	}
+	//wprintf(L"ALLOCATI %lu BYTE PER pszDecodedStream\n", DecodedStreamSize);
+	
 		
 	pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
 	if ( NULL == pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream )
@@ -5985,7 +5999,10 @@ int ManageContent_NEW(Params *pParams, int nPageNumber)
 		pParams->nStreamsStackTop--;
 		retValue = 0;
 		goto uscita;		
-	}		
+	}	
+	//wprintf(L"ALLOCATI %lu BYTE PER pParams->myStreamsStack[%d].pszDecodedStream\n", DecodedStreamSize, pParams->nStreamsStackTop);
+	
+	bytesAllocatedForDecodedStreamOnStack = DecodedStreamSize;
 			
 	myContent.bExternalFile = 0;
 	myContent.LengthFromPdf = 0;
@@ -6049,6 +6066,37 @@ int ManageContent_NEW(Params *pParams, int nPageNumber)
 						goto uscita;
 					}
 					pszDecodedStream[DecodedStreamSize] = '\0';
+					
+					
+					//wprintf(L"COPIO %lu (<- DecodedStreamSize) BYTES SU pParams->myStreamsStack[%d].pszDecodedStream, ALL'OFFSET %lu (<- offsetDecodedStream)\n\n",
+					//		DecodedStreamSize,
+					//		pParams->nStreamsStackTop,
+					//		offsetDecodedStream);
+					
+					
+					if ( DecodedStreamSize > (bytesAllocatedForDecodedStreamOnStack - offsetDecodedStream) )
+					{
+						bytesAllocatedForDecodedStreamOnStack = DecodedStreamSize * 3;
+						
+						pszDecodedStreamNew = (unsigned char*)realloc(pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream, bytesAllocatedForDecodedStreamOnStack);
+						if ( NULL == pszDecodedStreamNew )
+						{
+							wprintf(L"ERRORE ManageContent: impossibile reallocare %lu byte per leggere lo stream\n", bytesAllocatedForDecodedStreamOnStack);
+								      
+							fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile reallocare %lu byte per leggere lo stream\n", bytesAllocatedForDecodedStreamOnStack);
+							      								      
+							retValue = 0;
+							goto uscita;
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+						else
+						{
+							wprintf(L"\nManageContent Y (PAGE %d) -> REALLOCATI CORRETTAMENTE %lu BYTES\n", nPageNumber, bytesAllocatedForDecodedStreamOnStack);
+						}
+						#endif
+
+						pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = pszDecodedStreamNew;						
+					}
 																
 					memcpy(pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream + offsetDecodedStream, pszDecodedStream, DecodedStreamSize);
 					offsetDecodedStream += DecodedStreamSize;
@@ -6130,7 +6178,7 @@ uscita:
 	return retValue;
 }
 
-int ManageContent(Params *pParams, int nPageNumber)
+int ManageContent_OLD(Params *pParams, int nPageNumber)
 {
 	int retValue = 1;
 	

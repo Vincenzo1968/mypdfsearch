@@ -1336,6 +1336,7 @@ int main(int argc, char **argv)
 	wprintf(L"\n");
 			
 	Parse(&myParams, myFilesList, 0);
+	//Parse(&myParams, myFilesList, 1);
 				
 uscita:
 	
