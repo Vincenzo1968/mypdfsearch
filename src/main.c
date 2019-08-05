@@ -1197,22 +1197,12 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 
 gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 gcc -Wall -W -pedantic -O3 myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
-
-./mypdfsearch --words="Virginia campidoglio Orbán" --path=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/File01
-
-./mypdfsearch --path=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/File01 --outputfile=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/FileNew/mypdfsearchOutput.txt
  
-./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia campidoglio Orbán"
-
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán Milano"
-
-./mypdfsearch --path="../Files/FileProblematico" --words="Virginia campidoglio Orbán"
- 
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/A2019/Q20190730/Corriere della Sera - 30 luglio 2019.pdf" --frompage=2 --topage=2
- 
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
- 
+  
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni" --words="Virginia branco Milano"
+  
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
  
 Per generare le dipendenze per il Makefile, usare -MM:
 gcc -MM -D_GNU_SOURCE myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz

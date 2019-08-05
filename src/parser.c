@@ -4235,6 +4235,8 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 	//pParams->pCurrentEncodingArray = &(pParams->aUtf8CharSet[0]);
 	pParams->pCurrentEncodingArray = &(pParams->aSTD_CharSet[0]);
 	//pParams->pCurrentEncodingArray = &(pParams->aWIN_CharSet[0]);
+	//pParams->pCurrentEncodingArray = &(pParams->aMAC_CharSet[0]);
+	//pParams->pCurrentEncodingArray = &(pParams->aPDF_CharSet[0]);
 	
 	InitializeCharSetArrays(pParams);
 	InitializeCharSetHashTable(pParams);	
@@ -4440,6 +4442,57 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 		}
 				
 successivo:
+
+//**********************************************************************************************************************************
+	if ( pParams->myObjsTable != NULL )
+	{
+		for ( x = 0; x < pParams->myPdfTrailer.Size; x++ )
+		{
+			if ( pParams->myObjsTable[x] != NULL )
+			{
+				myobjreflist_Free(&(pParams->myObjsTable[x]->myXObjRefList));
+				myobjreflist_Free(&(pParams->myObjsTable[x]->myFontsRefList));
+				free(pParams->myObjsTable[x]);
+				pParams->myObjsTable[x] = NULL;
+			}
+		}
+		
+		free(pParams->myObjsTable);
+		pParams->myObjsTable = NULL;
+	}
+		
+	if ( NULL != pParams->pPagesArray )
+	{
+		free(pParams->pPagesArray);
+		pParams->pPagesArray = NULL;
+	}
+			
+	if ( NULL != pParams->myTST.pRoot )
+	{
+		tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
+	}
+		
+	if ( NULL != pParams->pwszCurrentWord )
+	{
+		free(pParams->pwszCurrentWord);
+		pParams->pwszCurrentWord = NULL;
+	}
+	
+	if ( NULL != pParams->pwszPreviousWord )
+	{
+		free(pParams->pwszPreviousWord);
+		pParams->pwszPreviousWord = NULL;
+	}		
+	
+	if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
+	{
+		if ( NULL != pParams->myToken.Value.vString )
+		{
+			free(pParams->myToken.Value.vString);
+			pParams->myToken.Value.vString = NULL;
+		}
+	}
+//**********************************************************************************************************************************
 		
 		n = n->next;
 	}	
@@ -5184,7 +5237,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 											
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings)
 				//wprintf(L"\tSTRINGA: (%s) <-> UTF-8: (%ls)\n", pszString, (wchar_t*)(pParams->pUtf8String));
-				wprintf(L"%ls", (wchar_t*)(pParams->pUtf8String));
+				wprintf(L"STRING -> <%ls>", (wchar_t*)(pParams->pUtf8String));
 				#endif
 								
 				if ( pParams->szFilePdf[0] == '\0' )
@@ -5199,6 +5252,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						if ( c >= L'a' && c <= L'z' )
 						{
 							pParams->pwszCurrentWord[pParams->idxCurrentWordChar++] = c;
+							//wprintf(L"EQQUE QUA -> pParams->pwszCurrentWord[%d] = '%c'\n", pParams->idxCurrentWordChar - 1, pParams->pwszCurrentWord[pParams->idxCurrentWordChar - 1]);
 						}
 						else if ( L'-' == c )
 						{				
@@ -5360,13 +5414,18 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							//	InsertWordIntoTst(pParams);
 																										
 							InsertWordIntoTst(pParams);
+							//wprintf(L"INSERITA WORD GENERICA. CIAO\n");
 						}
 						
 						letterastrana:
 						c = (wchar_t)pParams->pUtf8String[x++];
 						
-						if ( L'\0' == c )
-							InsertWordIntoTst(pParams);
+						// ATTENZIONE!!! IL CODICE COMMENTATO SEGUENTE, È UN ROGNOSISSIMO BUG! NON DECOMMENTARE! NON CANCELLARE IL CODICE COMMENTATO: A FUTURA MEMORIA!!!
+						//if ( L'\0' == c )
+						//{
+						//	InsertWordIntoTst(pParams);
+						//	wprintf(L"INSERITA WORD DOPO LETTERA STRANA. CIAO\n");
+						//}
 					}					
 					// SPLIT WORDS FINE
 				}
@@ -5376,7 +5435,6 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						fwprintf(pParams->fpOutput, L"%ls", (wchar_t*)(pParams->pUtf8String));
 					else
 						wprintf(L"%ls", (wchar_t*)(pParams->pUtf8String));
-					//wprintf(L"%ls", (wchar_t*)(pParams->pUtf8String));
 				}
 			}						
 			else if ( T_INT_LITERAL == pParams->myToken.Type )
@@ -5388,16 +5446,22 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	
 				if ( bArrayState )
 				{
+					//wprintf(L"FONT SIZE = %d <> iLastNumber = %d\n", (int)dFontSize, iLastNumber);
 					//if ( iLastNumber < 0 )
 					if ( iLastNumber < -((int)dFontSize) )
 					{
+						//wprintf(L"ECCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -> FONT SIZE = %d <> iLastNumber = %d\n", (int)dFontSize, iLastNumber);
+						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings)
 						//wprintf(L" <SPAZIO INTEGER %d> ", iLastNumber);
 						wprintf(L" ");
 						#endif
 						if ( pParams->szFilePdf[0] == '\0' )
 						{
+							//wprintf(L"QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -> FONT SIZE = %d <> iLastNumber = %d\n", (int)dFontSize, iLastNumber);
+							
 							InsertWordIntoTst(pParams);
+							//wprintf(L"INSERITA WORD IN ARRAY STATE CASE INTEGER. CIAO\n");
 						}
 						else
 						{
@@ -5408,20 +5472,23 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							//wprintf(L" ");
 						}
 					}
-				}				
+				}
 			}
 			else if ( T_REAL_LITERAL == pParams->myToken.Type )
 			{
 				bLastNumberIsReal = 1;
 				
 				iLastNumber = 0;
-				dLastNumber = pParams->myToken.Value.vDouble;				
+				dLastNumber = pParams->myToken.Value.vDouble;
 				
 				if ( bArrayState )
 				{
+					//wprintf(L"FONT SIZE = %f <> dLastNumber = %d\n", dFontSize, dLastNumber);
 					//if ( dLastNumber < 0.0 )
 					if ( dLastNumber < -dFontSize )
 					{
+						//wprintf(L"ECCOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO -> FONT SIZE = %f <> dLastNumber = %f\n", dFontSize, dLastNumber);
+						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings)
 						//wprintf(L" <SPAZIO REAL %f> ", dLastNumber);
 						wprintf(L" ");
@@ -5429,7 +5496,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						
 						if ( pParams->szFilePdf[0] == '\0' )
 						{
+							//wprintf(L"QUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA -> FONT SIZE = %f <> iLastNumber = %f\n", dFontSize, dLastNumber);
+							
 							InsertWordIntoTst(pParams);
+							//wprintf(L"INSERITA WORD IN ARRAY STATE CASE REAL. CIAO\n");
 						}
 						else
 						{
@@ -5560,6 +5630,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				if ( pParams->szFilePdf[0] == '\0' )
 				{
 					InsertWordIntoTst(pParams);
+					//wprintf(L"INSERITA WORD DOPO ANDATINA A CAPO. CIAO\n");
 				}
 				else
 				{
@@ -7042,9 +7113,12 @@ int ParseObject(Params *pParams, int objNum)
 	for ( nInt = nFromPage; nInt <= nToPage; nInt++ )
 	{		
 		pParams->nCurrentPageNum = nInt;
-		
-		pParams->pCurrentEncodingArray = &(pParams->aSTD_CharSet[0]);
+				
 		//pParams->pCurrentEncodingArray = &(pParams->aUtf8CharSet[0]);
+		pParams->pCurrentEncodingArray = &(pParams->aSTD_CharSet[0]);
+		//pParams->pCurrentEncodingArray = &(pParams->aWIN_CharSet[0]);
+		//pParams->pCurrentEncodingArray = &(pParams->aMAC_CharSet[0]);
+		//pParams->pCurrentEncodingArray = &(pParams->aPDF_CharSet[0]);		
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)		
 		wprintf(L"PAGINA %d -> Obj Number = %d\n", nInt, pParams->pPagesArray[nInt].numObjNumber);
@@ -7130,6 +7204,7 @@ int ParseObject(Params *pParams, int objNum)
 		scopeFree(&(pParams->pPagesArray[nInt].myScopeHT_XObjRef));
 		scopeFree(&(pParams->pPagesArray[nInt].myScopeHT_FontsRef));
 	
+		/*
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_TST)
 			wprintf(L"\nTERNARY SEARCH TREE (Page %d) -> TRAVERSE START\n", nInt);
 			count = tstTraverseRecursive(pParams->myTST.pRoot, OnTraverseTST, 0);
@@ -7137,6 +7212,7 @@ int ParseObject(Params *pParams, int objNum)
 			wprintf(L"\nTERNARY SEARCH TREE (Page %d) -> TRAVERSE END\n", nInt);
 			wprintf(L"TERNARY SEARCH TREE (Page %d) -> TRAVERSE COUNT = %u\n", nInt, count);
 		#endif
+		*/
 		
 		for ( idxWord = 0; idxWord < pParams->countWordsToSearch; idxWord++ )
 		{
