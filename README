@@ -1,7 +1,7 @@
 # mypdfsearch
 Searching program for words(or extracting text) from the pages of a pdf file.
 
-mypdfsearch version 1.0.0
+mypdfsearch version 1.0.1
 
 Usage:
 	

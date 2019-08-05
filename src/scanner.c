@@ -28,6 +28,558 @@
 #include "myoctal.h"
 #include "scanner.h"
 
+void PrintTokenTrailer(Token *pToken, char cCarattereIniziale, char cCarattereFinale, int bPrintACapo)
+{
+	if ( cCarattereIniziale != '\0' )
+		wprintf(L"%c", cCarattereIniziale);
+	
+	switch ( pToken->Type )
+	{
+		case T_NAME:
+			wprintf(L"T_NAME = '%s'", pToken->Value.vString);
+			break;
+		case T_STRING:
+			wprintf(L"T_STRING = '%s'", pToken->Value.vString);
+			break;
+		case T_STRING_LITERAL:
+			wprintf(L"T_STRING_LITERAL = '%s'", pToken->Value.vString);
+			break;
+		case T_STRING_HEXADECIMAL:
+			wprintf(L"T_STRING_HEXADECIMAL = '%s'", pToken->Value.vString);
+			break;
+		case T_INT_LITERAL:
+			wprintf(L"T_INT_LITERAL = %d", pToken->Value.vInt);			
+			break;
+		case T_REAL_LITERAL:
+			wprintf(L"T_REAL_LITERAL = %f", pToken->Value.vDouble);
+			break;
+		case T_KW_NULL:
+			wprintf(L"T_KW_NULL");
+			break;
+		case T_KW_TRUE:
+			wprintf(L"T_KW_TRUE");
+			break;
+		case T_KW_FALSE:
+			wprintf(L"T_KW_FALSE");
+			break;			
+		case T_ERROR:
+			wprintf(L"T_ERROR");
+			break;
+		case T_UNKNOWN:
+			wprintf(L"T_UNKNOWN");
+			break;
+		case T_EOF:
+			wprintf(L"T_EOF");
+			break;
+		case T_OPAREN:		// '('
+			wprintf(L"T_OPAREN = '('");
+			break;
+		case T_CPAREN:		// ')'
+			wprintf(L"T_CPAREN = ')'");
+			break;
+		case T_QOPAREN:		// '['
+			wprintf(L"T_QOPAREN ");
+			break;
+		case T_QCPAREN:		// ']'
+			wprintf(L"T_QCPAREN ");
+			break;
+		case T_DICT_BEGIN:   // "<<"
+			wprintf(L"T_DICT_BEGIN = '<<'");
+			break;
+		case T_DICT_END:     // ">>"
+			wprintf(L"T_DICT_END = '>>'");
+			break;
+		case T_KW_OBJ:
+			wprintf(L"T_KW_OBJ");
+			break;
+		case T_KW_ENDOBJ:
+			wprintf(L"T_KW_ENDOBJ");
+			break;
+		case T_KW_STREAM:
+			wprintf(L"T_KW_STREAM");
+			break;
+		case T_KW_ENDSTREAM:
+			wprintf(L"T_KW_ENDSTREAM");
+			break;
+		case T_KW_R:
+			wprintf(L"T_KW_R");
+			break;
+		case T_CONTENT_LQUOTE:   // "<"
+			wprintf(L"T_CONTENT_LQUOTE = '<'");
+			break;
+		case T_CONTENT_RQUOTE:   // ">"
+			wprintf(L"T_CONTENT_RQUOTE = '>'");
+			break;
+		case T_CONTENT_Do_COMMAND:
+			wprintf(L"T_CONTENT_Do_COMMAND = 'Do'");
+			break;
+		case T_CONTENT_KW_BT:
+			wprintf(L"T_CONTENT_KW_BT = 'BT -> Begin Text'");
+			break;
+		case T_CONTENT_KW_ET:
+			wprintf(L"T_CONTENT_KW_ET = 'ET -> End Text'");
+			break;
+		case T_CONTENT_OP_TD:
+			wprintf(L"T_CONTENT_OP_TD = 'TD'");
+			break;
+		case T_CONTENT_OP_Td:
+			wprintf(L"T_CONTENT_OP_Td = 'Td'");
+			break;
+		case T_CONTENT_OP_Tm:
+			wprintf(L"T_CONTENT_OP_Tm = 'Tm'");
+			break;
+		case T_CONTENT_OP_TASTERISCO:
+			wprintf(L"T_CONTENT_OP_TASTERISCO = 'T*'");
+			break;
+		case T_CONTENT_OP_TJ:
+			wprintf(L"T_CONTENT_OP_TJ = 'TJ'");
+			break;
+		case T_CONTENT_OP_Tj:
+			wprintf(L"T_CONTENT_OP_Tj = 'Tj'");
+			break;
+		case T_CONTENT_OP_SINGLEQUOTE:
+			wprintf(L"T_CONTENT_OP_SINGLEQUOTE = '");
+			break;
+		case T_CONTENT_OP_DOUBLEQUOTE:
+			wprintf(L"T_CONTENT_OP_DOUBLEQUOTE = '\"'");
+			break;			
+		default:
+			wprintf(L"TOKEN n° -> %d", pToken->Type);
+			break;
+	}
+	
+	if ( cCarattereFinale != '\0' )
+		wprintf(L"%c", cCarattereFinale);	
+	
+	if ( bPrintACapo )
+		wprintf(L"\n");
+}
+
+int matchTrailer(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunctionName)
+{
+	int retValue = 1;
+	
+	if ( pParams->myToken.Type == ExpectedToken )
+	{
+		GetNextToken(pParams);
+	}
+	else
+	{
+		retValue = 0;
+		
+		if ( NULL != pszFunctionName )
+			fwprintf(pParams->fpErrors, L"\nFUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pszFunctionName, ExpectedToken, pParams->myToken.Type);
+			//wprintf(L"\nFUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pszFunctionName, ExpectedToken, pParams->myToken.Type);
+		else
+			fwprintf(pParams->fpErrors, L"\nFUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", ExpectedToken, pParams->myToken.Type);			
+			//wprintf(L"\nFUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", ExpectedToken, pParams->myToken.Type);			
+	}
+	
+#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_MATCH)
+
+	if ( 0 == retValue )
+		wprintf(L"Token atteso : ");
+
+	wprintf(L"MATCH ");
+	switch ( ExpectedToken )
+	{
+		case T_ERROR:
+			wprintf(L"T_ERROR");
+			break;
+		case T_UNKNOWN:
+			wprintf(L"T_UNKNOWN");
+			break;
+		case  T_EOF:
+			wprintf(L"T_EOF");
+			break;
+		case T_STRING:
+			wprintf(L"T_STRING");
+			break;
+		case T_STRING_LITERAL:
+			wprintf(L"T_STRING_LITERAL");
+			break;
+		case T_STRING_HEXADECIMAL:
+			wprintf(L"T_STRING_HEXADECIMAL");
+			break;
+		case T_NAME:
+			wprintf(L"T_NAME");
+			break;
+		case T_INT_LITERAL:
+			wprintf(L"T_INT_LITERAL");
+			break;
+		case T_REAL_LITERAL:
+			wprintf(L"T_REAL_LITERAL");
+			break;
+		case T_OPAREN:		// '('
+			wprintf(L"T_OPAREN");
+			break;
+		case T_CPAREN:		// ')'
+			wprintf(L"T_CPAREN");
+			break;
+		case T_QOPAREN:		// '['
+			wprintf(L"T_QOPAREN");
+			break;
+		case T_QCPAREN:		// ']'
+			wprintf(L"T_QCPAREN");
+			break;
+		case T_DICT_BEGIN:   // "<<"
+			wprintf(L"T_DICT_BEGIN");
+			break;
+		case T_DICT_END:     // ">>"
+			wprintf(L"T_DICT_END");
+			break;
+		case T_KW_NULL:
+			wprintf(L"T_KW_NULL");
+			break;
+		case T_KW_OBJ:
+			wprintf(L"T_KW_OBJ");
+			break;
+		case T_KW_ENDOBJ:
+			wprintf(L"T_KW_ENDOBJ");
+			break;
+		case T_KW_STREAM:
+			wprintf(L"T_KW_STREAM");
+			break;
+		case T_KW_ENDSTREAM:
+			wprintf(L"T_KW_ENDSTREAM");
+			break;
+		case T_KW_FALSE:
+			wprintf(L"T_KW_FALSE");
+			break;
+		case T_KW_TRUE:
+			wprintf(L"T_KW_TRUE");
+			break;
+		case T_KW_R:
+			wprintf(L"T_KW_R");
+			break;
+		default:
+			break;
+	}
+	
+	if ( 0 == retValue )
+		wprintf(L" <> Token trovato : ");
+	
+	PrintTokenTrailer(&(pParams->myToken), '\n', '\n', 1);
+
+#endif
+
+	return retValue;
+}
+
+// trailerbody      : T_DICT_BEGIN traileritems T_DICT_END;
+int trailerbody(Params *pParams)
+{	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
+	PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+	#endif
+		
+	if ( !matchTrailer(pParams, T_DICT_BEGIN, "trailerbody") )
+	{
+		mynumstacklist_Free( &(pParams->myNumStack) );
+		
+		wprintf(L"\nBLOCCO ERRATO INIZIO\n");
+		for (int k = 0; k < pParams->blockLen; k++ )
+		{
+			wprintf(L"%c", pParams->myBlock[k]);
+		}
+		wprintf(L"\nBLOCCO ERRATO FINE\n");
+		
+		return 0;
+	}
+	
+	wprintf(L"\nBLOCCO CORRETTO INIZIO\n");
+	for (int k = 0; k < pParams->blockLen; k++ )
+	{
+		wprintf(L"%c", pParams->myBlock[k]);
+	}
+	wprintf(L"\nBLOCCO CORRETTO FINE\n");
+	
+		
+	if ( !traileritems(pParams) )
+	{
+		mynumstacklist_Free( &(pParams->myNumStack) );
+		return 0;
+	}
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)	
+	PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+	#endif
+			
+	if ( !matchTrailer(pParams, T_DICT_END, "trailerbody") )
+	{
+		mynumstacklist_Free( &(pParams->myNumStack) );
+		return 0;
+	}
+		
+	if ( pParams->myPdfTrailer.Size <= 0 )
+	{
+		//wprintf(L"Errore parsing trailerbody: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
+		fwprintf(pParams->fpErrors, L"Error parsing trailerbody: trailer Size value must be > 0 %d\n", pParams->myToken.Type);
+		return 0;		
+	}
+	
+	if ( pParams->myPdfTrailer.Root.Number <= 0 )
+	{
+		mynumstacklist_Free( &(pParams->myNumStack) );
+		//wprintf(L"Errore parsing trailerbody: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
+		fwprintf(pParams->fpErrors, L"Error parsing trailerbody: trailer Root value must be > 0 %d\n", pParams->myToken.Type);
+		return 0;		
+	}
+	
+	return 1;
+}
+
+// traileritems     : {T_NAME trailerobj};
+int traileritems(Params *pParams)
+{		
+	while ( pParams->myToken.Type == T_NAME )
+	{
+		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, 4096 - 1);
+		
+		if ( strncmp(pParams->szCurrKeyName, "Encrypt", 4096) == 0  )
+		{
+			pParams->isEncrypted = 1;
+		}
+				
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)		
+		PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+		#endif		
+		
+		GetNextToken(pParams);
+		
+		if ( !trailerobj(pParams) )
+			return 0;
+	}
+	
+	return 1;
+}
+
+/*
+trailerobj : T_NAME
+            | T_INT_LITERAL [ T_INT_LITERAL T_KW_R ]
+            | T_STRING_LITERAL
+            | T_STRING_HEXADECIMAL
+            | T_KW_TRUE
+            | T_KW_FALSE
+            | T_QOPAREN trailerarrayobjs T_QCPAREN
+            | T_DICT_BEGIN trailerdictobjs T_DICT_END
+            ; 
+*/
+int trailerobj(Params *pParams)
+{
+	double dNum;
+	int iNum = -1;
+	int iGen = -1;
+	
+	switch ( pParams->myToken.Type )
+	{
+		case T_NAME:							
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)		
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif
+			
+			GetNextToken(pParams);
+			
+			break;
+		case T_INT_LITERAL:
+			mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)		
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif		
+	
+			GetNextToken(pParams);
+			
+			if ( pParams->myToken.Type == T_INT_LITERAL )
+			{
+				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+				
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)	
+				PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+				#endif				
+				
+				GetNextToken(pParams);
+				
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)	
+				PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+				#endif
+								
+				if ( !matchTrailer(pParams, T_KW_R, "trailerobj") )
+				{
+					//wprintf(L"Errore parsing trailerobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
+					fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
+					return 0;
+				}
+				
+				mynumstacklist_Pop(&(pParams->myNumStack), &dNum);
+				iGen = (int)dNum;
+				mynumstacklist_Pop(&(pParams->myNumStack), &dNum);
+				iNum = (int)dNum;
+				
+				//wprintf(L"trailerobj OBJECT REFERENCE -> %d %d R\n", iNum, iGen);
+									
+				if ( strncmp(pParams->szCurrKeyName, "Root", 4096) == 0  )
+				{
+					if ( iGen < 0 )
+					{
+						//wprintf(L"Errore parsing trailerobj: Root value shall not be an indirect reference");
+						fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Root value shall be an indirect reference\n");
+						return 0;
+					}
+										
+					pParams->myPdfTrailer.Root.Number = iNum;
+					pParams->myPdfTrailer.Root.Generation = iGen;
+				}
+				else if ( strncmp(pParams->szCurrKeyName, "Size", 4096) == 0  )
+				{
+					if ( iGen < 0 )
+					{
+						//wprintf(L"Errore parsing trailerobj: Size value shall not be an indirect reference");
+						fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Size value shall be an indirect reference\n");
+						return 0;
+					}										
+				}				
+			}
+			else
+			{				
+				mynumstacklist_Pop(&(pParams->myNumStack), &dNum);
+				iNum = (int)dNum;
+			
+				if ( strncmp(pParams->szCurrKeyName, "Size", 4096) == 0 )
+				{
+					pParams->myPdfTrailer.Size = iNum;
+				}	
+				else if ( strncmp(pParams->szCurrKeyName, "Prev", 4096) == 0  )
+				{
+					if ( iGen < 0 )
+					{
+						//wprintf(L"Errore parsing trailerobj: Prev value shall not be an indirect reference");
+						fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Prev value shall be an indirect reference\n");
+						return 0;
+					}
+										
+					pParams->myPdfTrailer.Prev = iNum;					
+				}						
+			}
+			break;
+		case T_STRING_LITERAL:
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)	
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif		
+			GetNextToken(pParams);
+			break;
+		case T_STRING_HEXADECIMAL:
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)	
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif		
+			GetNextToken(pParams);
+			break;
+		case T_KW_TRUE:
+		case T_KW_FALSE:
+			// IGNORIAMO
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif			
+			GetNextToken(pParams);
+			break;			
+		case T_QOPAREN:
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif	
+			
+			pParams->countArrayScope = 1;	
+			
+			GetNextToken(pParams);
+			
+			if ( !trailerarrayobjs(pParams) )
+				return 0;
+				
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)	
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif				
+			
+			if ( !matchTrailer(pParams, T_QCPAREN, "trailerobj") )
+				return 0;
+				
+			pParams->countArrayScope = 0;
+			break;
+		case T_DICT_BEGIN:
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif	
+				
+			GetNextToken(pParams);
+			
+			if ( !trailerdictobjs(pParams) )
+				return 0;
+				
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
+			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+			#endif				
+			
+			if ( !matchTrailer(pParams, T_DICT_END, "trailerobj") )
+				return 0;
+			break;
+		default:
+			//wprintf(L"Errore parsing trailerobj: token non valido: %d\n", pParams->myToken.Type);
+			fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: token non valido: %d\n", pParams->myToken.Type);
+			PrintTokenTrailer(&(pParams->myToken), '\0', ' ', 1);
+			return 0;
+			break;
+	}
+	
+	return 1;
+}
+
+// trailerarrayobjs : {T_INT_LITERAL T_INT_LITERAL T_KW_R};
+int trailerarrayobjs(Params *pParams)
+{
+	do
+	{
+		if ( pParams->myToken.Type == T_QCPAREN )
+			pParams->countArrayScope--;
+		else if ( pParams->myToken.Type == T_QOPAREN )
+			pParams->countArrayScope++;
+													
+		if ( pParams->myToken.Type == T_ERROR || pParams->myToken.Type == T_EOF )
+		{
+			//wprintf(L"Errore parsing trailerarrayobjs: token non valido: %d\n", pParams->myToken.Type);
+			fwprintf(pParams->fpErrors, L"Errore parsing trailerarrayobjs: token non valido: %d\n", pParams->myToken.Type);
+			PrintTokenTrailer(&(pParams->myToken), '\0', ' ', 1);
+			return 0;
+		}
+			
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
+		PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+		#endif	
+			
+		GetNextToken(pParams);
+					
+	} while ( pParams->myToken.Type != T_QCPAREN || pParams->countArrayScope > 1 );
+	
+	return 1;
+}
+
+// trailerdictobjs  : {T_NAME trailerobj};
+int trailerdictobjs(Params *pParams)
+{	
+	while ( T_NAME == pParams->myToken.Type )
+	{		
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
+		PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
+		#endif
+
+		GetNextToken(pParams);
+				
+		if ( !trailerobj(pParams) )
+			return 0;
+	}
+			
+	return 1;
+}
+
+// ************************************************************************************************************************************
+
 int ReadTrailerBody(Params *pParams, unsigned char *szInput, int index)
 {
 	unsigned char c;
@@ -46,12 +598,21 @@ int ReadTrailerBody(Params *pParams, unsigned char *szInput, int index)
 	pParams->myPdfTrailer.Prev = 0;
 	
 	if ( c != '<' )
+	{
+		
+		//wprintf(L"Errore ReadTrailerBody 1: atteso '<' trovato '%c'\n", c);
+		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 1: atteso '<' trovato '%c'\n", c);		
 		return 0;			
+	}
 		
 	c = szInput[index++];		
 	
 	if ( c != '<' )
+	{	
+		//wprintf(L"Errore ReadTrailerBody 2: atteso '<' trovato '%c'\n", c);
+		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 2: atteso '<' trovato '%c'\n", c);		
 		return 0;			
+	}		
 
 ciclo1:
 
@@ -66,7 +627,11 @@ ciclo2:
 		goto ciclo3;
 	
 	if ( c != '/' )
-		return 0;
+	{	
+		//wprintf(L"Errore ReadTrailerBody 3: atteso '/' trovato '%c'\n", c);
+		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 3: atteso '/' trovato '%c'\n", c);		
+		return 0;			
+	}
 				
 	c = szInput[index++];
 	switch ( c )
@@ -74,56 +639,203 @@ ciclo2:
 		case 'S':
 			c = szInput[index++];
 			if ( c != 'i' )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+			
 			c = szInput[index++];
 			if ( c != 'z' )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}	
+						
 			c = szInput[index++];
 			if ( c != 'e' )
-				return 0;	
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			c = szInput[index++];
 			if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+				
 			myState = S_Size;
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 			wprintf(L"/Size OK\n");
 			#endif
+			
 			break;
 		case 'P':
 			c = szInput[index++];			
 			if ( c != 'r' )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}	
+						
 			c = szInput[index++];
 			if ( c != 'e' )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			c = szInput[index++];
 			if ( c != 'v' )
-				return 0;	
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			c = szInput[index++];
 			if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			myState = S_Prev;
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 			wprintf(L"/Prev OK\n");
 			#endif
+			
 			break;
 		case 'R':
 			c = szInput[index++];
 			if ( c != 'o' )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			c = szInput[index++];
 			if ( c != 'o' )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			c = szInput[index++];
 			if ( c != 't' )
-				return 0;	
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			c = szInput[index++];
 			if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-				return 0;
+			{
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
+			}
+							
 			myState = S_Root;
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 			wprintf(L"/Root OK\n");
 			#endif
+			
 			break;
 		case 'I':
 			c = szInput[index++];
@@ -135,27 +847,83 @@ ciclo2:
 				#endif
 				c = szInput[index++];
 				if ( (c != '[' && c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-					return 0;								
+				{
+					while ( c != '/' )
+					{
+						c = szInput[index++];
+						if ( c == '>' )
+						{
+							c = szInput[index++];
+							goto ciclo4;
+						}
+					}
+					goto ciclo2;
+				}
 			}
 			else if ( c == 'n' )
 			{
 				c = szInput[index++];
 				if ( c != 'f' )
-					return 0;
+				{
+					while ( c != '/' )
+					{
+						c = szInput[index++];
+						if ( c == '>' )
+						{
+							c = szInput[index++];
+							goto ciclo4;
+						}
+					}
+					goto ciclo2;
+				}
+
 				c = szInput[index++];
 				if ( c != 'o' )
-					return 0;
+				{
+					while ( c != '/' )
+					{
+						c = szInput[index++];
+						if ( c == '>' )
+						{
+							c = szInput[index++];
+							goto ciclo4;
+						}
+					}
+					goto ciclo2;
+				}
+					
 				myState = S_Info;
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 				wprintf(L"/Info OK\n");
 				#endif
+				
 				c = szInput[index++];
 				if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-					return 0;				
+				{
+					while ( c != '/' )
+					{
+						c = szInput[index++];
+						if ( c == '>' )
+						{
+							c = szInput[index++];
+							goto ciclo4;
+						}
+					}
+					goto ciclo2;
+				}			
 			}
 			else
 			{
-				return 0;
+				while ( c != '/' )
+				{
+					c = szInput[index++];
+					if ( c == '>' )
+					{
+						c = szInput[index++];
+						goto ciclo4;
+					}
+				}
+				goto ciclo2;
 			}
 			break;			
 		case 'E':
@@ -163,7 +931,17 @@ ciclo2:
 			return 0;
 			break;						
 		default:
-			return 0;
+			while ( c != '/' )
+			{
+				c = szInput[index++];
+				if ( c == '>' )
+				{
+					c = szInput[index++];
+					goto ciclo4;
+				}
+			}
+			goto ciclo2;
+			break;
 	}
 	
 	
@@ -172,8 +950,13 @@ ciclo2:
 	{
 		c = szInput[index++];
 	}
+	
 	if ( c == '\0' )
-		return 0;
+	{	
+		//wprintf(L"Errore ReadTrailerBody 4: atteso '<' trovato '%c'\n", c);
+		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 4: atteso '<' trovato carattere NULLL -> '\\0'\n");
+		return 0;			
+	}
 	
 	switch ( myState )
 	{
@@ -184,8 +967,14 @@ ciclo2:
 				szTemp[x++] = c;
 				c = szInput[index++];
 			}
+			
 			if ( x <= 0 || x >= 1024 )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 5\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 5\n");
+				return 0;			
+			}
+			
 			szTemp[x] = '\0';
 			if ( pParams->myPdfTrailer.Size <= 0 )
 				pParams->myPdfTrailer.Size = atoi(szTemp);
@@ -198,8 +987,14 @@ ciclo2:
 				szTemp[x++] = c;
 				c = szInput[index++];
 			}
+			
 			if ( x <= 0 || x >= 1024 )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 6\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 5\n");
+				return 0;			
+			}
+				
 			szTemp[x] = '\0';
 			pParams->myPdfTrailer.Prev = atoi(szTemp);
 			break;
@@ -210,21 +1005,37 @@ ciclo2:
 				szTemp[x++] = c;
 				c = szInput[index++];
 			}
+			
 			if ( x <= 0 || x >= 1024 )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 7\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 7\n");
+				return 0;			
+			}
+				
 			szTemp[x] = '\0';
 			if ( pParams->myPdfTrailer.Root.Number <= 0 )
 				pParams->myPdfTrailer.Root.Number = atoi(szTemp);
 			
 			if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-				return 0;				
+			{	
+				//wprintf(L"Errore ReadTrailerBody 8: atteso spazio trovato '%c'\n", c);
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 8: atteso spazio trovato '%c'\n", c);
+				return 0;			
+			}	
+							
 			c = szInput[index++];
 			while ( (c == '\n' || c == '\r' || c == '\t' || c == ' ' || c == '\f' || c == '\b') )
 			{
 				c = szInput[index++];
 			}
+			
 			if ( c == '\0' )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 9\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 9\n");
+				return 0;			
+			}
 				
 			x = 0;			
 			while ( c >= '0' && c <= '9' && x < 1024 )
@@ -232,24 +1043,45 @@ ciclo2:
 				szTemp[x++] = c;
 				c = szInput[index++];
 			}
+			
 			if ( x <= 0 || x >= 1024 )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 10\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 10\n");
+				return 0;			
+			}
+				
 			szTemp[x] = '\0';
 			if ( pParams->myPdfTrailer.Root.Number <= 0 )
 				pParams->myPdfTrailer.Root.Generation = atoi(szTemp);
 			
 			if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-				return 0;				
+			{	
+				//wprintf(L"Errore ReadTrailerBody 11: atteso spazio trovato '%c'\n", c);
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 11: atteso spazio trovato '%c'\n", c);
+				return 0;			
+			}
+				
 			c = szInput[index++];
 			while ( (c == '\n' || c == '\r' || c == '\t' || c == ' ' || c == '\f' || c == '\b') )
 			{
 				c = szInput[index++];
 			}
+			
 			if ( c != 'R' )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 12\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 12\n");
+				return 0;			
+			}
+				
 			c = szInput[index++];
 			if ( (c != '/' && c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 13: atteso spazio trovato '%c'\n", c);
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 13: atteso '/' o spazio, trovato '%c'\n", c);
+				return 0;			
+			}
 						
 			bRootYes = 1;
 			break;
@@ -258,8 +1090,14 @@ ciclo2:
 			{
 				c = szInput[index++];
 			}
+			
 			if ( c == '\0' )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 14\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 14\n");
+				return 0;			
+			}
+				
 			c = szInput[index++];
 			break;		
 		case S_Info:		
@@ -267,11 +1105,27 @@ ciclo2:
 			{
 				c = szInput[index++];
 			}
+			
 			if ( c == '\0' )
-				return 0;
+			{	
+				//wprintf(L"Errore ReadTrailerBody 15\n");
+				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 15\n");
+				return 0;			
+			}
+				
 			break;
 		default:
-			return 0;
+			while ( c != '/' )
+			{
+				c = szInput[index++];
+				if ( c == '>' )
+				{
+					c = szInput[index++];
+					goto ciclo4;
+				}
+			}
+			goto ciclo2;
+			break;
 	}
 			
 	if ( c == '/' )
@@ -285,7 +1139,32 @@ ciclo3:
 
 	c = szInput[index++];
 	if ( c != '>' )
-		return 0;
+	{	
+		int ktemp;
+		//wprintf(L"Errore ReadTrailerBody 16: atteso '>' trovato '%c'\n", c);
+		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 16: atteso '>', trovato '%c'\n", c);
+		
+		wprintf(L"INIZIO BLOCCO ERRATO>\n");
+		ktemp = 0;
+		c = szInput[ktemp];
+		while ( c != '\0' )
+		{
+			wprintf(L"%c", c);
+			
+			if ( ktemp == index - 1 )
+			{
+				wprintf(L"#>ERRORE QUI<#");
+			}
+			
+			c = szInput[ktemp];
+			ktemp++;
+			
+		}
+		wprintf(L"<FINE BLOCCO ERRATO\n");
+		return 0;			
+	}
+	
+ciclo4:	
 		
 	if ( !bSizeYes )
 	{
@@ -474,6 +1353,22 @@ int ReadLastTrailer(Params *pParams, unsigned char *szInput)
 	if ( (c != '\n' && c != '\r' && c != '\t' && c != ' ' && c != '\f' && c != '\b' && c != '<') )
 		return 0;
 						
+	strncpy((char*)pParams->myBlock, (char*)&(szInput[index]), BLOCK_SIZE);
+	pParams->blockCurPos = 0;
+	pParams->blockLen = strnlen((char*)pParams->myBlock, 4096);
+	
+	
+	//wprintf(L"\n************************************* BLOCCO INIZIO ***************************************\n");
+	//for (int k = 0; k < pParams->blockLen; k++ )
+	//{
+	//	wprintf(L"%c", pParams->myBlock[k]);
+	//}
+	//wprintf(L"\n************************************* BLOCCO FINE *****************************************\n");	
+	
+	GetNextToken(pParams);
+	
+	
+	//if ( !trailerbody(pParams) )
 	if ( !ReadTrailerBody(pParams, szInput, index) )
 		return 0;
 			

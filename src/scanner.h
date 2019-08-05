@@ -358,6 +358,15 @@ typedef enum tagStates
 
 /* ------------------------------------------------------------------------------------------------------------- */
 
+void PrintTokenTrailer(Token *pToken, char cCarattereIniziale, char cCarattereFinale, int bPrintACapo);
+int matchTrailer(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunctionName);
+
+int trailerbody(Params *pParams);
+int traileritems(Params *pParams);
+int trailerobj(Params *pParams);
+int trailerarrayobjs(Params *pParams);
+int trailerdictobjs(Params *pParams);
+
 int ReadTrailerBody(Params *pParams, unsigned char *szInput, int index);
 int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int numObjs, int *index);
 int ReadLastTrailer(Params *pParams, unsigned char *szInput);

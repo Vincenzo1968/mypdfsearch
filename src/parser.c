@@ -4385,6 +4385,15 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 			goto successivo;
 		}
 		
+		pParams->myPdfTrailer.Size = 0;
+		pParams->myPdfTrailer.Prev = 0;
+		pParams->myPdfTrailer.Root.Number = 0;
+		pParams->myPdfTrailer.Root.Generation = 0;
+	
+		pParams->isEncrypted = 0;
+	
+		mynumstacklist_Init( &(pParams->myNumStack) );		
+		
 		if ( !ReadTrailer(pParams) )
 		{
 			if ( pParams->isEncrypted )
@@ -4394,8 +4403,11 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 				//wprintf(L"ERRORE Parse 6 nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
 				fwprintf(pParams->fpErrors, L"ERRORE Parse 6 nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
 			retValue = 0;
+			mynumstacklist_Free( &(pParams->myNumStack) );
 			goto successivo;
 		}
+		
+		mynumstacklist_Free( &(pParams->myNumStack) );
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)		
 		wprintf(L"ReadTrailer OK!!!\n");
@@ -4412,12 +4424,12 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 		}
 		if ( bPrintObjsAndExit )
 			goto uscita;
-		
+					
 		wprintf(L"Trailer Size: %d\n", pParams->myPdfTrailer.Size);
 		wprintf(L"Trailer Root: %d %d\n", pParams->myPdfTrailer.Root.Number, pParams->myPdfTrailer.Root.Generation);
 		wprintf(L"Trailer Prev: %d\n\n", pParams->myPdfTrailer.Prev);
 		#endif
-		
+				
 		pParams->blockLen = fread(pParams->myBlock, 1, BLOCK_SIZE, pParams->fp);
 		pParams->blockCurPos = 0;
 				
@@ -4428,59 +4440,6 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 		}
 				
 successivo:
-
-		/*
-		if ( pParams->myObjsTable != NULL )
-		{
-			for ( x = 0; x < pParams->myPdfTrailer.Size; x++ )
-			{
-				if ( pParams->myObjsTable[x] != NULL )
-				{
-					myobjreflist_Free(&(pParams->myObjsTable[x]->myXObjRefList));
-					myobjreflist_Free(&(pParams->myObjsTable[x]->myFontsRefList));
-										
-					free(pParams->myObjsTable[x]);
-					
-					pParams->myObjsTable[x] = NULL;
-				}
-			}
-		
-			free(pParams->myObjsTable);
-			pParams->myObjsTable = NULL;
-		}
-				
-		if ( NULL != pParams->pPagesArray )
-		{
-			free(pParams->pPagesArray);
-			pParams->pPagesArray = NULL;
-		}
-			
-		if ( NULL != pParams->myTST.pRoot )
-		{
-			tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
-		}
-		
-		if ( NULL != pParams->pwszCurrentWord )
-		{
-			free(pParams->pwszCurrentWord);
-			pParams->pwszCurrentWord = NULL;
-		}
-	
-		if ( NULL != pParams->pwszPreviousWord )
-		{
-			free(pParams->pwszPreviousWord);
-			pParams->pwszPreviousWord = NULL;
-		}		
-	
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}
-		*/				
 		
 		n = n->next;
 	}	
@@ -4927,7 +4886,7 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 			pszEncodedStream = NULL;
 				
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)					
-			wprintf(L"\nPushXObjDecodedContent -> INIZIO STREAM DECODIFICATO IN PARTENZA:\n");
+			wprintf(L"\nPushXObjDecodedContent(XOBJ %d) -> INIZIO STREAM DECODIFICATO IN PARTENZA:\n", nXObjNumber);
 			for ( k = 0; k < DecodedStreamSize; k++ )
 			{
 				if ( pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k] == '\0' )
@@ -4935,7 +4894,7 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 				else
 					wprintf(L"%c", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
 			}
-			wprintf(L"PushXObjDecodedContent -> FINE STREAM DECODIFICATO IN PARTENZA.\n\n");
+			wprintf(L"PushXObjDecodedContent(XOBJ %d) -> FINE STREAM DECODIFICATO IN PARTENZA.\n\n", nXObjNumber);
 			#endif			
 			
 			goto uscita;
@@ -4973,7 +4932,7 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 					pParams->myStreamsStack[pParams->nStreamsStackTop].blockLen = pParams->myStreamsStack[pParams->nStreamsStackTop].DecodedStreamSize;					
 					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)
-					wprintf(L"\n\nPushXObjDecodedContent -> INIZIO STREAM DECODIFICATO DOPO myInflate:\n");
+					wprintf(L"\n\nPushXObjDecodedContent(XOBJ %d) -> INIZIO STREAM DECODIFICATO DOPO myInflate:\n", nXObjNumber);
 					for ( k = 0; k < DecodedStreamSize; k++ )
 					{
 						if ( pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k] == '\0' )
@@ -4981,7 +4940,7 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 						else
 							wprintf(L"%c", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
 					}
-					wprintf(L"\nPushXObjDecodedContent -> FINE STREAM DECODIFICATO DOPO myInflate:\n");
+					wprintf(L"\nPushXObjDecodedContent(XOBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate:\n", nXObjNumber);
 					#endif
 										
 					//fwrite("\xEF\xBB\xBF", 3, 1, fpTemp);
@@ -5966,8 +5925,11 @@ int ManageContent(Params *pParams, int nPageNumber)
 	
 	if ( DecodedStreamSize > 409600000 )
 		DecodedStreamSize = 409600000;
+		
+	if ( DecodedStreamSize < totalLengthFromPdf )
+		DecodedStreamSize = totalLengthFromPdf + (4096 * 89);
 	
-	//wprintf(L"DecodedStreamSize = %lu BYTE -> ( totalLengthFromPdf * sizeof(unsigned char) ) * 5 + sizeof(unsigned char)\n", DecodedStreamSize);
+	//wprintf(L"DecodedStreamSize = %lu BYTE -> ( totalLengthFromPdf * sizeof(unsigned char) ) * 55 + sizeof(unsigned char)\n", DecodedStreamSize);
 		
 	pszEncodedStream = (unsigned char*)malloc( totalLengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char) );
 	if ( NULL == pszEncodedStream )
@@ -6681,7 +6643,7 @@ int ParseObject(Params *pParams, int objNum)
 	pParams->nCurrentObjNum = 0;
 	
 	pParams->nCountPageFound = 0;	
-		
+				
 	if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Offset - 1, SEEK_SET) )
 	{
 		wprintf(L"Errore ParseObject fseek\n");
@@ -7287,6 +7249,10 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 	int k;
 	int j;
 	
+	//unsigned char *pszEncodedStream = NULL;
+	//unsigned long EncodesStreamSize 
+	//unsigned char *pszDecodedStream = NULL;
+	
 	MyContent_t myContent;
 	int nTemp;
 	
@@ -7596,6 +7562,7 @@ int ParseStreamObject(Params *pParams, int objNum)
 		
 	GetNextToken(pParams);
 	
+	//if ( !contentxobj(pParams) )
 	if ( !contentobj(pParams) )
 	{
 		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
@@ -8273,6 +8240,29 @@ int dictionary(Params *pParams)
 			GetNextToken(pParams);
 		}
 		pParams->nScope = 0;
+		
+		if ( pParams->myToken.Type == T_QOPAREN )
+		{
+			pParams->nScope++;
+			while ( pParams->nScope > 0 )
+			{
+				GetNextToken(pParams);
+				
+				if ( pParams->myToken.Type == T_QCPAREN )
+					pParams->nScope--;
+				else if ( pParams->myToken.Type == T_QOPAREN )
+					pParams->nScope++;
+				else if ( pParams->myToken.Type == T_ERROR || pParams->myToken.Type == T_EOF || pParams->myToken.Type == T_UNKNOWN )
+					return 0;
+			}
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_OBJ)
+			PrintToken(&(pParams->myToken), ' ', ' ', 1);
+			#endif
+				
+			GetNextToken(pParams);
+		}
+		pParams->nScope = 0;		
 						
 		if ( pParams->myToken.Type == T_INT_LITERAL )
 		{
@@ -8326,7 +8316,16 @@ int dictionary(Params *pParams)
 			#endif
 				
 			GetNextToken(pParams);
-		}		
+		}	
+		
+		if ( pParams->myToken.Type == T_STRING_LITERAL || pParams->myToken.Type == T_STRING_HEXADECIMAL )
+		{			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_OBJ)
+			PrintToken(&(pParams->myToken), ' ', ' ', 1);
+			#endif
+				
+			GetNextToken(pParams);
+		}
 				
 		bNameIsPages = 0;
 		bNameIsVersion = 0;
@@ -8825,7 +8824,7 @@ int pagetreeobj(Params *pParams)
 		case T_KW_TRUE:
 		case T_KW_FALSE:
 			// IGNORIAMO
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif			
 			GetNextToken(pParams);

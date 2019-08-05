@@ -614,7 +614,7 @@ void PrintHelpCommandLine()
 
 void PrintVersionInfo()
 {
-	wprintf(L"\n   mypdfsearch version 1.0.0\n");	
+	wprintf(L"\n   mypdfsearch version 1.0.1\n");	
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -1186,6 +1186,12 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug -path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia campidoglio Orbán"
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="../Files/FileProblematico" --words="Virginia campidoglio Orbán"
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/A2018/Q20180103/Libero - 3 Gennaio 2018.pdf" --frompage=2 --topage=2
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug -path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán Milano"
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1198,7 +1204,15 @@ gcc -Wall -W -pedantic -O3 myoctal.c myTernarySearchTree.c myScopeHashTable.c my
  
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia campidoglio Orbán"
 
+./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán Milano"
+
 ./mypdfsearch --path="../Files/FileProblematico" --words="Virginia campidoglio Orbán"
+ 
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/A2019/Q20190730/Corriere della Sera - 30 luglio 2019.pdf" --frompage=2 --topage=2
+ 
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
+ 
+./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni" --words="Virginia branco Milano"
  
 Per generare le dipendenze per il Makefile, usare -MM:
 gcc -MM -D_GNU_SOURCE myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz
@@ -1336,7 +1350,6 @@ int main(int argc, char **argv)
 	wprintf(L"\n");
 			
 	Parse(&myParams, myFilesList, 0);
-	//Parse(&myParams, myFilesList, 1);
 				
 uscita:
 	
