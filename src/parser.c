@@ -4180,7 +4180,16 @@ void PrintToken(Token *pToken, char cCarattereIniziale, char cCarattereFinale, i
 			break;
 		case T_CONTENT_OP_DOUBLEQUOTE:
 			wprintf(L"T_CONTENT_OP_DOUBLEQUOTE = '\"'");
-			break;			
+			break;	
+		case T_CONTENT_OP_Tf:
+			wprintf(L"T_CONTENT_OP_Tf = 'Tf'");
+			break;
+		case T_CONTENT_OP_Tc:
+			wprintf(L"T_CONTENT_OP_Tc = 'Tc'");
+			break;	
+		case T_CONTENT_OP_Tw:
+			wprintf(L"T_CONTENT_OP_Tw = 'Tw'");
+			break;		
 		default:
 			wprintf(L"TOKEN n° -> %d", pToken->Type);
 			break;
@@ -5050,6 +5059,14 @@ int InsertWordIntoTst(Params *pParams)
 				pParams->pwszPreviousWord[pParams->idxPreviousWordChar++] = pParams->pwszCurrentWord[pParams->idxCurrentWordChar++];
 			}
 			pParams->pwszPreviousWord[pParams->idxPreviousWordChar] = L'\0';
+
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS)
+			// ************************************************************************************************************
+			wprintf(L"\nECCOMI QUA: INSERISCO (%ls) NEL TERNARY SEARCH TREE.\n", pParams->pwszCurrentWord);
+			wprintf(L"\tPREVIOUS WORD = (%ls)\n\n", pParams->pwszPreviousWord);
+			// ************************************************************************************************************
+			#endif
+								
 					
 			pParams->idxCurrentWordChar = 0;
 			//pParams->idxPreviousWordChar = 0; // QUI NON VA BENE.
@@ -5069,6 +5086,15 @@ int InsertWordIntoTst(Params *pParams)
 			//wprintf(L"INSERT KEY(%ls) INTO TERNARY SEARCH TREE\n", pParams->pwszPreviousWord);
 			wprintf(L"(%ls)\n", pParams->pwszPreviousWord);
 			#endif
+			
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS)
+			// ************************************************************************************************************
+			wprintf(L"\nEQQUE QUA: INSERISCO (%ls) NEL TERNARY SEARCH TREE.\n", pParams->pwszCurrentWord);
+			wprintf(L"\tPREVIOUS WORD = (%ls)\n\n", pParams->pwszPreviousWord);
+			// ************************************************************************************************************
+			#endif
+			
 																
 			pParams->idxCurrentWordChar = 0;
 			pParams->idxPreviousWordChar = 0;	
@@ -5105,7 +5131,12 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	int bArrayState = 0;
 	
 	//int bTcNegState = 0;
-	//int bTwNegState = 0;
+	//int bTwNegState = 0;	
+	//int bTcState = 0;
+	
+	//int bPrevNumberIsReal = 0;
+	//int iPrevNumber = 0;
+	//double dPrevNumber = 0.0;	
 	
 	int bLastNumberIsReal = 0;
 	int iLastNumber = 0;
@@ -5226,9 +5257,9 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			
 		while ( T_EOF != pParams->myToken.Type )
 		{	
-			//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
-			//PrintToken(&(pParams->myToken), '\t', '\0', 1);
-			//#endif
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS)
+			PrintToken(&(pParams->myToken), '\t', '\0', 1);
+			#endif
 			
 			if ( T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type )
 			{
@@ -5239,6 +5270,14 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				//wprintf(L"\tSTRINGA: (%s) <-> UTF-8: (%ls)\n", pszString, (wchar_t*)(pParams->pUtf8String));
 				wprintf(L"STRING -> <%ls>", (wchar_t*)(pParams->pUtf8String));
 				#endif
+				
+				
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS)
+				// ****************************************************************************************************************************
+				wprintf(L"UNICODE STRING -> <%ls> <- *************************************************************\n", (wchar_t*)(pParams->pUtf8String));
+				// ****************************************************************************************************************************
+				#endif
+				
 								
 				if ( pParams->szFilePdf[0] == '\0' )
 				{
@@ -5440,9 +5479,11 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			else if ( T_INT_LITERAL == pParams->myToken.Type )
 			{
 				bLastNumberIsReal = 0;
+				//bPrevNumberIsReal = 0;
 
+				//iPrevNumber = iLastNumber;
 				iLastNumber = pParams->myToken.Value.vInt;
-				dLastNumber = 0.0;
+				//dLastNumber = 0.0;
 	
 				if ( bArrayState )
 				{
@@ -5477,9 +5518,11 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			else if ( T_REAL_LITERAL == pParams->myToken.Type )
 			{
 				bLastNumberIsReal = 1;
+				//bPrevNumberIsReal = 1;
 				
-				iLastNumber = 0;
+				//dPrevNumber = pParams->myToken.Value.vDouble;
 				dLastNumber = pParams->myToken.Value.vDouble;
+				//iLastNumber = 0;
 				
 				if ( bArrayState )
 				{
@@ -5511,43 +5554,30 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						}
 					}
 				}
-			}		
+			}
 			/*
 			else if ( T_CONTENT_OP_Tc == pParams->myToken.Type )
-			{				
-				if ( bLastNumberIsReal )
-				{
-					if ( dLastNumber < 0.0 )
-						bTcNegState = 1;
-					else
-						bTcNegState = 0;
-				}
-				else 
-				{
-					if ( iLastNumber < 0 )
-						bTcNegState = 1;
-					else
-						bTcNegState = 0;
-				}				
-			}			
-			else if ( T_CONTENT_OP_Tw == pParams->myToken.Type )
-			{				
-				if ( bLastNumberIsReal )
-				{
-					if ( dLastNumber < 0.0 )
-						bTwNegState = 1;
-					else
-						bTwNegState = 0;
-				}
-				else 
-				{
-					if ( iLastNumber < 0 )
-						bTwNegState = 1;
-					else
-						bTwNegState = 0;
-				}
+			{
+				bTcState = 1;
+				
+						
+				//if ( bLastNumberIsReal )
+				//{
+				//	if ( dLastNumber < 0.0 )
+				//		bTcNegState = 1;
+				//	else
+				//		bTcNegState = 0;
+				//}
+				//else 
+				//{
+				//	if ( iLastNumber < 0 )
+				//		bTcNegState = 1;
+				//	else
+				//		bTcNegState = 0;
+				//}
+								
 			}
-			*/
+			*/			
 			else if ( T_NAME == pParams->myToken.Type )
 			{
 				strncpy(szName, pParams->myToken.Value.vString, 512 - 1);
@@ -5563,6 +5593,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			else if (
 						(T_CONTENT_OP_Td == pParams->myToken.Type) ||
 						(T_CONTENT_OP_TD == pParams->myToken.Type) ||
+						(T_CONTENT_OP_Tm == pParams->myToken.Type) ||
 						(T_CONTENT_OP_TASTERISCO == pParams->myToken.Type) ||
 						(T_CONTENT_OP_SINGLEQUOTE == pParams->myToken.Type) ||
 						(T_CONTENT_OP_DOUBLEQUOTE == pParams->myToken.Type)
@@ -5572,13 +5603,21 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				All'interno degli array, un numero negativo dopo la stringa segna la fine della parola, come fosse uno spazio o a capo:
 				[(lina ha)-160.92255 (v)13.91769 (olut)3.90831 (o separ)17.80328 (ar)17.86009 (e)-160.85439 (quant)3.89695 (o pos)3.89695 (sibile)-160.91119 (il de)]TJ 
 				*/
-				
+
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings)
+				if ( pParams->szFilePdf[0] == '\0' )
+				{
+					wprintf(L"\n");
+				}
+				#endif
 				
-				/*
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS)
 				wprintf(L"\n\tVADO A CAPO ");
 				switch ( pParams->myToken.Type )
 				{
+					case T_CONTENT_OP_Tm:
+						wprintf(L"CON L'OPERATORE Tm\n\n");
+						break;					
 					case T_CONTENT_OP_Td:
 						wprintf(L"CON L'OPERATORE Td\n\n");
 						break;
@@ -5597,40 +5636,11 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					default:
 						break;
 				}
-				*/
-				
-				/*
-				if (T_CONTENT_OP_Td == pParams->myToken.Type)
-				{
-					if ( bLastNumberIsReal )
-					{
-						if ( dLastNumber < 0.0 )
-						{
-							wprintf(L"\n");
-						}
-					}
-					else 
-					{
-						if ( iLastNumber < 0 )
-						{
-							wprintf(L"\n");
-						}
-					}
-				}
-				else
-				{
-					wprintf(L"\n");
-				}
-				*/
-
-				if ( pParams->szFilePdf[0] == '\0' )
-					wprintf(L"\n");
-				#endif
+				#endif		
 								
 				if ( pParams->szFilePdf[0] == '\0' )
 				{
 					InsertWordIntoTst(pParams);
-					//wprintf(L"INSERITA WORD DOPO ANDATINA A CAPO. CIAO\n");
 				}
 				else
 				{
@@ -5638,7 +5648,6 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						fwprintf(pParams->fpOutput, L"\n");
 					else
 						wprintf(L"\n");
-					//wprintf(L"\n");
 				}
 			}
 			else if ( T_CONTENT_Do_COMMAND == pParams->myToken.Type )
@@ -6180,7 +6189,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 	wprintf(L"FINE STREAM(Pag. %d)     *********************.\n", nPageNumber);
 	#endif	
 
-	//#define MYDEBUG_PRINT_ON_GetNextToken_FN
+	//#define MYDEBUG_PRINT_ON_GetNextToken_FN 1
 	ManageDecodedContent(pParams, nPageNumber);
 	//#undef MYDEBUG_PRINT_ON_GetNextToken_FN
 			

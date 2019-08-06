@@ -127,30 +127,29 @@ gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_GetNextToke
 ./mypdfsearch -w"Virginia campidoglio Orbán" --path=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/File01
  
  
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File01" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File02" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File03" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File04" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File05" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File06" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File07" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File08" --frompage=3 --topage=4 
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File09" --frompage=3 --topage=4
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File10" --frompage=3 --topage=4
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File01" --frompage=1 --topage=1 > AAA_01_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File02" --frompage=1 --topage=1 > AAA_02_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File03" --frompage=1 --topage=1 > AAA_03_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File04" --frompage=1 --topage=1 > AAA_04_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File05" --frompage=1 --topage=1 > AAA_05_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File06" --frompage=1 --topage=1 > AAA_06_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File07" --frompage=1 --topage=1 > AAA_07_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File08" --frompage=1 --topage=1 > AAA_08_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File09" --frompage=1 --topage=1 > AAA_09_DEBUG.txt
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File10" --frompage=1 --topage=1 > AAA_10_DEBUG.txt
 ./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/FileProblematici" --frompage=3 --topage=4
  
  
-./mypdfsearch --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File02/Il Fatto Quotidiano - 9 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File04/Il Manifesto - 9 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File05/Il Sole 24 Ore - 9 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=3 --topage=4 
-./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=3 --topage=4
-./mypdfsearch --extracttextfrom="../Files/FileProblematici/La Stampa - 20 luglio 2019 .pdf" --frompage=3 --topage=4
+./mypdfsearch --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1 > AAA_01.txt
+./mypdfsearch --extracttextfrom="../Files/File02/Il Fatto Quotidiano - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_02.txt
+./mypdfsearch --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_03.txt
+./mypdfsearch --extracttextfrom="../Files/File04/Il Manifesto - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_04.txt
+./mypdfsearch --extracttextfrom="../Files/File05/Il Sole 24 Ore - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_05.txt
+./mypdfsearch --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_06.txt
+./mypdfsearch --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_07.txt
+./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_08.txt
+./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_09.txt
+./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_10.txt
 */
 
 

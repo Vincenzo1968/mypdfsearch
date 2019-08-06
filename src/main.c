@@ -1203,6 +1203,7 @@ gcc -Wall -W -pedantic -O3 myoctal.c myTernarySearchTree.c myScopeHashTable.c my
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni" --words="Virginia branco Milano"
   
 ./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
+
  
 Per generare le dipendenze per il Makefile, usare -MM:
 gcc -MM -D_GNU_SOURCE myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz
