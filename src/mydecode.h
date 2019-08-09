@@ -60,11 +60,13 @@ typedef enum tagDecodeStates
 	DS7
 } DecodeStates;
 
-void zerr(int ret);
+void zerr(int ret, FILE *fpErrors);
 
 int myInflate(unsigned char **dest, unsigned long int *destLen, const unsigned char *source, unsigned long int sourceLen);
 
 int ZEXPORT myUncompress(Bytef *dest, uLongf *destLen, const Bytef *source, uLong *sourceLen);
+
+uint32_t ConvertHexadecimalToDecimal(char *pszHexVal);
 
 wchar_t* FromPdfDocEncodingToUtf8WideCharString(BYTE *pszPdf, size_t mbslen);
 wchar_t* FromPdfDocEncodingToUtf8WideCharString_NEW(const BYTE *pszPdf, size_t mbslen);

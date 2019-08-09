@@ -59,6 +59,41 @@ QUINDI : Se i primi due byte sono 254 e 255, la stringa è in formato UTF-16BE.
 #include "mydecode.h"
 #include "myoctal.h"
 
+uint32_t ConvertHexadecimalToDecimal(char *pszHexVal) 
+{
+	int len = strnlen(pszHexVal, 1024);
+	
+	// Initializing base value to 1, i.e 16^0 
+	int base = 1; 
+	uint32_t dec_val = 0;
+	int i;
+	
+	// Extracting characters as digits from last character 
+	for ( i = len - 1; i >= 0; i-- ) 
+	{
+		// if character lies in '0'-'9', converting  
+		// it to integral 0-9 by subtracting 48 from 
+		// ASCII value. 
+		if ( pszHexVal[i] >= '0' && pszHexVal[i] <= '9' ) 
+		{
+			dec_val += (pszHexVal[i] - 48) * base; 
+			// incrementing base by power 
+			base = base * 16; 
+		} 
+		// if character lies in 'A'-'F' , converting  
+		// it to integral 10 - 15 by subtracting 55  
+		// from ASCII value 
+		else if ( ( toupper(pszHexVal[i]) >= 'A' ) && ( toupper(pszHexVal[i]) <= 'F' ) ) 
+		{ 
+			dec_val += (pszHexVal[i] - 55) * base; 
+			// incrementing base by power 
+			base = base * 16;
+		}
+	} 
+	
+	return dec_val;
+}
+
 int decodeIsDelimiterChar(unsigned char c)
 {
 	switch ( c )
@@ -1122,27 +1157,30 @@ wchar_t* FromPdfDocEncodingToUtf8WideCharString_NEW(const BYTE *pszPdf, size_t m
 }
 
 /* report a zlib or i/o error */
-void zerr(int ret)
+void zerr(int ret, FILE *fpErrors)
 {
-    fputs("myzlib: ", stderr);
+	if ( NULL == fpErrors )
+		fpErrors = stderr;
+	
+    fputs("myzlib: ", fpErrors);
     switch (ret) {
     case Z_ERRNO:
         if (ferror(stdin))
-            fputs("error reading stdin\n", stderr);
+            fputs("error reading stdin\n", fpErrors);
         if (ferror(stdout))
-            fputs("error writing stdout\n", stderr);
+            fputs("error writing stdout\n", fpErrors);
         break;
     case Z_STREAM_ERROR:
-        fputs("invalid compression level\n", stderr);
+        fputs("invalid compression level\n", fpErrors);
         break;
     case Z_DATA_ERROR:
-        fputs("invalid or incomplete deflate data\n", stderr);
+        fputs("invalid or incomplete deflate data\n", fpErrors);
         break;
     case Z_MEM_ERROR:
-        fputs("out of memory\n", stderr);
+        fputs("out of memory\n", fpErrors);
         break;
     case Z_VERSION_ERROR:
-        fputs("zlib version mismatch!\n", stderr);
+        fputs("zlib version mismatch!\n", fpErrors);
     }
 }
 

@@ -31,6 +31,7 @@ int OnTraverseTST(const wchar_t* key, void* data, uint32_t dataSize);
 int InsertWordIntoTst(Params *pParams);
 
 int InitializeCharSetHashTable(Params *pParams);
+int InitializeUnicodeArray(Params *pParams);
 void InitializeCharSetArrays(Params *pParams);
 void MakeDifferencesArrayCodes(Params *pParams);
 void MakeMacExpertArrayCodes(Params *pParams);
@@ -42,6 +43,8 @@ int ParseObject(Params *pParams, int objNum);
 int ParseNextObject(Params *pParams, int objNum);
 int ParseStreamObject(Params *pParams, int objNum);
 int ParseStreamXObject(Params *pParams, int objNum);
+int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize);
+int ParseToUnicodeObject(Params *pParams, int objNum);
 int ParseFontObject(Params *pParams, int objNum);
 int ParseEncodingObject(Params *pParams, int objNum);
 int ParseDictionaryObject(Params *pParams, int objNum);

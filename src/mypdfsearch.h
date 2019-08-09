@@ -66,6 +66,7 @@ MYDEBUG_PRINT_ON_MATCH
 MYDEBUG_PRINT_ON_PARSE_OBJ
 MYDEBUG_PRINT_ON_PARSE_STREAMOBJ
 MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ
+MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM
 MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ
 MYDEBUG_PRINT_ON_PARSE_LENGTHOBJ
 MYDEBUG_PRINT_ON_PARSE_XOBJDICTOBJ
@@ -94,23 +95,23 @@ MYDEBUG_PRINT_ON_ParseLengthObject_FN
 
 
 /*
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_PARSE_STREAMXOBJ myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_PARSE_STREAMXOBJ myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz 
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz 
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ParseObject_FN myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ParseObject_FN myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_TST myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_TST myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ManageContent_PrintStrings myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ManageContent_PrintStrings myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ManageContent_PrintContent myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ManageContent_PrintContent myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
  
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ManageContent_FN myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_ManageContent_FN myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
  
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_GetNextToken_FN myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_GetNextToken_FN myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 */
 
 /*
@@ -152,50 +153,3 @@ gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_GetNextToke
 ./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_10.txt
 */
 
-
-
-/*
-File: '../Files/FileProblematici/manzoni_i_promessi_sposi.pdf'
-ERRORE Parse 6 nella lettura del trailer del file '../Files/FileProblematici/manzoni_i_promessi_sposi.pdf'.
-
-File: '../Files/FileProblematici/corriere_della_sera_-_03_gennaio_2018.pdf'
-Errore ReadLastTrailer: atteso 'x' trovato '1'
-<</DecodeParms<</Columns 5/Predictor 12>>/Filter/FlateDecode/ID[<665FD8676C98808A3C960B8E789B0A4E><456B13A2FFCB364B9618DC640546DBB8>]/>
-ERRORE Parse 6 nella lettura del trailer del file '../Files/FileProblematici/corriere_della_sera_-_03_gennaio_2018.pdf'.
-
-File: '../Files/FileProblematici/corriere_della_sera_-_02_gennaio_2018.pdf'
-Errore ReadLastTrailer: atteso 'x' trovato '1'
-<</DecodeParms<</Columns 5/Predictor 12>>/Filter/FlateDecode/ID[<53B40E70C3D98AA461B83F01FE8A0376><FFC5D8F31B298847A4DAFC5CEC3E6C39>]/>
-ERRORE Parse 6 nella lettura del trailer del file '../Files/FileProblematici/corriere_della_sera_-_02_gennaio_2018.pdf'.
-
-File: '../Files/FileProblematici/la_repubblica_-_02_gennaio_2018.pdf'
-Errore ReadLastTrailer: atteso 'x' trovato '1'
-<</DecodeParms<</Columns 5/Predictor 12>>/Filter/FlateDecode/ID[<01C6E223E840B3333505663E1E0B832C><270EF99E22D29D4B98916E8D124BFD94>]/>
-ERRORE Parse 6 nella lettura del trailer del file '../Files/FileProblematici/la_repubblica_-_02_gennaio_2018.pdf'.
-
-File: '../Files/FileProblematici/La Verita 5 Gennaio 2018.pdf'
-Errore ParseObject: oggetto n. 1; atteso spazio, trovato 'F'
-File: '../Files/FileProblematici/Libero - 2 Gennaio 2018.pdf'
-ERRORE Parse 6 nella lettura del trailer del file '../Files/FileProblematici/Libero - 2 Gennaio 2018.pdf'.
-
-File: '../Files/FileProblematici/il Fatto Quotidiano 02 Gennaio 2018.pdf'
-ERRORE parsing prepagetree: Type non valido: 'Group'
-ERRORE!!! ParseNextObject 2
- 
-***** INIZIO OBJ(48) = 
-48 0 obj
-<< /Type /Page
-   /Parent 1 0 R
-   /MediaBox [ 0 0 864.757 1275.22 ]
-   /Contents 3 0 R
-   /Group <<
-      /Type /Group
-      /S /Transparency
-      /I true
-      /CS /DeviceRGB
-   >>
-   /Resources 2 0 R
->>
-endobj
-*****FINE OBJ(48)
-*/

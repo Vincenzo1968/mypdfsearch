@@ -2648,7 +2648,6 @@ unsigned char ReadNextChar(Params *pParams)
 		
 	//return pParams->myBlock[pParams->blockCurPos++];
 	
-	/*
 	if ( '\0' !=  pParams->myBlock[pParams->blockCurPos] )
 	{	
 		return pParams->myBlock[pParams->blockCurPos++];
@@ -2658,8 +2657,8 @@ unsigned char ReadNextChar(Params *pParams)
 		pParams->blockCurPos++;
 		return ' ';
 	}
-	*/
 	
+	/*
 	if ( pParams->myBlock[pParams->blockCurPos] > 31 &&
 	     pParams->myBlock[pParams->blockCurPos] != 127 &&
 	     pParams->myBlock[pParams->blockCurPos] != 129 &&
@@ -2689,6 +2688,7 @@ unsigned char ReadNextChar(Params *pParams)
 			return ' ';
 		}
 	}
+	*/
 }
 
 void IgnoreStreamChars(Params *pParams)
@@ -3966,6 +3966,834 @@ void GetNextTokenLengthObj(Params *pParams)
 			fwprintf(pParams->fpErrors, L"Errore GetNextTokenLength: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
 			return;
 		}
+	} // FINE -> While ( 1 )
+		
+	return;	
+}
+
+// ***************************************************************************************************************************************************************************
+
+unsigned char ReadNextCharFromToUnicodeStream(Params *pParams)
+{	
+	if ( pParams->blockCurPosToUnicode >= pParams->blockLenToUnicode )
+	{
+		pParams->myToken.Type = T_EOF;
+		//return '\0';
+		return ' ';		
+	}
+	
+	return pParams->myBlockToUnicode[pParams->blockCurPosToUnicode++];
+	
+	
+	/*
+	if ( pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] > 31 &&
+	     pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] != 127 &&
+	     pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] != 129 &&
+	     pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] != 141 &&
+	     pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] != 143 &&
+	     pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] != 144 &&
+	     pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] != 157 &&
+	     pParams->myBlockToUnicode[pParams->blockCurPosToUnicode] != 173
+	   )
+	{	
+		return pParams->myBlock[pParams->blockCurPosToUnicode++];
+	}	
+	else
+	{		
+		if ( '\n' == pParams->myBlock[pParams->blockCurPosToUnicode] ||
+		     '\r' == pParams->myBlock[pParams->blockCurPosToUnicode] ||
+		     '\t' == pParams->myBlock[pParams->blockCurPosToUnicode] ||
+		     '\f' == pParams->myBlock[pParams->blockCurPosToUnicode] ||
+		     ' ' == pParams->myBlock[pParams->blockCurPosToUnicode]
+		   )
+		{
+			return pParams->myBlockToUnicode[pParams->blockCurPosToUnicode++];
+		}
+		else
+		{
+			pParams->blockCurPosToUnicode++;
+			return ' ';
+		}
+	}
+	*/
+}
+
+void GetNextTokenFromToUnicodeStream(Params *pParams)
+{
+	States state = S0;
+	unsigned char c;
+	unsigned char c1, c2;
+	unsigned char cOctal;
+	unsigned char cHexadecimal;
+	int k = 0;
+	int bOctalOverflow;
+	int nDelimChar;
+	
+	int x;
+	int y;
+	int z;
+		
+	if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
+	{
+		free(pParams->myToken.Value.vString);
+		pParams->myToken.Value.vString = NULL;
+	}
+	
+	if ( pParams->blockCurPosToUnicode > pParams->blockLenToUnicode )
+	{
+		pParams->myToken.Type = T_EOF;
+		return;
+	}
+			
+	c = ReadNextCharFromToUnicodeStream(pParams);
+	if ( pParams->myToken.Type == T_EOF )
+		return;
+		
+	while ( c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '\f' ||  c == '\0' )
+	{
+		c = ReadNextCharFromToUnicodeStream(pParams);
+				
+		if ( pParams->myToken.Type == T_EOF )
+			return;					
+	}
+		
+	while ( 1 )
+	{
+		switch ( state )
+		{
+			inizioswitch:			
+						
+			case S0:
+				k = 0;
+				pParams->nStackStringOpenParen = 0;
+				
+				if ( c == '%' )
+				{
+					c = ReadNextCharFromToUnicodeStream(pParams);
+					while ( c != '\n' && c != '\r' )
+					{
+						c = ReadNextCharFromToUnicodeStream(pParams);
+						if ( pParams->myToken.Type == T_EOF )
+							return;
+					}
+					if ( c == '\r' )
+					{
+						c = ReadNextCharFromToUnicodeStream(pParams);
+						if ( pParams->myToken.Type == T_EOF )
+							return;	
+						if ( c != '\n' )
+						{
+							goto inizioswitch;
+						}					
+					}
+				}
+				else if ( c == '-' || c == '+' || ( c >= '0' && c <= '9' ) )
+				{
+					pParams->lexeme[k++] = c;
+					state = S1;
+				}
+				else if ( c == '.' )
+				{
+					pParams->lexeme[k++] = c;
+					state = S2;
+				}
+				else if ( c == '/' )
+				{
+					state = S3;
+				}
+				else if ( c == '(' )
+				{
+					pParams->nStackStringOpenParen++; // PUSH
+					state = S6;
+				}
+				else if ( c == '<' )
+				{										
+					state = S11;
+				}				
+				else if ( c == '[' )
+				{
+					pParams->myToken.Type = T_QOPAREN;
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_QOPAREN -> [\n");
+					#endif
+					return;
+				}
+				else if ( c == ']' )
+				{
+					pParams->myToken.Type = T_QCPAREN;
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_QCPAREN -> ]\n");
+					#endif
+					return;
+				}
+				else if ( c == '>' )
+				{					
+					c = ReadNextCharFromToUnicodeStream(pParams);
+					if ( c == '>' )
+					{
+						pParams->myToken.Type = T_DICT_END;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_DICT_END -> >>\n");
+						#endif
+						return;
+					}
+					/*
+					else
+					{
+						if ( !(pParams->bStreamStateToUnicode) )
+						{
+							pParams->myToken.Type = T_ERROR;
+							wprintf(L"Errore GetNextTokenFromToUnicodeStreamFromToUnicodeStream: trovato '>' singolo\n");
+							return;
+						}
+					}
+					*/
+				}
+				else // T_STRING oppure T_KEYWORD
+				{
+					nDelimChar = IsDelimiterChar(c);
+					while ( !nDelimChar )
+					{
+						if ( k < MAX_STRING_LENTGTH_IN_CONTENT_STREAM )
+						{
+							pParams->lexeme[k++] = c;
+						}
+						else
+						{
+							pParams->lexeme[k] = '\0';
+						}
+						c = ReadNextCharFromToUnicodeStream(pParams);
+						nDelimChar = IsDelimiterChar(c);
+					}
+					pParams->lexeme[k] = '\0';
+					if ( DELIM_SPECIALSYMBOL == nDelimChar )
+					{
+						pParams->blockCurPosToUnicode--;
+					}
+					
+					if ( strncmp(pParams->lexeme, "begincodespacerange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_begincodespacerange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_begincodespacerange -> 'begincodespacerange'\n");
+						#endif
+						return;
+					}					
+					else if ( strncmp(pParams->lexeme, "endcodespacerange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endcodespacerange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endcodespacerange -> 'endcodespacerange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "beginbfchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_beginbfchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_beginbfchar -> 'beginbfchar'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "endbfchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endbfchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endbfchar -> 'endbfchar'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "beginbfrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_beginbfrange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_beginbfrange -> 'beginbfrange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "endbfrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endbfrange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endbfrange -> 'endbfrange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "true", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_KW_TRUE;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_KW_TRUE -> 'true'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "false", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_KW_FALSE;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_KW_FALSE -> 'false'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "null", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_KW_NULL;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_KW_NULL -> 'null'\n");
+						#endif
+						return;
+					}					
+					else
+					{						
+						if ( k > 0 )
+						{
+							pParams->myToken.Type = T_STRING;
+							pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+							if (  pParams->myToken.Value.vString != NULL )
+								strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+								
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)						
+							wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING -> '%s'\n", pParams->myToken.Value.vString);
+							#endif								
+						}
+						else
+						{
+							pParams->myToken.Type = T_VOID_STRING;
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)						
+							wprintf(L"GetNextTokenFromToUnicodeStream: T__VOID_STRING\n");
+							#endif	
+							
+							ReadNextCharFromToUnicodeStream(pParams);
+						}
+						
+						return;
+					}
+				}
+				break;
+			case S1:
+				if (  c >= '0' && c <= '9' ) 
+				{
+					pParams->lexeme[k++] = c;	
+				}
+				else if ( c == '.' )
+				{
+					pParams->lexeme[k++] = c;
+					state = S2;
+				}
+				else
+				{
+					pParams->lexeme[k] = '\0';
+					pParams->myToken.Type = T_INT_LITERAL;
+					pParams->myToken.Value.vInt = atoi(pParams->lexeme);
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_INT_LITERAL -> %d\n", pParams->myToken.Value.vInt);
+					#endif
+					nDelimChar = IsDelimiterChar(c);
+					if ( DELIM_SPECIALSYMBOL == nDelimChar )
+					{
+						pParams->blockCurPos--;
+						pParams->nNumBytesReadFromCurrentStream--;
+					}
+					return;
+				}
+				break;
+			case S2:
+				if (  c >= '0' && c <= '9' ) 
+				{
+					pParams->lexeme[k++] = c;	
+				}
+				else
+				{
+					pParams->lexeme[k] = '\0';
+
+					pParams->myToken.Type = T_REAL_LITERAL;
+					pParams->myToken.Value.vDouble = atof(pParams->lexeme);
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+					wprintf(L"GetNextTOken: T_REAL_LITERAL -> %lf\n", pParams->myToken.Value.vDouble);
+					#endif
+					nDelimChar = IsDelimiterChar(c);
+					if ( DELIM_SPECIALSYMBOL == nDelimChar )
+					{
+						pParams->blockCurPos--;
+						pParams->nNumBytesReadFromCurrentStream--;
+					}
+					return;
+				}			
+				break;
+			case S3:
+				nDelimChar = IsDelimiterChar(c);
+				if ( !nDelimChar )
+				{
+					if ( c != '#' )
+					{
+						pParams->lexeme[k++] = c;
+					}
+					else
+					{
+						state = S4;
+					}
+				}
+				else
+				{
+					pParams->lexeme[k] = '\0';
+					pParams->myToken.Type = T_NAME;
+					pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+					if (  pParams->myToken.Value.vString != NULL )
+						strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+						
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)						
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_NAME -> '/%s'\n", pParams->myToken.Value.vString);
+					#endif
+					
+					if ( DELIM_SPECIALSYMBOL == nDelimChar )
+					{
+						pParams->blockCurPos--;
+						pParams->nNumBytesReadFromCurrentStream--;
+					}
+					
+					return;
+				}
+				break;
+			case S4:
+				if ( (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') )
+				{
+					c1 = c;
+					state = S5;
+				}
+				else
+				{
+					pParams->myToken.Type = T_ERROR;
+					//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					return;
+				}
+				break;
+			case S5:
+				if ( (c >= '0' && c >= '9') || (c >= 'A' && c <= 'F') || (c >= 'f' && c <= 'f') )
+				{
+					c2 = c;
+					pParams->lexeme[k++] = GetHexChar(c1, c2);
+					state = S3;
+				}
+				else
+				{
+					pParams->myToken.Type = T_ERROR;
+					//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					return;
+				}			
+				break;
+			case S6:
+				if ( c != '\\' )
+				{
+					if ( '\0' != c )
+					{
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
+						pParams->lexeme[k++] = c;
+					}
+					
+					if ( c == ')' )
+					{
+						pParams->nStackStringOpenParen--; // POP
+						
+						if ( pParams->nStackStringOpenParen <= 0 )
+						{
+							pParams->lexeme[--k] = '\0';
+							pParams->pUtf8String[k] = L'\0';
+							pParams->myToken.Type = T_STRING_LITERAL;
+							pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+							if (  pParams->myToken.Value.vString != NULL )
+								strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+								
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)
+							wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING_LITERAL -> '%s'\n", pParams->myToken.Value.vString);
+							#endif
+							return;
+						}
+						else
+						{
+							pParams->nStackStringOpenParen--; // POP
+						}
+					}
+					
+					if ( c == '(' )
+					{
+						pParams->nStackStringOpenParen++; // PUSH
+					}
+				}
+				else
+				{
+					state = S7;
+				}
+				break;
+			case S7:
+				if ( c == 'n' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\n'];
+					pParams->lexeme[k++] = '\n';
+					state = S6;
+				}
+				else if ( c == 'r' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\r'];
+					pParams->lexeme[k++] = '\r';
+					state = S6;
+				}
+				else if ( c == 't' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\t'];
+					pParams->lexeme[k++] = '\t';
+					state = S6;
+				}
+				else if ( c == 'b' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\b'];
+					pParams->lexeme[k++] = '\b';
+					state = S6;
+				}
+				else if ( c == 'f' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\f'];
+					pParams->lexeme[k++] = '\f';
+					state = S6;
+				}
+				else if ( c == '(' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'('];
+					pParams->lexeme[k++] = '(';
+					state = S6;
+				}
+				else if ( c == ')' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L')'];
+					pParams->lexeme[k++] = ')';
+					state = S6;
+				}
+				else if ( c == '\\' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\\'];
+					pParams->lexeme[k++] = '\\';
+					state = S6;
+				}
+				else if ( c == '\n' )
+				{
+					state = S6;					
+				}
+				else if ( c == '\r' )
+				{
+					state = S8;
+				}
+				else if ( c >= '0' && c <= '7' )
+				{
+					c1 = c;
+					state = S9;
+				}
+				else
+				{
+					pParams->lexeme[k++] = c;
+					state = S6;
+				}
+				break;
+			case S8:
+				if ( c != '\n' )
+				{
+					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
+					pParams->lexeme[k++] = c;
+				}
+				state = S6;
+				break;
+			case S9:
+				if ( c >= '0' && c <= '7' )
+				{
+					c2 = c;
+					state = S10;
+				}
+				else
+				{
+					if ( !GetOctalChar(c1, '\0', '\0', &cOctal, &bOctalOverflow) )
+					{
+						if ( bOctalOverflow )
+						{
+							state = S6; // ignora
+						}
+						else
+						{
+							pParams->myToken.Type = T_ERROR;
+							//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							return;
+						}
+					}
+					else
+					{
+						if ( 0 != cOctal )
+						{
+							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							pParams->lexeme[k++] = cOctal;
+						}
+						state = S6;
+					}
+				}
+				break;
+			case S10:
+				if ( c >= '0' && c <= '7' )
+				{
+					if ( !GetOctalChar(c1, c2, c, &cOctal, &bOctalOverflow) )
+					{
+						if ( bOctalOverflow )
+						{
+							state = S6; // ignora
+						}
+						else
+						{
+							pParams->myToken.Type = T_ERROR;
+							//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							return;
+						}
+					}
+					else
+					{
+						if ( 0 != cOctal )
+						{
+							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							pParams->lexeme[k++] = cOctal;
+						}
+						state = S6;
+					}
+				}
+				else
+				{
+					if ( !GetOctalChar(c1, c2, '\0', &cOctal, &bOctalOverflow) )
+					{
+						if ( bOctalOverflow )
+						{
+							state = S6; // ignora
+						}
+						else
+						{
+							pParams->myToken.Type = T_ERROR;
+							//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							return;
+						}
+					}
+					else
+					{
+						if ( 0 != cOctal )
+						{
+							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							pParams->lexeme[k++] = cOctal;
+						}
+						state = S6;
+					}
+				}			
+				break;
+			case S11:
+				if ( c == '<' )
+				{
+					pParams->myToken.Type = T_DICT_BEGIN;
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)					
+					wprintf(L"GetNextTOken: T_DICT_BEGIN -> <<\n");
+					#endif
+					return;							
+				}
+				else if ( (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') )
+				{
+					pParams->lexeme[k++] = c;
+				}
+				else if ( c == '>' )
+				{
+					if ( k % 2 > 0 )
+					{
+						k++;
+						pParams->lexeme[k] = '0';
+					}
+					
+					y = 0;
+					z = 0;
+					for ( x = 0; x < k/2; x++ )
+					{
+						switch ( pParams->lexeme[y] )
+						{
+							case '0':
+								cHexadecimal = 0;
+								break;
+							case '1':
+								cHexadecimal = 16; // 1 * 16;
+								break;
+							case '2':
+								cHexadecimal = 32; // 2 * 16;
+								break;
+							case '3':
+								cHexadecimal = 48; // 3 * 16;
+								break;
+							case '4':
+								cHexadecimal = 64; // 4 * 16;
+								break;
+							case '5':
+								cHexadecimal = 80; // 5 * 16;
+								break;
+							case '6':
+								cHexadecimal = 96; // 6 * 16;
+								break;
+							case '7':
+								cHexadecimal = 112; // 7 * 16;
+								break;
+							case '8':
+								cHexadecimal = 128; // 8 * 16;
+								break;
+							case '9':
+								cHexadecimal = 144; // 9 * 16;
+								break;
+							case 'A':
+							case 'a':
+								cHexadecimal = 160; // 10 * 16;
+								break;
+							case 'B':
+							case 'b':
+								cHexadecimal = 176; // 11 * 16;
+								break;
+							case 'C':
+							case 'c':
+								cHexadecimal = 192; // 12 * 16;
+								break;
+							case 'D':
+							case 'd':
+								cHexadecimal = 208 ;// 13 * 16;
+								break;
+							case 'E':
+							case 'e':
+								cHexadecimal = 224; // 14 * 16;
+								break;
+							case 'F':
+							case 'f':
+								cHexadecimal = 240; // 15 * 16;
+								break;
+							default:
+								cHexadecimal = 0;
+								break;
+						}
+						
+						switch ( pParams->lexeme[y + 1] )
+						{
+							case '0':
+								//cHexadecimal += 0;
+								break;
+							case '1':
+								cHexadecimal += 1; // 1 * 16;
+								break;
+							case '2':
+								cHexadecimal += 2;
+								break;
+							case '3':
+								cHexadecimal += 3;
+								break;
+							case '4':
+								cHexadecimal += 4;
+								break;
+							case '5':
+								cHexadecimal += 5;
+								break;
+							case '6':
+								cHexadecimal += 6;
+								break;
+							case '7':
+								cHexadecimal += 7;
+								break;
+							case '8':
+								cHexadecimal += 8;
+								break;
+							case '9':
+								cHexadecimal += 9;
+								break;
+							case 'A':
+							case 'a':
+								cHexadecimal += 10;
+								break;
+							case 'B':
+							case 'b':
+								cHexadecimal += 11;
+								break;
+							case 'C':
+							case 'c':
+								cHexadecimal += 12;
+								break;
+							case 'D':
+							case 'd':
+								cHexadecimal += 13;
+								break;
+							case 'E':
+							case 'e':
+								cHexadecimal += 14;
+								break;
+							case 'F':
+							case 'f':
+								cHexadecimal += 15;
+								break;
+							default:
+								cHexadecimal += 0;
+								break;
+						}
+						
+						if ( 0 != cHexadecimal )
+							pParams->pUtf8String[z++] = pParams->pCurrentEncodingArray[cHexadecimal];
+												
+						y += 2;
+					}
+					
+					pParams->pUtf8String[z] = L'\0';
+					pParams->lexeme[k] = '\0';
+					pParams->myToken.Type = T_STRING_HEXADECIMAL;					
+					pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+					if (  pParams->myToken.Value.vString != NULL )
+						strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+					
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING_HEXADECIMAL -> '%s'\n", pParams->myToken.Value.vString);
+					#endif
+					return;					
+				}
+				else
+				{
+					pParams->pUtf8String[0] = L'\0';
+					
+					pParams->myToken.Type = T_ERROR;
+					//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
+					fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
+					
+					c = ReadNextCharFromToUnicodeStream(pParams);
+					
+					/*
+					while ( '>' != c && ']' != c )
+					{
+						if ( T_EOF == pParams->myToken.Type )
+							return;
+						c = ReadNextCharFromToUnicodeStream(pParams);
+					}
+					c = ReadNextCharFromToUnicodeStream(pParams);
+					if ( T_EOF == pParams->myToken.Type )
+						return;					
+					*/
+					
+					return;					
+				}
+				break;		
+			default:
+				break;
+		} // FINE -> switch ( state )
+		
+		c = ReadNextCharFromToUnicodeStream(pParams);
+		if ( pParams->myToken.Type == T_EOF )
+			return;
+			
+		if ( k > MAX_STRING_LENTGTH_IN_CONTENT_STREAM )
+		{
+			pParams->myToken.Type = T_ERROR;
+			//wprintf(L"Errore GetNextTokenFromToUnicodeStream: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			return;
+		}						
 	} // FINE -> While ( 1 )
 		
 	return;	

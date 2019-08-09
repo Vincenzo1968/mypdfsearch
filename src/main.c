@@ -1137,6 +1137,41 @@ int MakeAndOpenErrorsFile(Params *pParams)
 	return retValue;
 }
 
+void checkEndianness(Params *pParams)
+{
+	//int i = 0xDEED1234;
+	//int i = 0xABCDEF12;
+	uint32_t i = 0xABCDEF12;
+	//int j;
+	unsigned char *buff;
+
+	//wprintf(L"\nvalue = %lX\n", i);
+
+	buff = (unsigned char*)&i;
+	
+	pParams->nThisMachineEndianness = MACHINE_ENDIANNESS_UNKNOWN;
+
+	if( buff[0] == 0xAB )
+	{
+		//wprintf(L"This machine is BIG endian - HIGHER order bytes come first");
+		pParams->nThisMachineEndianness = MACHINE_ENDIANNESS_BIG_ENDIAN;
+	}
+	else
+	{
+		pParams->nThisMachineEndianness = MACHINE_ENDIANNESS_LITTLE_ENDIAN;
+		//wprintf(L"This machine is LITTLE endian - LOWER order bytes come first");
+	}
+
+	//wprintf(L"\nhere are the 4 bytes\n");
+
+	//for( j = 0; j < 4; j++ )
+	//{
+	//	wprintf(L"byte [%d] = %X\n", j, buff[j]);
+	//}
+
+	//wprintf(L"\n");
+}
+
 /*
 IMPORTANTE, ATTENZIONE!!! compilare su Windows con MINGW64, richiede di specificare '-liconv' alla fine, dopo '-lz'
                           altrimenti il linker dà errore.
@@ -1145,7 +1180,7 @@ IMPORTANTE, ATTENZIONE!!! compilare su Windows con MINGW64, richiede di specific
 /*
 MINGW:
  
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
 
 vanno bene entrambe le modalità: e con slash, e con backslash:
 mypdfsearch --path="C:\AAA_ProgrammiLibrerie\myPdfSearch\Files\Prova" --words="Virginia campidoglio Orbán"
@@ -1157,7 +1192,7 @@ MSYS2:
 
 cd /c/AAA_ProgrammiLibrerie/myPdfSearch
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
 
 
 C:\AAA_ProgrammiLibrerie\myPdfSearch\Files
@@ -1173,7 +1208,9 @@ ATTENZIONE: IMPORTANTE:
 Se si vuole compilare con l'opzione -str=c99, bisogna aggiungere anche -D_GNU_SOURCE, altrimenti succede il bordello:
 errori e warning stravaganti e sensa senso.
 
-gcc -Wall -Wextra -pedantic -O0 -g -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz
+gcc -Wall -Wextra -pedantic -O0 -g -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/FileProblematici/La Stampa - 20 luglio 2019 .pdf" --frompage=3 --topage=4
 
@@ -1195,8 +1232,8 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
-gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
-gcc -Wall -W -pedantic -O3 myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -O3 myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
  
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán Milano"
   
@@ -1206,7 +1243,7 @@ gcc -Wall -W -pedantic -O3 myoctal.c myTernarySearchTree.c myScopeHashTable.c my
 
  
 Per generare le dipendenze per il Makefile, usare -MM:
-gcc -MM -D_GNU_SOURCE myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz
+gcc -MM -D_GNU_SOURCE myinitarray.c myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz
 */
 
 int main(int argc, char **argv)
@@ -1217,10 +1254,10 @@ int main(int argc, char **argv)
 					
 	FilesList* myFilesList = NULL;
 	
-	long numProcessors;
+	//long numProcessors;
 		
 	int len;
-		
+				
 	myParams.countWordsToSearch = 0;
 	myParams.pWordsToSearchArray = NULL;
 	
@@ -1258,8 +1295,10 @@ int main(int argc, char **argv)
 		goto uscita;
 	}
 	
-	numProcessors = GetProcessors();
-	wprintf(L"\n\nQUESTA MACCHINA HA %ld PROCESSORI.\n\n", numProcessors);
+	//numProcessors = GetProcessors();
+	//wprintf(L"\n\nQUESTA MACCHINA HA %ld PROCESSORI.\n\n", numProcessors);
+	
+	checkEndianness(&myParams);
 
 	if ( !myParseCommandLine(&myParams, argc, argv) )
 	{

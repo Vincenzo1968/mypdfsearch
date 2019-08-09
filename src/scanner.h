@@ -64,6 +64,12 @@
 #define DICTIONARY_TYPE_XOBJ        2
 #define DICTIONARY_TYPE_FONT        3
 
+
+#define MACHINE_ENDIANNESS_UNKNOWN         0
+#define MACHINE_ENDIANNESS_LITTLE_ENDIAN   1
+#define MACHINE_ENDIANNESS_BIG_ENDIAN      2
+
+
 typedef enum tagTokenType
 {
 	/*  0 */ T_ERROR = 0,
@@ -106,8 +112,15 @@ typedef enum tagTokenType
 	/* 37 */ T_CONTENT_OP_Tw,
 	/* 38 */ T_CONTENT_OP_Tf,
 	/* 39 */ T_VOID_STRING,
-	/* 40 */ T_CONTENT_OP_BI   // 'BI'   -> Begin Image, ignoriamo tutto ciò che segue
+	/* 40 */ T_CONTENT_OP_BI,   // 'BI'   -> 
+	/* 41 */ T_CONTENT_OP_begincodespacerange,
+	/* 42 */ T_CONTENT_OP_endcodespacerange,
+	/* 43 */ T_CONTENT_OP_beginbfchar,
+	/* 44 */ T_CONTENT_OP_endbfchar,
+	/* 45 */ T_CONTENT_OP_beginbfrange,
+	/* 46 */ T_CONTENT_OP_endbfrange
 }TokenTypeEnum;
+
 
 typedef enum tagTrailerStates
 {
@@ -204,6 +217,8 @@ typedef struct tagParams
 		
 	char* lexeme;
 	
+	int nThisMachineEndianness;
+	
 	char szFileName[PATH_MAX];
 	FILE *fp;
 	FILE *fpLengthObjRef;
@@ -227,6 +242,12 @@ typedef struct tagParams
 	int blockLenLengthObj;
 	int blockCurPosLengthObj;
 	
+	
+	unsigned char *myBlockToUnicode;
+	int blockLenToUnicode;
+	int blockCurPosToUnicode;
+	
+	
 	int bStreamState;
 	int bStringIsDecoded;
 	
@@ -240,6 +261,10 @@ typedef struct tagParams
 	int bFontObjIsIndirect;
 	int nFontObjRef;
 	int bIsInFontObjState;	
+	
+	int nToUnicodeStreamObjRef;
+	int bStreamStateToUnicode;
+	
 	
 	StreamsStack myStreamsStack[STREAMS_STACK_SIZE];
 	int nStreamsStackTop;
@@ -259,7 +284,6 @@ typedef struct tagParams
 	
 	int bStateSillab;
 	
-	
 	HashTable_t myCharSetHashTable;
 		
 	wchar_t *pUtf8String;
@@ -272,7 +296,10 @@ typedef struct tagParams
 	
 	wchar_t aMACEXP_CharSet[256];
 	
-	wchar_t aCustomizedFont_CharSet[256];
+	wchar_t *paCustomizedFont_CharSet;
+	int dimCustomizedFont_CharSet;
+	
+	wchar_t *pArrayUnicode;
 	
 	wchar_t *pCurrentEncodingArray;
 	
@@ -387,5 +414,7 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput, int bIsLastTrailer);
 void GetNextToken(Params *pParams);
 
 void GetNextTokenLengthObj(Params *pParams);
+
+void GetNextTokenFromToUnicodeStream(Params *pParams);
 
 #endif /* __MYSCANNER__ */
