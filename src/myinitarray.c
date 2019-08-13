@@ -17030,6 +17030,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x20AC;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "Euro.small");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x20AC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "F");
 	sizekey = strlen(szKey) + sizeof(char);
@@ -17900,6 +17904,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0026;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "ampersand.salt");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0026;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "angle");
 	sizekey = strlen(szKey) + sizeof(char);
@@ -18340,7 +18348,11 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0038;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
-
+	strcpy(szKey, "eight.onum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0038;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	
 	strcpy(szKey, "element");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x2208;
@@ -18470,7 +18482,11 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0035;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
-
+	strcpy(szKey, "five.onum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0035;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	
 	strcpy(szKey, "fiveeighths");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x215D;
@@ -18482,6 +18498,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "four");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0034;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "four.onum");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0034;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
@@ -18900,6 +18920,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0039;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "nine.onum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0039;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);	
 
 	strcpy(szKey, "notelement");
 	sizekey = strlen(szKey) + sizeof(char);
@@ -19012,6 +19036,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "one");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0031;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "one.onum");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0031;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
@@ -19345,6 +19373,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0037;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "seven.onum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0037;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "seveneighths");
 	sizekey = strlen(szKey) + sizeof(char);
@@ -19375,7 +19407,11 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0036;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
-
+	strcpy(szKey, "six.onum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0036;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	
 	strcpy(szKey, "slash");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x002F;
@@ -19460,6 +19496,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0033;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "three.onum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0033;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "threeeighths");
 	sizekey = strlen(szKey) + sizeof(char);
@@ -19512,6 +19552,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "two");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0032;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "two.onum");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0032;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
@@ -19730,10 +19774,10721 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x0030;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+	strcpy(szKey, "zero.onum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0030;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 
 	strcpy(szKey, "zeta");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x03B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	// *********************************************************************************************************
+
+	strcpy(szKey, "A");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0041;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "AEacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01FC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "AEsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Aacutesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7E1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Abreveacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EAE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Abrevedotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EB6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Abrevehookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EB2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Acaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01CD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Acircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00C2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Acircumflexdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EAC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Acircumflexhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EA8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Acircumflextilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EAA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Acutesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Adblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0200;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Adieresiscyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Adieresissmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7E4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Adotmacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Agravesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Aiecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Alpha");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0391;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Amacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0100;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Aogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0104;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Aringacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01FA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Aringsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7E5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Atilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00C3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Aybarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0531;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Bcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Bdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E04;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Benarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0532;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Bhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0181;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Bmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF22;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Bsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF762;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "C");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0043;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Cacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0106;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Caronsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6F5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ccedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00C7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ccedillasmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ccircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0108;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Cdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x010A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Chaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0549;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Checyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0427;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Chedescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Cheharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0543;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Cheverticalstrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Chook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0187;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Cmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF23;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Csmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF763;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "DZ");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01F1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Daarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0534;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x010E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dcroat");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0110;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ddotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E0C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Deicoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Deltagreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0394;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6CB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "DieresisGrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6CD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Digammagreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E0E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dotaccentsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6F7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF764;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dz");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dzeabkhasiancyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Dzhecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x040F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Eacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00C9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ebreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0114;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ecedillabreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E1C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ecircumflexacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EBE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ecircumflexdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EC6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ecircumflexhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EC2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ecircumflextilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EC4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Edblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0204;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Edieresissmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7EB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Edotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0116;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Efcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0424;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Egravesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ehookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EBA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Einvertedbreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0206;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Elcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x041B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Emacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0112;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Emacrongrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E14;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Emonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF25;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Endescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04A2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Enghecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Eogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0118;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Epsilon");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0395;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0420;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ereversedcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x042D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Esdescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Esmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF765;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Etarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0538;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Eth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00D0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Etilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EBC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Euro");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x20AC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ezhcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "F");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0046;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Fdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E1E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Feicoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03E4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Fitacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0472;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Fmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF26;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Fsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF766;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "GBsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3387;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gamma");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0393;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gangiacoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03EA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gcommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0122;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0120;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ghadarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0542;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ghestrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0492;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ghook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0193;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gjecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0403;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF27;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gravesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF760;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Gsmallhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x029B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "H");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0048;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "H18543");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "H22073");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25A1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Haabkhasiancyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04A8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hardsigncyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x042A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hbrevebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E2A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hdieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E26;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E24;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hoarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0540;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF768;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Hungarumlautsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6F8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "I");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0049;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "IJ");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0132;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00CD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ibreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x012C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Icircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Icircumflexsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Idblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0208;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Idieresisacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E2E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Idieresissmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7EF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Idotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0130;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iebrevecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04D6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ifraktur");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2111;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Igravesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7EC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iicyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0418;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iishortcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0419;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Imacroncyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04E2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iniarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x053B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x012E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iotaafrican");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0196;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Iotatonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x038A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Istroke");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0197;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Itildebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E2C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Izhitsadblgravecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0476;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Jaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0541;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Jcircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0134;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Jheharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x054B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Jsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF76A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "KBsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3385;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kabashkircyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x041A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kahookcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04C3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kastrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x049E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24C0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E32;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kenarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x053F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kheicoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kjecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x040C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Kmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF2B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Koppagreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03DE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ksmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF76B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "LJ");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01C7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Lacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0139;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Lcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x013D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Lcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Lcommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x013B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ldotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x013F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ldotbelowmacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E38;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Lj");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Llinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E3A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Lslash");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0141;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Lsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF76C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "MBsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3386;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Macronsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7AF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Mcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24C2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Mdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E42;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Mmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF2D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Mturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x019C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "N");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x004E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Nacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0143;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ncedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0145;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ncircumflexbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E4A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ndotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E44;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Nhookleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x019D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Nj");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01CB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Nlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E48;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Nowarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0546;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ntilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00D1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Nu");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x039D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "OE");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0152;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Oacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00D3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Obarredcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Obreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x014E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ocenteredtilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x019F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ocircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ocircumflexdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ED8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ocircumflexhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ED4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ocircumflextilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ED6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Odblacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0150;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Odieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00D6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Odieresissmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7F6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ogoneksmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6FB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ogravesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ohm");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2126;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ohorn");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ohorndotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EE2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ohornhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EDE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ohungarumlaut");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0150;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Oinvertedbreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x020E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Omacronacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E52;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Omega");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2126;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Omegagreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03A9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Omegatitlocyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x047C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Omicron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x039F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Omonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF2F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Oogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01EA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Oopen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0186;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Oslashacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01FE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Osmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF76F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Otcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x047E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Otildeacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E4C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Otildesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7F5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Pacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E54;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Pdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E56;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Peharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x054A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Phi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03A6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Pi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Pmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF30;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Psicyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0470;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Q");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0051;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Qmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF31;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "R");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0052;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Racute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0154;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rcedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0156;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rcommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0156;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E58;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rdotbelowmacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E5C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rfraktur");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x211C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ringsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6FC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E5E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF772;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Rsmallinvertedsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF010000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x250C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF030000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2510;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF050000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x253C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF070000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2534;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF090000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2524;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF110000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2502;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF200000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2562;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF220000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2555;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF240000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2551;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF260000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x255D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF280000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x255B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF370000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x255F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF390000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2554;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF410000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2566;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF430000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2550;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF450000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2567;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF470000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2564;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF490000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2559;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF510000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2552;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "SF530000");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x256B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Sacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x015A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Sampigreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Scarondotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E66;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Scedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x015E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Schwacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Scircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Scommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0218;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Sdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E62;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Seharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x054D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Shaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0547;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Shchacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0429;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Shhacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Sigma");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Smonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF33;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ssmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF773;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "T");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0054;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tbar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0166;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tcedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0162;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tcircumflexbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E70;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E6A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0422;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tenroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2169;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Theta");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0398;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Thorn");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00DE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Threeroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2162;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tiwnarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x054F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF34;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tonefive");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tonetwo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01A7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tsecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0426;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF774;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Tworoman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2161;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Uacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00DA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ubreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x016C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ucircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24CA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ucircumflexbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E76;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ucyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0423;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Udblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0214;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Udieresisacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01D7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Udieresiscaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01D9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Udieresisgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01DB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Udieresissmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7FC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ugrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00D9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Uhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EE6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Uhornacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EE8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Uhorngrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EEA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Uhorntilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EEE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Uhungarumlautcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ukcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0478;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Umacroncyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Umonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF35;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Upsilon");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03A5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Upsilonacutehooksymbolgreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03D3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Upsilondieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03AB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Upsilonhooksymbol");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Uring");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x016E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Usmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF775;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ustraightstrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Utildeacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E78;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "V");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0056;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Vdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E7E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Vewarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x054E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Vmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF36;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Vsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF776;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "W");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0057;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Wcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24CC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Wdieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E84;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Wdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E88;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Wmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF37;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "X");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0058;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Xdieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E8C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Xeharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x053D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Xmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF38;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Y");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0059;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Yacutesmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7FD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ycircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24CE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ydieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0178;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ydotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E8E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Yericyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x042B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ygrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EF2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Yhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EF6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Yicyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0407;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ymonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF39;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Ytilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EF8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Yusbigiotifiedcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x046C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Yuslittleiotifiedcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0468;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0536;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x017D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24CF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zdot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x017B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E92;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zedescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0498;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zeta");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0396;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zhebrevecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zhedescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0496;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E94;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "Zsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF77A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "a");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0061;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00E1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A86;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aamatragurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A3E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aavowelsignbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aavowelsigngujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0ABE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "abbreviationsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0970;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "abopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x311A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "abreveacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EAF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "abrevedotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EB7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "abrevehookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EB3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01CE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00E2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acircumflexdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EAD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acircumflexhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EA9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acutecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0301;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acutedeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0954;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "acutetonecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0341;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "adblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0201;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "adeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0905;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "adieresiscyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04D3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "adotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EA1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ae");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3150;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii00208");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2015;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10017");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0410;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10019");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0412;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10021");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0414;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10023");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0401;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10025");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0417;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10027");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0419;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10029");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x041B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10031");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x041D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10033");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x041F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10035");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0421;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10037");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0423;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10039");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0425;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10041");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0427;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10043");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0429;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10045");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x042B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10047");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x042D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10049");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x042F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10051");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0402;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10053");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0404;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10055");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0406;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10057");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0408;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10059");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x040A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10061");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x040C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10063");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6C4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10065");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0430;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10067");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0432;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10069");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0434;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10071");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0451;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10073");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0437;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10075");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0439;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10077");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x043B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10079");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x043D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10081");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x043F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10083");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0441;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10085");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0443;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10087");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0445;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10089");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0447;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10091");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0449;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10093");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x044B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10095");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x044D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10097");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x044F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10099");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0452;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10101");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0454;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10103");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0456;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10105");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0458;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10107");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x045A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10109");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x045C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10145");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x040F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10147");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0472;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10192");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6C6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10194");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0463;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10196");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0475;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii10832");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii299");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x200E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii301");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x200D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57388");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x060C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57393");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0661;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57395");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0663;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57397");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0665;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57399");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0667;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57401");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0669;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57407");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x061F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57410");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0622;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57412");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0624;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57414");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0626;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57416");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0628;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57418");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x062A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57420");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x062C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57422");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x062E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57424");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0630;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57426");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0632;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57428");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0634;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57430");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0636;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57432");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0638;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57434");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x063A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57441");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0641;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57443");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0643;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57445");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0645;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57448");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0648;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57450");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x064A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57452");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x064C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57454");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x064E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57456");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0650;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57458");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0652;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57505");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57507");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0686;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57509");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06AF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57512");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0688;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57514");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57534");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06D5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57645");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57664");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57666");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57668");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57670");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57672");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57674");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57676");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57678");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57680");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57682");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57684");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57686");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57688");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57690");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05EA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57695");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB2B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57705");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB1F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57717");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05F1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57723");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB35;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57794");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57796");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57798");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57800");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57802");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57804");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57807");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57841");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii57929");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii61289");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2113;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii61573");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x202C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii61575");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x202E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "afii63167");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x066D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "agrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "agurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A05;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ahookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EA3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aibopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x311E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aiecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04D5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aigurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A10;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ainarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0639;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aininitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFECB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ainvertedbreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0203;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aivowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0948;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "akatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30A2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "akorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x314F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alefarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0627;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aleffinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE8E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alefhamzaabovefinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE84;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alefhamzabelowfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE88;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aleflamedhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB4F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alefmaddaabovefinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE82;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alefmaksurafinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEF0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alefmaksuramedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEF4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alefqamatshebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB2F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "allequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x224C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "alphatonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03AC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "amonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF41;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ampersandmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF06;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "amsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33C2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "angbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3124;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "angle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2220;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "anglebracketleftvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE3F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "anglebracketrightvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE40;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "angleright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x232A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "anoteleia");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0387;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "anusvarabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0982;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "anusvaragujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A82;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "apaatosquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3300;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "apostrophearmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x055A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "apple");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8FF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "approxequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2248;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "approximatelyequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2245;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "araeakorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x318D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arighthalfring");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E9A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aringacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01FB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowboth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2194;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowdashleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowdashup");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21E1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowdbldown");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21D3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowdblright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowdown");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2193;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowdownright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2198;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowheaddownmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02C5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowheadrightmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02C3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowhorizex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowleftdbl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21D0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowleftoverright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21C6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2192;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowrightheavy");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x279E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowrightwhite");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowtabright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21E5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowupdn");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2195;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowupdownbase");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21A8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowupleftofdown");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21C5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "arrowupwhite");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asciicircum");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x005E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asciitilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x007E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ascript");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0251;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asmallhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3041;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asmallkatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF67;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asteriskaltonearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x066D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asteriskmath");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2217;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asterisksmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE61;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "asuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6E9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "at");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0040;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "atmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF20;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0250;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aubopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3120;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "augujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A94;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aulengthmarkbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09D7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "auvowelsignbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09CC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "auvowelsigngujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0ACC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "aybarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0561;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ayinaltonehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB20;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "b");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0062;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "backslash");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x005C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "badeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x092C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A2C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bahtthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E3F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x007C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3105;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E03;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "beamedsixteenthnotes");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x266C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "becyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0431;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "behfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE90;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "behiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3079;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "behmeeminitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC9F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "behnoonfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC6D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "benarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0562;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "beta");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "betdagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB31;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bethebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bhabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09AD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bhagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AAD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0253;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bikatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30D3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bindigurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A02;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blackcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25CF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blackdownpointingtriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blackleftpointingtriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25C0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blacklenticularbracketleftvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE3B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blacklenticularbracketrightvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE3C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blacklowerrighttriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25E2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blackrightpointingpointer");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blacksmallsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blacksquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blackupperlefttriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25E4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blackuppointingsmalltriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "blank");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2423;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "block");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2588;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bobaimaithai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E1A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bqsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33C3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "braceleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x007B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "braceleftmid");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "braceleftsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE5B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "braceleftvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE37;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracerightbt");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8FE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracerightmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF5D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracerighttp");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8FC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracketleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x005B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracketleftex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8EF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracketlefttp");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracketrightbt");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8FB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bracketrightmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF3D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "breve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "brevecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0306;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "breveinvertedcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0311;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bridgebelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x032A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "brokenbar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00A6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6EA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "buhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3076;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bullet");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2022;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "bulletoperator");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2219;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "c");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0063;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x099A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x091A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A1A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "candrabindubengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0981;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "candrabindudeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0901;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "capslock");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21EA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "caron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02C7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "caroncmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x030C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3118;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ccedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ccircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ccurl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0255;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x010B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00A2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "centinferior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6DF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "centoldstyle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7A2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0579;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x091B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A1B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cheabkhasiancyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "checyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0447;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chedescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cheharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0573;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cheverticalstrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chieuchacirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3277;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chieuchcirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3269;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chieuchparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3209;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chochanthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E08;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "chochoethai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E0C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cieucacirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3276;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cieuccirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3268;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cieucparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3208;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "circle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25CB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "circleot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2299;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "circlepostalmark");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3036;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "circlewithrighthalfblack");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25D1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "circumflexbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x032D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "clear");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2327;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "clickdental");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01C0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "clickretroflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01C3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "clubsuitblack");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2663;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cmcubedsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cmsquaredsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "colon");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x003A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "colonmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF1A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "colonsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE55;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "colontriangularmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02D0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "commaabovecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0313;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "commaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6C3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "commaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x055D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "commamonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF0C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "commareversedmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "commasuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6E2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "commaturnedmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "congruent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2245;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "control");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2303;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlBEL");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0007;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlCAN");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0018;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlDC1");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0011;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlDC3");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0013;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlDEL");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x007F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlEM");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0019;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlEOT");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0004;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlETB");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0017;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlFF");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x000C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlGS");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x001D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlLF");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x000A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlRS");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x001E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlSO");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x000E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlSTX");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0001;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlSYN");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0016;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "controlVT");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x000B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "copyrightsans");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8E9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cornerbracketleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x300C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cornerbracketleftvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE41;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cornerbracketrighthalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF63;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "corporationsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x337F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "coverkgsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33C6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cruzeiro");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x20A2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "curlyand");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x22CF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "currency");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cyrFlex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "cyrflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6D5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0564;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dadarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0636;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dadfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEBE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dadmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEC0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daggerdbl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2021;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A26;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dakatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30C0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dalet");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daletdageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB33;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dalethatafpatahhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dalethatafsegolhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dalethiriq");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daletholam");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daletpatah");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daletqamats");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daletqubuts");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daletsegol");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "daletsheva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dalettsere");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D305B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dalfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEAA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dammalowarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x064F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dammatanarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x064C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dargahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05A7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dasiapneumatacyrilliccmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0485;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblanglebracketleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x300A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblanglebracketright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x300B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblarchinvertedbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x032B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblarrowright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6D6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblintegral");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x222C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dbllowlinecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0333;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblprimemod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dblverticallineabovecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x030E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dbsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dcedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E11;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dcircumflexbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E13;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ddabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09A1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ddagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AA1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ddalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0688;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dddhadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x095C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ddhadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0922;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ddhagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A22;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ddotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E0D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "decimalseparatorpersian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x066B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "degree");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3067;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30C7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "deleteright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2326;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "deltaturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x018D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dezh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dhadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0927;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dhagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A27;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dialytikatonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0385;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "diamond");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2666;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00A8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dieresisbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0324;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dieresisgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dihiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3062;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dittomark");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3003;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "divides");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2223;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "djecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0452;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E0F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dmacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0111;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dnblock");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2584;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dodekthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E14;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30C9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dollarinferior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6E3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dollaroldstyle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF724;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dollarsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6E4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dorusquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3326;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dotaccentcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0307;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dotbelowcomb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0323;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dotlessi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0131;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dotlessjstrokehook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0284;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dottedcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25CC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "doubleyodpatahhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB1F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "downtackmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02D5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6EB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dtopbar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x018C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30C5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dzaltone");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dzcurl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02A5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "dzecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0455;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "e");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0065;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "earth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2641;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ebopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x311C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecandradeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x090D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecandravowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0945;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x011B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "echarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0565;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecircumflexacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EBF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecircumflexdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EC7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecircumflexhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EC3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0454;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "edeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x090F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "edot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0117;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "edotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EB9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eematragurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A47;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "egrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0567;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3048;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eibopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x311F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0668;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2467;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightdeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x096E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eighteenparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2485;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightgujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AEE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eighthackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0668;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eighthnotebeamed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x266B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightinferior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2088;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightoldstyle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF738;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x248F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2177;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eightthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E58;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eiotifiedcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0465;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ekatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF74;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3154;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "element");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2208;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "elevenparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x247E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "elevenroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x217A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ellipsisvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x22EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "emacronacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E17;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "emcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x043C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "emdashvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE31;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "emphasismarkarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x055B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "enbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3123;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "endash");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2013;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "endescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "engbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3125;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "enhookcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0119;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eopen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x025B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eopenreversed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x025C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eopenreversedhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x025D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "epsilon");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "equal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x003D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "equalsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE66;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "equivalence");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2261;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0440;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ereversedcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x044D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "esdescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04AB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eshcurl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0286;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eshortvowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0946;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eshsquatreversed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0285;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "esmallkatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30A7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "estimated");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x212E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eta");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "etatonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03AE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "etilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EBD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "etnahtafoukhhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0591;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "etnahtahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0591;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "eturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "euro");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x20AC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "evowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0947;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "exclam");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0021;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "exclamdbl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x203C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "exclamdownsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF7A1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "exclamsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF721;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ezh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0292;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ezhcurl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0293;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ezhtail");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x095E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fahrenheit");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2109;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fathalowarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x064E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3108;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E1F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "feharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0586;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fehinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFED3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "feicoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03E5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ff");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB00;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ffl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB04;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fifteencircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x246E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fifteenperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2496;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "filledbox");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finalkaf");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finalkafdageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB3A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finalkafqamats");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DA05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finalkafsheva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DA05B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finalmem");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finalnun");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finalpe");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "finaltsadi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "firsttonechinese");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02C9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fitacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0473;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0665;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2464;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivedeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x096B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivegujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AEB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivehackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0665;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fiveideographicparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3224;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivemonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF15;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fiveparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2478;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivepersian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06F5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fivesuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2075;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB02;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF46;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fofanthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E1F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fongmanthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E4F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "four");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0034;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09EA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourcircleinversesansserif");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x278D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourgujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AEA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourhackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0664;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourideographicparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3223;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF14;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fouroldstyle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF734;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x248B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2173;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourteencircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x246D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourteenperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2495;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fourthtonechinese");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02CB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "fraction");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2044;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "g");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0067;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01F5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gafarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06AF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gafinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB94;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A97;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gahiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x304C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gamma");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gammasuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x310D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24D6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gcommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0123;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0121;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3052;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "geometricallyequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2251;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gereshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05F3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "germandbls");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00DF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gershayimhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05F4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0998;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0918;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A18;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghainfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFECE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghainmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFED0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghestrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0493;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghhadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x095A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ghook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0260;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gihiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x304E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gimarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0563;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gimeldagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB32;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gimelhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "glottalinvertedstroke");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "glottalstopinverted");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0296;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "glottalstopreversed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0295;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "glottalstopreversedsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02E4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "glottalstopstrokereversed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02A2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF47;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gpasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33AC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "grave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0060;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gravecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0300;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gravedeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0953;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gravemonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF40;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "greater");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x003E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "greaterequalorless");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x22DB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "greaterorequivalent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2273;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "greateroverequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2267;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "gscript");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0261;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "guhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3050;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "guillemotright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "guilsinglright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x203A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "guramusquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3318;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "h");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0068;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "haaltonearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hadescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AB9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "haharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x062D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hahinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEA3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hahmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEA4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hakatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30CF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "halantgurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A4D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hamzadammaarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0621064F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hamzafathaarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0621064E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hamzalowarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0621;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hamzalowkasratanarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0621064D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hangulfiller");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3164;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "harpoonleftbarbup");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33CA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafpatah16");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafpatah2f");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafpatahnarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafpatahwidehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafqamats1b");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafqamats34");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafqamatsnarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafqamatswidehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafsegol17");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafsegol30");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafsegolnarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hatafsegolwidehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x310F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hcedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E29;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hcircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0125;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E23;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "he");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "heartsuitblack");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2665;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hedagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB34;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hehaltonearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hehfinalalttwoarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEEA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hehhamzaabovefinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFBA5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hehinitialaltonearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFBA8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3078;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hehmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEEC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hekutaarusquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3336;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "herutusquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3339;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hethebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hhooksuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hieuhaparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x321B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hieuhkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x314E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hihiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3072;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hikatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF8B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hiriq14");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hiriq2d");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hiriqnarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hiriqwidehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF48;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hohipthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E2B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30DB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "holam");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "holam26");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "holamhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "holamquarterhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "honokhukthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E2E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hookcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0309;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hookretroflexbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0322;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "horicoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03E9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "horncmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x031B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "house");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2302;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "huhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3075;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30D5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hungarumlaut");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hv");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0195;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hypheninferior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6E5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hyphensmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE63;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "hyphentwo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2010;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00ED;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ibengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0987;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ibreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x012D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "icircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "icyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0456;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographearthcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x328F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicallianceparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x323F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographiccentrecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x32A5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographiccomma");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3001;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographiccongratulationparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3237;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicearthparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x322F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicexcellentcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x329D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicfinancialcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3296;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicfireparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x322B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographichighcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x32A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographiclaborcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3298;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicleftcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x32A7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicmedicinecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x32A9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicmoonparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x322A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3002;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicreachparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3243;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicresourceparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x323E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicsecretcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3299;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicsocietyparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3233;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicspecialparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3235;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicstudyparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x323B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicsuperviseparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x323C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographicwoodparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x322D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographmetalcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x328E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographnamecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3294;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideographwatercircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x328C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ideva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0907;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "idieresisacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E2F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "idotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ECB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0435;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ieungaparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3215;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ieungkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3147;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "igrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00EC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "igurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A07;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ihookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EC9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iicyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0438;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iigujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A88;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iimatragurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A40;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iishortcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0439;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iivowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0940;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ij");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0133;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ikatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF72;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "imacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x012B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "imageorapproximatelyequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2253;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "imonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF49;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "infinity");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x221E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "integral");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x222B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "integralbt");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2321;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "integraltop");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2320;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "intersection");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2229;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "invbullet");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "invsmileface");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x263B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x012F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iotadieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03CA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iotalatin");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0269;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ismallhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3043;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ismallkatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF68;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "istroke");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0268;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iterationhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x309D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "itilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0129;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "iubopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3129;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ivowelsignbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09BF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ivowelsigngujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0ABF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "izhitsadblgravecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0477;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0571;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x091C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A1C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01F0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jcircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0135;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jdotlessstroke");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x025F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jeemarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x062C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jeeminitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE9F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jeharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0698;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jhabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x099D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jhagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A9D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jheharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x057B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF4A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "jsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kabashkircyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04A1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E31;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kadescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x049B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kaf");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kafdagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB3B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kaffinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEDA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kafinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEDB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kafrafehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB4D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A15;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kahookcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04C4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kakatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF76;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kappasymbolgreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03F0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kapyeounphieuphkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3184;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kapyeounssangpieupkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3179;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kashidaautoarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0640;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kasmallkatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30F5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kasraarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0650;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kastrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x049F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kaverticalstrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x049D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kcalsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3389;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kcedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0137;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kcommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0137;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "keharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0584;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kenarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x056F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kgreenlandic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0138;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0445;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A96;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khaharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x062E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khahinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEA7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kheicoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khhagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A59;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khieukhaparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3218;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khieukhkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x314B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khokhaithai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E02;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khokhuatthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E03;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khomutthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E5B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "khorakhangthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E06;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kihiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x304D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kikatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF77;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kiromeetorusquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3316;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kiyeokacirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x326E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kiyeokcirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3260;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kiyeokparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3200;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kjecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x045C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "klsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3398;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF4B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kohiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3053;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kokaithai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E01;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kokatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF7A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "koppacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0481;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "koroniscmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0343;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kpasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ktsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33CF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kuhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x304F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kukatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF78;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "kwsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "labengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ladeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0932;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A32;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamaleffinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEFC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamalefhamzaaboveisolatedarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEF7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamalefhamzabelowisolatedarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEF9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamalefmaddaabovefinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEF6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0644;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lambdastroke");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x019B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lameddagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB3C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamedhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	//strcpy(szKey, "lamedholamdagesh");
+	//sizekey = strlen(szKey) + sizeof(char);
+	//nData = 0x05DC05B905BC;
+	//htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamedholamhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DC05B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamhahinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFCCA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamjeeminitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFCC9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lamlamhehisolatedarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFDF2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lammeemhahinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFD88;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	//strcpy(szKey, "lammeemjeeminitialarabic");
+	//sizekey = strlen(szKey) + sizeof(char);
+	//nData = 0xFEDFFEE4FEA0;
+	//htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "largecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25EF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lbelt");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x026C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x013E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24DB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lcommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x013C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ldotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0140;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ldotbelowmacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E39;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lefttackbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0318;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lessequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2264;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lessmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF1C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lessorgreater");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2276;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lesssmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE64;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lfblock");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x258C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lira");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x20A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lj");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01C9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ll");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6C0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "llagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AB3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "llladeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0934;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "llvocalicdeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0961;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "llvocalicvowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0963;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF4C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lochulathai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E2C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "logicalnot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00AC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "logicalor");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2228;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "longs");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x017F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lowlinecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0332;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lozenge");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25CA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lslash");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0142;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "luthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E26;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lvocalicdeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x090C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "lvocalicvowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0962;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "m");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x006D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "macron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00AF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "macroncmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0304;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "macronmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFFE3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "madeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x092E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "magurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A2E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mahapakhlefthebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maichattawalowleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF895;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maichattawathai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E4B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maieklowleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF88C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maiekthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E48;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maihanakatleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF884;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maitaikhuleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF889;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maitholowleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF88F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maithothai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E49;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maitrilowleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF892;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maitrithai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E4A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "maiyamokthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E46;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "makatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF8F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mansyonsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3347;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mars");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2642;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "masquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3383;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mbsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mcubedsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33A5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E43;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "meemfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEE2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "meemmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEE4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "meemmeemisolatedarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC48;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3081;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30E1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mem");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05DE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "memdageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB3E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "menarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0574;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "merkhakefulahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05A6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "merkhalefthebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05A5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mhzsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3392;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "middot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mieumaparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3212;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mieumkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3141;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mieumparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3204;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mieumsioskorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x316F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mikatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30DF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "minus");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2212;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "minuscircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2296;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "minusplus");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2213;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "miribaarusquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x334A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mlonglegturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0270;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mmcubedsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mmsquaredsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x339F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mohmsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mokatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF93;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "momathai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E21;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "moverssquaredsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33A8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mpasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33AB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "msuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6EF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mu");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "muasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3382;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "muchless");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x226A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mugreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "muhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3080;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mukatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF91;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "multiply");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00D7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "munahhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "musicalnote");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x266A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "musicflatsign");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x266D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mussquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "muwsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mvsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "mwsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09A8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0144;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AA8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nahiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x306A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nakatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF85;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3381;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nbspace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ncedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0146;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ncircumflexbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E4B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ndotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E45;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x306D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nekatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF88;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nfsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x338B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ngadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0919;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ngagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A19;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3093;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nhookretroflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0273;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nieunaparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x320F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nieuncirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3261;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nieunkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3134;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nieunparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3201;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nieuntikeutkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3166;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nikatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30CB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nikhahitleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF899;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nine");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0039;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninebengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09EF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninecircleinversesansserif");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2792;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninegujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AEF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninehackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0669;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nineideographicparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3228;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninemonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF19;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nineparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x247C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninepersian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06F9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninesuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2079;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nineteenparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2486;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ninethai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E59;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "njecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x045A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nkatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF9D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E49;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nmsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x339A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nnadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0923;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nnagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A23;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nohiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x306E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nokatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF89;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nonenthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E13;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "noonarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0646;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "noonghunnaarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "noonhehinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEE7FEEC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "noonjeeminitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFCD2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "noonmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEE8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "noonmeemisolatedarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC4E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notcontains");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x220C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notelementof");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2209;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notgreater");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x226F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notgreaternorless");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2279;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notless");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x226E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notparallel");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2226;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notsubset");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2284;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "notsuperset");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2285;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24A9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x207F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nu");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30CC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nuktabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nuktagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0ABC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "numbersign");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0023;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "numbersignsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE5F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "numeralsignlowergreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0375;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nun");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nundageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB40;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nvsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nyabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x099E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "nyagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A9E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "o");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x006F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oangthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E2D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "obarredcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04E9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "obengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0993;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "obreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x014F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ocandragujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A91;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ocandravowelsigngujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AC9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ocircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24DE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ocircumflexacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ED1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ocircumflexgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ED3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ocircumflextilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ED7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "odblacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0151;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "odeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0913;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "odieresiscyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oe");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0153;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02DB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ograve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0585;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ohookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1ECF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ohornacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EDB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ohorngrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EDD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ohorntilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EE1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "okatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "okorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3157;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x014D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omacrongrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E51;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omega");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03C9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omegacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0461;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omegaroundcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x047B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omegatonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03CE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omicron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03BF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "omonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF4F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0661;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2460;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onedeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0967;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oneeighth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x215B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onegujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AE7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onehackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0661;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onehangzhou");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3021;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oneinferior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2081;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onenumeratorbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09F4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oneparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2474;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onepersian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06F1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oneroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2170;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "onethai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E51;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01EB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oogurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A13;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oopen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0254;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "openbullet");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ordfeminine");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "orthogonal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x221F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oshortvowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x094A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oslashacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01FF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "osmallkatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30A9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ostrokeacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01FF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "otcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x047F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "otildeacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E4D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "oubopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3121;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "overlinecenterline");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE4A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "overlinedashed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE49;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "overlinewavy");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE4B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ovowelsignbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09CB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ovowelsigngujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0ACB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "paampssquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3380;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "padeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x092A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pageup");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x21DE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A2A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "paiyannoithai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E2F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "palatalizationcyrilliccmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0484;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pansioskorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x317F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parallel");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2225;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenleftaltonearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFD3E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenleftex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8EC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenleftmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF08;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenleftsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x207D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenleftvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE35;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenrightaltonearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFD3F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenrightex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8F7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenrightmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF09;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenrightsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x207E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "parenrightvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE36;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "paseqhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05C0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33A9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "patah11");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "patah2a");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "patahnarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "patahwidehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pbopomofo");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3106;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E57;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x043F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pedageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB44;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pefinaldageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB43;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "peharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x057A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pehfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB57;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x307A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30DA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "perafehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB4E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "percentarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x066A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "percentsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE6A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "periodarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0589;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "periodhalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF61;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "periodmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF0E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "periodsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "perpendicular");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x22A5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "peseta");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x20A7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09AB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AAB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03C6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phieuphacirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x327A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phieuphcirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x326C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phieuphparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x320C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phinthuthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E3A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01A5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "phophungthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E1C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03C0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pieupaparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3213;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pieupcirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3265;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pieupkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3142;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pieupsioskiyeokkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3174;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pieupsiostikeutkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3175;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pieuptikeutkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3173;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pikatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "piwrarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0583;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "plusbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x031F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "plusminus");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "plusmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF0B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "plussuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x207A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pmsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pointingindexdownwhite");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x261F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pointingindexrightwhite");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x261E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "postalmark");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3012;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24AB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "prescription");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x211E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "primereversed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2035;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "projective");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2305;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "propellor");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2318;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "propersuperset");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2283;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "proportional");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x221D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "psicyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0471;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pssquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30D7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "pwsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0958;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qafarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0642;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qafinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFED7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamats");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamats1a");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamats27");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamats33");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamatshebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamatsqatanhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamatsqatanquarterhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qamatsquarterhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qarneyparahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x059F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24E0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF51;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofdagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB47;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofhatafpatah");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofhatafsegol");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofhiriqhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofholamhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofpatahhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofqamatshebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofqubutshebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofsegolhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qofshevahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qoftserehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E705B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quarternote");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2669;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qubuts18");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qubuts31");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qubutsnarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "qubutswidehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "questionarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x061F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "questiondown");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00BF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "questiongreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x037E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "questionsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF73F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quotedblbase");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x201E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quotedblmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF02;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quotedblprimereversed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x301D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quoteleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2018;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quotereversed");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x201B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quoterightn");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0149;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "quotesingle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0027;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "r");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0072;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "radeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0930;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "radicalex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8E5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "radoverssquaredsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33AF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rafe");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ragujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AB0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rahiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3089;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rakatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF97;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ramiddlediagonalbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09F0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ratio");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2236;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0159;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24E1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rdblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0211;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E5B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "referencemark");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x203B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reflexsuperset");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2287;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "registersans");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF8E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0631;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rehfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEAE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	//strcpy(szKey, "rehyehaleflamarabic");
+	//sizekey = strlen(szKey) + sizeof(char);
+	//nData = 0x0631FEF3FE8E0644;
+	//htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rekatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF9A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshdageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB48;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshhatafpatahhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshhatafsegolhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshhiriq");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshholam");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshpatah");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshqamats");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshqubuts");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshsegol");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshsheva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reshtsere");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E805B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reversedtilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x223D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "reviamugrashhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0597;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rfishhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x027E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rhabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rho");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rhookturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x027B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rhosymbolgreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03F1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulacirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3271;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulcirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3263;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulkiyeokkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x313A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3139;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulpansioskorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x316C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulphieuphkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x313F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulpieupsioskorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x316B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulthieuthkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x313E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rieulyeorinhieuhkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x316D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "righttackbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0319;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rihiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x308A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rikatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF98;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ringbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0325;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ringhalfleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02BF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ringhalfleftbelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x031C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ringhalfright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ringhalfrightcentered");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02D2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rittorusquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3351;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rlongleg");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x027C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF52;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30ED;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "roruathai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E23;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rrabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rragurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A5C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rrehfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB8D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rrvocalicdeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0960;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rrvocalicvowelsignbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09C4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rrvocalicvowelsigngujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AC4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rtblock");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2590;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rturnedsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30EB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rupeemarkbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rupiah");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rvocalicbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x098B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rvocalicgujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A8B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "rvocalicvowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0943;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "s");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0073;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x015B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sadarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0635;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sadfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEBA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sadmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEBC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A38;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sakatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sallallahoualayhewasallamarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFDFA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "samekhdagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB41;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "samekhhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "saraaethai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E41;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "saraaimaimuanthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E43;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "saraathai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E30;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "saraiileftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF886;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "saraileftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF885;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "saraothai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E42;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "saraueethai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E37;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sarauethai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E36;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sarauuthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E39;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "scaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0161;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "scedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x015F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "schwacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04D9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "schwahook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x025A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "scircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x015D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E61;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sdotbelowdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E69;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "second");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2033;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "section");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00A7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seenfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEB2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seenmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEB4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "segol13");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "segol2c");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "segolnarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "segoltahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0592;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seharmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x057D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30BB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "semicolon");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x003B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "semicolonmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF1B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "semivoicedmarkkana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x309C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sentisquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3322;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seven");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0037;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sevenbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09ED;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sevencircleinversesansserif");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2790;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seveneighths");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x215E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sevengurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A6D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sevenhangzhou");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3027;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seveninferior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2087;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sevenoldstyle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF737;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sevenperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x248E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sevenroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2176;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seventeencircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2470;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "seventeenperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2498;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sfthyphen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00AD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shaddaarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0651;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shaddadammatanarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC5E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shaddafathatanarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0651064B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shaddakasratanarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC5F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shadedark");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2593;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shademedium");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2592;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AB6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shalshelethebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0593;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shchacyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0449;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sheenfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEB6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sheenmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEB8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sheqel");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x20AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sheva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sheva15");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sheva2e");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shevanarrowhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shevawidehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shimacoptic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03ED;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shindagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB49;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shindageshshindot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB2C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shindageshsindot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB2D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shindothebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shinshindot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB2A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shinsindot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB2B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "shook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0282;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sigma1");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03C2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sigmalunatesymbolgreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sikatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "siluqhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "similar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x223C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "siosacirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3274;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sioscieuckorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x317E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sioskiyeokkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x317A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "siosnieunkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x317B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "siospieupkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x317D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "six");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0036;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09EC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixcircleinversesansserif");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x278F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixgujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AEC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixhackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0666;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixideographicparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3225;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF16;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2479;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixpersian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06F6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2076;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixteencurrencydenominatorbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09F9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sixteenperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2497;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "slash");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x002F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "slong");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x017F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "smileface");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x263A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sofpasuqhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05C3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "softsigncyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x044C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "soliduslongoverlaycmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0338;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sorusithai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E29;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sosothai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E0B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "space");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0020;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "spade");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2660;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "spadesuitwhite");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2664;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squarebelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x033B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squarecm");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x339D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squarehorizontalfill");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squarekm");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x339E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squareln");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33D1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squaremg");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x338E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squaremm");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x339C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squareorthogonalcrosshatchfill");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25A6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squareupperrighttolowerleftfill");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25A8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "squarewhitewithsmallblack");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ssabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ssagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AB7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ssanghieuhkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3185;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ssangkiyeokkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3132;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ssangpieupkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3143;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ssangtikeutkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3138;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sterling");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00A3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "strokelongoverlaycmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0336;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "subset");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2282;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "subsetorequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2286;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "suchthat");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x220B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30B9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sukunarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0652;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "sun");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x263C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "supersetnotequal");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x228B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "svsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "t");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0074;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tackdown");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x22A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0924;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A24;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tahfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEC2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tahiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x305F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "taisyouerasquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x337D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "takatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF80;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tau");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03C4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tavdages");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB4A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tavdageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB4A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tbar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0167;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0165;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tcedilla");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0163;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tchehfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB7B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tchehmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB7D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24E3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tcommaaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0163;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E6B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0442;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "teharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x062A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tehhahinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFCA2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tehinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE97;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tehjeeminitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFCA1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tehmarbutaarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0629;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tehmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE98;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tehmeemisolatedarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC0E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30C6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "telephone");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2121;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "telishagedolahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tencircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2469;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tenparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x247D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tenroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2179;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tet");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tetdageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB38;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tetsecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tevirlefthebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x059B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0925;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A25;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thalfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEAC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thanthakhatlowrightthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF897;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thanthakhatupperleftthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF896;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thehfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE9A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thehmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE9C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "therefore");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2234;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "theta1");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03D1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thieuthacirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3279;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thieuthcirclekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x326B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thieuthparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x320B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thirteenparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2480;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thonangmonthothai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E11;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thophuthaothai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E12;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thothahanthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E17;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thothongthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E18;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thousandcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0482;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "thousandsseparatorpersian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x066C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0663;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threecircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2462;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threedeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0969;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threegujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AE9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threehackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0663;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threeideographicparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3222;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threemonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF13;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threeoldstyle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF733;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threeperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x248A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threequarters");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threeroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2172;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "threethai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E53;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tihiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3061;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tikatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF81;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tikeutaparenkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3210;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tikeutkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3137;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02DC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tildecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0303;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tildedoublecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0360;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tildeoverlaycmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0334;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "timescircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2297;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tipehalefthebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0596;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "titlocyrilliccmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0483;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E6F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "toarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0569;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tonebarextrahighmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02E5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tonebarhighmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tonebarmidmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tonesix");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0185;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0384;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "topatakthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E0F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tortoiseshellbracketleftsmall");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE5D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tortoiseshellbracketright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3015;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tortoiseshellbracketrightvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE3A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tpalatalhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01AB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "trademark");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2122;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "trademarkserif");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF6DB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "triagdn");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25BC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "triagrt");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25BA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ts");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02A6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tsadidagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB46;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tsadihebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tsere");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tsere1e");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tserehebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tserequarterhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tshecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x045B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ttabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x099F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ttagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A9F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tteharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0679;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ttehinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB68;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tthabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09A0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tthagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AA0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0287;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30C4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tusmallhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3063;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tusmallkatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF6F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twelveparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x247F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twelveroman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x217B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twentyhangzhou");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x5344;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twentyperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x249B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twoarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0662;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twocircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2461;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twodeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0968;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twodotleader");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2025;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twogujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AE8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twohackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0662;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twoideographicparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3221;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twomonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF12;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twooldstyle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xF732;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twoperiod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2489;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "tworoman");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2171;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twosuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "twothirds");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2154;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00FA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ubengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0989;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ubreve");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x016D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ucircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24E4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ucircumflexbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E77;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "udattadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0951;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "udblgrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0215;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "udieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00FC;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "udieresisbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E73;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "udieresiscyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04F1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "udieresismacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01D6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ugrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x00F9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ugurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A09;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uhookabove");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EE7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uhornacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EE9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uhorngrave");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EEB;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uhorntilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1EEF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uhungarumlautcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04F3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30A6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ukcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0479;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "umacron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x016B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "umacrondieresis");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E7B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "umonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF55;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "underscoredbl");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2017;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "underscorevertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE33;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "union");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x222A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uogonek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0173;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "upblock");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2580;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "upsilon");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03C5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "upsilondieresistonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03B0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "upsilontonos");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03CD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uptackmod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02D4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uring");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x016F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "usmallhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3045;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "usmallkatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF69;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ustraightstrokecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04B1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "utildeacute");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E79;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uubengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x098A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uugujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A8A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uumatragurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A42;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uuvowelsigndeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0942;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uvowelsignbengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "uvowelsigngujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AC1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0935;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vagurmukhi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0A35;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vav");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vavdagesh65");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB35;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vavhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vavholamhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB4B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vavyodhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05F1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E7F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "veharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06A4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vehinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB6C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30F9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "verticalbar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x007C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "verticallinebelowcmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0329;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "verticallinemod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x028B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "viramabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09CD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "viramagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0ACD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "visargadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0903;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF56;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "voicediterationhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x309E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "voicedmarkkana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x309B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30FA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vtilde");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E7D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "vuhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3094;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "w");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0077;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "waekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3159;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wakatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30EF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wakorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3158;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wasmallkatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30EE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wavedash");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x301C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wawarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0648;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wawhamzaabovearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0624;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wbsquare");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x33DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wcircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0175;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E87;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3091;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wekatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30F1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "weokorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x315D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitebullet");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitecircleinverse");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25D9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitecornerbracketleftvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE43;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitecornerbracketrightvertical");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE44;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitediamondcontainingblacksmalldiamond");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25C8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitedownpointingtriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25BD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whiteleftpointingtriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25C1;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitelenticularbracketright");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3017;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whiterightpointingtriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitesmilingface");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x263A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitestar");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x2606;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whitetortoiseshellbracketleft");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3018;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "whiteuppointingsmalltriangle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x25B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wihiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3090;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wikorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x315F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wohiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3092;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wokatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF66;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wonmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFFE6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24B2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wsuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02B7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "wynn");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01BF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "xabovecmb");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x033D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "xcircle");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "xdotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E8B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "xi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03BE;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "xparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24B3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "y");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0079;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yabengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09AF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x092F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yagujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AAF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yahiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3084;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yakatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF94;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yamakkanthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E4E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yasmallkatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30E3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yatcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0463;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ycircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0177;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ydotaccent");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E8F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yeharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x064A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yehbarreefinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFBAF;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yehhamzaabovearabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0626;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yehhamzaaboveinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFE8B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yehinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEF3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yehmeeminitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFCDD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yehnoonfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFC94;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yekorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3156;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yenmonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFFE5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yeorinhieuhkorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3186;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yerahbenyomolefthebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05AA;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yerudieresiscyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04F9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yesieungpansioskorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3183;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yetivhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x059A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yhook");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01B4;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yiarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0575;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yikorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3162;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yiwnarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0582;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yod");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D9;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yoddageshhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB39;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yodyodhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05F2;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yohiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3088;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yokatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30E8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yokorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x315B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yosmallkatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30E7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yotgreek");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03F3;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yoyakorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3187;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yoyingthai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E0D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ypogegrammeni");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x037A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yr");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01A6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "ysuperior");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x02B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yturned");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x028E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yuikorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x318C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yukatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF95;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yusbigcyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x046B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yuslittlecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0467;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yusmallhiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x3085;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yusmallkatakanahalfwidth");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF6D;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yuyeokorean");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x318A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "yyadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x095F;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zaarmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0566;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zadeva");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x095B;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zaharabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0638;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zahinitialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEC7;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zahmedialarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEC8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zainfinalarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFEB0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zaqefgadolhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0595;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zarqahebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0598;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zayindagesh");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB36;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zayinhebrew");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x05D6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zcaron");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x017E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zcircumflex");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E91;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zdot");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x017C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zdotbelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E93;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zedescendercyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0499;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zehiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x305C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zero");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0030;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zerobengali");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x09E6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zerogujarati");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0AE6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zerohackarabic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0660;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zeromonospace");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFF10;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zeropersian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x06F0;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zerothai");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0E50;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zerowidthnonjoiner");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x200C;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zeta");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x03B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zhearmenian");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x056A;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zhecyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x0436;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zhedieresiscyrillic");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x04DD;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zikatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30B8;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zlinebelow");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x1E95;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zohiragana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x305E;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zparen");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x24B5;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zstroke");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x01B6;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+
+	strcpy(szKey, "zukatakana");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0x30BA;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
 		
 	return 1;		

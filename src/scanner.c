@@ -4219,6 +4219,70 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						#endif
 						return;
 					}
+					else if ( strncmp(pParams->lexeme, "begincidchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_begincidchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_begincidchar -> 'begincidchar'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "endcidchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endcidchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endcidchar -> 'endcidchar'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "beginnotdefchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_beginnotdefchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_beginnotdefchar -> 'beginnotdefchar'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "endnotdefchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endnotdefchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endnotdefchar -> 'endnotdefchar'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "begincidrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_begincidrange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_begincidrange -> 'begincidrange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "endcidrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endcidrange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endcidrange -> 'endcidrange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "beginnotdeffrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_beginnotdefrange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_beginnotdefrange -> 'beginnotdefrange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "endnotdefrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endnotdefrange;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endnotdefrange -> 'endnotdefrange'\n");
+						#endif
+						return;
+					}
 					else if ( strncmp(pParams->lexeme, "true", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
 					{
 						pParams->myToken.Type = T_KW_TRUE;
@@ -4242,7 +4306,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						wprintf(L"GetNextTokenFromToUnicodeStream: T_KW_NULL -> 'null'\n");
 						#endif
 						return;
-					}					
+					}	
 					else
 					{						
 						if ( k > 0 )

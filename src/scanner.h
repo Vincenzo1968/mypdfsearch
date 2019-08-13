@@ -69,6 +69,10 @@
 #define MACHINE_ENDIANNESS_LITTLE_ENDIAN   1
 #define MACHINE_ENDIANNESS_BIG_ENDIAN      2
 
+#define STREAM_TYPE_GENERIC     0
+#define STREAM_TYPE_CMAP        1
+#define STREAM_TYPE_TOUNICODE   2
+
 
 typedef enum tagTokenType
 {
@@ -118,7 +122,15 @@ typedef enum tagTokenType
 	/* 43 */ T_CONTENT_OP_beginbfchar,
 	/* 44 */ T_CONTENT_OP_endbfchar,
 	/* 45 */ T_CONTENT_OP_beginbfrange,
-	/* 46 */ T_CONTENT_OP_endbfrange
+	/* 46 */ T_CONTENT_OP_endbfrange,
+	/* 47 */ T_CONTENT_OP_begincidchar,
+	/* 48 */ T_CONTENT_OP_endcidchar,
+	/* 49 */ T_CONTENT_OP_begincidrange,
+	/* 50 */ T_CONTENT_OP_endcidrange,
+	/* 51 */ T_CONTENT_OP_beginnotdefrange,
+	/* 52 */ T_CONTENT_OP_endnotdefrange,
+	/* 53 */ T_CONTENT_OP_beginnotdefchar,
+	/* 54 */ T_CONTENT_OP_endnotdefchar
 }TokenTypeEnum;
 
 
@@ -248,8 +260,10 @@ typedef struct tagParams
 	int blockCurPosToUnicode;
 	
 	
+	int bStreamType;
 	int bStreamState;
 	int bStringIsDecoded;
+	
 	
 	int bInXObj;
 	int bXObjIsIndirect;
@@ -264,7 +278,6 @@ typedef struct tagParams
 	
 	int nToUnicodeStreamObjRef;
 	int bStreamStateToUnicode;
-	
 	
 	StreamsStack myStreamsStack[STREAMS_STACK_SIZE];
 	int nStreamsStackTop;
@@ -346,6 +359,10 @@ typedef struct tagParams
 	int nCurrentFontSubtype;
 	
 	int nCurrentEncodingObj;
+	
+	int nCurrentUseCMapRef;
+	char szUseCMap[MAX_STRLEN];
+	int bEncodigArrayAlreadyInit;
 	
 	unsigned long int nNumBytesReadFromCurrentStream;
 	int bUpdateNumBytesReadFromCurrentStream;

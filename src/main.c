@@ -1235,7 +1235,7 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
 gcc -Wall -W -pedantic -O3 myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
  
-./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán Milano"
+./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán branco"
   
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni" --words="Virginia branco Milano"
   
