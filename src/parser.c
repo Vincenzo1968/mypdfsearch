@@ -2054,132 +2054,23 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 																	
 							if ( !ParseFontObject(pParams, nTemp) )
 							{
-								if ( FONT_SUBTYPE_Type0 == pParams->nCurrentFontSubtype )
-								{
-									#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
-									fwprintf(pParams->fpErrors, L"\tIl font corrente e' Type0. Per il momento non e' implementato.\n");
-									fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETT FONT:\n");
-									PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
-									fwprintf(pParams->fpErrors, L"\n***** FINE DELL'OGGETTO FONT\n");									
-									#endif	
-									
-									/*
-									// https://www.fileformat.info/info/unicode/char/2003e/charset_support.htm
-									Character Set       Hex Byte(s)
-
-									UTF-16              feffd840dc3e
-									UTF-16BE            d840dc3e
-									UTF-16LE            40d83edc
-									UTF-32              0002003e
-									UTF-32BE            0002003e
-									UTF-32LE            3e000200
-									UTF-8               f0a080be
-									x-UTF-16LE-BOM      fffe40d83edc
-									X-UTF-32BE-BOM      0000feff0002003e
-									X-UTF-32LE-BOM      fffe00003e000200
-									Big5-HKSCS          9375
-									CESU-8              eda180edb0be
-									GB18030             95328838
-									x-Big5-HKSCS-2001   9375
-									x-MS950-HKSCS       9375
-									*/
-									
-									//wprintf(L"\tIl font corrente e' Type0. Per il momento non e' implementato.\n");
-									//wprintf(L"\n***** ECCO L'OGGETT FONT:\n");
-									//PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
-									//PrintThisObject(pParams, nTemp, 0, 0, NULL);
-									//PrintThisObject(pParams, 55, 0, 0, NULL);
-									//PrintThisObject(pParams, 56, 0, 0, NULL);
-									//PrintThisObject(pParams, 57, 0, 0, NULL);
-									//PrintThisObject(pParams, 58, 0, 0, NULL);
-									//PrintThisObject(pParams, 59, 0, 0, NULL);
-									//wprintf(L"\n***** FINE DELL'OGGETTO FONT\n"); 
-									
-									/*
-									10 0 obj
-									<<
-									   /BaseFont          /HLOSZE+TimesNewRomanPSMT
-									   /DescendantFonts   [55 0 R]
-									   /Encoding          /Identity-H
-									   /Subtype           /Type0
-									   /Type              /Font
-									>>
-									endobj
-									 		 
-									55 0 obj
-									<<
-									   /CIDSystemInfo    56 0 R
-									   /FontDescriptor   57 0 R
-									   /DW               1000
-									   /Subtype          /CIDFontType0
-									   /Type             /Font
-									   /BaseFont         /HLOSZE+TimesNewRomanPSMT
-									   /W                [48 49 500 51 52 500 54 57 500]
-									>>
-									endobj
-									
-									56 0 obj
-									<<
-									   /Registry     (Adobe)
-									   /Ordering     (Identity)
-									   /Supplement   0
-									 >>
-									endobj
- 
-									57 0 obj
-									<<
-									   /CIDSet        58 0 R
-									   /FontFile3     59 0 R
-									   /Ascent        1007
-									   /CapHeight     500
-									   /Descent       -307
-									   /Flags         6
-									   /FontBBox      [-568 -307 2000 1007]
-									   /FontFamily    (TimesNewRomanPSMT)
-									   /FontName      /HLOSZE+TimesNewRomanPSMT
-									   /FontStretch   /Normal
-									   /FontWeight    400
-									   /ItalicAngle   0
-									   /StemV         100
-									   /Type          /FontDescriptor
-									   /XHeight       250
-									>>
-									endobj
-
-									58 0 obj
-									<<
-									   /Filter   /FlateDecode
-									   /Length   16
-									 >>
-									stream
-									endstream
-									endobj
-
-									59 0 obj
-									<<
-									   /Filter    /FlateDecode
-									   /Length    1177
-									   /Subtype   /CIDFontType0C
-									>>
-									stream
-									endstream
-									endobj
-									*/									
-								}
-								else
-								{
-									//wprintf(L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
-									fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
-									//wprintf(L"\n***** ECCO L'OGGETTO ERRATO:\n");
-									fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
+								fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
+								//wprintf(L"\n***** ECCO L'OGGETTO ERRATO:\n");
+								fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
 								
-									PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
+								PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
+								
+								//PrintThisObject(pParams, 71, 0, 0, pParams->fpErrors);
+								//PrintThisObject(pParams, 72, 0, 0, pParams->fpErrors);
+								//PrintThisObject(pParams, 73, 0, 0, pParams->fpErrors);
+								//PrintThisObject(pParams, 74, 0, 0, pParams->fpErrors);								
+								//PrintThisObject(pParams, 75, 0, 0, pParams->fpErrors);
+								
 																
-									//wprintf(L"\n***** FINE OGGETTO ERRATO\n");
-									fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
-									retValue = 0;
-									goto uscita;
-								}
+								//wprintf(L"\n***** FINE OGGETTO ERRATO\n");
+								fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
+								retValue = 0;
+								goto uscita;
 							}
 														
 							pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
@@ -3518,7 +3409,13 @@ int ParseObject(Params *pParams, int objNum)
 		pParams->pCurrentEncodingArray = &(pParams->aSTD_CharSet[0]);
 		//pParams->pCurrentEncodingArray = &(pParams->aWIN_CharSet[0]);
 		//pParams->pCurrentEncodingArray = &(pParams->aMAC_CharSet[0]);
-		//pParams->pCurrentEncodingArray = &(pParams->aPDF_CharSet[0]);		
+		//pParams->pCurrentEncodingArray = &(pParams->aPDF_CharSet[0]);	
+		
+		
+		//PrintThisObject(pParams, 2672, 0, nInt, NULL);
+		//PrintThisObject(pParams, 2656, 0, nInt, NULL);	
+		//PrintThisObject(pParams, 9, 0, 0, NULL);	
+		
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)		
 		wprintf(L"PAGINA %d -> Obj Number = %d\n", nInt, pParams->pPagesArray[nInt].numObjNumber);
@@ -5441,62 +5338,100 @@ int ParseCMapObject(Params *pParams, int objNum)
 	#endif
 		
 	// ************************************************************************************************************************************************************
-	DecodedStreamSize = ( pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) ) * 55 + sizeof(unsigned char);
 	
-	if ( DecodedStreamSize > 409600000 )
-		DecodedStreamSize = 409600000;
+	//wprintf(L"\npParams->CurrentContent.queueFilters.count = %d\n", pParams->CurrentContent.queueFilters.count);
+	//wprintf(L"\tpParams->CurrentContent.decodeParms.count = %d\n", pParams->CurrentContent.decodeParms.count);
 		
-	if ( DecodedStreamSize < pParams->CurrentContent.LengthFromPdf )
-		DecodedStreamSize = pParams->CurrentContent.LengthFromPdf + (4096 * 89);
-			
-	pszEncodedStream = (unsigned char*)malloc( pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char) );
-	if ( NULL == pszEncodedStream )
+	if ( pParams->CurrentContent.queueFilters.count <= 0 )
 	{
-		wprintf(L"ERRORE ParseCMapObject: impossibile allocare %lu byte per leggere lo stream\n", pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
-		fwprintf(pParams->fpErrors, L"ERRORE ParseCMapObject: impossibile allocare %lu byte per leggere lo stream\n", pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
-		retValue = 0;
-		goto uscita;
-	}
-	//wprintf(L"ALLOCATI %lu BYTE PER pszEncodedStream\n", pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
-	
-	pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
-	if ( NULL == pszDecodedStream )
-	{
-		wprintf(L"ERRORE ParseCMapObject: impossibile allocare la memoria per pszDecodedStream.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ParseCMapObject: impossibile allocare la memoria per pszDecodedStream.\n");
-		pParams->nStreamsStackTop--;
-		retValue = 0;
-		goto uscita;		
-	}
-	//wprintf(L"ALLOCATI %lu BYTE PER pszDecodedStream\n", DecodedStreamSize);
+		pszEncodedStream = NULL;
 		
-	
-	
-	fseek(pParams->fp, pParams->CurrentContent.Offset, SEEK_SET);
+		DecodedStreamSize = pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char);
+					
+		pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
+		if ( NULL == pszDecodedStream )
+		{
+			wprintf(L"ERRORE ParseCMapObject: impossibile allocare la memoria per pszDecodedStream.\n");
+			fwprintf(pParams->fpErrors, L"ERRORE ParseCMapObject: impossibile allocare la memoria per pszDecodedStream.\n");
+			pParams->nStreamsStackTop--;
+			retValue = 0;
+			goto uscita;		
+		}
+		//wprintf(L"\tALLOCATI %lu BYTE PER pszDecodedStream\n", DecodedStreamSize);
+		
+		fseek(pParams->fp, pParams->CurrentContent.Offset, SEEK_SET);
 						
-	bytesRead = fread(pszEncodedStream, 1, pParams->CurrentContent.LengthFromPdf, pParams->fp);
-	if ( bytesRead < pParams->CurrentContent.LengthFromPdf )
-	{
-		wprintf(L"\nERRORE ParseCMapObject: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pParams->CurrentContent.LengthFromPdf);
-		fwprintf(pParams->fpErrors, L"\nERRORE ParseCMapObject: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pParams->CurrentContent.LengthFromPdf);
-		retValue = 0;
-		goto uscita;
+		bytesRead = fread(pszDecodedStream, 1, pParams->CurrentContent.LengthFromPdf, pParams->fp);
+		if ( bytesRead < pParams->CurrentContent.LengthFromPdf )
+		{
+			wprintf(L"\nERRORE ParseCMapObject: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pParams->CurrentContent.LengthFromPdf);
+			fwprintf(pParams->fpErrors, L"\nERRORE ParseCMapObject: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pParams->CurrentContent.LengthFromPdf);
+			retValue = 0;
+			goto uscita;
+		}											
+		pszDecodedStream[pParams->CurrentContent.LengthFromPdf] = '\0';
+		//wprintf(L"\tLETTI %d BYTE SU pszDecodedStream\n", bytesRead);
 	}
-											
-	pszEncodedStream[pParams->CurrentContent.LengthFromPdf] = '\0';
+	else
+	{
+		pszEncodedStream = (unsigned char*)malloc( pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char) );
+		if ( NULL == pszEncodedStream )
+		{
+			wprintf(L"ERRORE ParseCMapObject: impossibile allocare %lu byte per leggere lo stream\n", pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
+			fwprintf(pParams->fpErrors, L"ERRORE ParseCMapObject: impossibile allocare %lu byte per leggere lo stream\n", pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
+			retValue = 0;
+			goto uscita;
+		}
+		//wprintf(L"\tALLOCATI %lu BYTE PER pszEncodedStream\n", pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char));
+			
+		DecodedStreamSize = ( pParams->CurrentContent.LengthFromPdf * sizeof(unsigned char) ) * 55 + sizeof(unsigned char);
 	
+		if ( DecodedStreamSize > 409600000 )
+			DecodedStreamSize = 409600000;
 		
-	pszDecodedStream[0] = '\0';
-													
-	ret = myInflate(&(pszDecodedStream), &DecodedStreamSize, pszEncodedStream, pParams->CurrentContent.LengthFromPdf);
-	if ( Z_OK != ret )
-	{
-		zerr(ret, pParams->fpErrors);
-		retValue = 0;
-		goto uscita;
+		if ( DecodedStreamSize < pParams->CurrentContent.LengthFromPdf )
+			DecodedStreamSize = pParams->CurrentContent.LengthFromPdf + (4096 * 89);
+				
+		pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
+		if ( NULL == pszDecodedStream )
+		{
+			wprintf(L"ERRORE ParseCMapObject: impossibile allocare la memoria per pszDecodedStream.\n");
+			fwprintf(pParams->fpErrors, L"ERRORE ParseCMapObject: impossibile allocare la memoria per pszDecodedStream.\n");
+			pParams->nStreamsStackTop--;
+			retValue = 0;
+			goto uscita;		
+		}
+		//wprintf(L"\tALLOCATI %lu BYTE PER pszDecodedStream\n", DecodedStreamSize);
+		
+		fseek(pParams->fp, pParams->CurrentContent.Offset, SEEK_SET);
+						
+		bytesRead = fread(pszEncodedStream, 1, pParams->CurrentContent.LengthFromPdf, pParams->fp);
+		if ( bytesRead < pParams->CurrentContent.LengthFromPdf )
+		{
+			wprintf(L"\nERRORE ParseCMapObject: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pParams->CurrentContent.LengthFromPdf);
+			fwprintf(pParams->fpErrors, L"\nERRORE ParseCMapObject: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pParams->CurrentContent.LengthFromPdf);
+			retValue = 0;
+			goto uscita;
+		}											
+		pszEncodedStream[pParams->CurrentContent.LengthFromPdf] = '\0';
+		//wprintf(L"\tLETTI %d BYTE SU pszEncodedStream\n", bytesRead);
+			
+		pszDecodedStream[0] = '\0';		
+		
+		ret = myInflate(&(pszDecodedStream), &DecodedStreamSize, pszEncodedStream, pParams->CurrentContent.LengthFromPdf);
+		if ( Z_OK != ret )
+		{
+			zerr(ret, pParams->fpErrors);
+			retValue = 0;
+			goto uscita;
+		}
+		pszDecodedStream[DecodedStreamSize] = '\0';		
 	}
-	pszDecodedStream[DecodedStreamSize] = '\0';
 	
+	mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));	
+	mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
+	pParams->myDataDecodeParams.numFilter = 0;
+				
 	if ( STREAM_TYPE_TOUNICODE == pParams->bStreamType )
 	{
 		if ( !ParseToUnicodeStream(pParams, objNum, pszDecodedStream, DecodedStreamSize) )
@@ -5532,6 +5467,10 @@ uscita:
 		free(pszDecodedStream);
 		pszDecodedStream = NULL;
 	}
+	
+	mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));
+	mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
+	pParams->myDataDecodeParams.numFilter = 0;	
 
 	mynumstacklist_Free( &(pParams->myNumStack) );
 	
@@ -6396,7 +6335,6 @@ int prepagetree(Params *pParams)
 
 //*************************************************************************************************************************
 
-
 //pagetree          : T_INT_LITERAL T_INT_LITERAL T_KW_OBJ pagetreebody T_KW_ENDOBJ;
 int pagetree(Params *pParams)
 {
@@ -6644,7 +6582,6 @@ int pagetreeobj(Params *pParams)
 				else if ( strncmp(pParams->szCurrKeyName, "Resources", 4096) == 0  )
 				{				
 					if ( !(pParams->bCurrentPageHasDirectResources) )
-					//if ( -1 == pParams->nCurrentPageResources )
 					{						
 						pParams->nCurrentPageResources = iNum;
 						pParams->bXObjectKeys = 0;
@@ -6674,8 +6611,11 @@ int pagetreeobj(Params *pParams)
 						}
 						else
 						{
-							if ( strncmp(pParams->szCurrResourcesKeyName, "Font", 4096) == 0  )
+							//if ( strncmp(pParams->szCurrResourcesKeyName, "Font", 4096) == 0  )
+							if ( strncmp(pParams->szCurrKeyName, "Font", 4096) == 0  )
+							{
 								pParams->nCurrentFontsRef = iNum;
+							}
 						}
 					}
 				}
@@ -7110,11 +7050,12 @@ int contentobjbody(Params *pParams)
 	
 uscita:
 	
-	mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));
-	
-	mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
-	
-	pParams->myDataDecodeParams.numFilter = 0;
+	if ( !(pParams->bStreamStateToUnicode) )
+	{
+		mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));	
+		mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
+		pParams->myDataDecodeParams.numFilter = 0;
+	}
 
 	return retValue;
 }
@@ -7752,7 +7693,7 @@ int resourcesdictionary(Params *pParams)
 	
 	if ( !match(pParams, T_KW_ENDOBJ, "resourcesdictionary") )
 		return 0;
-	
+		
 	return 1;
 }
 
@@ -7877,19 +7818,31 @@ int resourcesdictionaryitems(Params *pParams)
 					{
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 						//wprintf(L"ECCO, metto in coda(pParams->myXObjRefList) l'XObjRef -> %s %d 0 R\n", pParams->szCurrResourcesKeyName, iNum);
-						wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentPageNum);
+						wprintf(L"ECCO, resourcesdictionaryitems -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentPageNum);
 						#endif						
 						myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);					
 					}
+					else
+					{
+						if ( strncmp(pParams->szCurrKeyName, "XObject", 4096) == 0  )
+							pParams->nCurrentXObjRef = iNum;
+					}					
 					
 					if ( pParams->bFontsKeys )
 					{
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 						//wprintf(L"ECCO, metto in coda(pParams->myFontsRefList) il FontsRef -> %s %d 0 R\n", pParams->szCurrResourcesKeyName, iNum);
-						wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentPageNum);
+						wprintf(L"ECCO, resourcesdictionaryitems -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentPageNum);
 						#endif						
 						myobjreflist_Enqueue(&(pParams->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);					
 					}
+					else
+					{
+						if ( strncmp(pParams->szCurrKeyName, "Font", 4096) == 0  )
+						{
+							pParams->nCurrentFontsRef = iNum;
+						}
+					}					
 				}
 				else
 				{
@@ -7919,6 +7872,11 @@ int resourcesdictionaryitems(Params *pParams)
 							}
 						}
 					}
+					else
+					{
+						if ( strncmp(pParams->szCurrKeyName, "XObject", 4096) == 0  )
+							pParams->nCurrentXObjRef = iNum;
+					}					
 					
 					if ( pParams->bFontsKeys )
 					{
@@ -7945,7 +7903,14 @@ int resourcesdictionaryitems(Params *pParams)
 								#endif
 							}
 						}
-					}				
+					}
+					else
+					{
+						if ( strncmp(pParams->szCurrKeyName, "Font", 4096) == 0  )
+						{
+							pParams->nCurrentFontsRef = iNum;
+						}
+					}
 				}					
 			}
 			else
