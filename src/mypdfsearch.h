@@ -87,6 +87,7 @@ MYDEBUG_PRINT_ON_PARSE_FN
 MYDEBUG_PRINT_ON_ManageContent_FN
 MYDEBUG_PRINT_ON_ManageContent_PrintPageNum
 MYDEBUG_PRINT_ON_ManageContent_PrintContent
+MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR
 MYDEBUG_PRINT_ON_ManageContent_PrintStrings
 MYDEBUG_PRINT_ON_ParseObject_FN
 MYDEBUG_PRINT_ON_ParseStreamObject_FN
@@ -97,6 +98,11 @@ MYDEBUG_PRINT_ON_ParseLengthObject_FN
 
 /*
 gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+ 
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -DMYDEBUG_PRINT_ON_ManageContent_PrintContent -DMYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR
+
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ -DMYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM -DMYDEBUG_PRINT_ON_PARSE_CMAP_STREAM
+gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ
 
 gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -DMYDEBUG_PRINT_ON_ManageContent_PrintPageNum
 

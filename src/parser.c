@@ -442,7 +442,13 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 	
 	pParams->nDictionaryType = DICTIONARY_TYPE_GENERIC;
 	
+	pParams->bReadingStringsFromDecodedStream = 0;
+	
 	pParams->paCustomizedFont_CharSet = NULL;
+	
+	pParams->nCurrentFontCodeSpacesNum = 0;
+	pParams->pCodeSpaceRangeArray = NULL;
+	
 	
 	//pParams->pCurrentEncodingArray = &(pParams->aUtf8CharSet[0]);
 	pParams->pCurrentEncodingArray = &(pParams->aSTD_CharSet[0]);
@@ -473,7 +479,7 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 	}
 	for ( x = 0; x < MAX_STRING_LENTGTH_IN_CONTENT_STREAM; x++ )
 		pParams->lexeme[x] = '\0';
-	
+			
 	pParams->pUtf8String = (wchar_t*)malloc( sizeof(wchar_t) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t) );
 	if ( !(pParams->pUtf8String) )
 	{
@@ -647,6 +653,8 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 				
 		pParams->blockLen = fread(pParams->myBlock, 1, BLOCK_SIZE, pParams->fp);
 		pParams->blockCurPos = 0;
+		
+		pParams->nCurrentFontSubtype = FONT_SUBTYPE_Type1;
 				
 		if ( !ParseObject(pParams, pParams->myPdfTrailer.Root.Number) )
 		{
@@ -807,6 +815,18 @@ uscita:
 		free(pParams->pArrayUnicode);
 		pParams->pArrayUnicode = NULL;
 	}
+	
+	if ( NULL != pParams->fpOutput )
+	{
+		fclose(pParams->fpOutput);
+		pParams->fpOutput = NULL;
+	}
+	
+	if ( NULL != pParams->fpErrors )
+	{
+		fclose(pParams->fpErrors);
+		pParams->fpErrors = NULL;
+	}	
 	
 	return retValue;
 }
@@ -1067,7 +1087,7 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 	unsigned char szTemp[4096];
 	unsigned char *pszEncodedStream = NULL;
 	
-	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)
+	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent) && !defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR)
 	UNUSED(k);
 	#endif	
 		
@@ -1169,7 +1189,7 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 			free(pszEncodedStream);
 			pszEncodedStream = NULL;
 				
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)					
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)				
 			wprintf(L"\nPushXObjDecodedContent(XOBJ %d) -> INIZIO STREAM DECODIFICATO IN PARTENZA:\n", nXObjNumber);
 			for ( k = 0; k < DecodedStreamSize; k++ )
 			{
@@ -1180,6 +1200,20 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 			}
 			wprintf(L"PushXObjDecodedContent(XOBJ %d) -> FINE STREAM DECODIFICATO IN PARTENZA.\n\n", nXObjNumber);
 			#endif			
+			
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR)				
+			wprintf(L"\nPushXObjDecodedContent(XOBJ %d) -> INIZIO STREAM DECODIFICATO IN PARTENZA(HEXCODECHAR):\n", nXObjNumber);
+			for ( k = 0; k < DecodedStreamSize; k++ )
+			{
+				if ( pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k] == '\0' )
+					wprintf(L"<00>");
+				else
+					wprintf(L"<%X>", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
+			}
+			wprintf(L"PushXObjDecodedContent(XOBJ %d) -> FINE STREAM DECODIFICATO IN PARTENZA(HEXCODECHAR).\n\n", nXObjNumber);
+			#endif			
+			
 			
 			goto uscita;
 		}
@@ -1224,9 +1258,22 @@ int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber)
 						else
 							wprintf(L"%c", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
 					}
-					wprintf(L"\nPushXObjDecodedContent(XOBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate:\n", nXObjNumber);
+					wprintf(L"\nPushXObjDecodedContent(XOBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate.\n", nXObjNumber);
 					#endif
-										
+					
+					
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR)
+					wprintf(L"\n\nPushXObjDecodedContent(XOBJ %d) -> INIZIO STREAM DECODIFICATO DOPO myInflate(HEXCODECHAR):\n", nXObjNumber);
+					for ( k = 0; k < DecodedStreamSize; k++ )
+					{
+						if ( pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k] == '\0' )
+							wprintf(L"<00>");
+						else
+							wprintf(L"<%X>", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
+					}
+					wprintf(L"\nPushXObjDecodedContent(XOBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate(HEXCODECHAR).\n", nXObjNumber);
+					#endif
+					
 					//fwrite("\xEF\xBB\xBF", 3, 1, fpTemp);
 					//fwrite(pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream, DecodedStreamSize, 1, fpTemp);
 				}				
@@ -1365,6 +1412,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	double dLastNumber = 0.0;
 	
 	double dFontSize = 12.0;
+	
+	pParams->bReadingStringsFromDecodedStream = 1;
 	
 	//size_t k;	
 	
@@ -2221,6 +2270,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	
 uscita:
 
+	pParams->bReadingStringsFromDecodedStream = 0;
+
 	if ( NULL != pszString )
 	{
 		free(pszString);
@@ -2299,7 +2350,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 	
 	size_t bytesRead;
 		
-	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)	
+	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent) && !defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR)
 	UNUSED(k);
 	#endif
 	
@@ -2512,7 +2563,19 @@ int ManageContent(Params *pParams, int nPageNumber)
 	}
 	wprintf(L"ManageContent -> FINE STREAM DECODIFICATO DOPO myInflate.\n\n");
 	#endif
-		
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR)
+	wprintf(L"\n\nManageContent -> INIZIO STREAM DECODIFICATO DOPO myInflate(HEXCODECHAR):\n");
+	for ( k = 0; k < offsetDecodedStream; k++ )
+	{
+		if ( pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k] == '\0' )
+			wprintf(L"<00>");
+		else
+			wprintf(L"<%X>", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
+	}
+	wprintf(L"ManageContent -> FINE STREAM DECODIFICATO DOPO myInflate(HEXCODECHAR).\n\n");
+	#endif
+	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)		
 	wprintf(L"FINE STREAM(Pag. %d)     *********************.\n", nPageNumber);
 	#endif	
@@ -4102,6 +4165,29 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 	int bNotdefCharState;
 	int notdefChar1 = -1;
 	int notdefChar2 = -1;	
+	
+	int lastInteger = 0;
+	int idxCodeSpace = 0;
+	
+	// ----------------------------------------------------------------------------------------------------
+	int nRes;
+	size_t tnameLen;
+	uint32_t nDataSize;
+	uint32_t bContentAlreadyProcessed;	
+		
+	uint32_t codepoint;
+	uint16_t lead;
+	uint16_t trail;
+				
+	int bBfCharState;
+	int bfChar1 = -1;
+	int bfChar2 = -1;
+	
+	int bBfRangeState;
+	int bfRange1 = -1;
+	int bfRange2 = -1;
+	int bfRange3 = -1;	
+	// ----------------------------------------------------------------------------------------------------
 			
 	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 	UNUSED(objNum);
@@ -4125,13 +4211,13 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 	pParams->blockLenToUnicode = DecodedStreamSize;
 	pParams->blockCurPosToUnicode = 0;	
 	
-	if ( !(pParams->bEncodigArrayAlreadyInit) )
-	{
-		for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
-		{
-			pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
-		}
-	}
+	//if ( !(pParams->bEncodigArrayAlreadyInit) )
+	//{
+	//	for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
+	//	{
+	//		pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
+	//	}
+	//}
 	
 	bCodeSpaceRangeState = 0;
 	bCidRangeState = 0;
@@ -4139,6 +4225,12 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 	bNotdefRangeState = 0;
 	bNotdefCharState = 0;
 	
+	bBfCharState = 0;
+	bBfRangeState = 0;
+	
+	codepoint = lead = trail = 0;	
+	
+	pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
 	
 	GetNextTokenFromToUnicodeStream(pParams);				
 	while ( T_EOF != pParams->myToken.Type )
@@ -4149,11 +4241,32 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 		
 		switch ( pParams->myToken.Type )
 		{
+			case T_INT_LITERAL:
+				lastInteger = pParams->myToken.Value.vInt;
+				break;
 			case T_CONTENT_OP_begincodespacerange:
+				if ( NULL != pParams->pCodeSpaceRangeArray )
+				{
+					free(pParams->pCodeSpaceRangeArray);
+					pParams->pCodeSpaceRangeArray = NULL;
+				}
+				pParams->pCodeSpaceRangeArray = (CodeSpaceRange_t*)malloc(sizeof(CodeSpaceRange_t) * lastInteger);
+				if ( NULL == pParams->pCodeSpaceRangeArray )
+				{
+					fwprintf(pParams->fpErrors, L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
+					wprintf(L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					#endif
+					retValue = 0;
+					goto uscita;
+				}
+				pParams->nCurrentFontCodeSpacesNum = lastInteger;
+				idxCodeSpace = 0;
+								
 				bCodeSpaceRangeState = 1;
 				codeSpaceRange1 = -1;
 				codeSpaceRange2 = -1;
-				break;
+				break;				
 			case T_CONTENT_OP_endcodespacerange:
 				bCodeSpaceRangeState = 0;
 				codeSpaceRange1 = -1;
@@ -4203,6 +4316,32 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				notdefChar1 = -1;
 				notdefChar2 = -1;
 				break;
+			case T_CONTENT_OP_beginbfchar:
+				bBfCharState = 1;
+				bfChar1 = -1;
+				bfChar2 = -1;
+				codepoint = lead = trail = 0;
+				break;
+			case T_CONTENT_OP_endbfchar:
+				bBfCharState = 0;
+				bfChar1 = -1;
+				bfChar2 = -1;				
+				codepoint = lead = trail = 0;
+				break;
+			case T_CONTENT_OP_beginbfrange:
+				bBfRangeState = 1;
+				bfRange1 = -1;
+				bfRange2 = -1;
+				bfRange3 = -1;
+				codepoint = lead = trail = 0;
+				break;
+			case T_CONTENT_OP_endbfrange:
+				bBfRangeState = 0;
+				bfRange1 = -1;
+				bfRange2 = -1;
+				bfRange3 = -1;
+				codepoint = lead = trail = 0;
+				break;
 			case T_STRING_HEXADECIMAL:
 				myValue = 0;
 				base = 1;
@@ -4225,6 +4364,69 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 					}
 				}
 				
+				if ( bBfRangeState && bfRange2 >= 0 && bfRange3 < 0 )
+				{
+					lead = 0;
+					trail = 0;
+					codepoint = 0;
+							
+					if ( 8 == len )
+					{					
+						c = pParams->myToken.Value.vString[0];
+						if ( toupper(c) == 'D' )
+						{
+							c = pParams->myToken.Value.vString[4];
+							if ( toupper(c) == 'D' )
+							{
+								for ( i = 0; i < 4; i++ )
+								{
+									if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+									{
+										lead += (pParams->myToken.Value.vString[i] - 48) * base;
+										base = base * 16; 
+									} 
+									else
+									{
+										c = toupper(pParams->myToken.Value.vString[i]);
+										if ( c >= 'A' && c <= 'F' ) 
+										{ 
+											lead += (c - 55) * base; 
+											base = base * 16;
+										}
+									}								
+								}
+							
+								for ( i = 4; i < 8; i++ )
+								{
+									if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+									{
+										trail += (pParams->myToken.Value.vString[i] - 48) * base;
+										base = base * 16; 
+									} 
+									else
+									{
+										c = toupper(pParams->myToken.Value.vString[i]);
+										if ( c >= 'A' && c <= 'F' ) 
+										{ 
+											trail += (c - 55) * base;
+											base = base * 16;
+										}
+									}								
+								}
+								
+								codepoint = getSurrogateCodePoint(lead, trail);
+							}
+						}
+					}
+				
+					if ( codepoint > 0 )
+						myValue = codepoint;
+						
+					lead = 0;
+					trail = 0;
+					codepoint = 0;						
+				}				
+				
 				if ( bCodeSpaceRangeState )
 				{
 					if ( codeSpaceRange1 < 0 )
@@ -4244,12 +4446,24 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							retValue = 0;
 							goto uscita;
 						}
+						else if ( codeSpaceRange2 <= 0xFF )
+						{
+							pParams->bHasCodeSpaceOneByte = 1;
+						}
+						else if ( codeSpaceRange2 <= 0xFFFF )
+						{
+							pParams->bHasCodeSpaceTwoByte = 1;
+						}						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
 							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE CODE SPACE RANGE -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);	
 						}	
-						#endif					
+						#endif	
+						
+						pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = codeSpaceRange1;
+						pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = codeSpaceRange2;
+						idxCodeSpace++;
 
 						codeSpaceRange1 = -1;
 						codeSpaceRange2 = -1;
@@ -4441,6 +4655,187 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						notdefChar2 = -1;
 					}
 				}
+				else if ( bBfCharState )
+				{
+					if ( bfChar1 < 0 )
+					{
+						bfChar1 = myValue;
+						
+						GetNextTokenFromToUnicodeStream(pParams);
+						
+						if ( T_STRING_HEXADECIMAL == pParams->myToken.Type )
+						{
+							myValue = 0;
+							base = 1;
+							len = strnlen(pParams->myToken.Value.vString, 1024);
+							for ( i = len - 1; i >= 0; i-- ) 
+							{
+								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								{
+									myValue += (pParams->myToken.Value.vString[i] - 48) * base;
+									base = base * 16; 
+								} 
+								else
+								{
+									c = toupper(pParams->myToken.Value.vString[i]);
+									if ( c >= 'A' && c <= 'F' ) 
+									{ 
+										myValue += (c - 55) * base; 
+										base = base * 16;
+									}
+								}
+							}
+							
+							lead = 0;
+							trail = 0;
+							codepoint = 0;
+							
+							if ( 8 == len )
+							{					
+								c = pParams->myToken.Value.vString[0];
+								if ( toupper(c) == 'D' )
+								{
+									c = pParams->myToken.Value.vString[4];
+									if ( toupper(c) == 'D' )
+									{
+										for ( i = 0; i < 4; i++ )
+										{
+											if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+											{
+												lead += (pParams->myToken.Value.vString[i] - 48) * base;
+												base = base * 16; 
+											} 
+											else
+											{
+												c = toupper(pParams->myToken.Value.vString[i]);
+												if ( c >= 'A' && c <= 'F' ) 
+												{ 
+													lead += (c - 55) * base; 
+													base = base * 16;
+												}
+											}								
+										}
+							
+										for ( i = 4; i < 8; i++ )
+										{
+											if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+											{
+												trail += (pParams->myToken.Value.vString[i] - 48) * base;
+												base = base * 16; 
+											} 
+											else
+											{
+												c = toupper(pParams->myToken.Value.vString[i]);
+												if ( c >= 'A' && c <= 'F' ) 
+												{ 
+													trail += (c - 55) * base;
+													base = base * 16;
+												}
+											}								
+										}
+										
+										codepoint = getSurrogateCodePoint(lead, trail);							
+									}
+								}
+							}
+				
+							if ( codepoint > 0 )
+								myValue = codepoint;
+								
+							lead = 0;
+							trail = 0;
+							codepoint = 0;								
+														
+							bfChar2 = myValue;
+						
+							if ( bfChar1 <= 0xFFFF )
+							{
+								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
+							
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", bfChar1, bfChar2);
+								#endif
+							}
+							else
+							{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %d, bfChar2 = %d\n", bfChar1, bfChar2);
+								#endif
+							}
+						
+							bfChar1 = -1;
+							bfChar2 = -1;
+						}
+						else if ( T_NAME == pParams->myToken.Type )
+						{
+							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
+							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
+							if ( nRes >= 0 ) // TROVATO
+							{				
+								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
+								#endif																
+							}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
+							else
+							{
+								wprintf(L"ParseCMapStream: BFCHAR -> KEY(%s) NOT FOUND\n", pParams->myToken.Value.vString);
+							}
+							#endif							
+						}
+						else
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							#endif
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							retValue = 0;
+							goto uscita;
+						}						
+					}
+				}
+				else if ( bBfRangeState )
+				{
+					if ( bfRange1 < 0 )
+					{
+						bfRange1 = myValue;
+					}
+					else if ( bfRange2 < 0 )
+					{
+						bfRange2 = myValue;
+					}					
+					else
+					{
+						bfRange3 = myValue;
+						
+						if ( bfRange1 <= 0xFFFF && bfRange2 <= 0xFFFF )
+						{
+							for ( i = bfRange1; i <= bfRange2; i++ )
+							{
+								pParams->paCustomizedFont_CharSet[i] = bfRange3;
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, bfRange3);
+								#endif								
+								
+								bfRange3++;
+							}
+						}
+						else
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ParseCMapStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %d, bfRange2 = %d, bfRange3 = %d\n", bfRange1, bfRange2, bfRange3);
+							#endif
+						}
+						
+						bfRange1 = -1;
+						bfRange2 = -1;
+						bfRange3 = -1;
+					}
+				}
+				
 				break;				
 			case T_QOPAREN:
 				if ( bCidRangeState )
@@ -4504,7 +4899,9 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 	int bfRange2 = -1;
 	int bfRange3 = -1;
 	
-			
+	int lastInteger = 0;
+	int idxCodeSpace = 0;
+				
 	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 	UNUSED(objNum);
 	#endif
@@ -4527,19 +4924,33 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 	pParams->blockLenToUnicode = DecodedStreamSize;
 	pParams->blockCurPosToUnicode = 0;	
 	
-	if ( !(pParams->bEncodigArrayAlreadyInit) )
-	{
-		for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
-		{
-			pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
-		}
-	}
+	//if ( !(pParams->bEncodigArrayAlreadyInit) )
+	//{
+	//	for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
+	//	{
+	//		pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
+	//	}
+	//}
 	
 	bCodeSpaceRangeState = 0;
 	bBfCharState = 0;
 	bBfRangeState = 0;
 	
 	codepoint = lead = trail = 0;
+	
+	
+	/*
+	typedef struct tagCodeSpaceRange
+	{
+		uint32_t nFrom;
+		uint32_t nTo;
+	} CodeSpaceRange_t;
+	
+	uint32_t nCurrentFontCodeSpacesNum;
+	CodeSpaceRange_t *pCodeSpaceRangeArray;
+	*/
+		
+	pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
 	
 	GetNextTokenFromToUnicodeStream(pParams);				
 	while ( T_EOF != pParams->myToken.Type )
@@ -4550,7 +4961,28 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 		
 		switch ( pParams->myToken.Type )
 		{
+			case T_INT_LITERAL:
+				lastInteger = pParams->myToken.Value.vInt;
+				break;
 			case T_CONTENT_OP_begincodespacerange:
+				if ( NULL != pParams->pCodeSpaceRangeArray )
+				{
+					free(pParams->pCodeSpaceRangeArray);
+					pParams->pCodeSpaceRangeArray = NULL;
+				}
+				pParams->pCodeSpaceRangeArray = (CodeSpaceRange_t*)malloc(sizeof(CodeSpaceRange_t) * lastInteger);
+				if ( NULL == pParams->pCodeSpaceRangeArray )
+				{
+					fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
+					wprintf(L"ParseToUnicodeStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					#endif
+					retValue = 0;
+					goto uscita;
+				}
+				pParams->nCurrentFontCodeSpacesNum = lastInteger;
+				idxCodeSpace = 0;
+				
 				bCodeSpaceRangeState = 1;
 				codeSpaceRange1 = -1;
 				codeSpaceRange2 = -1;
@@ -4684,18 +5116,32 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						//if ( codeSpaceRange2 > 0xFF )
 						if ( codeSpaceRange2 > 0xFFFF )
 						{
+							fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							wprintf(L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);
 							#endif
+							pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
 							retValue = 0;
 							goto uscita;
+						}
+						else if ( codeSpaceRange2 <= 0xFF )
+						{
+							pParams->bHasCodeSpaceOneByte = 1;
+						}
+						else if ( codeSpaceRange2 <= 0xFFFF )
+						{
+							pParams->bHasCodeSpaceTwoByte = 1;
 						}
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 						else
 						{
 							wprintf(L"ParseToUnicodeStream: OK!!! CODESPACERANGE -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);	
 						}	
-						#endif					
+						#endif			
+						
+						pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = codeSpaceRange1;
+						pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = codeSpaceRange2;
+						idxCodeSpace++;		
 
 						codeSpaceRange1 = -1;
 						codeSpaceRange2 = -1;
@@ -8349,14 +8795,22 @@ int contentfontobj(Params *pParams)
 		//return 0;
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-		wprintf(L"\t***** pParams->nToUnicodeStreamObjRef = %d, pParams->nCurrentUseCMapRef = %d *****\n", pParams->nToUnicodeStreamObjRef, pParams->nCurrentUseCMapRef);
+		wprintf(L"\t***** 1 pParams->nToUnicodeStreamObjRef = %d, pParams->nCurrentUseCMapRef = %d *****\n", pParams->nToUnicodeStreamObjRef, pParams->nCurrentUseCMapRef);
 		#endif
 				
 		if ( pParams->nCurrentEncodingObj > 0 )
 		{
 			// Non c'è bisogno di inizializzare qui. Lo fa la funzione 'ParseCMapStream'.
-			//for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
-			//	pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
+			for ( int i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
+				pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
+				
+			for ( int j = pParams->dimCustomizedFont_CharSet; j < 0xFFFF; j++ )
+				pParams->paCustomizedFont_CharSet[j] = L' ';				
+				
+			pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+				
+			for ( int j = pParams->dimCustomizedFont_CharSet; j < 0xFFFF; j++ )
+				pParams->paCustomizedFont_CharSet[j] = L' ';
 			
 			if ( pParams->nCurrentUseCMapRef > 0 )
 			{
@@ -8368,7 +8822,7 @@ int contentfontobj(Params *pParams)
 					
 				pParams->bEncodigArrayAlreadyInit = 1;
 			
-				pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+				//pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
 			}
 			else if ( pParams->szUseCMap[0] != '\0' )   // QUI GESTIONE CMAP PREDEFINITO
 			{							
@@ -8376,6 +8830,10 @@ int contentfontobj(Params *pParams)
 				if ( (strncmp(pParams->szUseCMap, "Identity-H", strnlen(pParams->szUseCMap, 4096) + 1) == 0) || (strncmp(pParams->szUseCMap, "Identity-V", strnlen(pParams->szUseCMap, 4096) + 1) == 0) )
 				{
 					pParams->pCurrentEncodingArray = &(pParams->pArrayUnicode[0]);
+					
+					pParams->bHasCodeSpaceOneByte = 0;
+					pParams->bHasCodeSpaceTwoByte = 1;
+					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 					wprintf(L"\t***** USECMAP PREDEFINITO -> '%s'. OK! *****\n\n", pParams->szUseCMap);
 					#endif
@@ -8404,6 +8862,10 @@ int contentfontobj(Params *pParams)
 			if ( (strncmp(pParams->szTemp, "Identity-H", strnlen(pParams->szTemp, 4096) + 1) == 0) || (strncmp(pParams->szTemp, "Identity-V", strnlen(pParams->szTemp, 4096) + 1) == 0) )
 			{
 				pParams->pCurrentEncodingArray = &(pParams->pArrayUnicode[0]);
+				
+				pParams->bHasCodeSpaceOneByte = 0;
+				pParams->bHasCodeSpaceTwoByte = 1;
+
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP USECMAP PREDEFINITO -> '%s'. OK! *****\n\n", pParams->szTemp);
 				#endif
@@ -8425,11 +8887,16 @@ int contentfontobj(Params *pParams)
 	if ( pParams->nToUnicodeStreamObjRef > 0 )
 	{
 		// Non c'è bisogno di inizializzare qui. Lo fa la funzione 'ParseToUnicodeStream'.
-		//for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
-		//	pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
+		for ( int i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
+			pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
+			
+		for ( int j = pParams->dimCustomizedFont_CharSet; j < 0xFFFF; j++ )
+			pParams->paCustomizedFont_CharSet[j] = L' ';
+			
+		pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-		wprintf(L"\t***** pParams->nToUnicodeStreamObjRef = %d, pParams->nCurrentUseCMapRef = %d *****\n", pParams->nToUnicodeStreamObjRef, pParams->nCurrentUseCMapRef);
+		wprintf(L"\t***** 2 pParams->nToUnicodeStreamObjRef = %d, pParams->nCurrentUseCMapRef = %d *****\n", pParams->nToUnicodeStreamObjRef, pParams->nCurrentUseCMapRef);
 		#endif		
 		
 		if ( pParams->nCurrentUseCMapRef > 0 )
@@ -8442,7 +8909,7 @@ int contentfontobj(Params *pParams)
 			
 			pParams->bEncodigArrayAlreadyInit = 1;
 			
-			pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+			//pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
 		}
 		else if ( pParams->szUseCMap[0] != '\0' )   // QUI GESTIONE USECMAP TOUNICODE PREDEFINITO
 		{
@@ -8452,6 +8919,10 @@ int contentfontobj(Params *pParams)
 			   )
 			{
 				pParams->pCurrentEncodingArray = &(pParams->pArrayUnicode[0]);
+				
+				pParams->bHasCodeSpaceOneByte = 0;
+				pParams->bHasCodeSpaceTwoByte = 1;
+				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP TOUNICODE PREDEFINITO -> '%s'. OK! *****\n\n", pParams->szUseCMap);
 				#endif

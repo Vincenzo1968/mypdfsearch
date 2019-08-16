@@ -28,6 +28,95 @@
 #include "myoctal.h"
 #include "scanner.h"
 
+
+#define MY_BYTE  uint8_t
+#define MY_WORD  uint16_t
+#define MY_DWORD uint32_t
+#define MY_LONG  uint32_t
+
+#define MY_MAKEWORD(a, b) ((MY_WORD)(((MY_BYTE)((MY_DWORD)(a) & 0xff)) | ((MY_WORD)((MY_BYTE)((MY_DWORD)(b) & 0xff))) << 8))
+
+#define MY_MAKELONG(a, b) ((MY_LONG)(((MY_WORD)((MY_DWORD)(a) & 0xffff)) | ((MY_DWORD)((MY_WORD)((MY_DWORD)(b) & 0xffff))) << 16))
+
+#define MY_LOWORD(l) ((MY_WORD)((MY_DWORD)(l) & 0xFFFF))
+#define MY_HIWORD(l) ((MY_WORD)((MY_DWORD)(l) >> 16))
+#define MY_LOBYTE(w) ((MY_BYTE)((MY_DWORD)(w) & 0xFF))
+#define MY_HIBYTE(w) ((MY_BYTE)((MY_DWORD)(w) >> 8))
+
+
+/*
+typedef uint32_t* MY_DWORD_PTR;
+
+#define MY_MAKEWORD(a, b) ((MY_WORD)(((MY_BYTE)((MY_DWORD_PTR)(a) & 0xff)) | ((MY_WORD)((MY_BYTE)((MY_DWORD_PTR)(b) & 0xff))) << 8))
+
+#define MY_MAKELONG(a, b) ((MY_LONG)(((MY_WORD)((MY_DWORD_PTR)(a) & 0xffff)) | ((MY_DWORD)((MY_WORD)((MY_DWORD_PTR)(b) & 0xffff))) << 16))
+
+#define MY_LOWORD(l) ((MY_WORD)((MY_DWORD_PTR)(l) & 0xFFFF))
+#define MY_HIWORD(l) ((MY_WORD)((MY_DWORD_PTR)(l) >> 16))
+#define MY_LOBYTE(w) ((MY_BYTE)((MY_DWORD_PTR)(w) & 0xFF))
+#define MY_HIBYTE(w) ((MY_BYTE)((MY_DWORD_PTR)(w) >> 8))
+*/
+
+int myCodepointToUtf8(uint32_t codepoint, uint32_t *pUtf8)
+{	
+	uint8_t bytes[4];
+	
+	int numBytes = 0;
+	
+	uint32_t nTemp;
+	int j;
+	int nShift;
+		
+	if (codepoint <= 0x7F)
+	{
+		bytes[0] = 0x00;
+		numBytes = 1;
+	}
+	else if (codepoint <= 0x7FF)
+	{
+		bytes[0] = 0xC0;
+		numBytes = 2;
+	}
+	else if (codepoint <= 0xFFFF)
+	{
+		bytes[0] = 0xE0;
+		numBytes = 3;
+	}
+	else if (codepoint <= 0x10FFFF)
+	{
+		bytes[0] = 0xF0;
+		numBytes = 4;
+	}
+	else
+	{
+		// illegal!
+		printf("\nIllegal codepoint\n");
+		return 0;
+	}
+
+	for(int i = 1; i < numBytes; ++i)
+	{
+		bytes[numBytes-i] = 0x80 | (uint8_t) (codepoint & 0x3F);
+		codepoint >>= 6;
+	}
+
+	bytes[0] |= (uint8_t) codepoint;
+	
+	
+	*pUtf8 = 0;
+	
+	nShift = 0;
+	for ( j = numBytes - 1; j >= 0; j-- )
+	{
+		nTemp = bytes[j];
+		nTemp <<= nShift;		
+		*pUtf8 |= nTemp;
+		nShift += 8;
+	}
+	
+	return 1;
+}
+
 void PrintTokenTrailer(Token *pToken, char cCarattereIniziale, char cCarattereFinale, int bPrintACapo)
 {
 	if ( cCarattereIniziale != '\0' )
@@ -2646,7 +2735,19 @@ unsigned char ReadNextChar(Params *pParams)
 	if ( pParams->bUpdateNumBytesReadFromCurrentStream )
 		pParams->nNumBytesReadFromCurrentStream++;
 		
-	//return pParams->myBlock[pParams->blockCurPos++];
+	
+	
+	if ( pParams->bReadingStringsFromDecodedStream && pParams->bReadingStringState && pParams->nCurrentFontSubtype == FONT_SUBTYPE_Type0 )
+	{
+		//if ( '\0' !=  pParams->myBlock[pParams->blockCurPos] )
+		//	wprintf(L"READ NEXT CHAR -> RESTITUISCO CARATTERE N° %X(%u) -> '%c'\n", pParams->myBlock[pParams->blockCurPos], pParams->myBlock[pParams->blockCurPos], pParams->myBlock[pParams->blockCurPos]);
+		//else
+		//	wprintf(L"READ NEXT CHAR -> RESTITUISCO CARATTERE N° %X(%u) -> '\0'\n", pParams->myBlock[pParams->blockCurPos], pParams->myBlock[pParams->blockCurPos]);
+			
+		return pParams->myBlock[pParams->blockCurPos++];
+	}
+	
+	
 	
 	if ( '\0' !=  pParams->myBlock[pParams->blockCurPos] )
 	{	
@@ -2785,6 +2886,7 @@ void GetNextToken(Params *pParams)
 			case S0:
 				k = 0;
 				pParams->nStackStringOpenParen = 0;
+				pParams->bReadingStringState = 0;
 				
 				if ( c == '%' )
 				{
@@ -2823,6 +2925,7 @@ void GetNextToken(Params *pParams)
 				else if ( c == '(' )
 				{
 					pParams->nStackStringOpenParen++; // PUSH
+					pParams->bReadingStringState = 1;
 					state = S6;
 				}
 				else if ( c == '<' )
@@ -3329,7 +3432,11 @@ void GetNextToken(Params *pParams)
 				{
 					if ( '\0' != c )
 					{
-						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
+						if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						{
+							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
+						}
+						
 						pParams->lexeme[k++] = c;
 					}
 					
@@ -3340,11 +3447,181 @@ void GetNextToken(Params *pParams)
 						if ( pParams->nStackStringOpenParen <= 0 )
 						{
 							pParams->lexeme[--k] = '\0';
-							pParams->pUtf8String[k] = L'\0';
+							
+							if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+							{
+								pParams->pUtf8String[k] = L'\0';
+							}
+							else
+							{
+								uint32_t u = 0;
+								int z = 0;
+								int w = 0;
+								unsigned char num1;
+								unsigned char num2;
+																								
+								if ( pParams->bHasCodeSpaceTwoByte && !pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE TWO BYTES ONLY.
+								{
+									w = 0;
+									for ( z = 0; z < k - 1; z++ )
+									{
+										num1 = pParams->lexeme[z];
+										z++;
+										if ( z < k )
+											num2 = pParams->lexeme[z];
+										else
+											num2 = 0;
+																																	
+										if ( MACHINE_ENDIANNESS_LITTLE_ENDIAN == pParams->nThisMachineEndianness )
+											pParams->myCID = MY_MAKEWORD(num2, num1);
+										else
+											pParams->myCID = MY_MAKEWORD(num1, num2);
+											
+										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
+										{
+											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											{
+												break;
+											}
+										}
+										
+										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
+										{
+											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
+											
+											pParams->myCID = 0x0000;
+											fwprintf(pParams->fpErrors, L"WARNING: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
+											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											#endif											
+										}
+																		
+										if ( pParams->myCID < 0xFFFF )
+											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+										else
+											pParams->pUtf8String[w] = L' ';
+																												
+										w++;
+									}
+								}
+								else if ( pParams->bHasCodeSpaceTwoByte && pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE ONE AND TWO BYTES.
+								{
+									w = 0;
+									for ( z = 0; z < k; z++ )
+									{
+										// ALL'INIZIO ESTRAIAMO UN SOLO BYTE E CERCHIAMO NEL ONE BYTE CODE SPACE RANGE:
+										num1 = pParams->lexeme[z];
+										z++;
+										
+										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
+										{
+											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											{
+												break;
+											}
+										}
+										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID ONE BYTE NON TROVATO NEL CODE SPACE RANGE
+										{
+											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
+											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE ONE BYTE. CONSUMO UN ALTRO BYTE.\n", pParams->myCID);
+											#endif											
+										}
+										else // CID ONE BYTE TROVATO NEL CODE SPACE RANGE
+										{
+											if ( pParams->myCID < 0xFF )
+												pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+											else
+												pParams->pUtf8String[w] = L' ';
+																												
+											w++;
+											continue;
+										}
+										
+										// PRELEVIAMO UN ALTRO BYTE E CERCHIAMO NEL TWO BYTES CODE SPACE RANGE:									
+										if ( z < k )
+											num2 = pParams->lexeme[z];
+										else
+											num2 = 0;
+																																	
+										if ( MACHINE_ENDIANNESS_LITTLE_ENDIAN == pParams->nThisMachineEndianness )
+											pParams->myCID = MY_MAKEWORD(num2, num1);
+										else
+											pParams->myCID = MY_MAKEWORD(num1, num2);
+											
+										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
+										{
+											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											{
+												break;
+											}
+										}
+										
+										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
+										{
+											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
+											
+											pParams->myCID = 0x0000;
+											fwprintf(pParams->fpErrors, L"WARNING: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
+											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											#endif											
+										}
+																		
+										if ( pParams->myCID < 0xFFFF )
+											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+										else
+											pParams->pUtf8String[w] = L' ';
+																												
+										w++;
+									}
+								}
+								else if ( !pParams->bHasCodeSpaceTwoByte && pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE ONE BYTE ONLY.
+								{
+									w = 0;
+									for ( z = 0; z < k; z++ )
+									{
+										pParams->myCID = pParams->lexeme[z];
+										z++;
+											
+										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
+										{
+											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											{
+												break;
+											}
+										}
+										
+										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
+										{
+											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
+											
+											pParams->myCID = 0x00;
+											fwprintf(pParams->fpErrors, L"WARNING: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
+											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											#endif											
+										}
+																		
+										if ( pParams->myCID < 0xFF )
+											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+										else
+											pParams->pUtf8String[w] = L' ';
+																												
+										w++;
+									}									
+								}
+								
+								pParams->pUtf8String[w] = L'\0';
+							}
+							
 							pParams->myToken.Type = T_STRING_LITERAL;
 							pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
 							if (  pParams->myToken.Value.vString != NULL )
 								strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+								
+							pParams->bReadingStringState = 0;
 								
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
 							wprintf(L"GetNextToken: T_STRING_LITERAL -> '%s'\n", pParams->myToken.Value.vString);
@@ -3370,49 +3647,57 @@ void GetNextToken(Params *pParams)
 			case S7:
 				if ( c == 'n' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\n'];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\n'];
 					pParams->lexeme[k++] = '\n';
 					state = S6;
 				}
 				else if ( c == 'r' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\r'];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\r'];
 					pParams->lexeme[k++] = '\r';
 					state = S6;
 				}
 				else if ( c == 't' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\t'];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\t'];
 					pParams->lexeme[k++] = '\t';
 					state = S6;
 				}
 				else if ( c == 'b' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\b'];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\b'];
 					pParams->lexeme[k++] = '\b';
 					state = S6;
 				}
 				else if ( c == 'f' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\f'];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\f'];
 					pParams->lexeme[k++] = '\f';
 					state = S6;
 				}
 				else if ( c == '(' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'('];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'('];
 					pParams->lexeme[k++] = '(';
 					state = S6;
 				}
 				else if ( c == ')' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L')'];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L')'];
 					pParams->lexeme[k++] = ')';
 					state = S6;
 				}
 				else if ( c == '\\' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\\'];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\\'];
 					pParams->lexeme[k++] = '\\';
 					state = S6;
 				}
@@ -3438,7 +3723,8 @@ void GetNextToken(Params *pParams)
 			case S8:
 				if ( c != '\n' )
 				{
-					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
+					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
 					pParams->lexeme[k++] = c;
 				}
 				state = S6;
@@ -3469,7 +3755,13 @@ void GetNextToken(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
-							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							pParams->lexeme[k++] = cOctal;
+						}
+						else if ( 0 == cOctal && pParams->nCurrentFontSubtype == FONT_SUBTYPE_Type0 )
+						{
+							//pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
 						state = S6;
@@ -3497,9 +3789,15 @@ void GetNextToken(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
-							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
+						else if ( 0 == cOctal && pParams->nCurrentFontSubtype == FONT_SUBTYPE_Type0 )
+						{
+							//pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							pParams->lexeme[k++] = cOctal;
+						}					
 						state = S6;
 					}
 				}
@@ -3523,9 +3821,15 @@ void GetNextToken(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
-							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
+						else if ( 0 == cOctal && pParams->nCurrentFontSubtype == FONT_SUBTYPE_Type0 )
+						{
+							//pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							pParams->lexeme[k++] = cOctal;
+						}						
 						state = S6;
 					}
 				}			
@@ -3676,13 +3980,13 @@ void GetNextToken(Params *pParams)
 								cHexadecimal += 0;
 								break;
 						}
-						
+																		
 						if ( 0 != cHexadecimal )
 							pParams->pUtf8String[z++] = pParams->pCurrentEncodingArray[cHexadecimal];
-												
+							
 						y += 2;
 					}
-					
+										
 					pParams->pUtf8String[z] = L'\0';
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_STRING_HEXADECIMAL;					

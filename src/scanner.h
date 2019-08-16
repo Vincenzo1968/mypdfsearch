@@ -210,6 +210,12 @@ typedef struct tagStreamsStack
 	unsigned long int DecodedStreamSize;
 } StreamsStack;
 
+typedef struct tagCodeSpaceRange
+{
+	uint32_t nFrom;
+	uint32_t nTo;
+} CodeSpaceRange_t;
+
 typedef struct tagParams
 {
 	Token myToken;
@@ -279,12 +285,29 @@ typedef struct tagParams
 	int nToUnicodeStreamObjRef;
 	int bStreamStateToUnicode;
 	
+	int bReadingStringsFromDecodedStream;
+	uint16_t myCID;
+	int bReadingStringState;
+	
 	StreamsStack myStreamsStack[STREAMS_STACK_SIZE];
 	int nStreamsStackTop;
 	
 	int nScope;
 	
 	int nDictionaryType;
+	
+	/*
+	typedef struct tagCodeSpaceRange
+	{
+		uint32_t nFrom;
+		uint32_t nTo;
+	} CodeSpaceRange_t;
+	*/
+	
+	uint32_t nCurrentFontCodeSpacesNum;
+	CodeSpaceRange_t *pCodeSpaceRangeArray;
+	int bHasCodeSpaceOneByte;
+	int bHasCodeSpaceTwoByte;
 	
 	// ------------------- ENCODING INIZIO ----------------------------
 	
