@@ -2199,6 +2199,12 @@ uscita:
 		pParams->nStreamsStackTop--;
 	}
 	
+	if ( NULL != pParams->pCodeSpaceRangeArray )
+	{
+		free(pParams->pCodeSpaceRangeArray);
+		pParams->pCodeSpaceRangeArray = NULL;
+	}
+	
 	mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));
 	mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
 	pParams->myDataDecodeParams.numFilter = 0;
@@ -2301,7 +2307,6 @@ int ManageContent(Params *pParams, int nPageNumber)
 		goto uscita;		
 	}
 	//wprintf(L"ALLOCATI %lu BYTE PER pszDecodedStream\n", DecodedStreamSize);
-	
 		
 	pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
 	if ( NULL == pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream )
@@ -2313,6 +2318,8 @@ int ManageContent(Params *pParams, int nPageNumber)
 		goto uscita;		
 	}	
 	//wprintf(L"ALLOCATI %lu BYTE PER pParams->myStreamsStack[%d].pszDecodedStream\n", DecodedStreamSize, pParams->nStreamsStackTop);
+	//for ( unsigned long int x = 0; x < DecodedStreamSize; x++ )
+	//	pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = '\0';
 	
 	bytesAllocatedForDecodedStreamOnStack = DecodedStreamSize;
 			
@@ -4151,11 +4158,22 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				if ( NULL == pParams->pCodeSpaceRangeArray )
 				{
 					fwprintf(pParams->fpErrors, L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 					wprintf(L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
 					#endif
 					retValue = 0;
 					goto uscita;
+				}
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+				else
+				{
+					wprintf(L"\tParseCMapStream: ALLOCATI CORRETTAMENTE %lu BYTE per pParams->pCodeSpaceRangeArray. lastInteger = %d\n", sizeof(CodeSpaceRange_t) * lastInteger, lastInteger);
+				}
+				#endif				
+				for ( int j = 0; j < lastInteger; j++ )
+				{
+					pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = 0;
+					pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = 0;
 				}
 				pParams->nCurrentFontCodeSpacesNum = lastInteger;
 				idxCodeSpace = 0;
@@ -4876,6 +4894,17 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 					#endif
 					retValue = 0;
 					goto uscita;
+				}
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
+				else
+				{
+					wprintf(L"\tParseToUnicodeStream: ALLOCATI CORRETTAMENTE %lu BYTE per pParams->pCodeSpaceRangeArray. lastInteger = %d\n", sizeof(CodeSpaceRange_t) * lastInteger, lastInteger);
+				}
+				#endif
+				for ( int j = 0; j < lastInteger; j++ )
+				{
+					pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = 0;
+					pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = 0;
 				}
 				pParams->nCurrentFontCodeSpacesNum = lastInteger;
 				idxCodeSpace = 0;
@@ -8699,6 +8728,8 @@ int contentfontobj(Params *pParams)
 		return 0;
 	}
 	
+	pParams->bHasCodeSpaceTwoByte = 0;
+	pParams->bHasCodeSpaceOneByte = 1;
 	
 	switch ( pParams->nCurrentFontSubtype )
 	{

@@ -3479,27 +3479,55 @@ void GetNextToken(Params *pParams)
 											
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
-											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											if ( NULL != pParams->pCodeSpaceRangeArray )
 											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
+												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+												{
+													break;
+												}
+											}
+											else
+											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												pParams->myCID = 0xFFFD;
+												u = pParams->nCurrentFontCodeSpacesNum + 1;
 												break;
 											}
+																						
+											//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											//{
+											//	break;
+											//}
 										}
 										
 										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
 										{
 											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
 											
-											pParams->myCID = 0x0000;
-											fwprintf(pParams->fpErrors, L"WARNING: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											//fwprintf(pParams->fpErrors, L"WARNING 1: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											//pParams->myCID = 0x0000;
+											pParams->myCID = 0xFFFD;
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
 											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
 											#endif											
 										}
-																		
-										if ( pParams->myCID < 0xFFFF )
-											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+										
+										if ( 0xFFFD == pParams->myCID )
+										{
+											pParams->pUtf8String[w] = 0xFFFD;
+										}
 										else
-											pParams->pUtf8String[w] = L' ';
+										{
+											if ( pParams->myCID < 0xFF )
+											{											
+												pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+											}
+											else
+											{
+												pParams->pUtf8String[w] = 0xFFFD;
+											}
+										}										
 																												
 										w++;
 									}
@@ -3515,10 +3543,26 @@ void GetNextToken(Params *pParams)
 										
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
-											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											if ( NULL != pParams->pCodeSpaceRangeArray )
 											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
+												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+												{
+													break;
+												}
+											}
+											else
+											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												pParams->myCID = 0xFFFD;
+												u = pParams->nCurrentFontCodeSpacesNum + 1;
 												break;
 											}
+											
+											//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											//{
+											//	break;
+											//}
 										}
 										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID ONE BYTE NON TROVATO NEL CODE SPACE RANGE
 										{
@@ -3552,27 +3596,55 @@ void GetNextToken(Params *pParams)
 											
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
-											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											if ( NULL != pParams->pCodeSpaceRangeArray )
 											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
+												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+												{
+													break;
+												}
+											}
+											else
+											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												pParams->myCID = 0xFFFD;
+												u = pParams->nCurrentFontCodeSpacesNum + 1;
 												break;
 											}
+											
+											//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											//{
+											//	break;
+											//}
 										}
 										
 										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
 										{
 											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
 											
-											pParams->myCID = 0x0000;
-											fwprintf(pParams->fpErrors, L"WARNING: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											//fwprintf(pParams->fpErrors, L"WARNING 2: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
 											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-											#endif											
+											#endif
+											//pParams->myCID = 0x0000;
+											pParams->myCID = 0xFFFD;
 										}
-																		
-										if ( pParams->myCID < 0xFFFF )
-											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+											
+										if ( 0xFFFD == pParams->myCID )
+										{
+											pParams->pUtf8String[w] = 0xFFFD;
+										}
 										else
-											pParams->pUtf8String[w] = L' ';
+										{
+											if ( pParams->myCID < 0xFF )
+											{											
+												pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+											}
+											else
+											{
+												pParams->pUtf8String[w] = 0xFFFD;
+											}
+										}											
 																												
 										w++;
 									}
@@ -3587,27 +3659,56 @@ void GetNextToken(Params *pParams)
 											
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
-											if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											//wprintf(L"\tATTENZIONE: u = %lu, pParams->nCurrentFontCodeSpacesNum = %lu\n", u, pParams->nCurrentFontCodeSpacesNum);
+											if ( NULL != pParams->pCodeSpaceRangeArray )
 											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
+												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+												{
+													break;
+												}
+											}
+											else
+											{
+												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												pParams->myCID = 0xFFFD;
+												u = pParams->nCurrentFontCodeSpacesNum + 1;
 												break;
 											}
+											
+											//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+											//{
+											//	break;
+											//}
 										}
 										
 										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
 										{
 											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
 											
-											pParams->myCID = 0x00;
-											fwprintf(pParams->fpErrors, L"WARNING: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
+											//fwprintf(pParams->fpErrors, L"WARNING 3: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
 											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-											#endif											
+											#endif
+											//pParams->myCID = 0x00;
+											pParams->myCID = 0xFFFD;
 										}
-																		
-										if ( pParams->myCID < 0xFF )
-											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+										
+										if ( 0xFFFD == pParams->myCID )
+										{
+											pParams->pUtf8String[w] = 0xFFFD;
+										}
 										else
-											pParams->pUtf8String[w] = L' ';
+										{
+											if ( pParams->myCID < 0xFF )
+											{											
+												pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+											}
+											else
+											{
+												pParams->pUtf8String[w] = 0xFFFD;
+											}
+										}
 																												
 										w++;
 									}									
@@ -4962,7 +5063,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				{
 					pParams->myToken.Type = T_DICT_BEGIN;
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)					
-					wprintf(L"GetNextTOken: T_DICT_BEGIN -> <<\n");
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_DICT_BEGIN -> <<\n");
 					#endif
 					return;							
 				}

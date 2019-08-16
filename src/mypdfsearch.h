@@ -143,6 +143,11 @@ gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_GetNextToke
 
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán branco"
 
+
+
+./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/Tutti"
+
+
  
 ./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File01" --frompage=1 --topage=1 > AAA_01_DEBUG.txt
 ./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File02" --frompage=1 --topage=1 > AAA_02_DEBUG.txt
@@ -166,7 +171,7 @@ gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_GetNextToke
 ./mypdfsearch --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_07.txt
 ./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_08.txt
 ./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_09.txt
-./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_10.txt
+./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_10.txt
 
  
 ./mypdfsearch --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_01.txt" > AAA_01.txt
