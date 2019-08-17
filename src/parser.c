@@ -2318,8 +2318,8 @@ int ManageContent(Params *pParams, int nPageNumber)
 		goto uscita;		
 	}	
 	//wprintf(L"ALLOCATI %lu BYTE PER pParams->myStreamsStack[%d].pszDecodedStream\n", DecodedStreamSize, pParams->nStreamsStackTop);
-	//for ( unsigned long int x = 0; x < DecodedStreamSize; x++ )
-	//	pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = '\0';
+	for ( unsigned long int x = 0; x < DecodedStreamSize; x++ )
+		pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[x] = '\0';
 	
 	bytesAllocatedForDecodedStreamOnStack = DecodedStreamSize;
 			
