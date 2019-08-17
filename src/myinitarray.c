@@ -24353,12 +24353,22 @@ int InitializeCharSetHashTable(Params *pParams)
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0x03E5;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
-
+	
 	strcpy(szKey, "ff");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0xFB00;
 	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
-
+	
+	strcpy(szKey, "fi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB01;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);
+		
+	strcpy(szKey, "ffi");
+	sizekey = strlen(szKey) + sizeof(char);
+	nData = 0xFB03;
+	htInsert(&(pParams->myCharSetHashTable), szKey, sizekey, &nData, sizeof(nData), 0);	
+	
 	strcpy(szKey, "ffl");
 	sizekey = strlen(szKey) + sizeof(char);
 	nData = 0xFB04;

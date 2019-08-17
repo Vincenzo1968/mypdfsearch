@@ -4380,6 +4380,7 @@ void GetNextTokenLengthObj(Params *pParams)
 
 unsigned char ReadNextCharFromToUnicodeStream(Params *pParams)
 {	
+	
 	if ( pParams->blockCurPosToUnicode >= pParams->blockLenToUnicode )
 	{
 		pParams->myToken.Type = T_EOF;
@@ -4760,7 +4761,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					nDelimChar = IsDelimiterChar(c);
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
 					{
-						pParams->blockCurPos--;
+						pParams->blockCurPosToUnicode--;
 						pParams->nNumBytesReadFromCurrentStream--;
 					}
 					return;
@@ -4783,7 +4784,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					nDelimChar = IsDelimiterChar(c);
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
 					{
-						pParams->blockCurPos--;
+						pParams->blockCurPosToUnicode--;
 						pParams->nNumBytesReadFromCurrentStream--;
 					}
 					return;
@@ -4816,7 +4817,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
 					{
-						pParams->blockCurPos--;
+						pParams->blockCurPosToUnicode--;
 						pParams->nNumBytesReadFromCurrentStream--;
 					}
 					
