@@ -89,6 +89,7 @@ MYDEBUG_PRINT_ON_ManageContent_PrintPageNum
 MYDEBUG_PRINT_ON_ManageContent_PrintContent
 MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR
 MYDEBUG_PRINT_ON_ManageContent_PrintStrings
+MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL
 MYDEBUG_PRINT_ON_ParseObject_FN
 MYDEBUG_PRINT_ON_ParseStreamObject_FN
 MYDEBUG_PRINT_ON_ParseDictionaryObject_FN
@@ -171,7 +172,7 @@ gcc -Wall -W -pedantic -O3 -std=c99 -D_GNU_SOURCE -DMYDEBUG_PRINT_ON_GetNextToke
 ./mypdfsearch --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_07.txt
 ./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_08.txt
 ./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_09.txt
-./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_10.txt
+./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_10.txt
 
  
 ./mypdfsearch --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_01.txt" > AAA_01.txt

@@ -234,6 +234,7 @@ typedef struct tagParams
 	int countWordsToSearch;
 		
 	char* lexeme;
+	char* lexemeTemp;
 	
 	int nThisMachineEndianness;
 	
@@ -438,6 +439,8 @@ int ReadTrailerBody(Params *pParams, unsigned char *szInput, int index);
 int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int numObjs, int *index);
 int ReadLastTrailer(Params *pParams, unsigned char *szInput);
 int GetLenNextInput(Params *pParams, int startxref, int *len);
+
+int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme);
 
 /* ------------------------------------------------------------------------------------------------------------- */
 

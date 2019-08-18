@@ -614,7 +614,7 @@ void PrintHelpCommandLine()
 
 void PrintVersionInfo()
 {
-	wprintf(L"\n   mypdfsearch version 1.1.0\n");	
+	wprintf(L"\n   mypdfsearch version 1.2.0\n");	
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -1264,7 +1264,7 @@ int main(int argc, char **argv)
 	//long numProcessors;
 		
 	int len;
-				
+		
 	myParams.countWordsToSearch = 0;
 	myParams.pWordsToSearchArray = NULL;
 	

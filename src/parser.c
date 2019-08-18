@@ -479,6 +479,18 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 	}
 	for ( x = 0; x < MAX_STRING_LENTGTH_IN_CONTENT_STREAM; x++ )
 		pParams->lexeme[x] = '\0';
+		
+		
+	pParams->lexemeTemp = (char *)malloc( sizeof(char) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(char) );
+	if ( !(pParams->lexemeTemp) )
+	{
+		//wprintf(L"ERRORE Parse 1: Memoria insufficiente.\n\n");
+		fwprintf(pParams->fpErrors, L"ERRORE Parse 1 bis: Memoria insufficiente.\n\n");
+		retValue = 0;
+		goto uscita;
+	}
+	for ( x = 0; x < MAX_STRING_LENTGTH_IN_CONTENT_STREAM; x++ )
+		pParams->lexemeTemp[x] = '\0';
 			
 	pParams->pUtf8String = (wchar_t*)malloc( sizeof(wchar_t) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t) );
 	if ( !(pParams->pUtf8String) )
@@ -731,6 +743,12 @@ uscita:
 		free(pParams->lexeme);
 		pParams->lexeme = NULL;
 	}
+	
+	if ( pParams->lexemeTemp != NULL )
+	{
+		free(pParams->lexemeTemp);
+		pParams->lexemeTemp = NULL;
+	}	
 	
 	if ( pParams->pUtf8String != NULL )
 	{
@@ -8735,50 +8753,50 @@ int contentfontobj(Params *pParams)
 	{
 		case FONT_SUBTYPE_Type0:
 			strncpy(szFontType, "Type0", 6);
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO FONT Type0 !!! *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** FONT Type0 ***** <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 		case FONT_SUBTYPE_Type1:
 			strncpy(szFontType, "Type1", 6);
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO FONT Type1 !!! *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** FONT Type1 ***** <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 		case FONT_SUBTYPE_MMType1:
 			strncpy(szFontType, "MMType1", 8);
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO FONT MMType1 !!! *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** FONT MMType1 ***** <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 		case FONT_SUBTYPE_Type3:
 			strncpy(szFontType, "Type3", 6);
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO FONT Type3 !!! *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** FONT Type3 *****\n <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 		case FONT_SUBTYPE_TrueType:
 			strncpy(szFontType, "TrueType", 9);
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO FONT TrueType !!! *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** FONT TrueType ***** <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 		case FONT_SUBTYPE_CIDFontType0:
 			strncpy(szFontType, "CIDFontType0", 13);
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO FONT CIDFontType0 !!! *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** FONT CIDFontType0 ***** <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 		case FONT_SUBTYPE_CIDFontType2:
 			strncpy(szFontType, "CIDFontType2", 13);
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO FONT CIDFontType2 !!! *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** FONT CIDFontType2 ***** <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 		default:
 			szFontType[0] = '\0';
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\n\n***** TROVATO UNKNOWN FONT *****\n");
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\n\n***** EHI!!! UNKNOWN FONT ***** <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n");
 			#endif
 			break;
 	}
