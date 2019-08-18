@@ -1960,7 +1960,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							bContentAlreadyProcessed = 1;
 							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 1) )
 							{
-								wprintf(L"ERRORE ManageDecodedContent scopeUpdateValue : impossibile aggiornare bContentAlreadyProcessed\n"); 
+								wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
 								retValue = 0;
 								goto uscita;
 							}
@@ -2044,7 +2044,6 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					wprintf(L"TROVATO 'Tf FONT SELECTOR' command: vado a prendere la Resource %s\n", szName);
 					#endif
 									
-					//nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 1);
 					nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 0);
 					if ( nRes >= 0 ) // TROVATO
 					{
@@ -2055,10 +2054,9 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							#endif
 					
 							bContentAlreadyProcessed = 1;
-							//if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 1) )
 							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
 							{
-								wprintf(L"ERRORE ManageDecodedContent scopeUpdateValue : impossibile aggiornare bContentAlreadyProcessed\n"); 
+								wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
 								retValue = 0;
 								goto uscita;
 							}
@@ -6638,10 +6636,20 @@ int pagetreeobj(Params *pParams)
 					{
 						if ( pParams->bXObjectKeys )
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
-							wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCountPageFound);
-							#endif						
-							myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);
+							if ( strncmp(pParams->szCurrResourcesKeyName, "XObject", 4096) != 0  )
+							{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
+								wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCountPageFound);
+								#endif						
+								myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);
+							}
+							else
+							{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
+								wprintf(L"ECCO, pagetreeobj -> NON metto in coda pParams->nCurrentXObjRef %d della pagina %d\n", iNum, pParams->nCountPageFound);
+								#endif									
+								pParams->nCurrentXObjRef = iNum;
+							}							
 						}
 						else
 						{
@@ -6651,10 +6659,20 @@ int pagetreeobj(Params *pParams)
 					
 						if ( pParams->bFontsKeys )
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
-							wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCountPageFound);
-							#endif						
-							myobjreflist_Enqueue(&(pParams->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);
+							if ( strncmp(pParams->szCurrResourcesKeyName, "Font", 4096) != 0  )
+							{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
+								wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCountPageFound);
+								#endif						
+								myobjreflist_Enqueue(&(pParams->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);
+							}
+							else
+							{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
+								wprintf(L"ECCO, pagetreeobj -> NON metto in coda pParams->nCurrentFontsRef %d della pagina %d\n", iNum, pParams->nCountPageFound);
+								#endif	
+								pParams->nCurrentFontsRef = iNum;
+							}
 						}
 						else
 						{
@@ -6861,6 +6879,8 @@ int pagetreedictobjs(Params *pParams)
 {	
 	while ( T_NAME == pParams->myToken.Type )
 	{
+		strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
+		
 		if ( strncmp(pParams->szCurrKeyName, "Resources", 4096) == 0 )
 		{	
 			pParams->bCurrentPageHasDirectResources = 1;
@@ -6877,7 +6897,7 @@ int pagetreedictobjs(Params *pParams)
 				pParams->bXObjectKeys = 0;
 			}			
 			
-			strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
+			//strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
 		}
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
