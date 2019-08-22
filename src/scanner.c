@@ -3583,6 +3583,8 @@ void GetNextToken(Params *pParams)
 										num1 = pParams->lexeme[z];
 										z++;
 										
+										pParams->myCID = num1;
+										
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
 											if ( NULL != pParams->pCodeSpaceRangeArray )
@@ -4166,6 +4168,7 @@ void GetNextToken(Params *pParams)
 						wprintf(L">\n\n");
 						#endif
 						
+						//pParams->myCID = 0xFFFD;
 						ManageTypeZeroHexString(pParams, z);
 					}
 					
@@ -4227,7 +4230,9 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 	int w = 0;
 	unsigned char num1;
 	unsigned char num2;
-																								
+				
+	//pParams->myCID = 0xFFFD;
+																					
 	if ( pParams->bHasCodeSpaceTwoByte && !pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE TWO BYTES ONLY.
 	{
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4323,6 +4328,8 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			// ALL'INIZIO ESTRAIAMO UN SOLO BYTE E CERCHIAMO NEL ONE BYTE CODE SPACE RANGE:
 			num1 = pParams->lexemeTemp[z];
 			z++;
+			
+			pParams->myCID = num1;
 										
 			for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 			{
@@ -4415,7 +4422,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 				pParams->pUtf8String[w] = 0xFFFD;
 			}
 			else
-			{										
+			{
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 			}											
 																												

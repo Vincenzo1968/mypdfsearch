@@ -4107,7 +4107,7 @@ uscita:
 	return retValue;
 }
 
-int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize)
+int ParseCMapStream_OLD(Params *pParams, int objNum, unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize)
 {
 	int retValue = 1;
 	
@@ -4166,6 +4166,10 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 	UNUSED(objNum);
 	#endif
 	
+	pParams->myBlockToUnicode = pszDecodedStream;
+	pParams->blockLenToUnicode = DecodedStreamSize;
+	pParams->blockCurPosToUnicode = 0;
+	
 	pParams->bStringIsDecoded = 1;
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
@@ -4177,12 +4181,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 		else
 			wprintf(L"%c", pszDecodedStream[k]);
 	}
-	wprintf(L"\nParseCMapStream(OBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate:\n\n", objNum);	
+	wprintf(L"\nParseCMapStream(OBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate.\n\n", objNum);	
 	#endif
 		
-	pParams->myBlockToUnicode = pszDecodedStream;
-	pParams->blockLenToUnicode = DecodedStreamSize;
-	pParams->blockCurPosToUnicode = 0;	
 	
 	//if ( !(pParams->bEncodigArrayAlreadyInit) )
 	//{
@@ -4479,7 +4480,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							goto uscita;							
 						}
 
-						if ( cidRange1 <= 0xFFFF && cidRange2 <= 0xFFFF )
+						if ( (cidRange1 <= 0xFFFF && cidRange1 >= 0) && cidRange2 <= 0xFFFF )
 						{
 							for ( i = cidRange1; i <= cidRange2; i++ )
 							{
@@ -4492,12 +4493,12 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 								cidRange3++;
 							}														
 						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ParseCMapStream: VALORI CIDRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidRange1 = %d, cidRange2 = %d, cidRange3 = %d\n", cidRange1, cidRange2, cidRange3);
-							#endif
 						}
+						#endif
 						
 						cidRange1 = -1;
 						cidRange2 = -1;
@@ -4525,9 +4526,10 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							retValue = 0;
 							goto uscita;							
 						}
-												
 						
-						if ( cidChar1 <= 0xFFFF )
+						//wprintf(L"\tcidChar1 = %d, cidChar2 = %d\n", cidChar1, cidChar2);
+						
+						if ( cidChar1 <= 0xFFFF && cidChar1 >= 0 )
 						{
 							pParams->paCustomizedFont_CharSet[cidChar1] = cidChar2;
 							
@@ -4535,12 +4537,12 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", cidChar1, cidChar2);
 							#endif							
 						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ParseCMapStream: VALORI CIDCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidChar1 = %d, cidChar2 = %d\n", cidChar1, cidChar2);
-							#endif							
-						}						
+						}	
+						#endif					
 						
 						cidChar1 = -1;
 						cidChar2 = -1;
@@ -4572,7 +4574,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							goto uscita;							
 						}
 
-						if ( notdefRange1 <= 0xFFFF && notdefRange2 <= 0xFFFF )
+						if ( (notdefRange1 <= 0xFFFF && notdefRange1 >= 0) && notdefRange2 <= 0xFFFF )
 						{
 							for ( i = notdefRange1; i <= notdefRange2; i++ )
 							{
@@ -4585,12 +4587,12 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 								notdefRange3++;
 							}
 						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ParseCMapStream: VALORI NOTDEFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefRange1 = %d, notdefRange2 = %d, notdefRange3 = %d\n", notdefRange1, notdefRange2, notdefRange3);
-							#endif
 						}
+						#endif
 						
 						notdefRange1 = -1;
 						notdefRange2 = -1;
@@ -4620,7 +4622,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						}
 												
 						
-						if ( notdefChar1 <= 0xFFFF )
+						if ( notdefChar1 <= 0xFFFF && notdefChar1 >= 0)
 						{
 							pParams->paCustomizedFont_CharSet[cidChar1] = notdefChar2;
 							
@@ -4628,12 +4630,12 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							wprintf(L"ParseCMapStream: OK!!! NOTDEFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", notdefChar1, notdefChar2);
 							#endif							
 						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ParseCMapStream: VALORI NOTDEFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefChar1 = %d, notdefChar2 = %d\n", notdefChar1, notdefChar2);
-							#endif							
-						}						
+						}	
+						#endif					
 						
 						notdefChar1 = -1;
 						notdefChar2 = -1;
@@ -4732,7 +4734,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 														
 							bfChar2 = myValue;
 						
-							if ( bfChar1 <= 0xFFFF )
+							if ( bfChar1 <= 0xFFFF && bfChar1 >= 0 )
 							{
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 							
@@ -4740,12 +4742,12 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", bfChar1, bfChar2);
 								#endif
 							}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							else
 							{
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 								wprintf(L"ParseCMapStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %d, bfChar2 = %d\n", bfChar1, bfChar2);
-								#endif
 							}
+							#endif
 						
 							bfChar1 = -1;
 							bfChar2 = -1;
@@ -4754,7 +4756,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						{
 							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
 							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
-							if ( nRes >= 0 ) // TROVATO
+							if ( nRes >= 0 && bfChar1 >= 0 ) // TROVATO
 							{				
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 								
@@ -4794,7 +4796,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 					{
 						bfRange3 = myValue;
 						
-						if ( bfRange1 <= 0xFFFF && bfRange2 <= 0xFFFF )
+						if ( (bfRange1 <= 0xFFFF && bfRange1 >= 0) && bfRange2 <= 0xFFFF )
 						{
 							for ( i = bfRange1; i <= bfRange2; i++ )
 							{
@@ -4807,12 +4809,705 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 								bfRange3++;
 							}
 						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+						else
+						{
+							wprintf(L"ParseCMapStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %d, bfRange2 = %d, bfRange3 = %d\n", bfRange1, bfRange2, bfRange3);
+						}
+						#endif
+						
+						bfRange1 = -1;
+						bfRange2 = -1;
+						bfRange3 = -1;
+					}
+				}
+				
+				break;				
+			case T_QOPAREN:
+				if ( bCidRangeState )
+				{
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+					wprintf(L"ParseCMapStream: VALORI CIDFRANGE ALL'INTERNO DI UN ARRAY PER IL MOMENTO NON SUPPORTATI.\n");
+					#endif
+					
+					cidRange1 = -1;
+					cidRange2 = -1;
+					cidRange3 = -1;
+					bCidRangeState = 0;
+				}
+				break;
+			case T_ERROR:
+			case T_VOID_STRING:
+				retValue = 0;
+				goto uscita;			
+				break;
+			default:
+				break;
+		}
+				
+		GetNextTokenFromToUnicodeStream(pParams);
+	}		
+	
+uscita:	
+	pParams->bStringIsDecoded = 1;
+	return retValue;
+}
+
+int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize)
+{
+	int retValue = 1;
+	
+	uint32_t myValue;
+	int base;
+	int len;
+	int i;
+	char c;
+	
+	int bCodeSpaceRangeState;
+	int codeSpaceRange1 = -1;
+	int codeSpaceRange2 = -1;
+	
+	int bCidRangeState;
+	int cidRange1 = -1;
+	int cidRange2 = -1;
+	int cidRange3 = -1;
+	
+	int bCidCharState;
+	int cidChar1 = -1;
+	int cidChar2 = -1;	
+	
+	int bNotdefRangeState;
+	int notdefRange1 = -1;
+	int notdefRange2 = -1;
+	int notdefRange3 = -1;
+	
+	int bNotdefCharState;
+	int notdefChar1 = -1;
+	int notdefChar2 = -1;	
+	
+	int lastInteger = 0;
+	int idxCodeSpace = 0;
+	
+	// ----------------------------------------------------------------------------------------------------
+	int nRes;
+	size_t tnameLen;
+	uint32_t nDataSize;
+	uint32_t bContentAlreadyProcessed;	
+		
+	uint32_t codepoint;
+	uint16_t lead;
+	uint16_t trail;
+				
+	int bBfCharState;
+	int bfChar1 = -1;
+	int bfChar2 = -1;
+	
+	int bBfRangeState;
+	int bfRange1 = -1;
+	int bfRange2 = -1;
+	int bfRange3 = -1;	
+	// ----------------------------------------------------------------------------------------------------
+			
+	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+	UNUSED(objNum);
+	#endif
+	
+	pParams->myBlockToUnicode = pszDecodedStream;
+	pParams->blockLenToUnicode = DecodedStreamSize;
+	pParams->blockCurPosToUnicode = 0;
+	
+	pParams->bStringIsDecoded = 1;
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+	wprintf(L"\n\nParseCMapStream(OBJ %d) -> INIZIO STREAM DECODIFICATO DOPO myInflate:\n", objNum);
+	for ( unsigned long int k = 0; k < DecodedStreamSize; k++ )
+	{
+		if ( pszDecodedStream[k] == '\0' )
+			wprintf(L"\\0");
+		else
+			wprintf(L"%c", pszDecodedStream[k]);
+	}
+	wprintf(L"\nParseCMapStream(OBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate.\n\n", objNum);	
+	#endif
+		
+	
+	//if ( !(pParams->bEncodigArrayAlreadyInit) )
+	//{
+	//	for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
+	//	{
+	//		pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
+	//	}
+	//}
+	
+	bCodeSpaceRangeState = 0;
+	bCidRangeState = 0;
+	bCidCharState = 0;
+	bNotdefRangeState = 0;
+	bNotdefCharState = 0;
+	
+	bBfCharState = 0;
+	bBfRangeState = 0;
+	
+	codepoint = lead = trail = 0;	
+	
+	pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
+	
+	GetNextTokenFromToUnicodeStream(pParams);				
+	while ( T_EOF != pParams->myToken.Type )
+	{	
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+		PrintToken(&(pParams->myToken), '\t', '\0', 1);
+		#endif
+		
+		switch ( pParams->myToken.Type )
+		{
+			case T_INT_LITERAL:
+				lastInteger = pParams->myToken.Value.vInt;
+				break;
+			case T_CONTENT_OP_begincodespacerange:
+				if ( NULL != pParams->pCodeSpaceRangeArray )
+				{
+					free(pParams->pCodeSpaceRangeArray);
+					pParams->pCodeSpaceRangeArray = NULL;
+				}
+				pParams->pCodeSpaceRangeArray = (CodeSpaceRange_t*)malloc(sizeof(CodeSpaceRange_t) * lastInteger);
+				if ( NULL == pParams->pCodeSpaceRangeArray )
+				{
+					fwprintf(pParams->fpErrors, L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+					wprintf(L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					#endif
+					retValue = 0;
+					goto uscita;
+				}
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+				else
+				{
+					wprintf(L"\tParseCMapStream 1: ALLOCATI CORRETTAMENTE %lu BYTE per pParams->pCodeSpaceRangeArray. lastInteger = %d\n", sizeof(CodeSpaceRange_t) * lastInteger, lastInteger);
+				}
+				#endif				
+				for ( int j = 0; j < lastInteger; j++ )
+				{
+					pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = 0;
+					pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = 0;
+				}
+				pParams->nCurrentFontCodeSpacesNum = lastInteger;
+				idxCodeSpace = 0;
+								
+				bCodeSpaceRangeState = 1;
+				codeSpaceRange1 = -1;
+				codeSpaceRange2 = -1;
+				break;				
+			case T_CONTENT_OP_endcodespacerange:
+				bCodeSpaceRangeState = 0;
+				codeSpaceRange1 = -1;
+				codeSpaceRange2 = -1;
+				break;
+			case T_CONTENT_OP_begincidrange:				
+				bCidRangeState = 1;
+				cidRange1 = -1;
+				cidRange2 = -1;
+				cidRange3 = -1;
+				break;
+			case T_CONTENT_OP_endcidrange:
+				bCidRangeState = 0;
+				cidRange1 = -1;
+				cidRange2 = -1;
+				cidRange3 = -1;
+				break;
+			case T_CONTENT_OP_begincidchar:				
+				bCidCharState = 1;
+				cidChar1 = -1;
+				cidChar2 = -1;
+				break;
+			case T_CONTENT_OP_endcidchar:
+				bCidCharState = 0;
+				cidChar1 = -1;
+				cidChar2 = -1;
+				break;				
+			case T_CONTENT_OP_beginnotdefrange:				
+				bNotdefRangeState = 1;
+				notdefRange1 = -1;
+				notdefRange2 = -1;
+				notdefRange3 = -1;
+				break;
+			case T_CONTENT_OP_endnotdefrange:
+				bNotdefRangeState = 0;
+				notdefRange1 = -1;
+				notdefRange2 = -1;
+				notdefRange3 = -1;
+				break;	
+			case T_CONTENT_OP_beginnotdefchar:				
+				bNotdefCharState = 1;
+				notdefChar1 = -1;
+				notdefChar2 = -1;
+				break;
+			case T_CONTENT_OP_endnotdefchar:
+				bNotdefCharState = 0;
+				notdefChar1 = -1;
+				notdefChar2 = -1;
+				break;
+			case T_CONTENT_OP_beginbfchar:				
+				bBfCharState = 1;
+				bfChar1 = -1;
+				bfChar2 = -1;
+				codepoint = lead = trail = 0;
+				break;
+			case T_CONTENT_OP_endbfchar:
+				bBfCharState = 0;
+				bfChar1 = -1;
+				bfChar2 = -1;				
+				codepoint = lead = trail = 0;
+				break;
+			case T_CONTENT_OP_beginbfrange:				
+				bBfRangeState = 1;
+				bfRange1 = -1;
+				bfRange2 = -1;
+				bfRange3 = -1;
+				codepoint = lead = trail = 0;
+				break;
+			case T_CONTENT_OP_endbfrange:
+				bBfRangeState = 0;
+				bfRange1 = -1;
+				bfRange2 = -1;
+				bfRange3 = -1;
+				codepoint = lead = trail = 0;
+				break;
+			case T_STRING_HEXADECIMAL:
+				myValue = 0;
+				base = 1;
+				len = strnlen(pParams->myToken.Value.vString, 1024);
+				for ( i = len - 1; i >= 0; i-- ) 
+				{
+					if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+					{
+						myValue += (pParams->myToken.Value.vString[i] - 48) * base;
+						base = base * 16; 
+					} 
+					else
+					{
+						c = toupper(pParams->myToken.Value.vString[i]);
+						if ( c >= 'A' && c <= 'F' ) 
+						{ 
+							myValue += (c - 55) * base; 
+							base = base * 16;
+						}
+					}
+				}
+				
+				lead = 0;
+				trail = 0;
+				codepoint = 0;
+
+				if ( 8 == len )
+				{					
+					c = pParams->myToken.Value.vString[0];
+					if ( toupper(c) == 'D' )
+					{
+						c = pParams->myToken.Value.vString[4];
+						if ( toupper(c) == 'D' )
+						{
+							for ( i = 0; i < 4; i++ )
+							{
+								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								{
+									lead += (pParams->myToken.Value.vString[i] - 48) * base;
+									base = base * 16; 
+								} 
+								else
+								{
+									c = toupper(pParams->myToken.Value.vString[i]);
+									if ( c >= 'A' && c <= 'F' ) 
+									{ 
+										lead += (c - 55) * base; 
+										base = base * 16;
+									}
+								}								
+							}
+							
+							for ( i = 4; i < 8; i++ )
+							{
+								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								{
+									trail += (pParams->myToken.Value.vString[i] - 48) * base;
+									base = base * 16; 
+								} 
+								else
+								{
+									c = toupper(pParams->myToken.Value.vString[i]);
+									if ( c >= 'A' && c <= 'F' ) 
+									{ 
+										trail += (c - 55) * base;
+										base = base * 16;
+									}
+								}								
+							}
+								
+							codepoint = getSurrogateCodePoint(lead, trail);
+						}
+					}
+				}
+					
+				if ( bBfRangeState && bfRange2 >= 0 && bfRange3 < 0 )
+				{											
+					if ( codepoint > 0 )
+						myValue = codepoint;
+					
+					//lead = 0;
+					//trail = 0;
+					//codepoint = 0;						
+				}				
+				
+				if ( bCodeSpaceRangeState )
+				{
+					if ( codeSpaceRange1 < 0 )
+					{
+						codeSpaceRange1 = myValue;
+					}
+					else
+					{
+						codeSpaceRange2 = myValue;
+						
+						//if ( codeSpaceRange2 > 0xFF )
+						if ( codeSpaceRange2 > 0xFFFF )
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);
+							#endif
+							retValue = 0;
+							goto uscita;
+						}
+						else if ( codeSpaceRange2 <= 0xFF )
+						{
+							pParams->bHasCodeSpaceOneByte = 1;
+						}
+						else if ( codeSpaceRange2 <= 0xFFFF )
+						{
+							pParams->bHasCodeSpaceTwoByte = 1;
+						}						
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+						else
+						{
+							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE CODE SPACE RANGE -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);	
+						}	
+						#endif	
+						
+						pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = codeSpaceRange1;
+						pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = codeSpaceRange2;
+						idxCodeSpace++;
+
+						codeSpaceRange1 = -1;
+						codeSpaceRange2 = -1;
+					}
+				}				
+				else if ( bCidRangeState )
+				{
+					if ( cidRange1 < 0 )
+					{
+						cidRange1 = myValue;
+					}
+					else if ( cidRange2 < 0 )
+					{
+						cidRange2 = myValue;
+						
+						GetNextTokenFromToUnicodeStream(pParams);
+						
+						if ( T_INT_LITERAL == pParams->myToken.Type )
+						{
+							cidRange3 = pParams->myToken.Value.vInt;
+						}
 						else
 						{
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ParseCMapStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %d, bfRange2 = %d, bfRange3 = %d\n", bfRange1, bfRange2, bfRange3);
+							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
 							#endif
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							retValue = 0;
+							goto uscita;							
 						}
+
+						if ( (cidRange1 <= 0xFFFF && cidRange1 >= 0) && cidRange2 <= 0xFFFF )
+						{
+							for ( i = cidRange1; i <= cidRange2; i++ )
+							{
+								pParams->paCustomizedFont_CharSet[i] = cidRange3;
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, cidRange3);
+								#endif								
+								
+								cidRange3++;
+							}														
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+						else
+						{
+							wprintf(L"ParseCMapStream: VALORI CIDRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidRange1 = %d, cidRange2 = %d, cidRange3 = %d\n", cidRange1, cidRange2, cidRange3);
+						}
+						#endif
+						
+						cidRange1 = -1;
+						cidRange2 = -1;
+						cidRange3 = -1;
+					}
+				}
+				else if ( bCidCharState )
+				{
+					if ( cidChar1 < 0 )
+					{
+						cidChar1 = myValue;
+						
+						GetNextTokenFromToUnicodeStream(pParams);
+						
+						if ( T_INT_LITERAL == pParams->myToken.Type )
+						{
+							cidChar2 = pParams->myToken.Value.vInt;
+						}
+						else
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							#endif
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							retValue = 0;
+							goto uscita;							
+						}
+						
+						//wprintf(L"\tcidChar1 = %d, cidChar2 = %d\n", cidChar1, cidChar2);
+						
+						if ( cidChar1 <= 0xFFFF && cidChar1 >= 0 )
+						{
+							pParams->paCustomizedFont_CharSet[cidChar1] = cidChar2;
+							
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", cidChar1, cidChar2);
+							#endif							
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+						else
+						{
+							wprintf(L"ParseCMapStream: VALORI CIDCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidChar1 = %d, cidChar2 = %d\n", cidChar1, cidChar2);
+						}	
+						#endif					
+						
+						cidChar1 = -1;
+						cidChar2 = -1;
+					}
+				}				
+				else if ( bNotdefRangeState )
+				{
+					if ( notdefRange1 < 0 )
+					{
+						notdefRange1 = myValue;
+					}
+					else if ( notdefRange2 < 0 )
+					{
+						notdefRange2 = myValue;
+						
+						GetNextTokenFromToUnicodeStream(pParams);
+						
+						if ( T_INT_LITERAL == pParams->myToken.Type )
+						{
+							notdefRange3 = pParams->myToken.Value.vInt;
+						}
+						else
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							#endif
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							retValue = 0;
+							goto uscita;							
+						}
+
+						if ( (notdefRange1 <= 0xFFFF && notdefRange1 >= 0) && notdefRange2 <= 0xFFFF )
+						{
+							for ( i = notdefRange1; i <= notdefRange2; i++ )
+							{
+								pParams->paCustomizedFont_CharSet[i] = notdefRange3;
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! NOTDEFRANGE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, notdefRange3);
+								#endif								
+								
+								notdefRange3++;
+							}
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+						else
+						{
+							wprintf(L"ParseCMapStream: VALORI NOTDEFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefRange1 = %d, notdefRange2 = %d, notdefRange3 = %d\n", notdefRange1, notdefRange2, notdefRange3);
+						}
+						#endif
+						
+						notdefRange1 = -1;
+						notdefRange2 = -1;
+						notdefRange3 = -1;
+					}
+				}
+				else if ( bNotdefCharState )
+				{
+					if ( notdefChar1 < 0 )
+					{
+						notdefChar1 = myValue;
+						
+						GetNextTokenFromToUnicodeStream(pParams);
+						
+						if ( T_INT_LITERAL == pParams->myToken.Type )
+						{
+							notdefChar2 = pParams->myToken.Value.vInt;
+						}
+						else
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							#endif
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							retValue = 0;
+							goto uscita;							
+						}
+												
+						
+						if ( notdefChar1 <= 0xFFFF && notdefChar1 >= 0)
+						{
+							pParams->paCustomizedFont_CharSet[cidChar1] = notdefChar2;
+							
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ParseCMapStream: OK!!! NOTDEFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", notdefChar1, notdefChar2);
+							#endif							
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+						else
+						{
+							wprintf(L"ParseCMapStream: VALORI NOTDEFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefChar1 = %d, notdefChar2 = %d\n", notdefChar1, notdefChar2);
+						}	
+						#endif					
+						
+						notdefChar1 = -1;
+						notdefChar2 = -1;
+					}
+				}
+				else if ( bBfCharState )
+				{
+					if ( bfChar1 < 0 )
+					{
+						bfChar1 = myValue;
+						
+						GetNextTokenFromToUnicodeStream(pParams);
+						
+						if ( T_STRING_HEXADECIMAL == pParams->myToken.Type )
+						{
+							myValue = 0;
+							base = 1;
+							len = strnlen(pParams->myToken.Value.vString, 1024);
+							for ( i = len - 1; i >= 0; i-- ) 
+							{
+								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								{
+									myValue += (pParams->myToken.Value.vString[i] - 48) * base;
+									base = base * 16; 
+								} 
+								else
+								{
+									c = toupper(pParams->myToken.Value.vString[i]);
+									if ( c >= 'A' && c <= 'F' ) 
+									{ 
+										myValue += (c - 55) * base; 
+										base = base * 16;
+									}
+								}
+							}
+							
+							if ( codepoint > 0 )
+								myValue = codepoint;
+								
+							//lead = 0;
+							//trail = 0;
+							//codepoint = 0;
+														
+							bfChar2 = myValue;
+						
+							if ( bfChar1 <= 0xFFFF && bfChar1 >= 0 )
+							{
+								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
+							
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", bfChar1, bfChar2);
+								#endif
+							}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							else
+							{
+								wprintf(L"ParseCMapStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %d, bfChar2 = %d\n", bfChar1, bfChar2);
+							}
+							#endif
+						
+							bfChar1 = -1;
+							bfChar2 = -1;
+						}
+						else if ( T_NAME == pParams->myToken.Type )
+						{
+							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
+							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
+							if ( nRes >= 0 && bfChar1 >= 0 ) // TROVATO
+							{				
+								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
+								#endif																
+							}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
+							else
+							{
+								wprintf(L"ParseCMapStream: BFCHAR -> KEY(%s) NOT FOUND\n", pParams->myToken.Value.vString);
+							}
+							#endif							
+						}
+						else
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+							wprintf(L"ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							#endif
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							retValue = 0;
+							goto uscita;
+						}						
+					}
+				}
+				else if ( bBfRangeState )
+				{
+					if ( bfRange1 < 0 )
+					{
+						bfRange1 = myValue;
+					}
+					else if ( bfRange2 < 0 )
+					{
+						bfRange2 = myValue;
+					}					
+					else
+					{
+						bfRange3 = myValue;
+						
+						if ( (bfRange1 <= 0xFFFF && bfRange1 >= 0) && bfRange2 <= 0xFFFF )
+						{
+							for ( i = bfRange1; i <= bfRange2; i++ )
+							{
+								pParams->paCustomizedFont_CharSet[i] = bfRange3;
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+								wprintf(L"ParseCMapStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, bfRange3);
+								#endif								
+								
+								bfRange3++;
+							}
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
+						else
+						{
+							wprintf(L"ParseCMapStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %d, bfRange2 = %d, bfRange3 = %d\n", bfRange1, bfRange2, bfRange3);
+						}
+						#endif
 						
 						bfRange1 = -1;
 						bfRange2 = -1;
@@ -4890,6 +5585,10 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 	UNUSED(objNum);
 	#endif
 	
+	pParams->myBlockToUnicode = pszDecodedStream;
+	pParams->blockLenToUnicode = DecodedStreamSize;
+	pParams->blockCurPosToUnicode = 0;
+	
 	pParams->bStringIsDecoded = 1;
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
@@ -4903,10 +5602,6 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 	}
 	wprintf(L"\nParseToUnicodeStream(OBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate:\n\n", objNum);	
 	#endif
-		
-	pParams->myBlockToUnicode = pszDecodedStream;
-	pParams->blockLenToUnicode = DecodedStreamSize;
-	pParams->blockCurPosToUnicode = 0;	
 	
 	//if ( !(pParams->bEncodigArrayAlreadyInit) )
 	//{
@@ -5235,7 +5930,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 														
 							bfChar2 = myValue;
 						
-							if ( bfChar1 <= 0xFFFF )
+							if ( bfChar1 <= 0xFFFF && bfChar1 >= 0 )
 							{
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 							
@@ -5243,12 +5938,12 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", bfChar1, bfChar2);
 								#endif
 							}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							else
 							{
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 								wprintf(L"ParseToUnicodeStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %d, bfChar2 = %d\n", bfChar1, bfChar2);
-								#endif
 							}
+							#endif
 						
 							bfChar1 = -1;
 							bfChar2 = -1;
@@ -5257,7 +5952,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						{
 							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
 							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
-							if ( nRes >= 0 ) // TROVATO
+							if ( nRes >= 0 && bfChar1 >= 0 ) // TROVATO
 							{				
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 								
@@ -5297,7 +5992,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 					{
 						bfRange3 = myValue;
 						
-						if ( bfRange1 <= 0xFFFF && bfRange2 <= 0xFFFF )
+						if ( (bfRange1 <= 0xFFFF && bfRange1 >= 0) && bfRange2 <= 0xFFFF )
 						{
 							for ( i = bfRange1; i <= bfRange2; i++ )
 							{
@@ -5310,12 +6005,12 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 								bfRange3++;
 							}
 						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 						else
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							wprintf(L"ParseToUnicodeStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %d, bfRange2 = %d, bfRange3 = %d\n", bfRange1, bfRange2, bfRange3);
-							#endif
 						}
+						#endif
 						
 						bfRange1 = -1;
 						bfRange2 = -1;
@@ -8935,6 +9630,8 @@ int contentfontobj(Params *pParams)
 					//fwprintf(pParams->fpErrors, L"\n***** FONT '%s' USECMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n", szFontType, pParams->szUseCMap);
 					//return 0;
 					
+					pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+					
 					myData1.szUseCMap[0] = '\0';
 					myData1.pszDecodedStream = NULL;
 					myData1.DecodedStreamSize = 0;
@@ -8967,22 +9664,6 @@ int contentfontobj(Params *pParams)
 						if ( !ParseCMapStream(pParams, 1000000, myData1.pszDecodedStream, myData1.DecodedStreamSize ) )
 							return 0;
 						pParams->bEncodigArrayAlreadyInit = 1;
-						
-						if ( NULL != myData2.pszDecodedStream )
-						{
-							free(myData2.pszDecodedStream);
-							myData2.szUseCMap[0] = '\0';
-							myData2.pszDecodedStream = NULL;
-							myData2.DecodedStreamSize = 0;
-						}
-						
-						if ( NULL != myData1.pszDecodedStream )
-						{
-							free(myData1.pszDecodedStream);
-							myData1.szUseCMap[0] = '\0';
-							myData1.pszDecodedStream = NULL;
-							myData1.DecodedStreamSize = 0;
-						}
 					}
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 					else
@@ -9002,6 +9683,8 @@ int contentfontobj(Params *pParams)
 		}
 		else   // QUI GESTIONE CMAP PREDEFINITO
 		{
+			pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+			
 			// Identity-H Identity-V
 			if ( (strncmp(pParams->szTemp, "Identity-H", strnlen(pParams->szTemp, 4096) + 1) == 0) || (strncmp(pParams->szTemp, "Identity-V", strnlen(pParams->szTemp, 4096) + 1) == 0) )
 			{
@@ -9024,10 +9707,12 @@ int contentfontobj(Params *pParams)
 
 					
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-				wprintf(L"\t***** USECMAP PREDEFINITO 2 -> '%s' *****\n\n", pParams->szUseCMap);
+				wprintf(L"\t***** USECMAP PREDEFINITO 2 -> '%s' *****\n\n", pParams->szTemp);
 				#endif
 				//fwprintf(pParams->fpErrors, L"\n***** FONT '%s' USECMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n", szFontType, pParams->szUseCMap);
 				//return 0;
+				
+				pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
 					
 				myData1.szUseCMap[0] = '\0';
 				myData1.pszDecodedStream = NULL;
@@ -9037,7 +9722,7 @@ int contentfontobj(Params *pParams)
 				myData2.pszDecodedStream = NULL;
 				myData2.DecodedStreamSize = 0;
 					
-				if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), &myData1, &myData1Size ) >= 0 )
+				if ( genhtFind(&(pParams->myCMapHT), pParams->szTemp, sizeof(pParams->szTemp), &myData1, &myData1Size ) >= 0 )
 				{
 					pParams->bEncodigArrayAlreadyInit = 0;
 					pParams->bStreamType = STREAM_TYPE_CMAP;
@@ -9060,28 +9745,12 @@ int contentfontobj(Params *pParams)
 						
 					if ( !ParseCMapStream(pParams, 1000000, myData1.pszDecodedStream, myData1.DecodedStreamSize ) )
 						return 0;
-					pParams->bEncodigArrayAlreadyInit = 1;
-						
-					if ( NULL != myData2.pszDecodedStream )
-					{
-						free(myData2.pszDecodedStream);
-						myData2.szUseCMap[0] = '\0';
-						myData2.pszDecodedStream = NULL;
-						myData2.DecodedStreamSize = 0;
-					}
-						
-					if ( NULL != myData1.pszDecodedStream )
-					{
-						free(myData1.pszDecodedStream);
-						myData1.szUseCMap[0] = '\0';
-						myData1.pszDecodedStream = NULL;
-						myData1.DecodedStreamSize = 0;
-					}
+					pParams->bEncodigArrayAlreadyInit = 1;						
 				}
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				else
 				{
-					wprintf(L"\t***** PREDEFINED CMAP 1 -> '%s', NOT FOUND!!! *****\n\n", pParams->szUseCMap);
+					wprintf(L"\t***** PREDEFINED CMAP 1 -> '%s', NOT FOUND!!! *****\n\n", pParams->szTemp);
 				}
 				#endif
 			}
@@ -9152,6 +9821,8 @@ int contentfontobj(Params *pParams)
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP TOUNICODE PREDEFINITO -> '%s' *****\n\n", pParams->szUseCMap);
 				#endif
+				
+				pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
 					
 				myData1.szUseCMap[0] = '\0';
 				myData1.pszDecodedStream = NULL;
@@ -9185,22 +9856,6 @@ int contentfontobj(Params *pParams)
 					if ( !ParseCMapStream(pParams, 1000000, myData1.pszDecodedStream, myData1.DecodedStreamSize ) )
 						return 0;
 					pParams->bEncodigArrayAlreadyInit = 1;
-						
-					if ( NULL != myData2.pszDecodedStream )
-					{
-						free(myData2.pszDecodedStream);
-						myData2.szUseCMap[0] = '\0';
-						myData2.pszDecodedStream = NULL;
-						myData2.DecodedStreamSize = 0;
-					}
-						
-					if ( NULL != myData1.pszDecodedStream )
-					{
-						free(myData1.pszDecodedStream);
-						myData1.szUseCMap[0] = '\0';
-						myData1.pszDecodedStream = NULL;
-						myData1.DecodedStreamSize = 0;
-					}
 				}
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				else

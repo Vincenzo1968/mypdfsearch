@@ -36,7 +36,6 @@ typedef int (*pfnGenCompareFunc)(const void* pKey1, uint32_t keysize1, const voi
 
 typedef int (*pfnGenOnTraverse)(const void* pKey, uint32_t keysize, void* pData, uint32_t dataSize);
 
-
 typedef struct tagGenHashTableItem
 {
 	void*    pKey;
