@@ -33,6 +33,8 @@
 #include "myScopeHashTable.h"
 #include "myTernarySearchTree.h"
 #include "mydecode.h"
+#include "myGenHashTable.h"
+//#include "myInitPredefCMapHT.h"
 
 #ifndef MAX_STRLEN
 #define MAX_STRLEN 4096
@@ -130,7 +132,8 @@ typedef enum tagTokenType
 	/* 51 */ T_CONTENT_OP_beginnotdefrange,
 	/* 52 */ T_CONTENT_OP_endnotdefrange,
 	/* 53 */ T_CONTENT_OP_beginnotdefchar,
-	/* 54 */ T_CONTENT_OP_endnotdefchar
+	/* 54 */ T_CONTENT_OP_endnotdefchar,
+	/* 55 */ T_CONTENT_OP_usecmap
 }TokenTypeEnum;
 
 
@@ -215,6 +218,13 @@ typedef struct tagCodeSpaceRange
 	uint32_t nFrom;
 	uint32_t nTo;
 } CodeSpaceRange_t;
+
+typedef struct tagMyPredefinedCMapDef
+{
+	char szUseCMap[128];
+	unsigned char *pszDecodedStream;
+	unsigned long int DecodedStreamSize;
+} MyPredefinedCMapDef;
 
 typedef struct tagParams
 {
@@ -311,6 +321,8 @@ typedef struct tagParams
 	int bHasCodeSpaceTwoByte;
 	
 	// ------------------- ENCODING INIZIO ----------------------------
+	
+	GenHashTable_t myCMapHT;
 	
 	TernarySearchTree_t myTST;
 	

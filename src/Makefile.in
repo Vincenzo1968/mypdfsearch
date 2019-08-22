@@ -100,6 +100,8 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_mypdfsearch_OBJECTS = mypdfsearch-main.$(OBJEXT) \
+	mypdfsearch-myGenHashTable.$(OBJEXT) \
+	mypdfsearch-myInitPredefCMapHT.$(OBJEXT) \
 	mypdfsearch-myinitarray.$(OBJEXT) \
 	mypdfsearch-myoctal.$(OBJEXT) \
 	mypdfsearch-myTernarySearchTree.$(OBJEXT) \
@@ -132,6 +134,8 @@ DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/mypdfsearch-main.Po \
+	./$(DEPDIR)/mypdfsearch-myGenHashTable.Po \
+	./$(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Po \
 	./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po \
 	./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po \
 	./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po \
@@ -279,8 +283,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-mypdfsearch_SOURCES = main.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c mycontentqueuelist.h mydecode.h mydictionaryqueuelist.h myintqueuelist.h mynumstacklist.h myobjrefqueuelist.h myoctal.h mypdfsearch.h myScopeHashTable.h mystringqueuelist.h myTernarySearchTree.h parser.h scanner.h
-mypdfsearch_CFLAGS = -Wall -W -pedantic -O3
+mypdfsearch_SOURCES = main.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c myGenHashTable.h myInitPredefCMapHT.h mycontentqueuelist.h mydecode.h mydictionaryqueuelist.h myintqueuelist.h mynumstacklist.h myobjrefqueuelist.h myoctal.h mypdfsearch.h myScopeHashTable.h mystringqueuelist.h myTernarySearchTree.h parser.h scanner.h
+mypdfsearch_CFLAGS = -Wall -W -pedantic -O3 -Wno-overlength-strings
 #mypdfsearch_LDFLAGS = -lz
 
 #libmyoptParser_la_CFLAGS = -Wall -W -pedantic -O3
@@ -373,6 +377,8 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mypdfsearch-main.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mypdfsearch-myGenHashTable.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po@am__quote@ # am--include-marker
@@ -420,6 +426,34 @@ mypdfsearch-main.obj: main.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='main.c' object='mypdfsearch-main.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
+
+mypdfsearch-myGenHashTable.o: myGenHashTable.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myGenHashTable.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myGenHashTable.Tpo -c -o mypdfsearch-myGenHashTable.o `test -f 'myGenHashTable.c' || echo '$(srcdir)/'`myGenHashTable.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myGenHashTable.Tpo $(DEPDIR)/mypdfsearch-myGenHashTable.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='myGenHashTable.c' object='mypdfsearch-myGenHashTable.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myGenHashTable.o `test -f 'myGenHashTable.c' || echo '$(srcdir)/'`myGenHashTable.c
+
+mypdfsearch-myGenHashTable.obj: myGenHashTable.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myGenHashTable.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-myGenHashTable.Tpo -c -o mypdfsearch-myGenHashTable.obj `if test -f 'myGenHashTable.c'; then $(CYGPATH_W) 'myGenHashTable.c'; else $(CYGPATH_W) '$(srcdir)/myGenHashTable.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myGenHashTable.Tpo $(DEPDIR)/mypdfsearch-myGenHashTable.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='myGenHashTable.c' object='mypdfsearch-myGenHashTable.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myGenHashTable.obj `if test -f 'myGenHashTable.c'; then $(CYGPATH_W) 'myGenHashTable.c'; else $(CYGPATH_W) '$(srcdir)/myGenHashTable.c'; fi`
+
+mypdfsearch-myInitPredefCMapHT.o: myInitPredefCMapHT.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myInitPredefCMapHT.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Tpo -c -o mypdfsearch-myInitPredefCMapHT.o `test -f 'myInitPredefCMapHT.c' || echo '$(srcdir)/'`myInitPredefCMapHT.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Tpo $(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='myInitPredefCMapHT.c' object='mypdfsearch-myInitPredefCMapHT.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myInitPredefCMapHT.o `test -f 'myInitPredefCMapHT.c' || echo '$(srcdir)/'`myInitPredefCMapHT.c
+
+mypdfsearch-myInitPredefCMapHT.obj: myInitPredefCMapHT.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myInitPredefCMapHT.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Tpo -c -o mypdfsearch-myInitPredefCMapHT.obj `if test -f 'myInitPredefCMapHT.c'; then $(CYGPATH_W) 'myInitPredefCMapHT.c'; else $(CYGPATH_W) '$(srcdir)/myInitPredefCMapHT.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Tpo $(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='myInitPredefCMapHT.c' object='mypdfsearch-myInitPredefCMapHT.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myInitPredefCMapHT.obj `if test -f 'myInitPredefCMapHT.c'; then $(CYGPATH_W) 'myInitPredefCMapHT.c'; else $(CYGPATH_W) '$(srcdir)/myInitPredefCMapHT.c'; fi`
 
 mypdfsearch-myinitarray.o: myinitarray.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myinitarray.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myinitarray.Tpo -c -o mypdfsearch-myinitarray.o `test -f 'myinitarray.c' || echo '$(srcdir)/'`myinitarray.c
@@ -731,6 +765,8 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/mypdfsearch-main.Po
+	-rm -f ./$(DEPDIR)/mypdfsearch-myGenHashTable.Po
+	-rm -f ./$(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Po
 	-rm -f ./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po
 	-rm -f ./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po
 	-rm -f ./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po
@@ -790,6 +826,8 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/mypdfsearch-main.Po
+	-rm -f ./$(DEPDIR)/mypdfsearch-myGenHashTable.Po
+	-rm -f ./$(DEPDIR)/mypdfsearch-myInitPredefCMapHT.Po
 	-rm -f ./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po
 	-rm -f ./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po
 	-rm -f ./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po

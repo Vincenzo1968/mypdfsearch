@@ -2909,6 +2909,14 @@ void GetNextToken(Params *pParams)
 							goto inizioswitch;
 						}					
 					}
+					
+					while ( c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '\f' ||  c == '\0' )
+					{
+						c = ReadNextChar(pParams);
+				
+						if ( pParams->myToken.Type == T_EOF )
+							return;
+					}
 				}
 				else if ( c == '-' || c == '+' || ( c >= '0' && c <= '9' ) )
 				{
@@ -3450,9 +3458,48 @@ void GetNextToken(Params *pParams)
 						{
 							pParams->lexeme[--k] = '\0';
 							
+							
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+							wprintf(L"\n\n\tpParams->lexeme(hexadecimal string) = <");
+							for ( int r = 0; r < k; r++ )
+							{
+								//wprintf(L"%2X");
+								
+								//if ( '\0' == pParams->lexeme[r] )
+								if ( pParams->lexeme[r] < 16 )
+									wprintf(L"0");
+								wprintf(L"%X", pParams->lexeme[r]);
+							}
+							wprintf(L">\n");
+							
+							wprintf(L"\tpParams->lexeme =                     <");
+							for ( int r = 0; r < k; r++ )
+							{
+								//wprintf(L"%2X");
+								
+								// while ( c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '\f' ||  c == '\0' )
+								
+								if ( '\0' == pParams->lexeme[r] )
+									wprintf(L"\\0");
+								
+								if ( pParams->lexeme[r] == '\n' )
+									wprintf(L"\\n");
+								else if ( pParams->lexeme[r] == '\r' )
+									wprintf(L"\\r");
+								else if ( pParams->lexeme[r] == '\t' )
+									wprintf(L"\\t");
+								else if ( pParams->lexeme[r] == '\f' )
+									wprintf(L"\\f");
+								else
+									wprintf(L"%c", pParams->lexeme[r]);
+							}
+							wprintf(L">\n");
+							#endif
+							
+							
 							if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 							{
-								pParams->pUtf8String[k] = L'\0';
+								pParams->pUtf8String[k] = L'\0';								
 							}
 							else
 							{
@@ -4514,6 +4561,14 @@ void GetNextTokenLengthObj(Params *pParams)
 							goto inizioswitch;
 						}					
 					}
+					
+					while ( c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '\f' ||  c == '\0' )
+					{
+						c = ReadNextCharLengthObj(pParams);
+				
+						if ( pParams->myTokenLengthObj.Type == T_EOF )
+							return;
+					}
 				}
 				else if ( c == '+' || ( c >= '0' && c <= '9' ) )
 				{
@@ -4789,6 +4844,14 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 							goto inizioswitch;
 						}					
 					}
+					
+					while ( c == ' ' || c == '\r' || c == '\n' || c == '\t' || c == '\f' ||  c == '\0' )
+					{
+						c = ReadNextCharFromToUnicodeStream(pParams);
+				
+						if ( pParams->myToken.Type == T_EOF )
+							return;
+					}
 				}
 				else if ( c == '-' || c == '+' || ( c >= '0' && c <= '9' ) )
 				{
@@ -4983,6 +5046,14 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						pParams->myToken.Type = T_CONTENT_OP_endnotdefrange;
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
 						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endnotdefrange -> 'endnotdefrange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "usecmap", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_usecmap;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_usecmap -> 'usecmap'\n");
 						#endif
 						return;
 					}

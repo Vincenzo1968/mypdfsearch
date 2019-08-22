@@ -31,6 +31,9 @@
 */
 #include "parser.h"
 #include "mydecode.h"
+#include "myGenHashTable.h"
+#include "myInitPredefCMapHT.h"
+
 
 #define HI_SURROGATE_START   0xD800
 #define LO_SURROGATE_START   0xDC00
@@ -402,13 +405,42 @@ void PrintToken(Token *pToken, char cCarattereIniziale, char cCarattereFinale, i
 
 // --------------------------------------------------------------------------------------------------------------------------------
 
+int myGenOnTraverseForFreeData(const void* pKey, uint32_t keysize, void* pData, uint32_t dataSize)
+{
+	//char *pszKey = (char*)pKey;
+	MyPredefinedCMapDef *pmyData = (MyPredefinedCMapDef*)pData;
+	
+	UNUSED(pKey);
+	UNUSED(keysize);
+	UNUSED(dataSize);
+	
+	//strcpy(szKey, "UniCNS-UCS2-H");
+	//myData.DecodedStreamSize = 274470;
+	
+	//wprintf(L"LIBERO LA CHIAVE <%s>\n", pszKey);
+	//if ( pmyData->DecodedStreamSize > 274000 )
+	//{
+	//	wprintf(L"\n**********************************************************************************************************************************************************\n");
+	//	wprintf(L"\n<%s>\n", (char*)pmyData->pszDecodedStream);
+	//	wprintf(L"\n**********************************************************************************************************************************************************\n");
+	//}
+		
+	if ( NULL != pmyData->pszDecodedStream )
+	{
+		free(pmyData->pszDecodedStream);
+		pmyData->pszDecodedStream = NULL;
+	}
+	
+	return 1;
+}
+
 int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 {
 	int retValue = 1;
 	FilesList* n;
 	int x;
 	int len;
-			
+				
 	pParams->myBlock = NULL;
 	pParams->fp = NULL;
 	
@@ -459,6 +491,24 @@ int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit)
 	InitializeUnicodeArray(pParams);
 	InitializeCharSetArrays(pParams);
 	InitializeCharSetHashTable(pParams);	
+	
+	/*
+	if ( !genhtInit(&(pParams->myCMapHT), GENHT_SIZE, GenStringHashFunc, GenStringCompareFunc) )
+	{
+		wprintf(L"\nERROR Parse: genhtInit FAILED.\n");
+		fwprintf(pParams->fpErrors, L"\nERROR Parse: genhtInit FAILED.\n");
+		retValue = 0;
+		goto uscita;
+	}
+	*/
+	
+	if ( !InitCMapHT(pParams) )
+	{
+		wprintf(L"ERROR Parse: InitCMapHT FAILED\n");
+		fwprintf(pParams->fpErrors, L"ERROR Parse: InitCMapHT FAILED\n");
+		retValue = 0;
+		goto uscita;
+	}
 		
 	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_PARSE_FN) && !defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 	UNUSED(bPrintObjsAndExit);
@@ -845,6 +895,9 @@ uscita:
 		fclose(pParams->fpErrors);
 		pParams->fpErrors = NULL;
 	}	
+		
+	genhtTraverse(&(pParams->myCMapHT), myGenOnTraverseForFreeData);
+	genhtFree( &(pParams->myCMapHT) );
 	
 	return retValue;
 }
@@ -4183,7 +4236,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 				else
 				{
-					wprintf(L"\tParseCMapStream: ALLOCATI CORRETTAMENTE %lu BYTE per pParams->pCodeSpaceRangeArray. lastInteger = %d\n", sizeof(CodeSpaceRange_t) * lastInteger, lastInteger);
+					wprintf(L"\tParseCMapStream 1: ALLOCATI CORRETTAMENTE %lu BYTE per pParams->pCodeSpaceRangeArray. lastInteger = %d\n", sizeof(CodeSpaceRange_t) * lastInteger, lastInteger);
 				}
 				#endif				
 				for ( int j = 0; j < lastInteger; j++ )
@@ -4203,7 +4256,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				codeSpaceRange1 = -1;
 				codeSpaceRange2 = -1;
 				break;
-			case T_CONTENT_OP_begincidrange:
+			case T_CONTENT_OP_begincidrange:				
 				bCidRangeState = 1;
 				cidRange1 = -1;
 				cidRange2 = -1;
@@ -4215,7 +4268,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				cidRange2 = -1;
 				cidRange3 = -1;
 				break;
-			case T_CONTENT_OP_begincidchar:
+			case T_CONTENT_OP_begincidchar:				
 				bCidCharState = 1;
 				cidChar1 = -1;
 				cidChar2 = -1;
@@ -4225,7 +4278,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				cidChar1 = -1;
 				cidChar2 = -1;
 				break;				
-			case T_CONTENT_OP_beginnotdefrange:
+			case T_CONTENT_OP_beginnotdefrange:				
 				bNotdefRangeState = 1;
 				notdefRange1 = -1;
 				notdefRange2 = -1;
@@ -4237,7 +4290,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				notdefRange2 = -1;
 				notdefRange3 = -1;
 				break;	
-			case T_CONTENT_OP_beginnotdefchar:
+			case T_CONTENT_OP_beginnotdefchar:				
 				bNotdefCharState = 1;
 				notdefChar1 = -1;
 				notdefChar2 = -1;
@@ -4247,7 +4300,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				notdefChar1 = -1;
 				notdefChar2 = -1;
 				break;
-			case T_CONTENT_OP_beginbfchar:
+			case T_CONTENT_OP_beginbfchar:				
 				bBfCharState = 1;
 				bfChar1 = -1;
 				bfChar2 = -1;
@@ -4259,7 +4312,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				bfChar2 = -1;				
 				codepoint = lead = trail = 0;
 				break;
-			case T_CONTENT_OP_beginbfrange:
+			case T_CONTENT_OP_beginbfrange:				
 				bBfRangeState = 1;
 				bfRange1 = -1;
 				bfRange2 = -1;
@@ -4914,7 +4967,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 				else
 				{
-					wprintf(L"\tParseToUnicodeStream: ALLOCATI CORRETTAMENTE %lu BYTE per pParams->pCodeSpaceRangeArray. lastInteger = %d\n", sizeof(CodeSpaceRange_t) * lastInteger, lastInteger);
+					wprintf(L"\tParseToUnicodeStream 1: ALLOCATI CORRETTAMENTE %lu BYTE per pParams->pCodeSpaceRangeArray. lastInteger = %d\n", sizeof(CodeSpaceRange_t) * lastInteger, lastInteger);
 				}
 				#endif
 				for ( int j = 0; j < lastInteger; j++ )
@@ -4934,7 +4987,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 				codeSpaceRange1 = -1;
 				codeSpaceRange2 = -1;
 				break;
-			case T_CONTENT_OP_beginbfchar:
+			case T_CONTENT_OP_beginbfchar:				
 				bBfCharState = 1;
 				bfChar1 = -1;
 				bfChar2 = -1;
@@ -4946,7 +4999,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 				bfChar2 = -1;				
 				codepoint = lead = trail = 0;
 				break;
-			case T_CONTENT_OP_beginbfrange:
+			case T_CONTENT_OP_beginbfrange:				
 				bBfRangeState = 1;
 				bfRange1 = -1;
 				bfRange2 = -1;
@@ -5377,11 +5430,7 @@ int ParseCMapObject(Params *pParams, int objNum)
 		retValue = 0;
 		goto uscita;
 	}
-	
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-	wprintf(L"\n***** DECODED STREAM TO UNICODE:\n");
-	#endif
-		
+			
 	// ************************************************************************************************************************************************************
 	
 	//wprintf(L"\npParams->CurrentContent.queueFilters.count = %d\n", pParams->CurrentContent.queueFilters.count);
@@ -8717,6 +8766,7 @@ int contentfontobj(Params *pParams)
 	int k;
 	char szFontType[128];
 	
+	pParams->bEncodigArrayAlreadyInit = 0;
 	pParams->bCurrentFontHasDirectEncodingArray = 0;
 	pParams->nCurrentEncodingObj = 0;
 	pParams->nToUnicodeStreamObjRef = 0;
