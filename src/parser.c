@@ -8870,7 +8870,6 @@ int contentfontobj(Params *pParams)
 			#endif
 			break;
 	}
-		
 
 	if ( FONT_SUBTYPE_Type0 == pParams->nCurrentFontSubtype && pParams->nToUnicodeStreamObjRef <= 0 )
 	{
@@ -8925,11 +8924,72 @@ int contentfontobj(Params *pParams)
 				}				
 				else
 				{
+					MyPredefinedCMapDef myData1;
+					MyPredefinedCMapDef myData2;
+					uint32_t myData1Size;
+					uint32_t myData2Size;
+					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-					wprintf(L"\t***** USECMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n\n", pParams->szUseCMap);
+					wprintf(L"\t***** USECMAP PREDEFINITO 1 -> '%s' *****\n\n", pParams->szUseCMap);
 					#endif
-					fwprintf(pParams->fpErrors, L"\n***** FONT '%s' USECMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n", szFontType, pParams->szUseCMap);
-					return 0;				
+					//fwprintf(pParams->fpErrors, L"\n***** FONT '%s' USECMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n", szFontType, pParams->szUseCMap);
+					//return 0;
+					
+					myData1.szUseCMap[0] = '\0';
+					myData1.pszDecodedStream = NULL;
+					myData1.DecodedStreamSize = 0;
+					
+					myData2.szUseCMap[0] = '\0';
+					myData2.pszDecodedStream = NULL;
+					myData2.DecodedStreamSize = 0;
+					
+					if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), &myData1, &myData1Size ) >= 0 )
+					{
+						pParams->bEncodigArrayAlreadyInit = 0;
+						pParams->bStreamType = STREAM_TYPE_CMAP;
+						
+						if ( '\0' != myData1.szUseCMap[0] )
+						{
+							if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), &myData2, &myData2Size ) >= 0 )
+							{
+								if ( !ParseCMapStream(pParams, 1000000, myData2.pszDecodedStream, myData2.DecodedStreamSize ) )
+									return 0;
+								pParams->bEncodigArrayAlreadyInit = 1;
+							}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+							else
+							{
+								wprintf(L"\t***** PREDEFINED CMAP 2 -> '%s', NOT FOUND!!! *****\n\n", myData1.szUseCMap);
+							}
+							#endif	
+						}
+						
+						if ( !ParseCMapStream(pParams, 1000000, myData1.pszDecodedStream, myData1.DecodedStreamSize ) )
+							return 0;
+						pParams->bEncodigArrayAlreadyInit = 1;
+						
+						if ( NULL != myData2.pszDecodedStream )
+						{
+							free(myData2.pszDecodedStream);
+							myData2.szUseCMap[0] = '\0';
+							myData2.pszDecodedStream = NULL;
+							myData2.DecodedStreamSize = 0;
+						}
+						
+						if ( NULL != myData1.pszDecodedStream )
+						{
+							free(myData1.pszDecodedStream);
+							myData1.szUseCMap[0] = '\0';
+							myData1.pszDecodedStream = NULL;
+							myData1.DecodedStreamSize = 0;
+						}
+					}
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+					else
+					{
+						wprintf(L"\t***** PREDEFINED CMAP 1 -> '%s', NOT FOUND!!! *****\n\n", pParams->szUseCMap);
+					}
+					#endif				
 				}
 			}
 		
@@ -8957,11 +9017,73 @@ int contentfontobj(Params *pParams)
 			}			
 			else
 			{
+				MyPredefinedCMapDef myData1;
+				MyPredefinedCMapDef myData2;
+				uint32_t myData1Size;
+				uint32_t myData2Size;
+
+					
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-				wprintf(L"\t***** CMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n\n", pParams->szTemp);
+				wprintf(L"\t***** USECMAP PREDEFINITO 2 -> '%s' *****\n\n", pParams->szUseCMap);
 				#endif
-				fwprintf(pParams->fpErrors, L"\n***** FONT '%s' CMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n", szFontType, pParams->szTemp);
-				return 0;			
+				//fwprintf(pParams->fpErrors, L"\n***** FONT '%s' USECMAP PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n", szFontType, pParams->szUseCMap);
+				//return 0;
+					
+				myData1.szUseCMap[0] = '\0';
+				myData1.pszDecodedStream = NULL;
+				myData1.DecodedStreamSize = 0;
+					
+				myData2.szUseCMap[0] = '\0';
+				myData2.pszDecodedStream = NULL;
+				myData2.DecodedStreamSize = 0;
+					
+				if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), &myData1, &myData1Size ) >= 0 )
+				{
+					pParams->bEncodigArrayAlreadyInit = 0;
+					pParams->bStreamType = STREAM_TYPE_CMAP;
+						
+					if ( '\0' != myData1.szUseCMap[0] )
+					{
+						if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), &myData2, &myData2Size ) >= 0 )
+						{
+							if ( !ParseCMapStream(pParams, 1000000, myData2.pszDecodedStream, myData2.DecodedStreamSize ) )
+								return 0;
+							pParams->bEncodigArrayAlreadyInit = 1;
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+						else
+						{
+							wprintf(L"\t***** PREDEFINED CMAP 2 -> '%s', NOT FOUND!!! *****\n\n", myData1.szUseCMap);
+						}
+						#endif	
+					}
+						
+					if ( !ParseCMapStream(pParams, 1000000, myData1.pszDecodedStream, myData1.DecodedStreamSize ) )
+						return 0;
+					pParams->bEncodigArrayAlreadyInit = 1;
+						
+					if ( NULL != myData2.pszDecodedStream )
+					{
+						free(myData2.pszDecodedStream);
+						myData2.szUseCMap[0] = '\0';
+						myData2.pszDecodedStream = NULL;
+						myData2.DecodedStreamSize = 0;
+					}
+						
+					if ( NULL != myData1.pszDecodedStream )
+					{
+						free(myData1.pszDecodedStream);
+						myData1.szUseCMap[0] = '\0';
+						myData1.pszDecodedStream = NULL;
+						myData1.DecodedStreamSize = 0;
+					}
+				}
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+				else
+				{
+					wprintf(L"\t***** PREDEFINED CMAP 1 -> '%s', NOT FOUND!!! *****\n\n", pParams->szUseCMap);
+				}
+				#endif
 			}
 		}
 		
@@ -9014,11 +9136,78 @@ int contentfontobj(Params *pParams)
 			}
 			else
 			{
+				/*
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP TOUNICODE PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n\n", pParams->szUseCMap);
 				#endif
 				fwprintf(pParams->fpErrors, L"\n***** FONT '%s' USECMAP TOUNICODE PREDEFINITO -> '%s', NON IMPLEMENTATO PER IL MOMENTO!!! *****\n", szFontType, pParams->szUseCMap);
 				return 0;
+				*/
+				
+				MyPredefinedCMapDef myData1;
+				MyPredefinedCMapDef myData2;
+				uint32_t myData1Size;
+				uint32_t myData2Size;
+					
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+				wprintf(L"\t***** USECMAP TOUNICODE PREDEFINITO -> '%s' *****\n\n", pParams->szUseCMap);
+				#endif
+					
+				myData1.szUseCMap[0] = '\0';
+				myData1.pszDecodedStream = NULL;
+				myData1.DecodedStreamSize = 0;
+					
+				myData2.szUseCMap[0] = '\0';
+				myData2.pszDecodedStream = NULL;
+				myData2.DecodedStreamSize = 0;
+					
+				if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), &myData1, &myData1Size ) >= 0 )
+				{
+					pParams->bEncodigArrayAlreadyInit = 0;
+					pParams->bStreamType = STREAM_TYPE_CMAP;
+						
+					if ( '\0' != myData1.szUseCMap[0] )
+					{
+						if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), &myData2, &myData2Size ) >= 0 )
+						{
+							if ( !ParseCMapStream(pParams, 1000000, myData2.pszDecodedStream, myData2.DecodedStreamSize ) )
+								return 0;
+							pParams->bEncodigArrayAlreadyInit = 1;
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+						else
+						{
+							wprintf(L"\t***** PREDEFINED TOUNICODE CMAP 2 -> '%s', NOT FOUND!!! *****\n\n", myData1.szUseCMap);
+						}
+						#endif	
+					}
+						
+					if ( !ParseCMapStream(pParams, 1000000, myData1.pszDecodedStream, myData1.DecodedStreamSize ) )
+						return 0;
+					pParams->bEncodigArrayAlreadyInit = 1;
+						
+					if ( NULL != myData2.pszDecodedStream )
+					{
+						free(myData2.pszDecodedStream);
+						myData2.szUseCMap[0] = '\0';
+						myData2.pszDecodedStream = NULL;
+						myData2.DecodedStreamSize = 0;
+					}
+						
+					if ( NULL != myData1.pszDecodedStream )
+					{
+						free(myData1.pszDecodedStream);
+						myData1.szUseCMap[0] = '\0';
+						myData1.pszDecodedStream = NULL;
+						myData1.DecodedStreamSize = 0;
+					}
+				}
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+				else
+				{
+					wprintf(L"\t***** PREDEFINED TOUNICODE CMAP 1 -> '%s', NOT FOUND!!! *****\n\n", pParams->szUseCMap);
+				}
+				#endif
 			}
 		}		
 		
