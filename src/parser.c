@@ -4858,37 +4858,53 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 	int retValue = 1;
 	
 	uint32_t myValue;
+	
 	int base;
 	int len;
 	int i;
 	char c;
 	
 	int bCodeSpaceRangeState;
-	int codeSpaceRange1 = -1;
-	int codeSpaceRange2 = -1;
+	uint32_t codeSpaceRange1 = -1;
+	uint32_t codeSpaceRange2 = -1;
+	int nCountCodeSpaceRangeValues = 0;
 	
 	int bCidRangeState;
-	int cidRange1 = -1;
-	int cidRange2 = -1;
-	int cidRange3 = -1;
+	uint32_t cidRange1 = -1;
+	uint32_t cidRange2 = -1;
+	uint32_t cidRange3 = -1;
+	int nCountCidRangeValues = 0;
 	
 	int bCidCharState;
-	int cidChar1 = -1;
-	int cidChar2 = -1;	
+	uint32_t cidChar1 = -1;
+	uint32_t cidChar2 = -1;	
+	int nCountCidCharValues;
 	
 	int bNotdefRangeState;
-	int notdefRange1 = -1;
-	int notdefRange2 = -1;
-	int notdefRange3 = -1;
+	uint32_t notdefRange1 = -1;
+	uint32_t notdefRange2 = -1;
+	uint32_t notdefRange3 = -1;
+	int nCountNotDefRangeValues = 0;
 	
 	int bNotdefCharState;
-	int notdefChar1 = -1;
-	int notdefChar2 = -1;	
+	uint32_t notdefChar1 = -1;
+	uint32_t notdefChar2 = -1;
+	int nCountNotDefCharValues = 0;
+	
+	int bBfCharState;
+	uint32_t bfChar1 = 0;
+	uint32_t bfChar2 = 0;
+	int nCountBfCharValues = 0;
+	
+	int bBfRangeState;
+	uint32_t bfRange1 = 0;
+	uint32_t bfRange2 = 0;
+	uint32_t bfRange3 = 0;
+	int nCountBfRangeValues = 0;
 	
 	int lastInteger = 0;
 	int idxCodeSpace = 0;
 	
-	// ----------------------------------------------------------------------------------------------------
 	int nRes;
 	size_t tnameLen;
 	uint32_t nDataSize;
@@ -4897,16 +4913,6 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 	uint32_t codepoint;
 	uint16_t lead;
 	uint16_t trail;
-				
-	int bBfCharState;
-	int bfChar1 = -1;
-	int bfChar2 = -1;
-	
-	int bBfRangeState;
-	int bfRange1 = -1;
-	int bfRange2 = -1;
-	int bfRange3 = -1;	
-	// ----------------------------------------------------------------------------------------------------
 			
 	#if !defined(MYDEBUG_PRINT_ALL) && !defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 	UNUSED(objNum);
@@ -4930,15 +4936,6 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 	wprintf(L"\nParseCMapStream(OBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate.\n\n", objNum);	
 	#endif
 		
-	
-	//if ( !(pParams->bEncodigArrayAlreadyInit) )
-	//{
-	//	for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
-	//	{
-	//		pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
-	//	}
-	//}
-	
 	bCodeSpaceRangeState = 0;
 	bCidRangeState = 0;
 	bCidCharState = 0;
@@ -4995,82 +4992,96 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				idxCodeSpace = 0;
 								
 				bCodeSpaceRangeState = 1;
-				codeSpaceRange1 = -1;
-				codeSpaceRange2 = -1;
+				codeSpaceRange1 = 0;
+				codeSpaceRange2 = 0;
+				nCountCodeSpaceRangeValues = 0;
 				break;				
 			case T_CONTENT_OP_endcodespacerange:
 				bCodeSpaceRangeState = 0;
-				codeSpaceRange1 = -1;
-				codeSpaceRange2 = -1;
+				codeSpaceRange1 = 0;
+				codeSpaceRange2 = 0;
+				nCountCodeSpaceRangeValues = 0;
 				break;
 			case T_CONTENT_OP_begincidrange:				
 				bCidRangeState = 1;
-				cidRange1 = -1;
-				cidRange2 = -1;
-				cidRange3 = -1;
+				cidRange1 = 0;
+				cidRange2 = 0;
+				cidRange3 = 0;
+				nCountCidRangeValues = 0;
 				break;
 			case T_CONTENT_OP_endcidrange:
 				bCidRangeState = 0;
-				cidRange1 = -1;
-				cidRange2 = -1;
-				cidRange3 = -1;
+				cidRange1 = 0;
+				cidRange2 = 0;
+				cidRange3 = 0;
+				nCountCidRangeValues = 0;
 				break;
 			case T_CONTENT_OP_begincidchar:				
 				bCidCharState = 1;
-				cidChar1 = -1;
-				cidChar2 = -1;
+				cidChar1 = 0;
+				cidChar2 = 0;
+				nCountCidCharValues = 0;
 				break;
 			case T_CONTENT_OP_endcidchar:
 				bCidCharState = 0;
-				cidChar1 = -1;
-				cidChar2 = -1;
+				cidChar1 = 0;
+				cidChar2 = 0;
+				nCountCidCharValues = 0;
 				break;				
 			case T_CONTENT_OP_beginnotdefrange:				
 				bNotdefRangeState = 1;
-				notdefRange1 = -1;
-				notdefRange2 = -1;
-				notdefRange3 = -1;
+				notdefRange1 = 0;
+				notdefRange2 = 0;
+				notdefRange3 = 0;
+				nCountNotDefRangeValues = 0;
 				break;
 			case T_CONTENT_OP_endnotdefrange:
 				bNotdefRangeState = 0;
-				notdefRange1 = -1;
-				notdefRange2 = -1;
-				notdefRange3 = -1;
+				notdefRange1 = 0;
+				notdefRange2 = 0;
+				notdefRange3 = 0;
+				nCountNotDefRangeValues = 0;
 				break;	
 			case T_CONTENT_OP_beginnotdefchar:				
 				bNotdefCharState = 1;
-				notdefChar1 = -1;
-				notdefChar2 = -1;
+				notdefChar1 = 0;
+				notdefChar2 = 0;
+				nCountNotDefCharValues = 0;
 				break;
 			case T_CONTENT_OP_endnotdefchar:
 				bNotdefCharState = 0;
-				notdefChar1 = -1;
-				notdefChar2 = -1;
+				notdefChar1 = 0;
+				notdefChar2 = 0;
+				nCountNotDefCharValues = 0;
 				break;
 			case T_CONTENT_OP_beginbfchar:				
 				bBfCharState = 1;
-				bfChar1 = -1;
-				bfChar2 = -1;
+				bfChar1 = 0;
+				bfChar2 = 0;
+				nCountBfCharValues = 0;
 				codepoint = lead = trail = 0;
 				break;
 			case T_CONTENT_OP_endbfchar:
 				bBfCharState = 0;
-				bfChar1 = -1;
-				bfChar2 = -1;				
+				bfChar1 = 0;
+				bfChar2 = 0;
+				nCountBfCharValues = 0;	
 				codepoint = lead = trail = 0;
 				break;
 			case T_CONTENT_OP_beginbfrange:				
 				bBfRangeState = 1;
-				bfRange1 = -1;
-				bfRange2 = -1;
-				bfRange3 = -1;
+				bfRange1 = 0;
+				bfRange2 = 0;
+				bfRange3 = 0;
+				nCountBfRangeValues = 0;
 				codepoint = lead = trail = 0;
 				break;
 			case T_CONTENT_OP_endbfrange:
 				bBfRangeState = 0;
-				bfRange1 = -1;
-				bfRange2 = -1;
-				bfRange3 = -1;
+				bfRange1 = 0;
+				bfRange2 = 0;
+				bfRange3 = 0;
+				nCountBfRangeValues = 0;
 				codepoint = lead = trail = 0;
 				break;
 			case T_STRING_HEXADECIMAL:
@@ -5147,48 +5158,63 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						}
 					}
 				}
+				
+				//if ( codepoint > 0 )
+				//	myValue = codepoint;
 					
-				if ( bBfRangeState && bfRange2 >= 0 && bfRange3 < 0 )
+				if ( bBfRangeState && nCountBfRangeValues >= 2 )
 				{											
 					if ( codepoint > 0 )
 						myValue = codepoint;
 					
-					//lead = 0;
-					//trail = 0;
-					//codepoint = 0;						
-				}				
+					//nCountBfRangeValues = 0;
+				}			
 				
 				if ( bCodeSpaceRangeState )
-				{
-					if ( codeSpaceRange1 < 0 )
+				{						
+					if ( nCountCodeSpaceRangeValues < 1 )
 					{
 						codeSpaceRange1 = myValue;
+						nCountCodeSpaceRangeValues++;
 					}
 					else
 					{
 						codeSpaceRange2 = myValue;
+						//nCountCodeSpaceRangeValues++;
 						
-						//if ( codeSpaceRange2 > 0xFF )
 						if ( codeSpaceRange2 > 0xFFFF )
 						{
+							fwprintf(pParams->fpErrors, L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
+							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);
+							wprintf(L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
 							#endif
-							retValue = 0;
-							goto uscita;
+							
+							pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
+							
+							//retValue = 0;
+							//goto uscita;
+							
+							//codeSpaceRange1 = 0;
+							//codeSpaceRange2 = 0;
+							//nCountCodeSpaceRangeValues = 0;
+							//continue;
+						
 						}
 						else if ( codeSpaceRange2 <= 0xFF )
 						{
 							pParams->bHasCodeSpaceOneByte = 1;
+							pParams->pCodeSpaceRangeArray[idxCodeSpace].nNumBytes = 1;
 						}
 						else if ( codeSpaceRange2 <= 0xFFFF )
 						{
 							pParams->bHasCodeSpaceTwoByte = 1;
+							pParams->pCodeSpaceRangeArray[idxCodeSpace].nNumBytes = 2;
 						}						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE CODE SPACE RANGE -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);	
+							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE CODE SPACE RANGE -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);	
 						}	
 						#endif	
 						
@@ -5196,17 +5222,19 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = codeSpaceRange2;
 						idxCodeSpace++;
 
-						codeSpaceRange1 = -1;
-						codeSpaceRange2 = -1;
+						codeSpaceRange1 = 0;
+						codeSpaceRange2 = 0;
+						nCountCodeSpaceRangeValues = 0;
 					}
 				}				
 				else if ( bCidRangeState )
 				{
-					if ( cidRange1 < 0 )
+					if ( nCountCidRangeValues < 1 )
 					{
 						cidRange1 = myValue;
+						nCountCidRangeValues++;
 					}
-					else if ( cidRange2 < 0 )
+					else if ( nCountCidRangeValues < 2 )
 					{
 						cidRange2 = myValue;
 						
@@ -5219,21 +5247,21 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						else
 						{
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							wprintf(L"ERRORE ParseCMapStream 1: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 1: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
 
-						if ( (cidRange1 <= 0xFFFF && cidRange1 >= 0) && cidRange2 <= 0xFFFF )
+						if ( cidRange1 <= 0xFFFF && cidRange2 <= 0xFFFF )
 						{
-							for ( i = cidRange1; i <= cidRange2; i++ )
+							for ( uint32_t i = cidRange1; i <= cidRange2; i++ )
 							{
 								pParams->paCustomizedFont_CharSet[i] = cidRange3;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-								wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, cidRange3);
+								wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", i, cidRange3);
 								#endif								
 								
 								cidRange3++;
@@ -5242,20 +5270,22 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: VALORI CIDRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidRange1 = %d, cidRange2 = %d, cidRange3 = %d\n", cidRange1, cidRange2, cidRange3);
+							wprintf(L"ParseCMapStream: VALORI CIDRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidRange1 = %lu, cidRange2 = %lu, cidRange3 = %lu\n", cidRange1, cidRange2, cidRange3);
 						}
 						#endif
 						
-						cidRange1 = -1;
-						cidRange2 = -1;
-						cidRange3 = -1;
+						cidRange1 = 0;
+						cidRange2 = 0;
+						cidRange3 = 0;
+						nCountCidRangeValues = 0;
 					}
 				}
 				else if ( bCidCharState )
 				{
-					if ( cidChar1 < 0 )
+					if ( nCountCidCharValues < 1 )
 					{
 						cidChar1 = myValue;
+						nCountCidCharValues++;
 						
 						GetNextTokenFromToUnicodeStream(pParams);
 						
@@ -5266,43 +5296,44 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						else
 						{
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							wprintf(L"ERRORE ParseCMapStream 2: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 2: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
 						
-						//wprintf(L"\tcidChar1 = %d, cidChar2 = %d\n", cidChar1, cidChar2);
-						
-						if ( cidChar1 <= 0xFFFF && cidChar1 >= 0 )
+						if ( cidChar1 <= 0xFFFF )
 						{
 							pParams->paCustomizedFont_CharSet[cidChar1] = cidChar2;
 							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", cidChar1, cidChar2);
+							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", cidChar1, cidChar2);
 							#endif							
 						}
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: VALORI CIDCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidChar1 = %d, cidChar2 = %d\n", cidChar1, cidChar2);
+							wprintf(L"ParseCMapStream: VALORI CIDCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidChar1 = %lu, cidChar2 = %lu\n", cidChar1, cidChar2);
 						}	
 						#endif					
 						
-						cidChar1 = -1;
-						cidChar2 = -1;
+						cidChar1 = 0;
+						cidChar2 = 0;
+						nCountCidCharValues = 0;
 					}
 				}				
 				else if ( bNotdefRangeState )
 				{
-					if ( notdefRange1 < 0 )
+					if ( nCountNotDefRangeValues < 1 )
 					{
 						notdefRange1 = myValue;
+						nCountNotDefRangeValues++;
 					}
-					else if ( notdefRange2 < 0 )
+					else if ( nCountNotDefRangeValues < 2 )
 					{
 						notdefRange2 = myValue;
+						//nCountNotDefRangeValues++;
 						
 						GetNextTokenFromToUnicodeStream(pParams);
 						
@@ -5313,21 +5344,21 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						else
 						{
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							wprintf(L"ERRORE ParseCMapStream 3: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 3: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
 
-						if ( (notdefRange1 <= 0xFFFF && notdefRange1 >= 0) && notdefRange2 <= 0xFFFF )
+						if ( notdefRange1 <= 0xFFFF && notdefRange2 <= 0xFFFF )
 						{
-							for ( i = notdefRange1; i <= notdefRange2; i++ )
+							for ( uint32_t i = notdefRange1; i <= notdefRange2; i++ )
 							{
 								pParams->paCustomizedFont_CharSet[i] = notdefRange3;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-								wprintf(L"ParseCMapStream: OK!!! NOTDEFRANGE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, notdefRange3);
+								wprintf(L"ParseCMapStream: OK!!! NOTDEFRANGE -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", i, notdefRange3);
 								#endif								
 								
 								notdefRange3++;
@@ -5336,20 +5367,22 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: VALORI NOTDEFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefRange1 = %d, notdefRange2 = %d, notdefRange3 = %d\n", notdefRange1, notdefRange2, notdefRange3);
+							wprintf(L"ParseCMapStream: VALORI NOTDEFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefRange1 = %lu, notdefRange2 = %lu, notdefRange3 = %lu\n", notdefRange1, notdefRange2, notdefRange3);
 						}
 						#endif
 						
-						notdefRange1 = -1;
-						notdefRange2 = -1;
-						notdefRange3 = -1;
+						notdefRange1 = 0;
+						notdefRange2 = 0;
+						notdefRange3 = 0;
+						nCountNotDefRangeValues = 0;
 					}
 				}
 				else if ( bNotdefCharState )
 				{
-					if ( notdefChar1 < 0 )
+					if ( nCountNotDefCharValues < 1 )
 					{
 						notdefChar1 = myValue;
+						nCountNotDefCharValues++;
 						
 						GetNextTokenFromToUnicodeStream(pParams);
 						
@@ -5360,38 +5393,39 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						else
 						{
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							wprintf(L"ERRORE ParseCMapStream 4: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_INT_LITERAL\n");
+							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 4: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
-												
-						
-						if ( notdefChar1 <= 0xFFFF && notdefChar1 >= 0)
+																		
+						if ( notdefChar1 <= 0xFFFF )
 						{
 							pParams->paCustomizedFont_CharSet[cidChar1] = notdefChar2;
 							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ParseCMapStream: OK!!! NOTDEFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", notdefChar1, notdefChar2);
+							wprintf(L"ParseCMapStream: OK!!! NOTDEFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", notdefChar1, notdefChar2);
 							#endif							
 						}
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: VALORI NOTDEFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefChar1 = %d, notdefChar2 = %d\n", notdefChar1, notdefChar2);
+							wprintf(L"ParseCMapStream: VALORI NOTDEFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> notdefChar1 = %lu, notdefChar2 = %lu\n", notdefChar1, notdefChar2);
 						}	
 						#endif					
 						
-						notdefChar1 = -1;
-						notdefChar2 = -1;
+						notdefChar1 = 0;
+						notdefChar2 = 0;
+						nCountNotDefCharValues = 0;
 					}
 				}
 				else if ( bBfCharState )
 				{
-					if ( bfChar1 < 0 )
+					if ( nCountBfCharValues < 1 )
 					{
 						bfChar1 = myValue;
+						nCountBfCharValues++;
 						
 						GetNextTokenFromToUnicodeStream(pParams);
 						
@@ -5427,34 +5461,35 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 														
 							bfChar2 = myValue;
 						
-							if ( bfChar1 <= 0xFFFF && bfChar1 >= 0 )
+							if ( bfChar1 <= 0xFFFF )
 							{
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 							
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", bfChar1, bfChar2);
+								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", bfChar1, bfChar2);
 								#endif
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							else
 							{
-								wprintf(L"ParseCMapStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %d, bfChar2 = %d\n", bfChar1, bfChar2);
+								wprintf(L"ParseCMapStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %lu, bfChar2 = %lu\n", bfChar1, bfChar2);
 							}
 							#endif
 						
-							bfChar1 = -1;
-							bfChar2 = -1;
+							bfChar1 = 0;
+							bfChar2 = 0;
+							nCountBfCharValues = 0;
 						}
 						else if ( T_NAME == pParams->myToken.Type )
 						{
 							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
 							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
-							if ( nRes >= 0 && bfChar1 >= 0 ) // TROVATO
+							if ( nRes >= 0 ) // TROVATO
 							{				
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
+								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %d -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
 								#endif																
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
@@ -5477,26 +5512,29 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				}
 				else if ( bBfRangeState )
 				{
-					if ( bfRange1 < 0 )
+					if ( nCountBfRangeValues < 1 )
 					{
 						bfRange1 = myValue;
+						nCountBfRangeValues++;
 					}
-					else if ( bfRange2 < 0 )
+					else if ( nCountBfRangeValues < 2 )
 					{
 						bfRange2 = myValue;
+						nCountBfRangeValues++;
 					}					
 					else
 					{
 						bfRange3 = myValue;
+						//nCountBfRangeValues++;
 						
-						if ( (bfRange1 <= 0xFFFF && bfRange1 >= 0) && bfRange2 <= 0xFFFF )
+						if ( bfRange1 <= 0xFFFF && bfRange2 <= 0xFFFF )
 						{
-							for ( i = bfRange1; i <= bfRange2; i++ )
+							for ( uint32_t i = bfRange1; i <= bfRange2; i++ )
 							{
 								pParams->paCustomizedFont_CharSet[i] = bfRange3;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-								wprintf(L"ParseCMapStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, bfRange3);
+								wprintf(L"ParseCMapStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", i, bfRange3);
 								#endif								
 								
 								bfRange3++;
@@ -5505,13 +5543,14 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %d, bfRange2 = %d, bfRange3 = %d\n", bfRange1, bfRange2, bfRange3);
+							wprintf(L"ParseCMapStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %lu, bfRange2 = %lu, bfRange3 = %lu\n", bfRange1, bfRange2, bfRange3);
 						}
 						#endif
 						
-						bfRange1 = -1;
-						bfRange2 = -1;
-						bfRange3 = -1;
+						bfRange1 = 0;
+						bfRange2 = 0;
+						bfRange3 = 0;
+						nCountBfRangeValues = 0;
 					}
 				}
 				
@@ -5523,9 +5562,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 					wprintf(L"ParseCMapStream: VALORI CIDFRANGE ALL'INTERNO DI UN ARRAY PER IL MOMENTO NON SUPPORTATI.\n");
 					#endif
 					
-					cidRange1 = -1;
-					cidRange2 = -1;
-					cidRange3 = -1;
+					cidRange1 = 0;
+					cidRange2 = 0;
+					cidRange3 = 0;
 					bCidRangeState = 0;
 				}
 				break;
@@ -5566,17 +5605,20 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 	uint16_t trail;
 	
 	int bCodeSpaceRangeState;
-	int codeSpaceRange1 = -1;
-	int codeSpaceRange2 = -1;
-			
+	uint32_t codeSpaceRange1 = -1;
+	uint32_t codeSpaceRange2 = -1;
+	int nCountCodeSpaceRangeValues = 0;
+	
 	int bBfCharState;
-	int bfChar1 = -1;
-	int bfChar2 = -1;
+	uint32_t bfChar1 = 0;
+	uint32_t bfChar2 = 0;
+	int nCountBfCharValues = 0;
 	
 	int bBfRangeState;
-	int bfRange1 = -1;
-	int bfRange2 = -1;
-	int bfRange3 = -1;
+	uint32_t bfRange1 = 0;
+	uint32_t bfRange2 = 0;
+	uint32_t bfRange3 = 0;
+	int nCountBfRangeValues = 0;
 	
 	int lastInteger = 0;
 	int idxCodeSpace = 0;
@@ -5600,34 +5642,14 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 		else
 			wprintf(L"%c", pszDecodedStream[k]);
 	}
-	wprintf(L"\nParseToUnicodeStream(OBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate:\n\n", objNum);	
+	wprintf(L"\nParseToUnicodeStream(OBJ %d) -> FINE STREAM DECODIFICATO DOPO myInflate.\n\n", objNum);	
 	#endif
-	
-	//if ( !(pParams->bEncodigArrayAlreadyInit) )
-	//{
-	//	for ( i = 0; i < pParams->dimCustomizedFont_CharSet; i++ )
-	//	{
-	//		pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
-	//	}
-	//}
 	
 	bCodeSpaceRangeState = 0;
 	bBfCharState = 0;
 	bBfRangeState = 0;
 	
 	codepoint = lead = trail = 0;
-	
-	
-	/*
-	typedef struct tagCodeSpaceRange
-	{
-		uint32_t nFrom;
-		uint32_t nTo;
-	} CodeSpaceRange_t;
-	
-	uint32_t nCurrentFontCodeSpacesNum;
-	CodeSpaceRange_t *pCodeSpaceRangeArray;
-	*/
 		
 	pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
 	
@@ -5674,38 +5696,44 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 				idxCodeSpace = 0;
 				
 				bCodeSpaceRangeState = 1;
-				codeSpaceRange1 = -1;
-				codeSpaceRange2 = -1;
+				codeSpaceRange1 = 0;
+				codeSpaceRange2 = 0;
+				nCountCodeSpaceRangeValues = 0;
 				break;
 			case T_CONTENT_OP_endcodespacerange:
 				bCodeSpaceRangeState = 0;
-				codeSpaceRange1 = -1;
-				codeSpaceRange2 = -1;
+				codeSpaceRange1 = 0;
+				codeSpaceRange2 = 0;
+				nCountCodeSpaceRangeValues = 0;
 				break;
 			case T_CONTENT_OP_beginbfchar:				
 				bBfCharState = 1;
-				bfChar1 = -1;
-				bfChar2 = -1;
+				bfChar1 = 0;
+				bfChar2 = 0;
+				nCountBfCharValues = 0;
 				codepoint = lead = trail = 0;
 				break;
 			case T_CONTENT_OP_endbfchar:
 				bBfCharState = 0;
-				bfChar1 = -1;
-				bfChar2 = -1;				
+				bfChar1 = 0;
+				bfChar2 = 0;			
+				nCountBfCharValues = 0;	
 				codepoint = lead = trail = 0;
 				break;
 			case T_CONTENT_OP_beginbfrange:				
 				bBfRangeState = 1;
-				bfRange1 = -1;
-				bfRange2 = -1;
-				bfRange3 = -1;
+				bfRange1 = 0;
+				bfRange2 = 0;
+				bfRange3 = 0;
+				nCountBfRangeValues = 0;
 				codepoint = lead = trail = 0;
 				break;
 			case T_CONTENT_OP_endbfrange:
 				bBfRangeState = 0;
-				bfRange1 = -1;
-				bfRange2 = -1;
-				bfRange3 = -1;
+				bfRange1 = 0;
+				bfRange2 = 0;
+				bfRange3 = 0;
+				nCountBfRangeValues = 0;
 				codepoint = lead = trail = 0;
 				break;
 			case T_STRING_HEXADECIMAL:
@@ -5730,7 +5758,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 					}
 				}
 				
-				if ( bBfRangeState && bfRange2 >= 0 && bfRange3 < 0 )
+				if ( bBfRangeState && nCountBfRangeValues >= 2 )
 				{
 					lead = 0;
 					trail = 0;
@@ -5795,37 +5823,42 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 								
 				if ( bCodeSpaceRangeState )
 				{
-					if ( codeSpaceRange1 < 0 )
+					if ( nCountCodeSpaceRangeValues < 1 )
 					{
 						codeSpaceRange1 = myValue;
+						nCountCodeSpaceRangeValues++;
 					}
 					else
 					{
 						codeSpaceRange2 = myValue;
 						
-						//if ( codeSpaceRange2 > 0xFF )
 						if ( codeSpaceRange2 > 0xFFFF )
 						{
-							fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);
+							fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
+							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-							wprintf(L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);
+							wprintf(L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
 							#endif
+							
 							pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
-							retValue = 0;
-							goto uscita;
+							
+							//retValue = 0;
+							//goto uscita;
 						}
 						else if ( codeSpaceRange2 <= 0xFF )
 						{
 							pParams->bHasCodeSpaceOneByte = 1;
+							pParams->pCodeSpaceRangeArray[idxCodeSpace].nNumBytes = 1;
 						}
 						else if ( codeSpaceRange2 <= 0xFFFF )
 						{
 							pParams->bHasCodeSpaceTwoByte = 1;
+							pParams->pCodeSpaceRangeArray[idxCodeSpace].nNumBytes = 2;
 						}
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 						else
 						{
-							wprintf(L"ParseToUnicodeStream: OK!!! CODESPACERANGE -> codeSpaceRange1 = %d, codeSpaceRange2 = %d\n", codeSpaceRange1, codeSpaceRange2);	
+							wprintf(L"ParseToUnicodeStream: OK!!! CODESPACERANGE -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);	
 						}	
 						#endif			
 						
@@ -5833,15 +5866,17 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = codeSpaceRange2;
 						idxCodeSpace++;		
 
-						codeSpaceRange1 = -1;
-						codeSpaceRange2 = -1;
+						codeSpaceRange1 = 0;
+						codeSpaceRange2 = 0;
+						nCountCodeSpaceRangeValues = 0;
 					}
 				}
 				else if ( bBfCharState )
 				{
-					if ( bfChar1 < 0 )
+					if ( nCountBfCharValues < 1 )
 					{
 						bfChar1 = myValue;
+						nCountBfCharValues++;
 						
 						GetNextTokenFromToUnicodeStream(pParams);
 						
@@ -5930,34 +5965,35 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 														
 							bfChar2 = myValue;
 						
-							if ( bfChar1 <= 0xFFFF && bfChar1 >= 0 )
+							if ( bfChar1 <= 0xFFFF )
 							{
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 							
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d\n", bfChar1, bfChar2);
+								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", bfChar1, bfChar2);
 								#endif
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							else
 							{
-								wprintf(L"ParseToUnicodeStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %d, bfChar2 = %d\n", bfChar1, bfChar2);
+								wprintf(L"ParseToUnicodeStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %lu, bfChar2 = %lu\n", bfChar1, bfChar2);
 							}
 							#endif
 						
-							bfChar1 = -1;
-							bfChar2 = -1;
+							bfChar1 = 0;
+							bfChar2 = 0;
+							nCountBfCharValues = 0;
 						}
 						else if ( T_NAME == pParams->myToken.Type )
 						{
 							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
 							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
-							if ( nRes >= 0 && bfChar1 >= 0 ) // TROVATO
+							if ( nRes >= 0 ) // TROVATO
 							{				
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%d] = %d -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
+								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %lu -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
 								#endif																
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
@@ -5980,26 +6016,29 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 				}
 				else if ( bBfRangeState )
 				{
-					if ( bfRange1 < 0 )
+					if ( nCountBfRangeValues < 1 )
 					{
 						bfRange1 = myValue;
+						nCountBfRangeValues++;
 					}
-					else if ( bfRange2 < 0 )
+					else if ( nCountBfRangeValues < 2 )
 					{
 						bfRange2 = myValue;
+						nCountBfRangeValues++;
 					}					
 					else
 					{
 						bfRange3 = myValue;
+						//nCountBfRangeValues++;
 						
-						if ( (bfRange1 <= 0xFFFF && bfRange1 >= 0) && bfRange2 <= 0xFFFF )
+						if ( bfRange1 <= 0xFFFF && bfRange2 <= 0xFFFF )
 						{
-							for ( i = bfRange1; i <= bfRange2; i++ )
+							for ( uint32_t i = bfRange1; i <= bfRange2; i++ )
 							{
 								pParams->paCustomizedFont_CharSet[i] = bfRange3;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-								wprintf(L"ParseToUnicodeStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%d] = %d\n", i, bfRange3);
+								wprintf(L"ParseToUnicodeStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", i, bfRange3);
 								#endif								
 								
 								bfRange3++;
@@ -6008,13 +6047,14 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 						else
 						{
-							wprintf(L"ParseToUnicodeStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %d, bfRange2 = %d, bfRange3 = %d\n", bfRange1, bfRange2, bfRange3);
+							wprintf(L"ParseToUnicodeStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %lu, bfRange2 = %lu, bfRange3 = %lu\n", bfRange1, bfRange2, bfRange3);
 						}
 						#endif
 						
-						bfRange1 = -1;
-						bfRange2 = -1;
-						bfRange3 = -1;
+						bfRange1 = 0;
+						bfRange2 = 0;
+						bfRange3 = 0;
+						nCountBfRangeValues = 0;
 					}
 				}								
 				break;
@@ -9583,13 +9623,10 @@ int contentfontobj(Params *pParams)
 				pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
 				
 			for ( int j = pParams->dimCustomizedFont_CharSet; j < 0xFFFF; j++ )
-				pParams->paCustomizedFont_CharSet[j] = L' ';				
+				pParams->paCustomizedFont_CharSet[j] = 0xFFFD;				
 				
 			pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
-				
-			for ( int j = pParams->dimCustomizedFont_CharSet; j < 0xFFFF; j++ )
-				pParams->paCustomizedFont_CharSet[j] = L' ';
-			
+							
 			if ( pParams->nCurrentUseCMapRef > 0 )
 			{
 				pParams->bEncodigArrayAlreadyInit = 0;
@@ -9613,7 +9650,7 @@ int contentfontobj(Params *pParams)
 					pParams->bHasCodeSpaceTwoByte = 1;
 					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-					wprintf(L"\t***** USECMAP PREDEFINITO -> '%s'. OK! *****\n\n", pParams->szUseCMap);
+					wprintf(L"\t***** USECMAP PREDEFINITO 0 -> '%s'. OK! *****\n\n", pParams->szUseCMap);
 					#endif
 					return 1;
 				}				
@@ -9766,7 +9803,7 @@ int contentfontobj(Params *pParams)
 			pParams->paCustomizedFont_CharSet[i] = pParams->pArrayUnicode[i];
 			
 		for ( int j = pParams->dimCustomizedFont_CharSet; j < 0xFFFF; j++ )
-			pParams->paCustomizedFont_CharSet[j] = L' ';
+			pParams->paCustomizedFont_CharSet[j] = 0xFFFD;
 			
 		pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
 		

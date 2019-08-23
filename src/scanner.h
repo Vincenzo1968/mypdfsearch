@@ -217,6 +217,7 @@ typedef struct tagCodeSpaceRange
 {
 	uint32_t nFrom;
 	uint32_t nTo;
+	uint32_t nNumBytes;
 } CodeSpaceRange_t;
 
 typedef struct tagMyPredefinedCMapDef

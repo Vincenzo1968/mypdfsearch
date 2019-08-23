@@ -116,6 +116,8 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 ./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
 
 ./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/VerticalWriting.pdf" --frompage=2 --topage=2
+
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
  
 ------------------------------------------------------------------------------------------------------------------------------------
 */

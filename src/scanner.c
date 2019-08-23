@@ -3460,7 +3460,7 @@ void GetNextToken(Params *pParams)
 							
 							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-							wprintf(L"\n\n\tpParams->lexeme(hexadecimal string) = <");
+							wprintf(L"\n\tpParams->lexeme(hexadecimal string) = <");
 							for ( int r = 0; r < k; r++ )
 							{
 								//wprintf(L"%2X");
@@ -3511,6 +3511,10 @@ void GetNextToken(Params *pParams)
 																								
 								if ( pParams->bHasCodeSpaceTwoByte && !pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE TWO BYTES ONLY.
 								{
+									#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+									wprintf(L"\nEHI!!! SIAMO NEL CODE SPACE RANGE TWO BYTES ONLY.\n");
+									#endif
+									
 									w = 0;
 									for ( z = 0; z < k - 1; z++ )
 									{
@@ -3526,6 +3530,10 @@ void GetNextToken(Params *pParams)
 										else
 											pParams->myCID = MY_MAKEWORD(num1, num2);
 											
+										#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+										wprintf(L"\tpParams->myCID TWO BYTES = %u(hex: %X)\n", pParams->myCID, pParams->myCID);
+										#endif											
+											
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
 											if ( NULL != pParams->pCodeSpaceRangeArray )
@@ -3533,21 +3541,24 @@ void GetNextToken(Params *pParams)
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
 												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
 												{
+													#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+													wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTES, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+													#endif
+										
 													break;
 												}
 											}
 											else
 											{
+												#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+												wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												#endif
+												
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 												pParams->myCID = 0xFFFD;
 												u = pParams->nCurrentFontCodeSpacesNum + 1;
 												break;
 											}
-																						
-											//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
-											//{
-											//	break;
-											//}
 										}
 										
 										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
@@ -3556,26 +3567,35 @@ void GetNextToken(Params *pParams)
 											
 											//fwprintf(pParams->fpErrors, L"WARNING 1: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
 											//pParams->myCID = 0x0000;
-											pParams->myCID = 0xFFFD;
-											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
-											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-											#endif											
+											pParams->myCID = 0xFFFD;											
 										}
 										
 										if ( 0xFFFD == pParams->myCID )
 										{
 											pParams->pUtf8String[w] = 0xFFFD;
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tCACCHIO, CID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+											#endif
 										}
 										else
 										{
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
-										}										
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+											#endif
+										}
 																												
 										w++;
 									}
 								}
 								else if ( pParams->bHasCodeSpaceTwoByte && pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE ONE AND TWO BYTES.
 								{
+									#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+									wprintf(L"\nEHI!!! SIAMO NEL CODE SPACE RANGE ONE AND TWO BYTES.\n");
+									#endif
+									
 									w = 0;
 									for ( z = 0; z < k; z++ )
 									{
@@ -3585,40 +3605,50 @@ void GetNextToken(Params *pParams)
 										
 										pParams->myCID = num1;
 										
+										#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+										wprintf(L"\tpParams->myCID ONE BYTE = %u(hex: %X)\n", pParams->myCID, pParams->myCID);
+										#endif										
+										
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
 											if ( NULL != pParams->pCodeSpaceRangeArray )
 											{
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
-												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+												if ( 1 == pParams->pCodeSpaceRangeArray[u].nNumBytes && (pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo) )
 												{
+													#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+													wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTES, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+													#endif
 													break;
 												}
 											}
 											else
 											{
+												#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+												wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												#endif
+												
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 												pParams->myCID = 0xFFFD;
 												u = pParams->nCurrentFontCodeSpacesNum + 1;
 												break;
 											}
-											
-											//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
-											//{
-											//	break;
-											//}
 										}
 										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID ONE BYTE NON TROVATO NEL CODE SPACE RANGE
 										{
 											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
 											
-											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
-											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE ONE BYTE. CONSUMO UN ALTRO BYTE.\n", pParams->myCID);
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tCID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE ONE BYTE. CONSUMO UN ALTRO BYTE.\n", pParams->myCID, pParams->myCID);
 											#endif											
 										}
 										else // CID ONE BYTE TROVATO NEL CODE SPACE RANGE
 										{
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTE -> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+											#endif
 																												
 											w++;
 											continue;
@@ -3635,18 +3665,30 @@ void GetNextToken(Params *pParams)
 										else
 											pParams->myCID = MY_MAKEWORD(num1, num2);
 											
+										#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+										wprintf(L"\tpParams->myCID TWO BYTES = %u(hex: %X)\n", pParams->myCID, pParams->myCID);
+										#endif
+											
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
 											if ( NULL != pParams->pCodeSpaceRangeArray )
 											{
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
-												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+												if ( 2 == pParams->pCodeSpaceRangeArray[u].nNumBytes && (pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo) )
 												{
+													#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+													wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTES, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+													#endif
+													
 													break;
 												}
 											}
 											else
 											{
+												#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+												wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												#endif
+												
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 												pParams->myCID = 0xFFFD;
 												u = pParams->nCurrentFontCodeSpacesNum + 1;
@@ -3663,33 +3705,44 @@ void GetNextToken(Params *pParams)
 										{
 											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
 											
-											//fwprintf(pParams->fpErrors, L"WARNING 2: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
-											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-											#endif
-											//pParams->myCID = 0x0000;
 											pParams->myCID = 0xFFFD;
 										}
-											
+										
 										if ( 0xFFFD == pParams->myCID )
 										{
 											pParams->pUtf8String[w] = 0xFFFD;
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tCACCHIO, CID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+											#endif
 										}
 										else
 										{
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
-										}											
-																												
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+											#endif
+										}
+																																						
 										w++;
 									}
 								}
 								else if ( !pParams->bHasCodeSpaceTwoByte && pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE ONE BYTE ONLY.
 								{
+									#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+									wprintf(L"\nEHI!!! SIAMO NEL CODE SPACE RANGE ONE BYTE ONLY.\n");
+									#endif
+									
 									w = 0;
 									for ( z = 0; z < k; z++ )
 									{
 										pParams->myCID = pParams->lexeme[z];
 										z++;
+										
+										#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+										wprintf(L"\tpParams->myCID ONE BYTE = %u(hex: %X)\n", pParams->myCID, pParams->myCID);
+										#endif	
 											
 										for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 										{
@@ -3699,44 +3752,50 @@ void GetNextToken(Params *pParams)
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
 												if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
 												{
+													#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+													wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTE, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+													#endif
+													
 													break;
 												}
 											}
 											else
 											{
+												#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+												wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+												#endif
+												
 												//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 												pParams->myCID = 0xFFFD;
 												u = pParams->nCurrentFontCodeSpacesNum + 1;
 												break;
 											}
-											
-											//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
-											//{
-											//	break;
-											//}
 										}
 										
 										if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
 										{
 											// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
 											
-											//fwprintf(pParams->fpErrors, L"WARNING 3: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
-											wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-											#endif
-											//pParams->myCID = 0x00;
 											pParams->myCID = 0xFFFD;
 										}
 										
 										if ( 0xFFFD == pParams->myCID )
 										{
 											pParams->pUtf8String[w] = 0xFFFD;
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tCACCHIO, CID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE ONE BYTE ONLY -> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+											#endif
 										}
 										else
 										{
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+											
+											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+											wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTE ONLY-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+											#endif
 										}
-																												
+																																						
 										w++;
 									}									
 								}
@@ -4140,11 +4199,12 @@ void GetNextToken(Params *pParams)
 						strcpy(pParams->myToken.Value.vString, pParams->lexeme);
 					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-					wprintf(L"\n\nGetNextToken: T_STRING_HEXADECIMAL -> '%s'\n", pParams->myToken.Value.vString);
+					wprintf(L"\nGetNextToken: T_STRING_HEXADECIMAL -> '%s'\n", pParams->myToken.Value.vString);
 					#endif
 					
 					if ( FONT_SUBTYPE_Type0 == pParams->nCurrentFontSubtype )
-					{						
+					{		
+						/*				
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
 						wprintf(L"\tpParams->lexeme                -> <%s>\n", pParams->lexeme);
 						
@@ -4161,12 +4221,13 @@ void GetNextToken(Params *pParams)
 						for ( int e = 0; e < z; e++ )
 						{
 							if ( '\0' != pParams->lexemeTemp[e] )
-								wprintf(L"%c", pParams->lexemeTemp[e]);
+								wprintf(L"%lc", pParams->lexemeTemp[e]);
 							else 
 								wprintf(L"\0");
 						}
 						wprintf(L">\n\n");
 						#endif
+						*/
 						
 						//pParams->myCID = 0xFFFD;
 						ManageTypeZeroHexString(pParams, z);
@@ -4236,7 +4297,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 	if ( pParams->bHasCodeSpaceTwoByte && !pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE TWO BYTES ONLY.
 	{
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-		wprintf(L"\n\tEHI!!! SIAMO NEL CODE SPACE RANGE TWO BYTES ONLY.\n\n");
+		wprintf(L"\nEHI!!! SIAMO NEL CODE SPACE RANGE TWO BYTES ONLY.\n");
 		#endif
 		
 		w = 0;
@@ -4253,6 +4314,10 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 				pParams->myCID = MY_MAKEWORD(num2, num1);
 			else
 				pParams->myCID = MY_MAKEWORD(num1, num2);
+										
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+			wprintf(L"\tpParams->myCID TWO BYTES = %u(hex: %X)\n", pParams->myCID, pParams->myCID);
+			#endif
 											
 			for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 			{
@@ -4261,6 +4326,10 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 					//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
 					if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
 					{
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+						wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTE, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+						#endif
+						
 						break;
 					}
 				}
@@ -4269,57 +4338,57 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
 					wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 					#endif
+					
 					pParams->myCID = 0xFFFD;
 					u = pParams->nCurrentFontCodeSpacesNum + 1;
 					break;
 				}
-																					
-				//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
-				//{
-				//	break;
-				//}
 			}
 										
 			if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
 			{
 				// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
-									
+													
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+				wprintf(L"\tCID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID, pParams->myCID);
+				#endif
+				
 				//fwprintf(pParams->fpErrors, L"WARNING 1: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
 				//pParams->myCID = 0x0000;
 				pParams->myCID = 0xFFFD;
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-				#endif											
+											
 			}
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
 			else
 			{
-				wprintf(L"CID %X TROVATO NEL CODE SPACE RANGE. YAHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!\n", pParams->myCID);
+				wprintf(L"\tCID %u(hex: %X) TROVATO NEL CODE SPACE RANGE. YAHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!\n", pParams->myCID, pParams->myCID);
 			}
 			#endif
-										
+													
 			if ( 0xFFFD == pParams->myCID )
 			{
 				pParams->pUtf8String[w] = 0xFFFD;
+								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"\tECCO 1: pParams->pUtf8String[%d] = %X\n", w, pParams->pUtf8String[w]);
+				wprintf(L"\tCACCHIO, CID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
 				#endif
 			}
 			else
 			{
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+									
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"\tECCO 2: pParams->pUtf8String[%d] = %X\n", w, pParams->pUtf8String[w]);
+				wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
 				#endif
-			}										
-																												
+			}
+																																			
 			w++;
 		}
 	}
 	else if ( pParams->bHasCodeSpaceTwoByte && pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE ONE AND TWO BYTES.
 	{
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-		wprintf(L"\n\tEHI!!! SIAMO NEL CODE SPACE RANGE ONE AND TWO BYTES.\n\n");
+		wprintf(L"\nEHI!!! SIAMO NEL CODE SPACE RANGE ONE AND TWO BYTES.\n");
 		#endif
 		
 		w = 0;
@@ -4336,13 +4405,21 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 				if ( NULL != pParams->pCodeSpaceRangeArray )
 				{
 					//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
-					if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+					if ( 1 == pParams->pCodeSpaceRangeArray[u].nNumBytes && (pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo) )
 					{
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+						wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTE, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+						#endif
+						
 						break;
 					}
 				}
 				else
 				{
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+					wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+					#endif
+					
 					//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 					pParams->myCID = 0xFFFD;
 					u = pParams->nCurrentFontCodeSpacesNum + 1;
@@ -4359,12 +4436,16 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 				// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
 											
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE ONE BYTE. CONSUMO UN ALTRO BYTE.\n", pParams->myCID);
+				wprintf(L"\tCID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE ONE BYTE. CONSUMO UN ALTRO BYTE.\n", pParams->myCID, pParams->myCID);
 				#endif											
 			}
 			else // CID ONE BYTE TROVATO NEL CODE SPACE RANGE
 			{
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+				
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+				wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+				#endif
 																											
 				w++;
 				continue;
@@ -4386,45 +4467,51 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 				if ( NULL != pParams->pCodeSpaceRangeArray )
 				{
 					//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
-					if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
+					if ( 2 == pParams->pCodeSpaceRangeArray[u].nNumBytes && (pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo) )
 					{
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+						wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTE, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+						#endif
+						
 						break;
 					}
 				}
 				else
 				{
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+					wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+					#endif
+					
 					//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 					pParams->myCID = 0xFFFD;
 					u = pParams->nCurrentFontCodeSpacesNum + 1;
 					break;
 				}
-											
-				//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
-				//{
-				//	break;
-				//}
 			}
 										
 			if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
 			{
 				// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
-											
-				//fwprintf(pParams->fpErrors, L"WARNING 2: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-				#endif
-				//pParams->myCID = 0x0000;
+
 				pParams->myCID = 0xFFFD;
 			}
 											
 			if ( 0xFFFD == pParams->myCID )
 			{
 				pParams->pUtf8String[w] = 0xFFFD;
+								
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+				wprintf(L"\tCACCHIO, CID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE ONE AND TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+				#endif
 			}
 			else
 			{
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
-			}											
+									
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+				wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+				#endif
+			}										
 																												
 			w++;
 		}
@@ -4432,7 +4519,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 	else if ( !pParams->bHasCodeSpaceTwoByte && pParams->bHasCodeSpaceOneByte ) // CODE SPACE RANGE ONE BYTE ONLY.
 	{
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-		wprintf(L"\n\tEHI!!! SIAMO NEL CODE SPACE RANGE ONE BYTE ONLY.\n\n");
+		wprintf(L"\nEHI!!! SIAMO NEL CODE SPACE RANGE ONE BYTE ONLY.\n");
 		#endif
 		
 		w = 0;
@@ -4449,42 +4536,48 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 					//wprintf(L"\tpParams->pCodeSpaceRangeArray NON È NULL.\n");
 					if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
 					{
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+						wprintf(L"\tECCOLO! -> CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTE, NEL RANGE %lu(hex: %X) - %lu(hex: %X).\n", pParams->myCID, pParams->myCID, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nFrom, pParams->pCodeSpaceRangeArray[u].nTo, pParams->pCodeSpaceRangeArray[u].nTo);
+						#endif
+						
 						break;
 					}
 				}
 				else
 				{
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+					wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
+					#endif
+					
 					//wprintf(L"\tpParams->pCodeSpaceRangeArray È NULL!!!\n");
 					pParams->myCID = 0xFFFD;
 					u = pParams->nCurrentFontCodeSpacesNum + 1;
 					break;
 				}
-											
-				//if ( pParams->myCID >= pParams->pCodeSpaceRangeArray[u].nFrom && pParams->myCID <= pParams->pCodeSpaceRangeArray[u].nTo )
-				//{
-				//	break;
-				//}
 			}
 										
 			if ( u >= pParams->nCurrentFontCodeSpacesNum ) // CID NON TROVATO NEL CODE SPACE RANGE
 			{
 				// Effettuare qui la ricerca nel NOTDEF CODE SPACE RANGE
-											
-				//fwprintf(pParams->fpErrors, L"WARNING 3: CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"CID %X NON TROVATO NEL CODE SPACE RANGE.\n", pParams->myCID);
-				#endif
-				//pParams->myCID = 0x00;
+				
 				pParams->myCID = 0xFFFD;
 			}
 										
 			if ( 0xFFFD == pParams->myCID )
 			{
 				pParams->pUtf8String[w] = 0xFFFD;
+								
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+				wprintf(L"\tCACCHIO, CID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE ONE BYTE ONLY -> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+				#endif
 			}
 			else
 			{
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
+									
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
+				wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE ONE BYTE ONLY -> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
+				#endif
 			}
 																												
 			w++;
@@ -5008,22 +5101,6 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						#endif
 						return;
 					}
-					else if ( strncmp(pParams->lexeme, "beginnotdefchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_beginnotdefchar;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
-						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_beginnotdefchar -> 'beginnotdefchar'\n");
-						#endif
-						return;
-					}
-					else if ( strncmp(pParams->lexeme, "endnotdefchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_endnotdefchar;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
-						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endnotdefchar -> 'endnotdefchar'\n");
-						#endif
-						return;
-					}
 					else if ( strncmp(pParams->lexeme, "begincidrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
 					{
 						pParams->myToken.Type = T_CONTENT_OP_begincidrange;
@@ -5040,7 +5117,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						#endif
 						return;
 					}
-					else if ( strncmp(pParams->lexeme, "beginnotdeffrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					else if ( strncmp(pParams->lexeme, "beginnotdefrange", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
 					{
 						pParams->myToken.Type = T_CONTENT_OP_beginnotdefrange;
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
@@ -5053,6 +5130,22 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						pParams->myToken.Type = T_CONTENT_OP_endnotdefrange;
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
 						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endnotdefrange -> 'endnotdefrange'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "beginnotdefchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_beginnotdefchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_beginnotdefchar -> 'beginnotdefchar'\n");
+						#endif
+						return;
+					}
+					else if ( strncmp(pParams->lexeme, "endnotdefchar", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_endnotdefchar;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
+						wprintf(L"GetNextTokenFromToUnicodeStream: T_CONTENT_OP_endnotdefchar -> 'endnotdefchar'\n");
 						#endif
 						return;
 					}
