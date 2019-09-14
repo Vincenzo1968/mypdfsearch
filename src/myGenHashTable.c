@@ -432,5 +432,7 @@ int GenStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2
 	UNUSED(keysize1);
 	UNUSED(keysize2);
 	
+	//wprintf(L"GenStringCompareFunc -> KEY1[%s](length = %lu) <> KEY2[%s](length = %lu)\n", pKey1, keysize1, pKey2, keysize2);
+	
 	return strncmp((char*)pKey1, (char*)pKey2, BLOCK_SIZE - 1);
 }

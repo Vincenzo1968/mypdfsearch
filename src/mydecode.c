@@ -56,8 +56,614 @@ QUINDI : Se i primi due byte sono 254 e 255, la stringa è in formato UTF-16BE.
 
 // OCCHIO : PDF3000_2008: pagg. 250-251 <----- *****
 
-#include "mydecode.h"
+#include <math.h>
+#include "mypdfsearch.h"
 #include "myoctal.h"
+#include "mydecode.h"
+
+
+
+/*
+To help anyone else following this let's pull out some more from the xrefstm object:
+
+... /Index [10 11]  /W[1 2 1]
+
+So, the first two entries will be for objects 10 and 11.
+I will not use any decimal numbers [except for object numbers], they just confuse me.
+
+Object 10 is at offset 0x0010
+Object 11 is at offset 0x0250.
+
+So, let's look at the undecoded data
+0201001000 
+0200025C00
+
+This should decode to
+01001000
+01026C00
+
+which parses (thanks to /W[1 2 1]) to
+01 0010 00
+01 026C 00
+
+Now, this is type=1, so the values mean
+
+type=01 offset=0010 generation=0
+type=01 offset=026C generation=0
+
+So, the address of object 10 is good, of object 11 is bad.
+But I'm going to speculate.
+You mention 64 as a decimal number so I going to try modelling this with hex data
+
+0201001000 
+0200024000
+
+This should decode to
+01001000
+01025000
+
+which parses (thanks to /W[1 2 1]) to
+01 0010 00
+01 0250 00
+
+and so 0250 which is the right answer for object 11.
+
+I hope this points you in the right direction.
+It looks as if one part of your error is to think that the objects given are
+in the order they appear in the file, rather than by their strictly defined numbers (from /Index).
+*/
+
+int PaethPredictor(int a, int b, int c)
+{
+	int p, pa, pb, pc;
+	
+	p = a + b - c;
+	pa = abs(p - a);
+	pb = abs(p - b);
+	pc = abs(p - c);
+	
+	if ( pa <= pb && pa <= pc )
+		return a;
+	else if ( pb <= pc )
+		return b;
+	else
+		return c;
+}
+
+unsigned char* ManageDecodeParams(const unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize, unsigned char *outBuf, unsigned long int *pOutBufSize, int predictor, int columns, int colors, int bits)
+{
+	int numRows;
+	int rowSize;
+	
+	int curByteIdx;
+	
+	int sub;
+	
+	unsigned char *curLine = NULL;
+	unsigned char *prevLine = NULL;
+	
+	//unsigned char *outBuf = NULL;
+	int offsetOutBuf = 0;
+	
+	if ( predictor <= 1 )
+	{
+		return NULL;	
+	}
+	else if ( 2 == predictor ) // TIFF predictor
+	{
+		// return TiffPredictor();
+		return NULL;
+	}
+	else if ( predictor < 10 || predictor > 15 )
+	{
+		return NULL;
+	}
+	
+	if ( columns < 1 )
+		columns = 1;
+		
+	if ( colors < 1 )
+		colors = 1;
+		
+	switch ( bits )
+	{
+		case 1:
+		case 2:
+		case 4:
+		case 8:
+		case 16:
+			break;
+		default:
+			bits = 8;
+			break;
+	}
+		
+	// get the number of bytes per row
+	rowSize = columns * colors * bits;
+	rowSize = (int)ceil(rowSize / 8.0);
+	
+	numRows = DecodedStreamSize / rowSize;
+		
+	outBuf = (unsigned char*)malloc(rowSize * sizeof(unsigned char) * numRows + sizeof(unsigned char));
+	if ( NULL == outBuf )
+	{
+		return NULL;
+	}
+	
+	curLine = (unsigned char*)malloc(rowSize);
+	if ( NULL == curLine )
+	{
+		free(outBuf);
+		outBuf = NULL;
+		return NULL;
+	}
+	
+	prevLine = (unsigned char*)malloc(rowSize);
+	if ( NULL == prevLine )
+	{
+		free(outBuf);
+		outBuf = NULL;
+		free(curLine);
+		curLine = NULL;
+		return NULL;
+	}
+	
+	curByteIdx = 0;
+	offsetOutBuf = 0;
+	
+	while( (int)(DecodedStreamSize - curByteIdx) >= rowSize + 1 )
+	{
+		// the first byte determines the algorithm
+		int algorithm = (int) (pszDecodedStream[curByteIdx] & 0xFF);
+		curByteIdx++;
+		
+		// read the rest of the line
+		memcpy(curLine, pszDecodedStream  + curByteIdx, rowSize);
+		curByteIdx += rowSize;
+		
+		switch ( algorithm )
+		{
+			case 0:
+				// none	
+				break;
+			case 1:
+				// get the number of bytes per sample
+				sub = (int)ceil( (bits * colors) / 8.0 );
+				for ( int i = 0; i < rowSize; i++ )
+				{
+					int prevIdx = i - sub;
+					if ( prevIdx >= 0 )
+						curLine[i] += curLine[prevIdx];
+				}
+				break;
+			case 2:
+				if ( 0 == offsetOutBuf )
+				{
+					// do nothing if this is the first line
+					break;
+				}
+				for (int i = 0; i < rowSize; i++)
+				{
+					curLine[i] += prevLine[i];
+				}
+				                    
+				break;
+			case 3:
+				// get the number of bytes per sample
+				sub = (int)ceil( (bits * colors) / 8.0 );
+				
+				for ( int i = 0; i < rowSize; i++ )
+				{
+					int raw = 0;
+					int prior = 0;
+					
+					// get the last value of this color
+					int prevIdx = i - sub;
+					if ( prevIdx >= 0 )
+					{
+						raw = curLine[prevIdx] & 0xff;
+					}
+					
+					// get the value on the previous line
+					if ( 0 == offsetOutBuf )
+					{
+						prior = prevLine[i] & 0xff;
+					}
+					
+					// add the average
+					curLine[i] = floor( (raw + prior) / 2 );
+				}
+				break;
+			case 4:
+				// get the number of bytes per sample
+				sub = (int)ceil( (bits * colors) / 8.0 );
+				
+				for (int i = 0; i < rowSize; i++)
+				{
+					int left = 0;
+					int up = 0;
+					int upLeft = 0;
+					
+					// get the last value of this color
+					int prevIdx = i - sub;
+					if ( prevIdx >= 0 )
+					{
+						left = curLine[prevIdx] & 0xff;
+					}
+					
+					// get the value on the previous line
+					if ( 0 == offsetOutBuf )
+					{
+						up = prevLine[i] & 0xff;
+					}
+					
+					if (prevIdx > 0 && 0 != offsetOutBuf )
+					{
+						upLeft = prevLine[prevIdx] & 0xff;
+					}
+					
+					// add the average
+					curLine[i] += (unsigned char)PaethPredictor(left, up, upLeft);
+				}
+				break;
+		}
+		
+		memcpy(outBuf + offsetOutBuf, curLine, rowSize);
+		offsetOutBuf += rowSize;
+		
+		memcpy(prevLine, curLine, rowSize);
+	}
+	
+	outBuf[offsetOutBuf] = '\0';
+	*pOutBufSize = offsetOutBuf;
+	
+	if ( NULL != curLine )
+	{
+		free(curLine);
+		curLine = NULL;
+	}
+	
+	if ( NULL != prevLine )
+	{
+		free(prevLine);
+		prevLine = NULL;
+	}
+			
+	return outBuf;
+}
+
+unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int EncodedStreamSize, MyContent_t *pContent, FILE *fpErrors, unsigned char *pszDecodedStream, unsigned long int *pDecodedStreamSize)
+{			
+	unsigned char *retValue = NULL;
+	
+	int dpPredictor;
+	int dpColumns;
+	int dpBitsPerComponent;
+	int dpColors;
+	//int dpEarlyChange;
+	
+	unsigned char *pszDecodedStreamTemp = NULL;
+	uint32_t DecodedStreamSizeTemp = 0;
+		
+	char szTemp[1024];
+	int ret = 0;
+	
+	UNUSED(EncodedStreamSize);
+	
+	if ( NULL != pszDecodedStream )
+	{
+		if ( NULL != fpErrors )
+			fwprintf(fpErrors, L"\n\nDecodeStream -> pszDecodedStream NON È NULL. ESCO, CIAO CIAO\n\n");
+		else
+			wprintf(L"\n\nDecodeStream -> pszDecodedStream NON È NULL. ESCO, CIAO CIAO\n\n");
+		return NULL;
+	}
+	
+	pszDecodedStream = NULL;
+	*pDecodedStreamSize = 0;
+				
+	if ( pContent->queueFilters.count <= 0 )
+	{
+		//wprintf(L"\n\nDecodeStream -> ECCOMI -> DECODE FILTER = 'NESSUNO'\n\n", szTemp);
+		
+		*pDecodedStreamSize = pContent->LengthFromPdf * sizeof(unsigned char) + sizeof(unsigned char);
+					
+		pszDecodedStream = (unsigned char *)malloc( *pDecodedStreamSize );
+		if ( NULL == pszDecodedStream )
+		{
+			wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
+			fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
+			goto uscita;
+		}
+		for ( unsigned long int i = 0; i < *pDecodedStreamSize; i++ )
+			pszDecodedStream[i] = '\0';
+		
+		memcpy(pszDecodedStream, pszEncodedStream, pContent->LengthFromPdf);
+	}
+	else
+	{
+		*pDecodedStreamSize = ( pContent->LengthFromPdf * sizeof(unsigned char) ) * 55 + sizeof(unsigned char);
+	
+		if ( *pDecodedStreamSize > 409600000 )
+			*pDecodedStreamSize = 409600000;
+		
+		if ( *pDecodedStreamSize < pContent->LengthFromPdf )
+			*pDecodedStreamSize = pContent->LengthFromPdf + (4096 * 89);
+				
+		pszDecodedStream = (unsigned char *)malloc( *pDecodedStreamSize );
+		if ( NULL == pszDecodedStream )
+		{
+			wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
+			fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
+			retValue = NULL;
+			goto uscita;		
+		}
+		for ( unsigned long int i = 0; i < *pDecodedStreamSize; i++ )
+			pszDecodedStream[i] = '\0';
+		
+		szTemp[0] = '\0';
+		while ( mystringqueuelist_Dequeue(&(pContent->queueFilters), (char*)szTemp) )
+		{
+			//wprintf(L"\n\nDecodeStream -> ECCOMI -> DECODE FILTER = '%s'\n\n", szTemp);
+			
+			if ( strncmp((char*)szTemp, "FlateDecode", 4096) == 0 )
+			{				
+				ret = myInflate(&(pszDecodedStream), (unsigned long int *)pDecodedStreamSize, pszEncodedStream, pContent->LengthFromPdf);
+				//ret = myInflate(&(pszDecodedStream), (unsigned long int *)pDecodedStreamSize, pszEncodedStream, EncodedStreamSize);
+				if ( Z_OK != ret )
+				{
+					zerr(ret, fpErrors);
+					
+					if ( NULL != fpErrors )
+						fwprintf(fpErrors, L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
+					else
+						wprintf(L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
+						
+					retValue = NULL;
+					goto uscita;
+				}
+				if ( NULL == pszDecodedStream )
+				{
+					if ( NULL != fpErrors )
+						fwprintf(fpErrors, L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
+					else
+						wprintf(L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
+					goto uscita;
+				}
+			}
+			else
+			{
+				if ( NULL != fpErrors )
+					fwprintf(fpErrors, L"ERRORE DecodeStream: filtro '%s' non supportato in questa versione del programma.\n", szTemp);
+				else
+					wprintf(L"ERRORE DecodeStream: filtro '%s' non supportato in questa versione del programma.\n", szTemp);
+				retValue = 0;
+				goto uscita;
+			}
+
+			if ( pContent->decodeParms.count > 0 )
+			{
+				MyData_t myDataTemp;
+		
+				myDataTemp.pszKey = NULL;
+		
+				dpPredictor = 1;
+				dpColumns = 1;
+				dpBitsPerComponent = 8;
+				dpColors = 1;
+				//dpEarlyChange = 1;
+		
+				while ( mydictionaryqueuelist_Dequeue(&(pContent->decodeParms), &myDataTemp) )
+				{
+					switch ( myDataTemp.tok.Type )
+					{
+						case T_INT_LITERAL:					
+							if ( strncmp(myDataTemp.pszKey, "Predictor", 4096) == 0 )
+								dpPredictor = myDataTemp.tok.Value.vInt;
+							else if ( strncmp(myDataTemp.pszKey, "Columns", 4096) == 0 )
+								dpColumns = myDataTemp.tok.Value.vInt;
+							else if ( strncmp(myDataTemp.pszKey, "BitsPerComponent", 4096) == 0 )
+								dpBitsPerComponent = myDataTemp.tok.Value.vInt;
+							else if ( strncmp(myDataTemp.pszKey, "Colors", 4096) == 0 )
+								dpColors = myDataTemp.tok.Value.vInt;
+							//else if ( strncmp(myDataTemp.pszKey, "EarlyChange", 4096) == 0 )
+							//	dpEarlyChange = myDataTemp.tok.Value.vInt;
+					
+							free(myDataTemp.pszKey);
+							myDataTemp.pszKey = NULL;
+							break;
+						case T_KW_NULL:
+							break;
+						case T_REAL_LITERAL:
+							if ( NULL != fpErrors )
+								fwprintf(fpErrors, L"ERRORE DecodeStream: atteso T_INT_LITERAL per DecodeParms.\n");
+							else
+								wprintf(L"ERRORE DecodeStream: atteso T_INT_LITERAL per DecodeParms.\n");
+					
+							free(myDataTemp.pszKey);
+							myDataTemp.pszKey = NULL;
+					
+							retValue = NULL;;
+							goto uscita;
+							break;
+						case T_STRING_LITERAL:
+						case T_STRING_HEXADECIMAL:
+						case T_STRING:
+						case T_NAME:
+							if ( NULL != fpErrors )
+								fwprintf(fpErrors, L"ERRORE DecodeStream: atteso T_INT_LITERAL per DecodeParms.\n");
+							else
+								wprintf(L"ERRORE DecodeStream: atteso T_INT_LITERAL per DecodeParms.\n");
+					
+							free(myDataTemp.tok.Value.vString);
+							myDataTemp.tok.Value.vString = NULL;
+					
+							free(myDataTemp.pszKey);
+							myDataTemp.pszKey = NULL;
+					
+							retValue = NULL;
+							goto uscita;
+							break;
+						default:
+							if ( NULL != fpErrors )
+								fwprintf(fpErrors, L"ERRORE DecodeStream: atteso T_INT_LITERAL per DecodeParms.\n");
+							else
+								wprintf(L"ERRORE DecodeStream: atteso T_INT_LITERAL per DecodeParms.\n");
+							retValue = NULL;
+							goto uscita;
+							break;
+					}															
+				}
+			
+				pszDecodedStreamTemp = (unsigned char *)malloc( *pDecodedStreamSize );
+				if ( NULL == pszDecodedStreamTemp )
+				{
+					wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+					fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+					retValue = NULL;
+					goto uscita;
+				}
+				memcpy(pszDecodedStreamTemp, pszDecodedStream, *pDecodedStreamSize);
+					
+				if ( NULL != pszDecodedStream )
+				{
+					free(pszDecodedStream);
+					pszDecodedStream = NULL;
+				}
+				DecodedStreamSizeTemp = *pDecodedStreamSize; 
+				*pDecodedStreamSize = 0;
+		
+				pszDecodedStream = ManageDecodeParams(pszDecodedStreamTemp, DecodedStreamSizeTemp, pszDecodedStream, (unsigned long int *)pDecodedStreamSize, dpPredictor, dpColumns, dpColors, dpBitsPerComponent);
+				if ( NULL == pszDecodedStream )
+				{
+					wprintf(L"\n\t***** ERRORE DecodeStream: memory allocation failed *****\n");
+					fwprintf(fpErrors, L"\n\t***** ERRORE DecodeStream: memory allocation failed *****\n");
+					retValue = NULL;
+					goto uscita;
+				}
+			}
+		}		
+	}
+
+	retValue = pszDecodedStream;
+					
+uscita:
+
+	if ( NULL != pszDecodedStreamTemp )
+	{
+		free(pszDecodedStreamTemp);
+		pszDecodedStreamTemp = NULL;
+	}
+		
+	return retValue;
+}
+
+uint32_t getDecimalValue(uint32_t nMachineEndianness, unsigned char *pStream, uint32_t nStreamLen)
+{
+	uint32_t retValue = 0x00000000;
+	uint32_t myDecimalValueSwap;
+	int y = 0;
+		
+	if ( MACHINE_ENDIANNESS_LITTLE_ENDIAN == nMachineEndianness )
+	{
+		switch ( nStreamLen )
+		{
+			case 1:
+				retValue = pStream[y];
+				break;
+			case 2:
+				myDecimalValueSwap = pStream[y];
+				myDecimalValueSwap <<= 8;
+				retValue |= myDecimalValueSwap;
+			
+				myDecimalValueSwap = pStream[y + 1];
+				//myDecimalValueSwap <<= 0;
+				retValue |= myDecimalValueSwap;
+				break;
+			case 3:
+				myDecimalValueSwap = pStream[y];
+				myDecimalValueSwap <<= 16;
+				retValue |= myDecimalValueSwap;
+
+				myDecimalValueSwap = pStream[y + 1];
+				myDecimalValueSwap <<= 8;
+				retValue |= myDecimalValueSwap;
+			
+				myDecimalValueSwap = pStream[y + 2];
+				retValue |= myDecimalValueSwap;
+				break;
+			case 4:
+				myDecimalValueSwap = pStream[y];
+				myDecimalValueSwap <<= 24;
+				retValue |= myDecimalValueSwap;
+
+				myDecimalValueSwap = pStream[y + 1];
+				myDecimalValueSwap <<= 16;
+				retValue |= myDecimalValueSwap;
+					
+				myDecimalValueSwap = pStream[y + 2];
+				myDecimalValueSwap <<= 8;
+				retValue |= myDecimalValueSwap;
+			
+				myDecimalValueSwap = pStream[y + 3];
+				retValue |= myDecimalValueSwap;
+				break;
+			default:
+				retValue = 0x00000000;
+				break;
+		}
+	}
+	else
+	{
+		switch ( nStreamLen )
+		{
+			case 1:
+				retValue = pStream[y];
+				break;
+			case 2:
+				myDecimalValueSwap = pStream[y + 1];
+				myDecimalValueSwap <<= 8;
+				retValue |= myDecimalValueSwap;
+			
+				myDecimalValueSwap = pStream[y];
+				retValue |= myDecimalValueSwap;
+				break;
+			case 3:
+				myDecimalValueSwap = pStream[y + 2];
+				myDecimalValueSwap <<= 16;
+				retValue |= myDecimalValueSwap;
+
+				myDecimalValueSwap = pStream[y + 1];
+				myDecimalValueSwap <<= 8;
+				retValue |= myDecimalValueSwap;
+			
+				myDecimalValueSwap = pStream[y];
+				retValue |= myDecimalValueSwap;
+				break;
+			case 4:
+				myDecimalValueSwap = pStream[y + 3];
+				myDecimalValueSwap <<= 24;
+				retValue |= myDecimalValueSwap;
+
+				myDecimalValueSwap = pStream[y + 2];
+				myDecimalValueSwap <<= 16;
+				retValue |= myDecimalValueSwap;
+					
+				myDecimalValueSwap = pStream[y + 1];
+				myDecimalValueSwap <<= 8;
+				retValue |= myDecimalValueSwap;
+			
+				myDecimalValueSwap = pStream[y];
+				retValue |= myDecimalValueSwap;
+				break;
+			default:
+				retValue = 0x00000000;
+				break;
+		}
+	}
+			
+	return retValue;
+}
 
 uint32_t ConvertHexadecimalToDecimal(char *pszHexVal) 
 {

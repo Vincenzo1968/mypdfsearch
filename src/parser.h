@@ -26,6 +26,32 @@
 #include "mypdfsearch.h"
 #include "scanner.h"
 
+typedef enum tagPreParseStates
+{
+	S_PPError,
+	S_PP0,
+	S_PP1,
+	S_PP2,	
+	S_PP3,
+	S_PP4,
+	S_PP5,
+	S_PP6,
+	S_PP7,
+	S_PP8,
+	S_PP9,
+	S_PP10,
+	S_PP11,
+	S_PP12,
+	S_PP13,
+	S_PP14,
+	S_PP15,
+	S_PP16,
+	S_PP17,
+	S_PP18
+} PreParseStates;
+
+unsigned char * getDecodedStream(Params *pParams, unsigned long int *pDecodedStreamSize, MyContent_t *pContent);
+
 int OnTraverseTST(const wchar_t* key, void* data, uint32_t dataSize);
 
 int InsertWordIntoTst(Params *pParams);
@@ -36,11 +62,18 @@ void InitializeCharSetArrays(Params *pParams);
 void MakeDifferencesArrayCodes(Params *pParams);
 void MakeMacExpertArrayCodes(Params *pParams);
 
+int myPrintLastBlock(Params *pParams);
 void PrintToken(Token *pToken, char cCarattereIniziale, char cCarattereFinale, int bPrintACapo);
 int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNumber, FILE* fpErrors);
 
+int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName);
+
 int ParseObject(Params *pParams, int objNum);
 int ParseNextObject(Params *pParams, int objNum);
+int CheckObjectType(Params *pParams, int objNum);
+int getObjStmDataFromDecodedStream(Params *pParams);
+int ParseStmObj(Params *pParams, int objNum);
+int ParseTrailerXRefStreamObject(Params *pParams);
 int ParseStreamObject(Params *pParams, int objNum);
 int ParseStreamXObject(Params *pParams, int objNum);
 int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize);
@@ -50,14 +83,16 @@ int ParseFontObject(Params *pParams, int objNum);
 int ParseEncodingObject(Params *pParams, int objNum);
 int ParseDictionaryObject(Params *pParams, int objNum);
 int ParseLengthObject(Params *pParams, int objNum);
+int ParseIntegerObject(Params *pParams, int objNum);
+
 
 int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber);
 int ManageDecodedContent(Params *pParams, int nPageNumber);
 int ManageContent(Params *pParams, int nPageNumber);
 
+int getObjsOffsets(Params *pParams, char *pszFileName); // preparse file
 
-int Parse(Params *pParams, FilesList* myFilesList, int bPrintObjsAndExit);
-
+int Parse(Params *pParams, FilesList* myFilesList);
 
 int match(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunctionName);
 int matchLengthObj(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunctionName);
@@ -73,6 +108,24 @@ int objbody(Params *pParams);
 int objitem(Params *pParams);
 int array(Params *pParams);
 int dictionary(Params *pParams);
+
+int xrefstream_obj(Params *pParams);
+int xrefstream_objbody(Params *pParams);
+int xrefstream_streamdictitems(Params *pParams);
+int xrefstream_keyvalue(Params *pParams);
+int xrefstream_keyarray(Params *pParams);
+int xrefstream_keydict(Params *pParams);
+int xrefstream_keyvalueinternal(Params *pParams);
+int xrefstream_keyarrayinternal(Params *pParams);
+
+int stmobj(Params *pParams);
+int stmobjbody(Params *pParams);
+int stmobjstreamdictitems(Params *pParams);
+int stmobjkeyvalue(Params *pParams);
+int stmobjkeyarray(Params *pParams);
+int stmobjkeydict(Params *pParams);
+int stmobjkeyvalueinternal(Params *pParams);
+int stmobjkeyarrayinternal(Params *pParams);
 
 int prepagetree(Params *pParams);
 int pagetree(Params *pParams);
@@ -92,6 +145,7 @@ int contentkeyvalueinternal(Params *pParams);
 int contentkeyarrayinternal(Params *pParams);
 
 int lengthobj(Params *pParams);
+int integer_obj(Params *pParams);
 
 int resourcesdictionary(Params *pParams);
 int resourcesdictionarybody(Params *pParams);
@@ -119,5 +173,9 @@ int encodingobjbody(Params *pParams);
 int encodingobjdictitems(Params *pParams);
 int encodingobjdictitemskeyvalues(Params *pParams);
 int encodingobjarray(Params *pParams);
+
+int cot(Params *pParams);
+int cot_dictbody(Params *pParams);
+int cot_dictbodyitems(Params *pParams);
 
 #endif /* __MYPARSER__ */

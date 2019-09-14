@@ -60,6 +60,7 @@
 #define FONT_SUBTYPE_TrueType       4 
 #define FONT_SUBTYPE_CIDFontType0   5
 #define FONT_SUBTYPE_CIDFontType2   6
+#define FONT_SUBTYPE_Unknown        7
 
 #define DICTIONARY_TYPE_GENERIC     0
 #define DICTIONARY_TYPE_RESOURCES   1
@@ -74,6 +75,18 @@
 #define STREAM_TYPE_GENERIC     0
 #define STREAM_TYPE_CMAP        1
 #define STREAM_TYPE_TOUNICODE   2
+
+#define OBJ_TYPE_FREE       0
+#define OBJ_TYPE_IN_USE     1
+#define OBJ_TYPE_STREAM     2
+#define OBJ_TYPE_RESERVED   3
+#define OBJ_TYPE_UNKNOWN    4
+
+
+
+typedef struct tagParams* ParamsPtr;
+typedef unsigned char (*pfnReadNextChar)(ParamsPtr pParams);
+
 
 
 typedef enum tagTokenType
@@ -133,7 +146,9 @@ typedef enum tagTokenType
 	/* 52 */ T_CONTENT_OP_endnotdefrange,
 	/* 53 */ T_CONTENT_OP_beginnotdefchar,
 	/* 54 */ T_CONTENT_OP_endnotdefchar,
-	/* 55 */ T_CONTENT_OP_usecmap
+	/* 55 */ T_CONTENT_OP_usecmap,
+	/* 55 */ T_LEFT_CURLY_BRACKET,   // '{'
+	/* 55 */ T_RIGHT_CURLY_BRACKET   // '}'
 }TokenTypeEnum;
 
 
@@ -171,22 +186,35 @@ typedef struct tagToken
 
 typedef struct tagPdfIndirectObject 
 {
-	int Number;
-	int Generation;
+	uint32_t Type;
+	uint32_t Number;
+	uint32_t Generation;
+	uint32_t Offset;
+	uint32_t StreamOffset;
+	uint32_t StreamLength;
+	unsigned char *pszDecodedStream;
+	int32_t  numObjParent;    // Usato per gli oggetti di tipo Pages(nodi interni del page tree) o 'Page'
+	uint32_t genObjParent;    // Usato per gli oggetti di tipo Pages(nodi interni del page tree) o 'Page'
 } PdfIndirectObject;
+
+typedef struct tagTrailerIndex
+{
+	int FirstObjNumber;
+	int NumberOfEntries;
+} TrailerIndex;
 
 typedef struct tagPdfTrailer
 {
 	int Size;
 	int Prev;
 	PdfIndirectObject Root;
+	TrailerIndex **pIndexArray;
+	int indexArraySize;
 } PdfTrailer;
 
 typedef struct tagPdfObjsTableItem
 {
 	PdfIndirectObject Obj;
-	int Offset;
-	int numObjParent;   // Usato per gli oggetti di tipo Pages (nodi interni del page tree)
 	MyObjRefList_t myXObjRefList;
 	MyObjRefList_t myFontsRefList;
 } PdfObjsTableItem;
@@ -220,6 +248,15 @@ typedef struct tagCodeSpaceRange
 	uint32_t nNumBytes;
 } CodeSpaceRange_t;
 
+typedef struct tagObjStm
+{
+	int N;
+	int First;
+	int Extend;
+	unsigned char *pszDecodedStream;
+	unsigned long int nDecodedStreamSize;
+} ObjStm;
+
 typedef struct tagMyPredefinedCMapDef
 {
 	char szUseCMap[128];
@@ -231,6 +268,18 @@ typedef struct tagParams
 {
 	Token myToken;
 	Token myTokenLengthObj;
+	
+	pfnReadNextChar pReadNextChar;
+	
+	uint32_t currentFileOffset;
+	uint32_t lastTokenOffset;
+	
+	uint32_t nCurrentParsingObj;
+	uint32_t nCurrentParsingLengthObj;
+		
+	int nCotDictLevel;
+	int nCotArrayLevel;
+	uint32_t nCotObjType;
 	
 	int bOptVersionOrHelp;
 	char szPath[MAX_LEN_STR + 1];	
@@ -253,9 +302,7 @@ typedef struct tagParams
 	FILE *fp;
 	FILE *fpLengthObjRef;
 	
-	//char *szOutputFileName[PATH_MAX];
-	FILE *fpOutput;
-	
+	FILE *fpOutput;	
 	FILE *fpErrors;
 	
 	char szPdfHeader[128];
@@ -307,15 +354,7 @@ typedef struct tagParams
 	int nScope;
 	
 	int nDictionaryType;
-	
-	/*
-	typedef struct tagCodeSpaceRange
-	{
-		uint32_t nFrom;
-		uint32_t nTo;
-	} CodeSpaceRange_t;
-	*/
-	
+		
 	uint32_t nCurrentFontCodeSpacesNum;
 	CodeSpaceRange_t *pCodeSpaceRangeArray;
 	int bHasCodeSpaceOneByte;
@@ -357,8 +396,24 @@ typedef struct tagParams
 		
 	int isEncrypted;
 	int dimFile;	
+	
 	PdfTrailer myPdfTrailer;
+	int trailerW1;
+	int trailerW2;
+	int trailerW3;
+	MyIntQueueList_t queueTrailerIndex;
+	MyIntQueueList_t queueTrailerW;
+	
+	ObjStm currentObjStm;
+	
+	int nXRefStreamObjNum;
+	uint32_t offsetXRefObjStream;
+	int nCurrentTrailerIntegerNum;
+	int bIsLastTrailer;
+	
 	PdfObjsTableItem **myObjsTable;
+	uint32_t nObjsTableSizeFromPrescanFile;
+	
 	int nStackStringOpenParen;
 	MyNumStackList_t myNumStack;
 	char szCurrKeyName[MAX_STRLEN];
@@ -373,6 +428,7 @@ typedef struct tagParams
 	int nCountPageFound;
 	int nCountPageAlreadyDone;
 	int nCurrentPageNum;
+	int nPreviousPageNum;
 	
 	int nCurrentPageParent;      // 0 se nodo radice; altrimenti intero > 0 indica il nodo genitore della pagina corrente
 	
@@ -384,6 +440,8 @@ typedef struct tagParams
 	int bCurrentPageHasDirectResources;
 	
 	int bCurrentFontHasDirectEncodingArray;
+	
+	int bPrePageTreeExit;
 	
 	int nCurrentXObjRef;
 	MyObjRefList_t myXObjRefList;
@@ -439,6 +497,12 @@ typedef enum tagStates
 
 /* ------------------------------------------------------------------------------------------------------------- */
 
+
+
+unsigned char ReadNextChar(Params *pParams);
+
+unsigned char ReadNextCharFromStmObjStream(Params *pParams);
+
 void PrintTokenTrailer(Token *pToken, char cCarattereIniziale, char cCarattereFinale, int bPrintACapo);
 int matchTrailer(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunctionName);
 
@@ -465,7 +529,7 @@ unsigned char GetHexChar(unsigned char c1, unsigned char c2);
 
 int IsDelimiterChar(unsigned char c);
 
-int ReadObjsTable(Params *pParams, unsigned char *szInput, int bIsLastTrailer);
+int ReadObjsTable(Params *pParams, unsigned char *szInput);
 
 void GetNextToken(Params *pParams);
 

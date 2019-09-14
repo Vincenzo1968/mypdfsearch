@@ -57,7 +57,8 @@ void mynumstacklist_Free(MyNumStackList_t* p)
 		n1 = n2;
 	}
 	
-	p->count = 0;
+	mynumstacklist_Init(p);
+	//p->count = 0;
 }
 
 int mynumstacklist_IsEmpty(MyNumStackList_t* p)

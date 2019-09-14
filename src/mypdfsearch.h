@@ -64,26 +64,36 @@ typedef struct tagFilesList
 MYDEBUG_PRINT_ALL
 MYDEBUG_PRINT_ON_MATCH
 MYDEBUG_PRINT_ON_PARSE_OBJ
+MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ
+MYDEBUG_PRINT_ON_PARSE_STMOBJ
 MYDEBUG_PRINT_ON_PARSE_STREAMOBJ
 MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ
 MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM
 MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM
 MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ
 MYDEBUG_PRINT_ON_PARSE_LENGTHOBJ
+MYDEBUG_PRINT_ON_PARSE_INTEGEROBJ
 MYDEBUG_PRINT_ON_PARSE_XOBJDICTOBJ
 MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT
 MYDEBUG_PRINT_ON_PARSE_FONTOBJ
 MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ
+MYDEBUG_PRINT_ON_PARSE_COT
 
 MYDEBUG_PRINT_TST
  
 MYDEBUG_PRINT_ON_GetNextToken_FN
  
+MYDEBUG_PRINT_ON_getObjsOffsets_FN
+ 
 MYDEBUG_PRINT_ON_ReadHeader_FN
 MYDEBUG_PRINT_ON_ReadTrailer_FN
 MYDEBUG_PRINT_ON_ReadTrailer_OBJ
+ 
+MYDEBUG_PRINT_ON_ManageDecodeParams_FN
+MYDEBUG_PRINT_ON_ParseTrailerXRefStreamObject_FN
 
 MYDEBUG_PRINT_ON_PARSE_FN
+MYDEBUG_PRINT_ON_ParseStmObj_FN
 MYDEBUG_PRINT_ON_ManageContent_FN
 MYDEBUG_PRINT_ON_ManageContent_PrintPageNum
 MYDEBUG_PRINT_ON_ManageContent_PrintContent
@@ -98,13 +108,34 @@ MYDEBUG_PRINT_ON_ParseLengthObject_FN
 
 
 /*
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -DMYDEBUG_PRINT_ON_ManageContent_PrintContent -DMYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_getObjsOffsets_FN
+ 
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ParseTrailerXRefStreamObject_FN -DMYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ 
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ -DMYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM -DMYDEBUG_PRINT_ON_PARSE_CMAP_STREAM
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_STMOBJ -DMYDEBUG_PRINT_ON_ParseStmObj_FN
+ 
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_STMOBJ -DMYDEBUG_PRINT_ON_ParseStmObj_FN -DMYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
+ 
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
+ 
+ 
+ 
 
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_PARSE_STREAMOBJ -DMYDEBUG_PRINT_ON_PARSE_STREAMXOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
+
+
+
+
+
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ManageContent_PrintContent -DMYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR
+
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ -DMYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM -DMYDEBUG_PRINT_ON_PARSE_CMAP_STREAM
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ
+
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN
 */
 
 
@@ -119,6 +150,26 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 
 ./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
  
+ 
+ 
+./mypdfsearch --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17
+
+
+
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan01.pdf" --frompage=5 --topage=5
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan04.pdf" --frompage=6 --topage=6
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan05.pdf" --frompage=5 --topage=5
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan06.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan07.pdf" --frompage=21 --topage=21
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan08.pdf" --frompage=24 --topage=24
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan09.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan11.pdf" --frompage=10 --topage=10
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan12.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan13.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
+./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1
+
 ------------------------------------------------------------------------------------------------------------------------------------
 */
 
@@ -151,7 +202,13 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 ./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
 
 
- 
+
+
+./mypdfsearch --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17
+
+
+
+
 ./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File01" --frompage=1 --topage=1 > AAA_01_DEBUG.txt
 ./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File02" --frompage=1 --topage=1 > AAA_02_DEBUG.txt
 ./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/File03" --frompage=1 --topage=1 > AAA_03_DEBUG.txt
@@ -171,7 +228,7 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 ./mypdfsearch --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_03.txt
 ./mypdfsearch --extracttextfrom="../Files/File04/Il Manifesto - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_04.txt
 ./mypdfsearch --extracttextfrom="../Files/File05/Il Sole 24 Ore - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_05.txt
-./mypdfsearch --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_06.txt
+./mypdfsearch --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=3 --topage=3 > AAA_06.txt
 ./mypdfsearch --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_07.txt
 ./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_08.txt
 ./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_09.txt
@@ -184,7 +241,7 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 ./mypdfsearch --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_03.txt" > AAA_03.txt
 ./mypdfsearch --extracttextfrom="../Files/File04/Il Manifesto - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_04.txt" > AAA_04.txt
 ./mypdfsearch --extracttextfrom="../Files/File05/Il Sole 24 Ore - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_05.txt" > AAA_05.txt
-./mypdfsearch --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_06.txt" > AAA_06.txt
+./mypdfsearch --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=3 --topage=3 --outputfile="AAA_OUTPUT_06.txt" > AAA_06.txt
 ./mypdfsearch --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_07.txt" > AAA_07.txt
 ./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_08.txt" > AAA_08.txt
 ./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_09.txt" > AAA_09.txt

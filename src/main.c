@@ -614,7 +614,8 @@ void PrintHelpCommandLine()
 
 void PrintVersionInfo()
 {
-	wprintf(L"\n   mypdfsearch version 1.3.5\n");	
+	//wprintf(L"\n   mypdfsearch version 1.3.5\n");	
+	wprintf(L"\n   mypdfsearch version 1.5.0\n");	
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -1180,7 +1181,7 @@ IMPORTANTE, ATTENZIONE!!! compilare su Windows con MINGW64, richiede di specific
 /*
 MINGW:
  
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv -lm
 
 vanno bene entrambe le modalità: e con slash, e con backslash:
 mypdfsearch --path="C:\AAA_ProgrammiLibrerie\myPdfSearch\Files\Prova" --words="Virginia campidoglio Orbán"
@@ -1192,7 +1193,7 @@ MSYS2:
 
 cd /c/AAA_ProgrammiLibrerie/myPdfSearch
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv -lm
 
 
 C:\AAA_ProgrammiLibrerie\myPdfSearch\Files
@@ -1208,11 +1209,21 @@ ATTENZIONE: IMPORTANTE:
 Se si vuole compilare con l'opzione -str=c99, bisogna aggiungere anche -D_GNU_SOURCE, altrimenti succede il bordello:
 errori e warning stravaganti e sensa senso.
 
-gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz
- 
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
 
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_ON_getObjsOffsets_FN
+
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_ON_PARSE_STMOBJ -DMYDEBUG_PRINT_ON_ParseStmObj_FN
+
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
+
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
 
 ------------------------------------------------------------------------------------------------------------------------------------
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=1 --topage=1
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
  
@@ -1223,17 +1234,31 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
 
 ------------------------------------------------------------------------------------------------------------------------------------
-
-
  
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --words="Virginia campidoglio Orbán" --path="../Files/Tutti/SottoCartella"
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --words="Virginia campidoglio Orbán" --path="../Files/File08"
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_08.txt" 
+ 
 
-valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_03.txt"
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán branco"
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="../Files/FileProblematico" --words="Virginia Orbán branco"
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="../Files/FileProblematico3" --words="Virginia Orbán branco"
+
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File04/Il Manifesto - 9 aprile 2019.pdf" --frompage=1 --topage=1
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1
  
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File02/Il Fatto Quotidiano - 9 aprile 2019.pdf" --frompage=1 --topage=1
+ 
+ 
+
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/FileProblematici/La Stampa - 20 luglio 2019 .pdf" --frompage=3 --topage=4
 
@@ -1255,8 +1280,8 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
  
  
 ./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
@@ -1408,10 +1433,10 @@ int main(int argc, char **argv)
 				
 	wprintf(L"\n");
 			
-	Parse(&myParams, myFilesList, 0);
+	//Parse(&myParams, myFilesList, 0);
+	Parse(&myParams, myFilesList);
 				
 uscita:
-	
 	
 	freeFilesList(myFilesList);
 		

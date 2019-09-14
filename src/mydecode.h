@@ -32,6 +32,8 @@
 #include <locale.h>
 #include <wchar.h>
 #include "zlib.h"
+//#include "mycontentqueuelist.h"
+#include "scanner.h"
 
 #define BYTE uint8_t
 
@@ -46,6 +48,18 @@
 #define STRING_UTF_16BE 2
 
 #define MAX_STRING_LENTGTH_IN_CONTENT_STREAM 32767
+
+#ifndef MACHINE_ENDIANNESS_UNKNOWN
+	#define MACHINE_ENDIANNESS_UNKNOWN         0
+#endif
+
+#ifndef MACHINE_ENDIANNESS_LITTLE_ENDIAN
+	#define MACHINE_ENDIANNESS_LITTLE_ENDIAN   1
+#endif
+
+#ifndef MACHINE_ENDIANNESS_BIG_ENDIAN
+	#define MACHINE_ENDIANNESS_BIG_ENDIAN      2
+#endif
 
 typedef enum tagDecodeStates
 {
@@ -71,5 +85,11 @@ uint32_t ConvertHexadecimalToDecimal(char *pszHexVal);
 wchar_t* FromPdfDocEncodingToUtf8WideCharString(BYTE *pszPdf, size_t mbslen);
 wchar_t* FromPdfDocEncodingToUtf8WideCharString_NEW(const BYTE *pszPdf, size_t mbslen);
 wchar_t* FromUnicodeToUtf8WideCharString(const char *inbuf, size_t InbufSize, const char *InbufCharset);
+
+uint32_t getDecimalValue(uint32_t nMachineEndianness, unsigned char *pStream, uint32_t nStreamLen);
+
+int PaethPredictor(int a, int b, int c);
+unsigned char* ManageDecodeParams(const unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize, unsigned char *outBuf, unsigned long int *pOutBufSize, int predictor, int columns, int colors, int bits);
+unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int EncodedStreamSize, MyContent_t *pContent, FILE *fpErrors, unsigned char *pszDecodedStream, unsigned long int *pDecodedStreamSize);
 
 #endif /* __MYDECODE__ */
