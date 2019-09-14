@@ -1294,7 +1294,6 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 myGenHashTable.c myInitPredef
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni" --words="Virginia branco Milano"
   
 ./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
-
  
 Per generare le dipendenze per il Makefile, usare -MM:
 gcc -MM -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lz

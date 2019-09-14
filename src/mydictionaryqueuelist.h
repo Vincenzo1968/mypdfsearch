@@ -55,7 +55,6 @@ typedef struct _MyData
 	Token2 tok;
 } MyData_t;
 
-
 typedef struct _MyDictionaryQueueItem
 {
 	MyData_t myDataItem;

@@ -27,7 +27,6 @@
 #include <stdint.h>
 #include "mypdfsearch.h"
 
-
 typedef struct tagGenHashTable* GENHTptr;
 
 typedef int (*pfnGenHashFunc)(GENHTptr p, const void* pKey, uint32_t keysize);

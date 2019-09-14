@@ -48,7 +48,6 @@ typedef struct _MyNumStackList
 	MyNumStackItem_t* tail;
 } MyNumStackList_t;
 
-
 BEGIN_C_DECLS
 
 int  mynumstacklist_Init(MyNumStackList_t* p);

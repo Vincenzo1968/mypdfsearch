@@ -4459,7 +4459,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
 		wprintf(L"\nEHI!!! SIAMO NEL CODE SPACE RANGE TWO BYTES ONLY.\n");
 		#endif
-		
+			
 		w = 0;
 		for ( z = 0; z < k - 1; z++ )
 		{

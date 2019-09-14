@@ -30,7 +30,6 @@
 
 #include "mystringqueuelist.h"
 
-
 int mystringqueuelist_Init(MyStringQueueList_t* p)
 {
 	if ( NULL == p )

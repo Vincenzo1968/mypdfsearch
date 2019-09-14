@@ -85,7 +85,6 @@ int ParseDictionaryObject(Params *pParams, int objNum);
 int ParseLengthObject(Params *pParams, int objNum);
 int ParseIntegerObject(Params *pParams, int objNum);
 
-
 int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber);
 int ManageDecodedContent(Params *pParams, int nPageNumber);
 int ManageContent(Params *pParams, int nPageNumber);
