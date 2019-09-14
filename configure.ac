@@ -14,7 +14,7 @@ AC_CONFIG_FILES([Makefile src/Makefile])
 
 
 AM_INIT_AUTOMAKE
-#AM_MAINTAINER_MODE
+AM_MAINTAINER_MODE
 
 # Checks for programs.
 AC_PROG_CC
