@@ -5003,7 +5003,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 {
 	States state = S0;
 	unsigned char c;
-	unsigned char c1, c2;
+	unsigned char c1, c2; // warning autoconf
 	unsigned char cOctal;
 	unsigned char cHexadecimal;
 	int k = 0;
