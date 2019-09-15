@@ -29,6 +29,7 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_SEARCH_LIBS([inflate], [z])
+AC_SEARCH_LIBS([ceil], [m])
 #AC_SEARCH_LIBS([pthread_create], [pthread])
 
 # Checks for header files.
