@@ -644,8 +644,8 @@ EXEEXT
 ac_ct_CC
 CPPFLAGS
 LDFLAGS
-CFLAGS
 CC
+CFLAGS
 MAINT
 MAINTAINER_MODE_FALSE
 MAINTAINER_MODE_TRUE
@@ -2728,8 +2728,11 @@ fi
 
 # Impostiamo qui i flag del compilatore, tramite CFLAGS chiamato dopo AC_INIT e prima di AC_PROG_CC.
 # Altrimenti, se non usiamo qui CFLAGS e usiamo mypdfsearch_CFLAGS su src/Makefile.am,
-# autotools aggiunge i flags '-g -O2' dopo quelli nostri(vanificandoli).
+# autotools aggiunge i flags '-g -O2' dopo quelli nostri(vanificandoli):
+
+#CFLAGS="-Wall -W -pedantic -O3 -Wno-overlength-strings"
 CFLAGS="-Wall -W -pedantic -O3 -Wno-overlength-strings"
+
 
 # Checks for programs.
 ac_ext=c
@@ -3867,6 +3870,62 @@ fi
 
 
 # Checks for libraries.
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing iconv_open" >&5
+$as_echo_n "checking for library containing iconv_open... " >&6; }
+if ${ac_cv_search_iconv_open+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_func_search_save_LIBS=$LIBS
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char iconv_open ();
+int
+main ()
+{
+return iconv_open ();
+  ;
+  return 0;
+}
+_ACEOF
+for ac_lib in '' iconv; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_search_iconv_open=$ac_res
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if ${ac_cv_search_iconv_open+:} false; then :
+  break
+fi
+done
+if ${ac_cv_search_iconv_open+:} false; then :
+
+else
+  ac_cv_search_iconv_open=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_search_iconv_open" >&5
+$as_echo "$ac_cv_search_iconv_open" >&6; }
+ac_res=$ac_cv_search_iconv_open
+if test "$ac_res" != no; then :
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+
+fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing inflate" >&5
 $as_echo_n "checking for library containing inflate... " >&6; }

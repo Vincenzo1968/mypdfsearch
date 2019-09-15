@@ -1,0 +1,62 @@
+
+all: mypdfsearch.exe
+
+
+
+mypdfsearch.exe: main.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
+	gcc main.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o -o mypdfsearch.exe -lm -lz -liconv 
+
+
+
+main.o: main.c mypdfsearch.h parser.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o main.o main.c
+
+mycontentqueuelist.o: mycontentqueuelist.c mycontentqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o mycontentqueuelist.o mycontentqueuelist.c
+
+mydecode.o: mydecode.c mypdfsearch.h myoctal.h mydecode.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h myGenHashTable.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o mydecode.o mydecode.c
+	
+mydictionaryqueuelist.o: mydictionaryqueuelist.c scanner.h mypdfsearch.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o mydictionaryqueuelist.o mydictionaryqueuelist.c
+
+myinitarray.o: myinitarray.c parser.h mypdfsearch.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myinitarray.o myinitarray.c
+
+myGenHashTable.o: myGenHashTable.c myGenHashTable.h mypdfsearch.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myGenHashTable.o myGenHashTable.c
+
+myInitPredefCMapHT.o: myInitPredefCMapHT.c scanner.h mypdfsearch.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h myInitPredefCMapHT.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myInitPredefCMapHT.o myInitPredefCMapHT.c
+
+myintqueuelist.o: myintqueuelist.c myintqueuelist.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myintqueuelist.o myintqueuelist.c
+
+mynumstacklist.o: mynumstacklist.c mynumstacklist.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o mynumstacklist.o mynumstacklist.c
+
+myobjrefqueuelist.o: myobjrefqueuelist.c myobjrefqueuelist.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myobjrefqueuelist.o myobjrefqueuelist.c
+
+myoctal.o: myoctal.c myoctal.h mypdfsearch.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myoctal.o myoctal.c
+
+myScopeHashTable.o: myScopeHashTable.c myScopeHashTable.h mypdfsearch.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myScopeHashTable.o myScopeHashTable.c
+
+mystringqueuelist.o: mystringqueuelist.c mystringqueuelist.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o mystringqueuelist.o mystringqueuelist.c
+
+myTernarySearchTree.o: myTernarySearchTree.c myTernarySearchTree.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myTernarySearchTree.o myTernarySearchTree.c
+
+parser.o: parser.c parser.h mypdfsearch.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h myInitPredefCMapHT.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o parser.o parser.c
+
+scanner.o: scanner.c myoctal.h mypdfsearch.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o scanner.o scanner.c
+
+
+
+clean:
+	rm *.o mypdfsearch.exe

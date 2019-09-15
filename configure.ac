@@ -18,8 +18,10 @@ AM_MAINTAINER_MODE
 
 # Impostiamo qui i flag del compilatore, tramite CFLAGS chiamato dopo AC_INIT e prima di AC_PROG_CC.
 # Altrimenti, se non usiamo qui CFLAGS e usiamo mypdfsearch_CFLAGS su src/Makefile.am,
-# autotools aggiunge i flags '-g -O2' dopo quelli nostri(vanificandoli).
-CFLAGS="-Wall -W -pedantic -O3 -Wno-overlength-strings"
+# autotools aggiunge i flags '-g -O2' dopo quelli nostri(vanificandoli):
+
+#CFLAGS="-Wall -W -pedantic -O3 -Wno-overlength-strings"
+AC_SUBST([CFLAGS], ["-Wall -W -pedantic -O3 -Wno-overlength-strings"])
 
 # Checks for programs.
 AC_PROG_CC
@@ -28,6 +30,7 @@ AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
 # Checks for libraries.
+AC_SEARCH_LIBS([iconv_open], [iconv])
 AC_SEARCH_LIBS([inflate], [z])
 AC_SEARCH_LIBS([ceil], [m])
 #AC_SEARCH_LIBS([pthread_create], [pthread])
