@@ -4478,7 +4478,8 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
 			wprintf(L"\tpParams->myCID TWO BYTES = %u(hex: %X)\n", pParams->myCID, pParams->myCID);
 			#endif
-											
+	
+										
 			for ( u = 0; u < pParams->nCurrentFontCodeSpacesNum; u++ )
 			{
 				if ( NULL != pParams->pCodeSpaceRangeArray )

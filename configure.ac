@@ -1,6 +1,6 @@
 AC_PREREQ([2.69])
 
-AC_INIT([mypdfsearch], [1.5.0], [vincenzolocicero68@gmail.com])
+AC_INIT([mypdfsearch], [1.5.1], [vincenzolocicero68@gmail.com])
 
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -30,7 +30,7 @@ AC_PROG_RANLIB
 AM_PROG_CC_C_O
 
 # Checks for libraries.
-AC_SEARCH_LIBS([iconv_open], [iconv])
+#AC_SEARCH_LIBS([iconv_open], [iconv])
 AC_SEARCH_LIBS([inflate], [z])
 AC_SEARCH_LIBS([ceil], [m])
 #AC_SEARCH_LIBS([pthread_create], [pthread])
