@@ -99,22 +99,16 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_mypdfsearch_OBJECTS = mypdfsearch-main.$(OBJEXT) \
-	mypdfsearch-myintqueuelist.$(OBJEXT) \
-	mypdfsearch-myScopeHashTable.$(OBJEXT) \
-	mypdfsearch-scanner.$(OBJEXT) \
-	mypdfsearch-mycontentqueuelist.$(OBJEXT) \
-	mypdfsearch-mynumstacklist.$(OBJEXT) \
-	mypdfsearch-mystringqueuelist.$(OBJEXT) \
-	mypdfsearch-mydecode.$(OBJEXT) \
-	mypdfsearch-myobjrefqueuelist.$(OBJEXT) \
-	mypdfsearch-myTernarySearchTree.$(OBJEXT) \
-	mypdfsearch-mydictionaryqueuelist.$(OBJEXT) \
-	mypdfsearch-myoctal.$(OBJEXT) mypdfsearch-parser.$(OBJEXT)
+am_mypdfsearch_OBJECTS = main.$(OBJEXT) myGenHashTable.$(OBJEXT) \
+	myInitPredefCMapHT.$(OBJEXT) myinitarray.$(OBJEXT) \
+	myoctal.$(OBJEXT) myTernarySearchTree.$(OBJEXT) \
+	myScopeHashTable.$(OBJEXT) myobjrefqueuelist.$(OBJEXT) \
+	mydictionaryqueuelist.$(OBJEXT) mystringqueuelist.$(OBJEXT) \
+	mycontentqueuelist.$(OBJEXT) mynumstacklist.$(OBJEXT) \
+	myintqueuelist.$(OBJEXT) mydecode.$(OBJEXT) scanner.$(OBJEXT) \
+	parser.$(OBJEXT)
 mypdfsearch_OBJECTS = $(am_mypdfsearch_OBJECTS)
 mypdfsearch_LDADD = $(LDADD)
-mypdfsearch_LINK = $(CCLD) $(mypdfsearch_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -130,24 +124,18 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I. -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/mypdfsearch-main.Po \
-	./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po \
-	./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po \
-	./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po \
-	./$(DEPDIR)/mypdfsearch-mydecode.Po \
-	./$(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Po \
-	./$(DEPDIR)/mypdfsearch-myintqueuelist.Po \
-	./$(DEPDIR)/mypdfsearch-mynumstacklist.Po \
-	./$(DEPDIR)/mypdfsearch-myobjrefqueuelist.Po \
-	./$(DEPDIR)/mypdfsearch-myoctal.Po \
-	./$(DEPDIR)/mypdfsearch-mystringqueuelist.Po \
-	./$(DEPDIR)/mypdfsearch-parser.Po \
-	./$(DEPDIR)/mypdfsearch-scanner.Po
+am__depfiles_remade = ./$(DEPDIR)/main.Po \
+	./$(DEPDIR)/myGenHashTable.Po \
+	./$(DEPDIR)/myInitPredefCMapHT.Po \
+	./$(DEPDIR)/myScopeHashTable.Po \
+	./$(DEPDIR)/myTernarySearchTree.Po \
+	./$(DEPDIR)/mycontentqueuelist.Po ./$(DEPDIR)/mydecode.Po \
+	./$(DEPDIR)/mydictionaryqueuelist.Po \
+	./$(DEPDIR)/myinitarray.Po ./$(DEPDIR)/myintqueuelist.Po \
+	./$(DEPDIR)/mynumstacklist.Po ./$(DEPDIR)/myobjrefqueuelist.Po \
+	./$(DEPDIR)/myoctal.Po ./$(DEPDIR)/mystringqueuelist.Po \
+	./$(DEPDIR)/parser.Po ./$(DEPDIR)/scanner.Po
 am__mv = mv -f
-AM_V_lt = $(am__v_lt_$(V))
-am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
-am__v_lt_0 = --silent
-am__v_lt_1 = 
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 AM_V_CC = $(am__v_CC_$(V))
@@ -189,16 +177,16 @@ CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in \
 	$(top_srcdir)/build-aux/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing aclocal-1.16
+ACLOCAL = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing autoconf
-AUTOHEADER = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing autoheader
-AUTOMAKE = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing automake-1.16
+AUTOCONF = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing autoconf
+AUTOHEADER = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing autoheader
+AUTOMAKE = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing automake-1.16
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CFLAGS = -Wall -W -pedantic -O3 -Wno-overlength-strings
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -217,28 +205,29 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -lz 
+LIBS = -lm -lz 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing makeinfo
+MAINT = #
+MAKEINFO = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = mypdfsearch
 PACKAGE_BUGREPORT = vincenzolocicero68@gmail.com
 PACKAGE_NAME = mypdfsearch
-PACKAGE_STRING = mypdfsearch 1.0.0
+PACKAGE_STRING = mypdfsearch 1.5.1
 PACKAGE_TARNAME = mypdfsearch
 PACKAGE_URL = 
-PACKAGE_VERSION = 1.0.0
+PACKAGE_VERSION = 1.5.1
 PATH_SEPARATOR = :
 RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/bash
 STRIP = 
-VERSION = 1.0.0
-abs_builddir = /home/vincenzo/Varie/GCC/Varie/Prova2/src
-abs_srcdir = /home/vincenzo/Varie/GCC/Varie/Prova2/src
-abs_top_builddir = /home/vincenzo/Varie/GCC/Varie/Prova2
-abs_top_srcdir = /home/vincenzo/Varie/GCC/Varie/Prova2
+VERSION = 1.5.1
+abs_builddir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/src
+abs_srcdir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/src
+abs_top_builddir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch
+abs_top_srcdir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -257,7 +246,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/install-sh
+install_sh = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -266,7 +255,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/vincenzo/MyProgs/mypdf
+prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -277,9 +266,10 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-mypdfsearch_SOURCES = main.c myintqueuelist.c myScopeHashTable.c scanner.c mycontentqueuelist.c mynumstacklist.c mystringqueuelist.c mydecode.c myobjrefqueuelist.c myTernarySearchTree.c mydictionaryqueuelist.c myoctal.c parser.c mycontentqueuelist.h mydecode.h mydictionaryqueuelist.h myintqueuelist.h mynumstacklist.h myobjrefqueuelist.h myoctal.h mypdfsearch.h myScopeHashTable.h mystringqueuelist.h myTernarySearchTree.h parser.h scanner.h
-mypdfsearch_CFLAGS = -Wall -W -pedantic -O3
-#mypdfsearch_LDFLAGS = -lz
+mypdfsearch_SOURCES = main.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c myGenHashTable.h myInitPredefCMapHT.h mycontentqueuelist.h mydecode.h mydictionaryqueuelist.h myintqueuelist.h mynumstacklist.h myobjrefqueuelist.h myoctal.h mypdfsearch.h myScopeHashTable.h mystringqueuelist.h myTernarySearchTree.h parser.h scanner.h
+
+#mypdfsearch_CFLAGS = -Wall -W -pedantic -O3 -Wno-overlength-strings
+#mypdfsearch_LDFLAGS = -lz -lm
 
 #libmyoptParser_la_CFLAGS = -Wall -W -pedantic -O3
 #include_HEADERS = myoptParser.h
@@ -288,7 +278,7 @@ all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -312,9 +302,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -362,7 +352,7 @@ clean-binPROGRAMS:
 
 mypdfsearch$(EXEEXT): $(mypdfsearch_OBJECTS) $(mypdfsearch_DEPENDENCIES) $(EXTRA_mypdfsearch_DEPENDENCIES) 
 	@rm -f mypdfsearch$(EXEEXT)
-	$(AM_V_CCLD)$(mypdfsearch_LINK) $(mypdfsearch_OBJECTS) $(mypdfsearch_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(mypdfsearch_OBJECTS) $(mypdfsearch_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -370,19 +360,22 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/mypdfsearch-main.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-mydecode.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-myintqueuelist.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-mynumstacklist.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-myobjrefqueuelist.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-myoctal.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-mystringqueuelist.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-parser.Po # am--include-marker
-include ./$(DEPDIR)/mypdfsearch-scanner.Po # am--include-marker
+include ./$(DEPDIR)/main.Po # am--include-marker
+include ./$(DEPDIR)/myGenHashTable.Po # am--include-marker
+include ./$(DEPDIR)/myInitPredefCMapHT.Po # am--include-marker
+include ./$(DEPDIR)/myScopeHashTable.Po # am--include-marker
+include ./$(DEPDIR)/myTernarySearchTree.Po # am--include-marker
+include ./$(DEPDIR)/mycontentqueuelist.Po # am--include-marker
+include ./$(DEPDIR)/mydecode.Po # am--include-marker
+include ./$(DEPDIR)/mydictionaryqueuelist.Po # am--include-marker
+include ./$(DEPDIR)/myinitarray.Po # am--include-marker
+include ./$(DEPDIR)/myintqueuelist.Po # am--include-marker
+include ./$(DEPDIR)/mynumstacklist.Po # am--include-marker
+include ./$(DEPDIR)/myobjrefqueuelist.Po # am--include-marker
+include ./$(DEPDIR)/myoctal.Po # am--include-marker
+include ./$(DEPDIR)/mystringqueuelist.Po # am--include-marker
+include ./$(DEPDIR)/parser.Po # am--include-marker
+include ./$(DEPDIR)/scanner.Po # am--include-marker
 
 $(am__depfiles_remade):
 	@$(MKDIR_P) $(@D)
@@ -403,188 +396,6 @@ am--depfiles: $(am__depfiles_remade)
 #	$(AM_V_CC)source='$<' object='$@' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
-
-mypdfsearch-main.o: main.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-main.o -MD -MP -MF $(DEPDIR)/mypdfsearch-main.Tpo -c -o mypdfsearch-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-main.Tpo $(DEPDIR)/mypdfsearch-main.Po
-#	$(AM_V_CC)source='main.c' object='mypdfsearch-main.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
-
-mypdfsearch-main.obj: main.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-main.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-main.Tpo -c -o mypdfsearch-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-main.Tpo $(DEPDIR)/mypdfsearch-main.Po
-#	$(AM_V_CC)source='main.c' object='mypdfsearch-main.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
-
-mypdfsearch-myintqueuelist.o: myintqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myintqueuelist.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myintqueuelist.Tpo -c -o mypdfsearch-myintqueuelist.o `test -f 'myintqueuelist.c' || echo '$(srcdir)/'`myintqueuelist.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myintqueuelist.Tpo $(DEPDIR)/mypdfsearch-myintqueuelist.Po
-#	$(AM_V_CC)source='myintqueuelist.c' object='mypdfsearch-myintqueuelist.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myintqueuelist.o `test -f 'myintqueuelist.c' || echo '$(srcdir)/'`myintqueuelist.c
-
-mypdfsearch-myintqueuelist.obj: myintqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myintqueuelist.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-myintqueuelist.Tpo -c -o mypdfsearch-myintqueuelist.obj `if test -f 'myintqueuelist.c'; then $(CYGPATH_W) 'myintqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/myintqueuelist.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myintqueuelist.Tpo $(DEPDIR)/mypdfsearch-myintqueuelist.Po
-#	$(AM_V_CC)source='myintqueuelist.c' object='mypdfsearch-myintqueuelist.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myintqueuelist.obj `if test -f 'myintqueuelist.c'; then $(CYGPATH_W) 'myintqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/myintqueuelist.c'; fi`
-
-mypdfsearch-myScopeHashTable.o: myScopeHashTable.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myScopeHashTable.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myScopeHashTable.Tpo -c -o mypdfsearch-myScopeHashTable.o `test -f 'myScopeHashTable.c' || echo '$(srcdir)/'`myScopeHashTable.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myScopeHashTable.Tpo $(DEPDIR)/mypdfsearch-myScopeHashTable.Po
-#	$(AM_V_CC)source='myScopeHashTable.c' object='mypdfsearch-myScopeHashTable.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myScopeHashTable.o `test -f 'myScopeHashTable.c' || echo '$(srcdir)/'`myScopeHashTable.c
-
-mypdfsearch-myScopeHashTable.obj: myScopeHashTable.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myScopeHashTable.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-myScopeHashTable.Tpo -c -o mypdfsearch-myScopeHashTable.obj `if test -f 'myScopeHashTable.c'; then $(CYGPATH_W) 'myScopeHashTable.c'; else $(CYGPATH_W) '$(srcdir)/myScopeHashTable.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myScopeHashTable.Tpo $(DEPDIR)/mypdfsearch-myScopeHashTable.Po
-#	$(AM_V_CC)source='myScopeHashTable.c' object='mypdfsearch-myScopeHashTable.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myScopeHashTable.obj `if test -f 'myScopeHashTable.c'; then $(CYGPATH_W) 'myScopeHashTable.c'; else $(CYGPATH_W) '$(srcdir)/myScopeHashTable.c'; fi`
-
-mypdfsearch-scanner.o: scanner.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-scanner.o -MD -MP -MF $(DEPDIR)/mypdfsearch-scanner.Tpo -c -o mypdfsearch-scanner.o `test -f 'scanner.c' || echo '$(srcdir)/'`scanner.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-scanner.Tpo $(DEPDIR)/mypdfsearch-scanner.Po
-#	$(AM_V_CC)source='scanner.c' object='mypdfsearch-scanner.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-scanner.o `test -f 'scanner.c' || echo '$(srcdir)/'`scanner.c
-
-mypdfsearch-scanner.obj: scanner.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-scanner.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-scanner.Tpo -c -o mypdfsearch-scanner.obj `if test -f 'scanner.c'; then $(CYGPATH_W) 'scanner.c'; else $(CYGPATH_W) '$(srcdir)/scanner.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-scanner.Tpo $(DEPDIR)/mypdfsearch-scanner.Po
-#	$(AM_V_CC)source='scanner.c' object='mypdfsearch-scanner.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-scanner.obj `if test -f 'scanner.c'; then $(CYGPATH_W) 'scanner.c'; else $(CYGPATH_W) '$(srcdir)/scanner.c'; fi`
-
-mypdfsearch-mycontentqueuelist.o: mycontentqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mycontentqueuelist.o -MD -MP -MF $(DEPDIR)/mypdfsearch-mycontentqueuelist.Tpo -c -o mypdfsearch-mycontentqueuelist.o `test -f 'mycontentqueuelist.c' || echo '$(srcdir)/'`mycontentqueuelist.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mycontentqueuelist.Tpo $(DEPDIR)/mypdfsearch-mycontentqueuelist.Po
-#	$(AM_V_CC)source='mycontentqueuelist.c' object='mypdfsearch-mycontentqueuelist.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mycontentqueuelist.o `test -f 'mycontentqueuelist.c' || echo '$(srcdir)/'`mycontentqueuelist.c
-
-mypdfsearch-mycontentqueuelist.obj: mycontentqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mycontentqueuelist.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-mycontentqueuelist.Tpo -c -o mypdfsearch-mycontentqueuelist.obj `if test -f 'mycontentqueuelist.c'; then $(CYGPATH_W) 'mycontentqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/mycontentqueuelist.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mycontentqueuelist.Tpo $(DEPDIR)/mypdfsearch-mycontentqueuelist.Po
-#	$(AM_V_CC)source='mycontentqueuelist.c' object='mypdfsearch-mycontentqueuelist.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mycontentqueuelist.obj `if test -f 'mycontentqueuelist.c'; then $(CYGPATH_W) 'mycontentqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/mycontentqueuelist.c'; fi`
-
-mypdfsearch-mynumstacklist.o: mynumstacklist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mynumstacklist.o -MD -MP -MF $(DEPDIR)/mypdfsearch-mynumstacklist.Tpo -c -o mypdfsearch-mynumstacklist.o `test -f 'mynumstacklist.c' || echo '$(srcdir)/'`mynumstacklist.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mynumstacklist.Tpo $(DEPDIR)/mypdfsearch-mynumstacklist.Po
-#	$(AM_V_CC)source='mynumstacklist.c' object='mypdfsearch-mynumstacklist.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mynumstacklist.o `test -f 'mynumstacklist.c' || echo '$(srcdir)/'`mynumstacklist.c
-
-mypdfsearch-mynumstacklist.obj: mynumstacklist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mynumstacklist.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-mynumstacklist.Tpo -c -o mypdfsearch-mynumstacklist.obj `if test -f 'mynumstacklist.c'; then $(CYGPATH_W) 'mynumstacklist.c'; else $(CYGPATH_W) '$(srcdir)/mynumstacklist.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mynumstacklist.Tpo $(DEPDIR)/mypdfsearch-mynumstacklist.Po
-#	$(AM_V_CC)source='mynumstacklist.c' object='mypdfsearch-mynumstacklist.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mynumstacklist.obj `if test -f 'mynumstacklist.c'; then $(CYGPATH_W) 'mynumstacklist.c'; else $(CYGPATH_W) '$(srcdir)/mynumstacklist.c'; fi`
-
-mypdfsearch-mystringqueuelist.o: mystringqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mystringqueuelist.o -MD -MP -MF $(DEPDIR)/mypdfsearch-mystringqueuelist.Tpo -c -o mypdfsearch-mystringqueuelist.o `test -f 'mystringqueuelist.c' || echo '$(srcdir)/'`mystringqueuelist.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mystringqueuelist.Tpo $(DEPDIR)/mypdfsearch-mystringqueuelist.Po
-#	$(AM_V_CC)source='mystringqueuelist.c' object='mypdfsearch-mystringqueuelist.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mystringqueuelist.o `test -f 'mystringqueuelist.c' || echo '$(srcdir)/'`mystringqueuelist.c
-
-mypdfsearch-mystringqueuelist.obj: mystringqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mystringqueuelist.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-mystringqueuelist.Tpo -c -o mypdfsearch-mystringqueuelist.obj `if test -f 'mystringqueuelist.c'; then $(CYGPATH_W) 'mystringqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/mystringqueuelist.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mystringqueuelist.Tpo $(DEPDIR)/mypdfsearch-mystringqueuelist.Po
-#	$(AM_V_CC)source='mystringqueuelist.c' object='mypdfsearch-mystringqueuelist.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mystringqueuelist.obj `if test -f 'mystringqueuelist.c'; then $(CYGPATH_W) 'mystringqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/mystringqueuelist.c'; fi`
-
-mypdfsearch-mydecode.o: mydecode.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mydecode.o -MD -MP -MF $(DEPDIR)/mypdfsearch-mydecode.Tpo -c -o mypdfsearch-mydecode.o `test -f 'mydecode.c' || echo '$(srcdir)/'`mydecode.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mydecode.Tpo $(DEPDIR)/mypdfsearch-mydecode.Po
-#	$(AM_V_CC)source='mydecode.c' object='mypdfsearch-mydecode.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mydecode.o `test -f 'mydecode.c' || echo '$(srcdir)/'`mydecode.c
-
-mypdfsearch-mydecode.obj: mydecode.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mydecode.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-mydecode.Tpo -c -o mypdfsearch-mydecode.obj `if test -f 'mydecode.c'; then $(CYGPATH_W) 'mydecode.c'; else $(CYGPATH_W) '$(srcdir)/mydecode.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mydecode.Tpo $(DEPDIR)/mypdfsearch-mydecode.Po
-#	$(AM_V_CC)source='mydecode.c' object='mypdfsearch-mydecode.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mydecode.obj `if test -f 'mydecode.c'; then $(CYGPATH_W) 'mydecode.c'; else $(CYGPATH_W) '$(srcdir)/mydecode.c'; fi`
-
-mypdfsearch-myobjrefqueuelist.o: myobjrefqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myobjrefqueuelist.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myobjrefqueuelist.Tpo -c -o mypdfsearch-myobjrefqueuelist.o `test -f 'myobjrefqueuelist.c' || echo '$(srcdir)/'`myobjrefqueuelist.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myobjrefqueuelist.Tpo $(DEPDIR)/mypdfsearch-myobjrefqueuelist.Po
-#	$(AM_V_CC)source='myobjrefqueuelist.c' object='mypdfsearch-myobjrefqueuelist.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myobjrefqueuelist.o `test -f 'myobjrefqueuelist.c' || echo '$(srcdir)/'`myobjrefqueuelist.c
-
-mypdfsearch-myobjrefqueuelist.obj: myobjrefqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myobjrefqueuelist.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-myobjrefqueuelist.Tpo -c -o mypdfsearch-myobjrefqueuelist.obj `if test -f 'myobjrefqueuelist.c'; then $(CYGPATH_W) 'myobjrefqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/myobjrefqueuelist.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myobjrefqueuelist.Tpo $(DEPDIR)/mypdfsearch-myobjrefqueuelist.Po
-#	$(AM_V_CC)source='myobjrefqueuelist.c' object='mypdfsearch-myobjrefqueuelist.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myobjrefqueuelist.obj `if test -f 'myobjrefqueuelist.c'; then $(CYGPATH_W) 'myobjrefqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/myobjrefqueuelist.c'; fi`
-
-mypdfsearch-myTernarySearchTree.o: myTernarySearchTree.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myTernarySearchTree.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myTernarySearchTree.Tpo -c -o mypdfsearch-myTernarySearchTree.o `test -f 'myTernarySearchTree.c' || echo '$(srcdir)/'`myTernarySearchTree.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myTernarySearchTree.Tpo $(DEPDIR)/mypdfsearch-myTernarySearchTree.Po
-#	$(AM_V_CC)source='myTernarySearchTree.c' object='mypdfsearch-myTernarySearchTree.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myTernarySearchTree.o `test -f 'myTernarySearchTree.c' || echo '$(srcdir)/'`myTernarySearchTree.c
-
-mypdfsearch-myTernarySearchTree.obj: myTernarySearchTree.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myTernarySearchTree.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-myTernarySearchTree.Tpo -c -o mypdfsearch-myTernarySearchTree.obj `if test -f 'myTernarySearchTree.c'; then $(CYGPATH_W) 'myTernarySearchTree.c'; else $(CYGPATH_W) '$(srcdir)/myTernarySearchTree.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myTernarySearchTree.Tpo $(DEPDIR)/mypdfsearch-myTernarySearchTree.Po
-#	$(AM_V_CC)source='myTernarySearchTree.c' object='mypdfsearch-myTernarySearchTree.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myTernarySearchTree.obj `if test -f 'myTernarySearchTree.c'; then $(CYGPATH_W) 'myTernarySearchTree.c'; else $(CYGPATH_W) '$(srcdir)/myTernarySearchTree.c'; fi`
-
-mypdfsearch-mydictionaryqueuelist.o: mydictionaryqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mydictionaryqueuelist.o -MD -MP -MF $(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Tpo -c -o mypdfsearch-mydictionaryqueuelist.o `test -f 'mydictionaryqueuelist.c' || echo '$(srcdir)/'`mydictionaryqueuelist.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Tpo $(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Po
-#	$(AM_V_CC)source='mydictionaryqueuelist.c' object='mypdfsearch-mydictionaryqueuelist.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mydictionaryqueuelist.o `test -f 'mydictionaryqueuelist.c' || echo '$(srcdir)/'`mydictionaryqueuelist.c
-
-mypdfsearch-mydictionaryqueuelist.obj: mydictionaryqueuelist.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-mydictionaryqueuelist.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Tpo -c -o mypdfsearch-mydictionaryqueuelist.obj `if test -f 'mydictionaryqueuelist.c'; then $(CYGPATH_W) 'mydictionaryqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/mydictionaryqueuelist.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Tpo $(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Po
-#	$(AM_V_CC)source='mydictionaryqueuelist.c' object='mypdfsearch-mydictionaryqueuelist.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-mydictionaryqueuelist.obj `if test -f 'mydictionaryqueuelist.c'; then $(CYGPATH_W) 'mydictionaryqueuelist.c'; else $(CYGPATH_W) '$(srcdir)/mydictionaryqueuelist.c'; fi`
-
-mypdfsearch-myoctal.o: myoctal.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myoctal.o -MD -MP -MF $(DEPDIR)/mypdfsearch-myoctal.Tpo -c -o mypdfsearch-myoctal.o `test -f 'myoctal.c' || echo '$(srcdir)/'`myoctal.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myoctal.Tpo $(DEPDIR)/mypdfsearch-myoctal.Po
-#	$(AM_V_CC)source='myoctal.c' object='mypdfsearch-myoctal.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myoctal.o `test -f 'myoctal.c' || echo '$(srcdir)/'`myoctal.c
-
-mypdfsearch-myoctal.obj: myoctal.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-myoctal.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-myoctal.Tpo -c -o mypdfsearch-myoctal.obj `if test -f 'myoctal.c'; then $(CYGPATH_W) 'myoctal.c'; else $(CYGPATH_W) '$(srcdir)/myoctal.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-myoctal.Tpo $(DEPDIR)/mypdfsearch-myoctal.Po
-#	$(AM_V_CC)source='myoctal.c' object='mypdfsearch-myoctal.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-myoctal.obj `if test -f 'myoctal.c'; then $(CYGPATH_W) 'myoctal.c'; else $(CYGPATH_W) '$(srcdir)/myoctal.c'; fi`
-
-mypdfsearch-parser.o: parser.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-parser.o -MD -MP -MF $(DEPDIR)/mypdfsearch-parser.Tpo -c -o mypdfsearch-parser.o `test -f 'parser.c' || echo '$(srcdir)/'`parser.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-parser.Tpo $(DEPDIR)/mypdfsearch-parser.Po
-#	$(AM_V_CC)source='parser.c' object='mypdfsearch-parser.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-parser.o `test -f 'parser.c' || echo '$(srcdir)/'`parser.c
-
-mypdfsearch-parser.obj: parser.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -MT mypdfsearch-parser.obj -MD -MP -MF $(DEPDIR)/mypdfsearch-parser.Tpo -c -o mypdfsearch-parser.obj `if test -f 'parser.c'; then $(CYGPATH_W) 'parser.c'; else $(CYGPATH_W) '$(srcdir)/parser.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/mypdfsearch-parser.Tpo $(DEPDIR)/mypdfsearch-parser.Po
-#	$(AM_V_CC)source='parser.c' object='mypdfsearch-parser.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(mypdfsearch_CFLAGS) $(CFLAGS) -c -o mypdfsearch-parser.obj `if test -f 'parser.c'; then $(CYGPATH_W) 'parser.c'; else $(CYGPATH_W) '$(srcdir)/parser.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -713,19 +524,22 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-		-rm -f ./$(DEPDIR)/mypdfsearch-main.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mydecode.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myintqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mynumstacklist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myobjrefqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myoctal.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mystringqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-parser.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-scanner.Po
+		-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/myGenHashTable.Po
+	-rm -f ./$(DEPDIR)/myInitPredefCMapHT.Po
+	-rm -f ./$(DEPDIR)/myScopeHashTable.Po
+	-rm -f ./$(DEPDIR)/myTernarySearchTree.Po
+	-rm -f ./$(DEPDIR)/mycontentqueuelist.Po
+	-rm -f ./$(DEPDIR)/mydecode.Po
+	-rm -f ./$(DEPDIR)/mydictionaryqueuelist.Po
+	-rm -f ./$(DEPDIR)/myinitarray.Po
+	-rm -f ./$(DEPDIR)/myintqueuelist.Po
+	-rm -f ./$(DEPDIR)/mynumstacklist.Po
+	-rm -f ./$(DEPDIR)/myobjrefqueuelist.Po
+	-rm -f ./$(DEPDIR)/myoctal.Po
+	-rm -f ./$(DEPDIR)/mystringqueuelist.Po
+	-rm -f ./$(DEPDIR)/parser.Po
+	-rm -f ./$(DEPDIR)/scanner.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -771,19 +585,22 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-		-rm -f ./$(DEPDIR)/mypdfsearch-main.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myScopeHashTable.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myTernarySearchTree.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mycontentqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mydecode.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mydictionaryqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myintqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mynumstacklist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myobjrefqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-myoctal.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-mystringqueuelist.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-parser.Po
-	-rm -f ./$(DEPDIR)/mypdfsearch-scanner.Po
+		-rm -f ./$(DEPDIR)/main.Po
+	-rm -f ./$(DEPDIR)/myGenHashTable.Po
+	-rm -f ./$(DEPDIR)/myInitPredefCMapHT.Po
+	-rm -f ./$(DEPDIR)/myScopeHashTable.Po
+	-rm -f ./$(DEPDIR)/myTernarySearchTree.Po
+	-rm -f ./$(DEPDIR)/mycontentqueuelist.Po
+	-rm -f ./$(DEPDIR)/mydecode.Po
+	-rm -f ./$(DEPDIR)/mydictionaryqueuelist.Po
+	-rm -f ./$(DEPDIR)/myinitarray.Po
+	-rm -f ./$(DEPDIR)/myintqueuelist.Po
+	-rm -f ./$(DEPDIR)/mynumstacklist.Po
+	-rm -f ./$(DEPDIR)/myobjrefqueuelist.Po
+	-rm -f ./$(DEPDIR)/myoctal.Po
+	-rm -f ./$(DEPDIR)/mystringqueuelist.Po
+	-rm -f ./$(DEPDIR)/parser.Po
+	-rm -f ./$(DEPDIR)/scanner.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

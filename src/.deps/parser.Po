@@ -1,6 +1,5 @@
-mypdfsearch-parser.o: parser.c /usr/include/stdc-predef.h \
- /usr/include/stdio.h /usr/include/features.h \
- /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+parser.o: parser.c /usr/include/stdc-predef.h /usr/include/stdio.h \
+ /usr/include/features.h /usr/include/x86_64-linux-gnu/sys/cdefs.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
@@ -57,7 +56,8 @@ mypdfsearch-parser.o: parser.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/zconf.h /usr/include/unistd.h \
  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
  /usr/include/x86_64-linux-gnu/bits/environments.h \
- /usr/include/x86_64-linux-gnu/bits/confname.h /usr/include/getopt.h
+ /usr/include/x86_64-linux-gnu/bits/confname.h /usr/include/getopt.h \
+ myGenHashTable.h myInitPredefCMapHT.h
 
 /usr/include/stdc-predef.h:
 
@@ -238,3 +238,7 @@ mydecode.h:
 /usr/include/x86_64-linux-gnu/bits/confname.h:
 
 /usr/include/getopt.h:
+
+myGenHashTable.h:
+
+myInitPredefCMapHT.h:

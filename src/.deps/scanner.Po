@@ -1,6 +1,5 @@
-mypdfsearch-main.o: main.c /usr/include/stdc-predef.h \
- /usr/include/stdio.h /usr/include/features.h \
- /usr/include/x86_64-linux-gnu/sys/cdefs.h \
+scanner.o: scanner.c /usr/include/stdc-predef.h /usr/include/stdio.h \
+ /usr/include/features.h /usr/include/x86_64-linux-gnu/sys/cdefs.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs.h \
  /usr/include/x86_64-linux-gnu/gnu/stubs-64.h \
@@ -25,37 +24,32 @@ mypdfsearch-main.o: main.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/sys/sysmacros.h \
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/malloc.h \
- /usr/include/errno.h /usr/include/x86_64-linux-gnu/bits/errno.h \
- /usr/include/linux/errno.h /usr/include/x86_64-linux-gnu/asm/errno.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/string.h \
+ /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
+ /usr/include/x86_64-linux-gnu/bits/string2.h /usr/include/malloc.h \
+ myoctal.h mypdfsearch.h /usr/include/errno.h \
+ /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
+ /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
- /usr/include/string.h /usr/include/xlocale.h \
- /usr/include/x86_64-linux-gnu/bits/string.h \
- /usr/include/x86_64-linux-gnu/bits/string2.h \
  /usr/local/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include-fixed/limits.h \
  /usr/local/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include-fixed/syslimits.h \
  /usr/include/limits.h /usr/include/x86_64-linux-gnu/bits/posix1_lim.h \
  /usr/include/x86_64-linux-gnu/bits/local_lim.h \
  /usr/include/linux/limits.h \
  /usr/include/x86_64-linux-gnu/bits/posix2_lim.h /usr/include/ctype.h \
- /usr/include/locale.h /usr/include/x86_64-linux-gnu/bits/locale.h \
- /usr/include/x86_64-linux-gnu/sys/stat.h \
- /usr/include/x86_64-linux-gnu/bits/stat.h /usr/include/dirent.h \
- /usr/include/x86_64-linux-gnu/bits/dirent.h /usr/include/unistd.h \
- /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
- /usr/include/x86_64-linux-gnu/bits/environments.h \
- /usr/include/x86_64-linux-gnu/bits/confname.h /usr/include/getopt.h \
- /usr/include/pthread.h /usr/include/sched.h \
- /usr/include/x86_64-linux-gnu/bits/sched.h \
- /usr/include/x86_64-linux-gnu/bits/setjmp.h mypdfsearch.h \
- /usr/include/wctype.h parser.h scanner.h myobjrefqueuelist.h \
- mynumstacklist.h myintqueuelist.h mystringqueuelist.h \
- mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h \
+ /usr/include/wctype.h scanner.h myobjrefqueuelist.h mynumstacklist.h \
+ myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h \
+ mycontentqueuelist.h myScopeHashTable.h \
  /usr/local/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include/stdint.h \
  /usr/include/stdint.h /usr/include/x86_64-linux-gnu/bits/wchar.h \
  myTernarySearchTree.h mydecode.h /usr/include/assert.h \
- /usr/include/iconv.h /usr/include/zlib.h \
- /usr/include/x86_64-linux-gnu/zconf.h
+ /usr/include/iconv.h /usr/include/locale.h \
+ /usr/include/x86_64-linux-gnu/bits/locale.h /usr/include/zlib.h \
+ /usr/include/x86_64-linux-gnu/zconf.h /usr/include/unistd.h \
+ /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+ /usr/include/x86_64-linux-gnu/bits/environments.h \
+ /usr/include/x86_64-linux-gnu/bits/confname.h /usr/include/getopt.h \
+ myGenHashTable.h
 
 /usr/include/stdc-predef.h:
 
@@ -127,7 +121,19 @@ mypdfsearch-main.o: main.c /usr/include/stdc-predef.h \
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
+/usr/include/string.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/x86_64-linux-gnu/bits/string.h:
+
+/usr/include/x86_64-linux-gnu/bits/string2.h:
+
 /usr/include/malloc.h:
+
+myoctal.h:
+
+mypdfsearch.h:
 
 /usr/include/errno.h:
 
@@ -140,14 +146,6 @@ mypdfsearch-main.o: main.c /usr/include/stdc-predef.h \
 /usr/include/asm-generic/errno.h:
 
 /usr/include/asm-generic/errno-base.h:
-
-/usr/include/string.h:
-
-/usr/include/xlocale.h:
-
-/usr/include/x86_64-linux-gnu/bits/string.h:
-
-/usr/include/x86_64-linux-gnu/bits/string2.h:
 
 /usr/local/lib/gcc/x86_64-pc-linux-gnu/9.1.0/include-fixed/limits.h:
 
@@ -165,41 +163,7 @@ mypdfsearch-main.o: main.c /usr/include/stdc-predef.h \
 
 /usr/include/ctype.h:
 
-/usr/include/locale.h:
-
-/usr/include/x86_64-linux-gnu/bits/locale.h:
-
-/usr/include/x86_64-linux-gnu/sys/stat.h:
-
-/usr/include/x86_64-linux-gnu/bits/stat.h:
-
-/usr/include/dirent.h:
-
-/usr/include/x86_64-linux-gnu/bits/dirent.h:
-
-/usr/include/unistd.h:
-
-/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
-
-/usr/include/x86_64-linux-gnu/bits/environments.h:
-
-/usr/include/x86_64-linux-gnu/bits/confname.h:
-
-/usr/include/getopt.h:
-
-/usr/include/pthread.h:
-
-/usr/include/sched.h:
-
-/usr/include/x86_64-linux-gnu/bits/sched.h:
-
-/usr/include/x86_64-linux-gnu/bits/setjmp.h:
-
-mypdfsearch.h:
-
 /usr/include/wctype.h:
-
-parser.h:
 
 scanner.h:
 
@@ -231,6 +195,22 @@ mydecode.h:
 
 /usr/include/iconv.h:
 
+/usr/include/locale.h:
+
+/usr/include/x86_64-linux-gnu/bits/locale.h:
+
 /usr/include/zlib.h:
 
 /usr/include/x86_64-linux-gnu/zconf.h:
+
+/usr/include/unistd.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
+
+/usr/include/x86_64-linux-gnu/bits/environments.h:
+
+/usr/include/x86_64-linux-gnu/bits/confname.h:
+
+/usr/include/getopt.h:
+
+myGenHashTable.h:

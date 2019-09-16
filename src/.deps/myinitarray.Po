@@ -1,4 +1,4 @@
-mypdfsearch-scanner.o: scanner.c /usr/include/stdc-predef.h \
+myinitarray.o: myinitarray.c /usr/include/stdc-predef.h \
  /usr/include/stdio.h /usr/include/features.h \
  /usr/include/x86_64-linux-gnu/sys/cdefs.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -25,10 +25,18 @@ mypdfsearch-scanner.o: scanner.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/sys/sysmacros.h \
  /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h /usr/include/alloca.h \
  /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
- /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/string.h \
+ /usr/include/x86_64-linux-gnu/bits/stdlib-float.h /usr/include/math.h \
+ /usr/include/x86_64-linux-gnu/bits/huge_val.h \
+ /usr/include/x86_64-linux-gnu/bits/huge_valf.h \
+ /usr/include/x86_64-linux-gnu/bits/huge_vall.h \
+ /usr/include/x86_64-linux-gnu/bits/inf.h \
+ /usr/include/x86_64-linux-gnu/bits/nan.h \
+ /usr/include/x86_64-linux-gnu/bits/mathdef.h \
+ /usr/include/x86_64-linux-gnu/bits/mathcalls.h \
+ /usr/include/x86_64-linux-gnu/bits/mathinline.h /usr/include/string.h \
  /usr/include/xlocale.h /usr/include/x86_64-linux-gnu/bits/string.h \
- /usr/include/x86_64-linux-gnu/bits/string2.h /usr/include/malloc.h \
- myoctal.h mypdfsearch.h /usr/include/errno.h \
+ /usr/include/x86_64-linux-gnu/bits/string2.h parser.h mypdfsearch.h \
+ /usr/include/malloc.h /usr/include/errno.h \
  /usr/include/x86_64-linux-gnu/bits/errno.h /usr/include/linux/errno.h \
  /usr/include/x86_64-linux-gnu/asm/errno.h \
  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
@@ -49,7 +57,8 @@ mypdfsearch-scanner.o: scanner.c /usr/include/stdc-predef.h \
  /usr/include/x86_64-linux-gnu/zconf.h /usr/include/unistd.h \
  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
  /usr/include/x86_64-linux-gnu/bits/environments.h \
- /usr/include/x86_64-linux-gnu/bits/confname.h /usr/include/getopt.h
+ /usr/include/x86_64-linux-gnu/bits/confname.h /usr/include/getopt.h \
+ myGenHashTable.h
 
 /usr/include/stdc-predef.h:
 
@@ -121,6 +130,24 @@ mypdfsearch-scanner.o: scanner.c /usr/include/stdc-predef.h \
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
+/usr/include/math.h:
+
+/usr/include/x86_64-linux-gnu/bits/huge_val.h:
+
+/usr/include/x86_64-linux-gnu/bits/huge_valf.h:
+
+/usr/include/x86_64-linux-gnu/bits/huge_vall.h:
+
+/usr/include/x86_64-linux-gnu/bits/inf.h:
+
+/usr/include/x86_64-linux-gnu/bits/nan.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathdef.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathcalls.h:
+
+/usr/include/x86_64-linux-gnu/bits/mathinline.h:
+
 /usr/include/string.h:
 
 /usr/include/xlocale.h:
@@ -129,11 +156,11 @@ mypdfsearch-scanner.o: scanner.c /usr/include/stdc-predef.h \
 
 /usr/include/x86_64-linux-gnu/bits/string2.h:
 
-/usr/include/malloc.h:
-
-myoctal.h:
+parser.h:
 
 mypdfsearch.h:
+
+/usr/include/malloc.h:
 
 /usr/include/errno.h:
 
@@ -212,3 +239,5 @@ mydecode.h:
 /usr/include/x86_64-linux-gnu/bits/confname.h:
 
 /usr/include/getopt.h:
+
+myGenHashTable.h:

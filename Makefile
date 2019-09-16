@@ -160,8 +160,7 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/build-aux/install-sh \
 	$(top_srcdir)/build-aux/missing AUTHORS COPYING ChangeLog \
 	INSTALL NEWS README build-aux/compile build-aux/depcomp \
-	build-aux/install-sh build-aux/missing compile depcomp \
-	install-sh missing
+	build-aux/install-sh build-aux/missing
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 distdir = $(PACKAGE)-$(VERSION)
 top_distdir = $(distdir)
@@ -204,16 +203,16 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
-ACLOCAL = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing aclocal-1.16
+ACLOCAL = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing aclocal-1.16
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing autoconf
-AUTOHEADER = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing autoheader
-AUTOMAKE = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing automake-1.16
+AUTOCONF = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing autoconf
+AUTOHEADER = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing autoheader
+AUTOMAKE = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing automake-1.16
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CFLAGS = -Wall -W -pedantic -O3 -Wno-overlength-strings
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo
@@ -232,28 +231,29 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -lz 
+LIBS = -lm -lz 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/missing makeinfo
+MAINT = #
+MAKEINFO = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/missing makeinfo
 MKDIR_P = /bin/mkdir -p
 OBJEXT = o
 PACKAGE = mypdfsearch
 PACKAGE_BUGREPORT = vincenzolocicero68@gmail.com
 PACKAGE_NAME = mypdfsearch
-PACKAGE_STRING = mypdfsearch 1.0.0
+PACKAGE_STRING = mypdfsearch 1.5.1
 PACKAGE_TARNAME = mypdfsearch
 PACKAGE_URL = 
-PACKAGE_VERSION = 1.0.0
+PACKAGE_VERSION = 1.5.1
 PATH_SEPARATOR = :
 RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/bash
 STRIP = 
-VERSION = 1.0.0
-abs_builddir = /home/vincenzo/Varie/GCC/Varie/Prova2
-abs_srcdir = /home/vincenzo/Varie/GCC/Varie/Prova2
-abs_top_builddir = /home/vincenzo/Varie/GCC/Varie/Prova2
-abs_top_srcdir = /home/vincenzo/Varie/GCC/Varie/Prova2
+VERSION = 1.5.1
+abs_builddir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch
+abs_srcdir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch
+abs_top_builddir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch
+abs_top_srcdir = /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -272,7 +272,7 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/vincenzo/Varie/GCC/Varie/Prova2/build-aux/install-sh
+install_sh = ${SHELL} /home/vincenzo/Varie/Prova/ProvaGit/myPdfSearch/build-aux/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -281,7 +281,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /home/vincenzo/MyProgs/mypdf
+prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -299,7 +299,7 @@ all: config.h
 .SUFFIXES:
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: # $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -325,9 +325,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: # $(am__configure_deps)
 	$(am__cd) $(srcdir) && $(AUTOCONF)
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): # $(am__aclocal_m4_deps)
 	$(am__cd) $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 $(am__aclocal_m4_deps):
 
@@ -338,7 +338,7 @@ config.h: stamp-h1
 stamp-h1: $(srcdir)/config.h.in $(top_builddir)/config.status
 	@rm -f stamp-h1
 	cd $(top_builddir) && $(SHELL) ./config.status config.h
-$(srcdir)/config.h.in:  $(am__configure_deps) 
+$(srcdir)/config.h.in: # $(am__configure_deps) 
 	($(am__cd) $(top_srcdir) && $(AUTOHEADER))
 	rm -f stamp-h1
 	touch $@
