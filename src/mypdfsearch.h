@@ -194,6 +194,11 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 ./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/Tutti"
  
  
+ 
+./mypdfsearch --path="../Files/FileProblematico3" --words="Virginia Orbán branco"
+./mypdfsearch --path="../Files/FileProblematico4" --words="Virginia Orbán branco"
+ 
+ 
 
 ./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán branco"
   

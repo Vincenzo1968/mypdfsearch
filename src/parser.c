@@ -497,6 +497,11 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 	uint32_t curPos = 0;
 	unsigned char myBlock[BLOCK_SIZE];
 	unsigned char myPrevBlock[BLOCK_SIZE];
+	
+	//unsigned char myTempBlock[BLOCK_SIZE];
+	//size_t tempBytesRead;
+	//unsigned char cTemp;
+	
 	unsigned char c;
 	unsigned char lexeme[128];
 	
@@ -559,6 +564,9 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
 	wprintf(L"\n");
 	#endif
+	
+	for ( int i = 0; i < BLOCK_SIZE; i++ )
+		myBlock[i] = myPrevBlock[i] = '\0';
 		
 	while ( (bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp)) )
 	{
@@ -875,7 +883,24 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 								{
 									myHT_Data.StreamOffset++;
 								}
-							}							
+							}
+							/*
+							else if ( '\n' == c )
+							{
+								curPos++;
+								Offset++;
+								if ( curPos >= bytesRead )
+								{
+									bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp);
+									if ( bytesRead <= 0 )
+										goto uscita;
+									curPos = 0;
+								}
+								c = myBlock[curPos];
+								
+								myHT_Data.StreamOffset++;
+							}
+							*/
 						}
 						else // endstream
 						{
@@ -884,21 +909,56 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 							myHT_Data.StreamLength = (Offset - myHT_Data.StreamOffset) - 9;
 							bStreamState = 0;
 							
+							//if ( myHT_Data.Number == 1124 && strcmp(pszFileName, "../Files/FileProblematico3/manzoni_i_promessi_sposi.pdf") == 0 )
+							//{
+							//	uint32_t y;
+							//	FILE *fpTemp = NULL;
+							//	
+							//	fpTemp = fopen(pszFileName, "rb");
+							//	fseek(fpTemp, myHT_Data.StreamOffset, SEEK_CUR);
+							//	tempBytesRead = fread(myTempBlock, 1, BLOCK_SIZE, fpTemp);
+								
+							//	wprintf(L"\nECCO STREAM PRIMA: nTemp = %d; curPos = %lu; myHT_Data.StreamOffset = %lu myHT_Data.StreamLength = %lu\n", nTemp, curPos, myHT_Data.StreamOffset, myHT_Data.StreamLength);
+								
+							//	for ( y = 0; y < myHT_Data.StreamLength; y++ )
+							//	{
+							//		cTemp = myTempBlock[y];
+							//		if ( (cTemp >= 'a' && cTemp <= 'z') || (cTemp == '>') )
+							//		{
+							//			wprintf(L"%c", cTemp);
+							//		}
+							//		else
+							//		{
+							//			if ( cTemp <= 0xF )
+							//				wprintf(L"<0%X>", cTemp);
+							//			else
+							//				wprintf(L"<%2X>", cTemp);
+							//		}
+							//	}
+							//
+							//	wprintf(L"§FINE STREAM: y = %lu\n\n", y);
+							//
+							//	fclose(fpTemp);
+							//	fpTemp = NULL;
+							//}
+							
 							nTemp = curPos - (9 + 2);
 							if ( nTemp >= 0 )
-							{
+							{								
 								char c1, c2;
+								
 								c1 = myBlock[nTemp];
 								c2 = myBlock[nTemp + 1];
 								if ( '\r' == c1 )
 									myHT_Data.StreamLength -= 2;
 								else if ( '\n' == c2 )
-									myHT_Data.StreamLength--;
+									myHT_Data.StreamLength--;									
 							}
 							else if ( -1 == nTemp )
 							{
 								char c1, c2;
-								c1 = myBlock[BLOCK_SIZE - 1];
+								
+								c1 = myPrevBlock[BLOCK_SIZE - 1];
 								c2 = myBlock[0];
 								if ( '\r' == c1 )
 									myHT_Data.StreamLength -= 2;
@@ -908,14 +968,48 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 							else
 							{
 								char c1, c2;
-								c1 = myBlock[BLOCK_SIZE + nTemp];
+								
+								c1 = myPrevBlock[BLOCK_SIZE + nTemp];
 								nTemp++;
-								c2 = myBlock[BLOCK_SIZE + nTemp];
+								c2 = myPrevBlock[BLOCK_SIZE + (nTemp + 1)];
 								if ( '\r' == c1 )
 									myHT_Data.StreamLength -= 2;
 								else if ( '\n' == c2 )
-									myHT_Data.StreamLength--;
+									myHT_Data.StreamLength--;									
 							}
+							
+							//if ( myHT_Data.Number == 1124 && strcmp(pszFileName, "../Files/FileProblematico3/manzoni_i_promessi_sposi.pdf") == 0 )
+							//{
+							//	uint32_t y;
+							//	FILE *fpTemp = NULL;
+							//	
+							//	fpTemp = fopen(pszFileName, "rb");
+							//	fseek(fpTemp, myHT_Data.StreamOffset, SEEK_CUR);
+							//	tempBytesRead = fread(myTempBlock, 1, BLOCK_SIZE, fpTemp);
+							//	
+							//	wprintf(L"\nECCO STREAM DOPO: nTemp = %d; curPos = %lu; myHT_Data.StreamOffset = %lu myHT_Data.StreamLength = %lu\n", nTemp, curPos, myHT_Data.StreamOffset, myHT_Data.StreamLength);
+							//	
+							//	for ( y = 0; y < myHT_Data.StreamLength; y++ )
+							//	{
+							//		cTemp = myTempBlock[y];
+							//		if ( (cTemp >= 'a' && cTemp <= 'z') || (cTemp == '>') )
+							//		{
+							//			wprintf(L"%c", cTemp);
+							//		}
+							//		else
+							//		{
+							//			if ( cTemp <= 0xF )
+							//				wprintf(L"<0%X>", cTemp);
+							//			else
+							//				wprintf(L"<%2X>", cTemp);
+							//		}
+							//	}
+							//	
+							//	wprintf(L"§FINE STREAM: y = %lu\n\n", y);
+							//	
+							//	fclose(fpTemp);
+							//	fpTemp = NULL;
+							//}
 							
 							if ( bUpdateStreamOffset )
 							{
@@ -1540,7 +1634,8 @@ int Parse(Params *pParams, FilesList* myFilesList)
 				goto successivo;
 			}
 		}
-						
+			
+		/*			
 		if ( pParams->myPdfTrailer.Size != (int)pParams->nObjsTableSizeFromPrescanFile )
 		{
 			//wprintf(L"\nERRORE Parse 6 tris: pParams->myPdfTrailer.Size = %d -> pParams->nObjsTableSizeFromPrescanFile = %lu\n", pParams->myPdfTrailer.Size, pParams->nObjsTableSizeFromPrescanFile);
@@ -1549,6 +1644,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			retValue = 0;
 			goto successivo;
 		}
+		*/
 		
 		mynumstacklist_Free( &(pParams->myNumStack) );
 		
@@ -4066,7 +4162,10 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 			
 	if ( bDecodeStream )
 	{		
-		wprintf(L"\nSTAMPO LO STREAM *********************:\n");
+		if ( NULL == fpOutput )
+			wprintf(L"\nSTAMPO LO STREAM *********************:\n");
+		else
+			fwprintf(fpOutput, L"\nSTAMPO LO STREAM *********************:\n");
 		
 		if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Obj.Offset, SEEK_SET) != 0 )
 		{
@@ -4607,7 +4706,8 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 			pParams->myObjsTable[nObjNum]->Obj.Generation = myDecimalValue3;
 			if ( (OBJ_TYPE_IN_USE == pParams->myObjsTable[nObjNum]->Obj.Type) && (myDecimalValue2 != pParams->myObjsTable[nObjNum]->Obj.Offset) )
 			{
-				fwprintf(pParams->fpErrors, L"\nWARNING: ParseTrailerXRefStream -> myDecimalValue2 = %lu differs from pParams->myObjsTable[%d]->Obj.Offset = %lu\n", myDecimalValue2, nObjNum, pParams->myObjsTable[nObjNum]->Obj.Offset);
+				//fwprintf(pParams->fpErrors, L"\nWARNING: ParseTrailerXRefStream -> myDecimalValue2 = %lu differs from pParams->myObjsTable[%d]->Obj.Offset = %lu\n", myDecimalValue2, nObjNum, pParams->myObjsTable[nObjNum]->Obj.Offset);
+				;
 			}
 			else
 			{
@@ -4820,7 +4920,8 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 				pParams->myObjsTable[nObjNum]->Obj.Generation = myDecimalValue3;
 				if ( (OBJ_TYPE_IN_USE == pParams->myObjsTable[nObjNum]->Obj.Type) && (myDecimalValue2 != pParams->myObjsTable[nObjNum]->Obj.Offset) )
 				{
-					fwprintf(pParams->fpErrors, L"\nWARNING: ParseTrailerXRefStream -> myDecimalValue2 = %lu differs from pParams->myObjsTable[%d]->Obj.Offset = %lu\n", myDecimalValue2, nObjNum, pParams->myObjsTable[nObjNum]->Obj.Offset);
+					//fwprintf(pParams->fpErrors, L"\nWARNING: ParseTrailerXRefStream -> myDecimalValue2 = %lu differs from pParams->myObjsTable[%d]->Obj.Offset = %lu\n", myDecimalValue2, nObjNum, pParams->myObjsTable[nObjNum]->Obj.Offset);
+					;
 				}
 				else
 				{
@@ -8041,11 +8142,14 @@ int contentobjbody(Params *pParams)
 	pParams->CurrentContent.Offset = pParams->nNumBytesReadFromCurrentStream;
 	pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamOffset = pParams->CurrentContent.Offset;
 	//pParams->CurrentContent.Offset = pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamOffset;
+	/*
 	if ( pParams->CurrentContent.LengthFromPdf != pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength )
 	{
 		fwprintf(pParams->fpErrors, L"WARNING contentobjbody: pParams->CurrentContent.LengthFromPdf = %lu differs from pParams->myObjsTable[%d]->Obj.StreamLength = %lu\n",  pParams->CurrentContent.LengthFromPdf, pParams->nCurrentParsingObj, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength);
-		pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
+		//PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
+		//pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
 	}
+	*/
 	//pParams->CurrentContent.LengthFromPdf = pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength;
 			
 	//pos1 = ftell(pParams->fp);	
@@ -9161,6 +9265,7 @@ int contentxobj(Params *pParams)
 	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobj -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 		
@@ -9172,6 +9277,7 @@ int contentxobj(Params *pParams)
 	//	return 0;
 		
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobj -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 			
@@ -9179,6 +9285,7 @@ int contentxobj(Params *pParams)
 		return 0;
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobj -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif	
 	if ( !match(pParams, T_KW_OBJ, "contentxobj") )
@@ -9197,6 +9304,7 @@ int contentxobj(Params *pParams)
 	}
 
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobj -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 	
@@ -9259,6 +9367,7 @@ int contentxobjbody(Params *pParams)
 	mydictionaryqueuelist_Init(&(pParams->CurrentContent.decodeParms), 1, 1);
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobjbody -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif	
 	
@@ -9278,6 +9387,7 @@ int contentxobjbody(Params *pParams)
 		goto uscita;
 		
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobjbody -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif	
 			
@@ -9299,17 +9409,21 @@ int contentxobjbody(Params *pParams)
 	pParams->CurrentContent.Offset = pParams->nNumBytesReadFromCurrentStream;	
 	pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamOffset = pParams->CurrentContent.Offset;
 	//pParams->CurrentContent.Offset = pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamOffset;
+	/*
 	if ( pParams->CurrentContent.LengthFromPdf != pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength )
 	{
 		fwprintf(pParams->fpErrors, L"WARNING contentxobjbody: pParams->CurrentContent.LengthFromPdf = %lu differs from pParams->myObjsTable[%d]->Obj.StreamLength = %lu\n",  pParams->CurrentContent.LengthFromPdf, pParams->nCurrentParsingObj, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength);
-		pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
+		//PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
+		//pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
 	}
+	*/
 	//pParams->CurrentContent.LengthFromPdf = pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength;
 	
 	
 	
 	
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobjbody -> ");	
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 	
@@ -9334,6 +9448,7 @@ int contentxobjbody(Params *pParams)
 	GetNextToken(pParams);
 		
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"contentxobjbody -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif	
 	
@@ -9362,7 +9477,7 @@ uscita:
 // xobjstreamdictitems : {T_NAME xobjcontentkeyvalue};
 int xobjstreamdictitems(Params *pParams)
 {		
-	while ( pParams->myToken.Type ==  T_NAME )
+	while ( T_NAME == pParams->myToken.Type )
 	{
 		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
 		
@@ -9373,10 +9488,14 @@ int xobjstreamdictitems(Params *pParams)
 			pParams->CurrentContent.bExternalFile = 1;	
 			
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+		wprintf(L"xobjstreamdictitems -> ");
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		#endif
 			
 		GetNextToken(pParams);
+		
+		if ( pParams->bXObjIsImage )
+			return 1;
 		
 		if ( !xobjcontentkeyvalue(pParams) )
 			return 0;		
@@ -9409,6 +9528,7 @@ int xobjcontentkeyvalue(Params *pParams)
 			n1 = pParams->myToken.Value.vInt;
 						
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+			wprintf(L"xobjcontentkeyvalue -> ");	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif
 			
@@ -9418,7 +9538,8 @@ int xobjcontentkeyvalue(Params *pParams)
 			{
 				n2 = pParams->myToken.Value.vInt;
 							
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+				wprintf(L"xobjcontentkeyvalue -> ");
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
 				#endif
 				
@@ -9539,14 +9660,16 @@ int xobjcontentkeyvalue(Params *pParams)
 				pParams->bXObjIsImage = 0;
 			}	
 									
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+			wprintf(L"xobjcontentkeyvalue -> ");	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif
 			
 			GetNextToken(pParams);
 			break;
 		case T_STRING_LITERAL: // File Specifications: vedi su PDF3000_2008 a pag. 99
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+			wprintf(L"xobjcontentkeyvalue -> ");	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif			
 			// IGNORIAMO
@@ -9554,6 +9677,7 @@ int xobjcontentkeyvalue(Params *pParams)
 			break;
 		case T_STRING_HEXADECIMAL: // File Specifications: vedi su PDF3000_2008 a pag. 99
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+			wprintf(L"xobjcontentkeyvalue -> ");
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);			
 			#endif			
 			// IGNORIAMO
@@ -9563,6 +9687,7 @@ int xobjcontentkeyvalue(Params *pParams)
 		case T_KW_FALSE:
 			// IGNORIAMO
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+			wprintf(L"xobjcontentkeyvalue -> ");
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif			
 			GetNextToken(pParams);
@@ -9570,6 +9695,7 @@ int xobjcontentkeyvalue(Params *pParams)
 		case T_STRING: // File Specifications: vedi su PDF3000_2008 a pag. 99
 			// IGNORIAMO
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+			wprintf(L"xobjcontentkeyvalue -> ");
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif			
 			GetNextToken(pParams);
@@ -9577,6 +9703,7 @@ int xobjcontentkeyvalue(Params *pParams)
 		case T_QOPAREN:
 			if ( !xobjcontentkeyarray(pParams) )
 				return 0;
+			//GetNextToken(pParams);
 			break;
 		case T_DICT_BEGIN:
 			pParams->bXObjIsIndirect = 0;
@@ -9586,10 +9713,13 @@ int xobjcontentkeyvalue(Params *pParams)
 			pParams->bXObjIsIndirect = 1;
 			pParams->bFontObjIsIndirect = 1;
 			if ( (strncmp(pParams->szCurrKeyName, "DecodeParms", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FDecodeParms", 1024) == 0) )
-				pParams->nCountDecodeParams++;				
+				pParams->nCountDecodeParams++;
+			//GetNextToken(pParams);
 			break;
 		default:
-			//wprintf(L"ERRORE xobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+			wprintf(L"ERRORE xobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			#endif
 			fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
@@ -9606,6 +9736,7 @@ int xobjcontentkeyarray(Params *pParams)
 	//int countClose = 0;
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"xobjcontentkeyarray -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif	
 		
@@ -9620,7 +9751,8 @@ int xobjcontentkeyarray(Params *pParams)
 	ricomincia:
 	while ( T_QCPAREN != pParams->myToken.Type )
 	{			
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+		wprintf(L"xobjcontentkeyarray -> ");	
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		#endif
 		
@@ -9634,7 +9766,8 @@ int xobjcontentkeyarray(Params *pParams)
 	
 	if ( countOpen > 0 )
 	{
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+		wprintf(L"xobjcontentkeyarray -> ");
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		#endif
 		
@@ -9644,6 +9777,7 @@ int xobjcontentkeyarray(Params *pParams)
 	}
 
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"xobjcontentkeyarray -> ");
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif	
 	
@@ -9657,6 +9791,11 @@ int xobjcontentkeyarray(Params *pParams)
 int xobjcontentkeydict(Params *pParams)
 {
 	int len = 0;
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+	wprintf(L"xobjcontentkeydict -> ");
+	PrintToken(&(pParams->myToken), ' ', ' ', 1);
+	#endif
 	
 	if ( !match(pParams, T_DICT_BEGIN, "xobjcontentkeydict") )
 	{
@@ -9701,16 +9840,22 @@ int xobjcontentkeydict(Params *pParams)
 		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
+		wprintf(L"xobjcontentkeydict -> ");
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		#endif
 		
-		GetNextToken(pParams);			
-				
+		GetNextToken(pParams);	
+								
 		if ( !xobjcontentkeyvalue(pParams) )
 		{
 			return 0;
 		}		
 	}
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+	wprintf(L"xobjcontentkeydict -> ");	
+	PrintToken(&(pParams->myToken), ' ', ' ', 1);
+	#endif
 	
 	if ( !match(pParams, T_DICT_END, "xobjcontentkeydict") )
 	{
@@ -11206,11 +11351,14 @@ int xrefstream_objbody(Params *pParams)
 	
 	pParams->CurrentContent.Offset = pParams->nNumBytesReadFromCurrentStream;	
 	pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamOffset = pParams->CurrentContent.Offset;
+	/*
 	if ( pParams->CurrentContent.LengthFromPdf != pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength )
 	{
 		fwprintf(pParams->fpErrors, L"WARNING xrefstream_objbody: pParams->CurrentContent.LengthFromPdf = %lu differs from pParams->myObjsTable[%d]->Obj.StreamLength = %lu\n",  pParams->CurrentContent.LengthFromPdf, pParams->nCurrentParsingObj, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength);
-		pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
+		//PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
+		//pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
 	}
+	*/
 		
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)	
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12170,11 +12318,14 @@ int stmobjbody(Params *pParams)
 	pParams->CurrentContent.Offset = pParams->nNumBytesReadFromCurrentStream;	
 	pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamOffset = pParams->CurrentContent.Offset;
 	//pParams->CurrentContent.Offset = pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamOffset;
+	/*
 	if ( pParams->CurrentContent.LengthFromPdf != pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength )
 	{
 		fwprintf(pParams->fpErrors, L"WARNING stmobjbody(OBJ num = %lu, gen = %lu): pParams->CurrentContent.LengthFromPdf = %lu differs from pParams->myObjsTable[%d]->Obj.StreamLength = %lu\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->CurrentContent.LengthFromPdf, pParams->nCurrentParsingObj, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength);
-		pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
+		//PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
+		//pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength = pParams->CurrentContent.LengthFromPdf;
 	}
+	*/
 	//pParams->CurrentContent.LengthFromPdf = pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.StreamLength;
 	
 	
