@@ -142,6 +142,17 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 /*
 ------------------------------------------------------------------------------------------------------------------------------------
 
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Fatto Quotidiano - 18 settembre 2019.pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Corriere della Sera - 18 settembre 2019.pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Sole 24 Ore - 18 settembre 2019 .pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Sole 24 Ore Norme e Tributi Focus - 18 Settembre 2019.pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/La Stampa - 18 settembre 2019 .pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Giornale - 18 settembre 2019 .pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Libero - 18 settembre 2019 .pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Manifesto - 18 settembre 2019.pdf"
+
+
+
 ./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
  
 ./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1

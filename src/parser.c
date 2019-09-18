@@ -3171,8 +3171,10 @@ int ManageContent(Params *pParams, int nPageNumber)
 		offsetDecodedStream += DecodedStreamSize;
 	}
 	
-	pParams->myStreamsStack[pParams->nStreamsStackTop].DecodedStreamSize = DecodedStreamSize;
-	pParams->myStreamsStack[pParams->nStreamsStackTop].blockLen = DecodedStreamSize;
+	//pParams->myStreamsStack[pParams->nStreamsStackTop].DecodedStreamSize = DecodedStreamSize;
+	//pParams->myStreamsStack[pParams->nStreamsStackTop].blockLen = DecodedStreamSize;
+	pParams->myStreamsStack[pParams->nStreamsStackTop].DecodedStreamSize = offsetDecodedStream;
+	pParams->myStreamsStack[pParams->nStreamsStackTop].blockLen = offsetDecodedStream;
 	pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState = 1;
 	pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded = 1;
 	pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = 0;	
@@ -3185,7 +3187,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 	#endif	
 
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent)
-	wprintf(L"\n\nManageContent -> INIZIO STREAM DECODIFICATO DOPO myInflate:\n");
+	wprintf(L"\n\nManageContent -> INIZIO STREAM DECODIFICATO DOPO myInflate: pParams->nStreamsStackTop = %d; blockLen = %d\n", pParams->nStreamsStackTop, pParams->myStreamsStack[pParams->nStreamsStackTop].blockLen);
 	for ( k = 0; k < offsetDecodedStream; k++ )
 	{
 		if ( pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k] == '\0' )
@@ -3193,7 +3195,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 		else
 			wprintf(L"%c", pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream[k]);
 	}
-	wprintf(L"ManageContent -> FINE STREAM DECODIFICATO DOPO myInflate.\n\n");
+	wprintf(L"ManageContent -> FINE STREAM DECODIFICATO DOPO myInflate. pParams->nStreamsStackTop = %d; blockLen = %d\n", pParams->nStreamsStackTop, pParams->myStreamsStack[pParams->nStreamsStackTop].blockLen);
 	#endif
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR)
@@ -3214,8 +3216,8 @@ int ManageContent(Params *pParams, int nPageNumber)
 	
 	//retValue = 0;
 	//goto uscita;
-
-	ManageDecodedContent(pParams, nPageNumber);
+	
+	retValue = ManageDecodedContent(pParams, nPageNumber);
 			
 uscita:
 
