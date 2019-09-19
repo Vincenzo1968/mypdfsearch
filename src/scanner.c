@@ -1174,10 +1174,13 @@ ciclo2:
 			}
 				
 			c = szInput[index++];
-			if ( (c != '/' && c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
+			if ( (c != '/' && c != ' ' && c != '>' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
 			{	
 				//wprintf(L"Errore ReadTrailerBody 13: atteso spazio trovato '%c'\n", c);
 				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 13: atteso '/' o spazio, trovato '%c'\n", c);
+				wprintf(L"\n\nINPUT:\n");
+				wprintf(L"%s", szInput);
+				wprintf(L"\nFINE INPUT\n\n");
 				return 0;			
 			}
 						

@@ -141,6 +141,11 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 
 /*
 ------------------------------------------------------------------------------------------------------------------------------------
+ 
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190919/Corriere Salute - 19 settembre 2019.pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190919/Il Fatto Quotidiano - 19 settembre 2019.pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190919/La Gazzetta dello Sport - 19 settembre 2019.pdf"
+
 
 ./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Fatto Quotidiano - 18 settembre 2019.pdf"
 ./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Corriere della Sera - 18 settembre 2019.pdf"
