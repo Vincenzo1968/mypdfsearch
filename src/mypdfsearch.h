@@ -122,11 +122,8 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
  
  
  
-
 gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
 gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_PARSE_STREAMOBJ -DMYDEBUG_PRINT_ON_PARSE_STREAMXOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
-
-
 
 
 
@@ -139,32 +136,17 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 */
 
 
+
 /*
 ------------------------------------------------------------------------------------------------------------------------------------
  
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190919/Corriere Salute - 19 settembre 2019.pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190919/Il Fatto Quotidiano - 19 settembre 2019.pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190919/La Gazzetta dello Sport - 19 settembre 2019.pdf"
-
-
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Fatto Quotidiano - 18 settembre 2019.pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Corriere della Sera - 18 settembre 2019.pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Sole 24 Ore - 18 settembre 2019 .pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Sole 24 Ore Norme e Tributi Focus - 18 Settembre 2019.pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/La Stampa - 18 settembre 2019 .pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Giornale - 18 settembre 2019 .pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Libero - 18 settembre 2019 .pdf"
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/Archivi/Politica/PatPat/Quotidiani/A2019/Q20190918/Il Manifesto - 18 settembre 2019.pdf"
-
-
-
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
  
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
 
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/VerticalWriting.pdf" --frompage=2 --topage=2
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/VerticalWriting.pdf" --frompage=2 --topage=2
 
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
  
  
  
@@ -172,38 +154,25 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 
 
 
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan01.pdf" --frompage=5 --topage=5
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan04.pdf" --frompage=6 --topage=6
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan05.pdf" --frompage=5 --topage=5
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan06.pdf" --frompage=1 --topage=1
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan07.pdf" --frompage=21 --topage=21
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan08.pdf" --frompage=24 --topage=24
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan09.pdf" --frompage=1 --topage=1
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan11.pdf" --frompage=10 --topage=10
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan12.pdf" --frompage=1 --topage=1
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan13.pdf" --frompage=1 --topage=1
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
-./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan01.pdf" --frompage=5 --topage=5
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan04.pdf" --frompage=6 --topage=6
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan05.pdf" --frompage=5 --topage=5
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan06.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan07.pdf" --frompage=21 --topage=21
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan08.pdf" --frompage=24 --topage=24
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan09.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan11.pdf" --frompage=10 --topage=10
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan12.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan13.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1
 
 ------------------------------------------------------------------------------------------------------------------------------------
 */
 
 /*
-./mypdfsearch --outputfile=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/FileNew/mypdfsearchOutput.txt --path=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/File01
- 
-./mypdfsearch --outputfile=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/FileNew/mypdfsearchOutput.txt --path=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/FileProblematici
- 
-./mypdfsearch --words="Virginia campidoglio Orbán" --path=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/File01
- 
-./mypdfsearch --words="Virginia campidoglio Orbán" --path=../Files/File02
- 
-./mypdfsearch --words="Virginia campidoglio Orbán" --path=/home/vincenzo/progetti/Files/File02
-
-./mypdfsearch -w"Virginia campidoglio Orbán" --path=/home/vincenzo/Varie/FormatiFile/PDF/Codice/myPdfSearch/Files/FilesNew/File01
- 
-
-./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán branco"
+./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
 
 
 
@@ -216,17 +185,15 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
  
  
 
-./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán branco"
+./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
   
-./mypdfsearch --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni" --words="Virginia branco Milano"
+./mypdfsearch --path="../Files/gccFiles/Giornali/Manzoni" --words="Virginia branco Milano"
   
-./mypdfsearch --extracttextfrom="/home/vincenzo/Varie/GCC/Varie/Files/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
-
+./mypdfsearch --extracttextfrom="../Files/gccFiles/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
 
 
 
 ./mypdfsearch --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17
-
 
 
 

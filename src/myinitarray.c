@@ -42,7 +42,9 @@ int InitializeUnicodeArray(Params *pParams)
 	pParams->pArrayUnicode = (wchar_t*)malloc(0xFFFF * sizeof(wchar_t));
 	if ( NULL == pParams->pArrayUnicode )
 	{
-		fwprintf(pParams->fpErrors, L"ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->pArrayUnicode\n");
+		snprintf(pParams->szError, 4096, "ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->pArrayUnicode\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->pArrayUnicode\n");
 		return 0;
 	}
 	
@@ -50,7 +52,9 @@ int InitializeUnicodeArray(Params *pParams)
 	pParams->paCustomizedFont_CharSet = (wchar_t*)malloc(0xFFFF * sizeof(wchar_t));
 	if ( NULL == pParams->paCustomizedFont_CharSet )
 	{
-		fwprintf(pParams->fpErrors, L"ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->paCustomizedFont_CharSet\n");
+		snprintf(pParams->szError, 4096, "ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->paCustomizedFont_CharSet\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->paCustomizedFont_CharSet\n");
 		free(pParams->pArrayUnicode);
 		pParams->pArrayUnicode = NULL;
 		return 0;
@@ -16809,8 +16813,10 @@ int InitializeCharSetHashTable(Params *pParams)
 	
 	if ( !htInit(&(pParams->myCharSetHashTable), 8191, StringHashFunc, StringCompareFunc) )
 	{
-		wprintf(L"ERRORE InitializeCharSetHashTable -> htInit.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE InitializeCharSetHashTable -> htInit.\n");
+		snprintf(pParams->szError, 4096, "ERRORE InitializeCharSetHashTable -> htInit.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE InitializeCharSetHashTable -> htInit.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE InitializeCharSetHashTable -> htInit.\n");
 		return 0;
 	}	
 	

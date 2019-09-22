@@ -440,7 +440,9 @@ int myPrintLastBlock(Params *pParams)
 
 	if ( fseek(pParams->fp, 0, SEEK_END) )
 	{
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fseek 1\n");
+		snprintf(pParams->szError, 8192, "Errore ReadTrailer: fseek 1\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fseek 1\n");
 		return 0;
 	}
 
@@ -456,7 +458,9 @@ int myPrintLastBlock(Params *pParams)
 	{
 		if ( fseek(pParams->fp, -BLOCK_SIZE, SEEK_CUR) )
 		{
-			wprintf(L"Errore ReadTrailer: fseek 1\n");
+			snprintf(pParams->szError, 8192, "Errore ReadTrailer: fseek 1\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"Errore ReadTrailer: fseek 1\n");
 			return 0;
 		}
 	}
@@ -464,7 +468,9 @@ int myPrintLastBlock(Params *pParams)
 	{
 		if ( fseek(pParams->fp, 0, SEEK_SET) )
 		{
-			wprintf(L"Errore ReadTrailer: fseek 2\n");
+			snprintf(pParams->szError, 8192, "Errore ReadTrailer: fseek 2\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"Errore ReadTrailer: fseek 2\n");
 			return 0;
 		}		
 	}
@@ -547,16 +553,20 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 	fp = fopen(pszFileName, "rb");
 	if ( fp == NULL )
 	{
-		wprintf(L"ERROR getObjsOffsets: fopen failed for file '%s'.\n", pszFileName);
-		fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: fopen failed for file '%s'.\n\n", pszFileName);
+		snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: fopen failed for file '%s'.\n", pszFileName);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERROR getObjsOffsets: fopen failed for file '%s'.\n", pszFileName);
+		//fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: fopen failed for file '%s'.\n\n", pszFileName);
 		retValue = 0;
 		goto uscita;
 	}
 	
 	if ( !genhtInit(&myHT, GENHT_SIZE, GenStringHashFunc, GenStringCompareFunc) )
 	{
-		wprintf(L"ERROR getObjsOffsets: genhtInit failed.\n");
-		fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: genhtInit failed.\n\n");
+		snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: genhtInit failed for file '%s'.\n", pszFileName);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERROR getObjsOffsets: genhtInit failed.\n");
+		//fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: genhtInit failed.\n\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -764,8 +774,10 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 							
 								if ( genhtUpdateData(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
 								{
-									wprintf(L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", key, myHT_Data.Number, myHT_Data.Generation);
-									fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", key, myHT_Data.Number, myHT_Data.Generation);
+									snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: OBJECT(Number: %d, Generation: %d) genhtUpdateData failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", key, myHT_Data.Number, myHT_Data.Generation);
+									//fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", key, myHT_Data.Number, myHT_Data.Generation);
 									retValue = 0;
 									goto uscita;
 								}
@@ -793,8 +805,10 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 			
 							if ( genhtInsert(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
 							{
-								wprintf(L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtInsert failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
-								fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtInsert failed for key '%s'.\n\n", myHT_Data.Number, myHT_Data.Generation, key);
+								snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: OBJECT(Number: %d, Generation: %d) genhtInsert failed for key '%s'.\n\n", myHT_Data.Number, myHT_Data.Generation, key);
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//wprintf(L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtInsert failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+								//fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtInsert failed for key '%s'.\n\n", myHT_Data.Number, myHT_Data.Generation, key);
 								retValue = 0;
 								goto uscita;
 							}
@@ -908,40 +922,7 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 							
 							myHT_Data.StreamLength = (Offset - myHT_Data.StreamOffset) - 9;
 							bStreamState = 0;
-							
-							//if ( myHT_Data.Number == 1124 && strcmp(pszFileName, "../Files/FileProblematico3/manzoni_i_promessi_sposi.pdf") == 0 )
-							//{
-							//	uint32_t y;
-							//	FILE *fpTemp = NULL;
-							//	
-							//	fpTemp = fopen(pszFileName, "rb");
-							//	fseek(fpTemp, myHT_Data.StreamOffset, SEEK_CUR);
-							//	tempBytesRead = fread(myTempBlock, 1, BLOCK_SIZE, fpTemp);
-								
-							//	wprintf(L"\nECCO STREAM PRIMA: nTemp = %d; curPos = %lu; myHT_Data.StreamOffset = %lu myHT_Data.StreamLength = %lu\n", nTemp, curPos, myHT_Data.StreamOffset, myHT_Data.StreamLength);
-								
-							//	for ( y = 0; y < myHT_Data.StreamLength; y++ )
-							//	{
-							//		cTemp = myTempBlock[y];
-							//		if ( (cTemp >= 'a' && cTemp <= 'z') || (cTemp == '>') )
-							//		{
-							//			wprintf(L"%c", cTemp);
-							//		}
-							//		else
-							//		{
-							//			if ( cTemp <= 0xF )
-							//				wprintf(L"<0%X>", cTemp);
-							//			else
-							//				wprintf(L"<%2X>", cTemp);
-							//		}
-							//	}
-							//
-							//	wprintf(L"§FINE STREAM: y = %lu\n\n", y);
-							//
-							//	fclose(fpTemp);
-							//	fpTemp = NULL;
-							//}
-							
+														
 							nTemp = curPos - (9 + 2);
 							if ( nTemp >= 0 )
 							{								
@@ -977,46 +958,15 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 								else if ( '\n' == c2 )
 									myHT_Data.StreamLength--;									
 							}
-							
-							//if ( myHT_Data.Number == 1124 && strcmp(pszFileName, "../Files/FileProblematico3/manzoni_i_promessi_sposi.pdf") == 0 )
-							//{
-							//	uint32_t y;
-							//	FILE *fpTemp = NULL;
-							//	
-							//	fpTemp = fopen(pszFileName, "rb");
-							//	fseek(fpTemp, myHT_Data.StreamOffset, SEEK_CUR);
-							//	tempBytesRead = fread(myTempBlock, 1, BLOCK_SIZE, fpTemp);
-							//	
-							//	wprintf(L"\nECCO STREAM DOPO: nTemp = %d; curPos = %lu; myHT_Data.StreamOffset = %lu myHT_Data.StreamLength = %lu\n", nTemp, curPos, myHT_Data.StreamOffset, myHT_Data.StreamLength);
-							//	
-							//	for ( y = 0; y < myHT_Data.StreamLength; y++ )
-							//	{
-							//		cTemp = myTempBlock[y];
-							//		if ( (cTemp >= 'a' && cTemp <= 'z') || (cTemp == '>') )
-							//		{
-							//			wprintf(L"%c", cTemp);
-							//		}
-							//		else
-							//		{
-							//			if ( cTemp <= 0xF )
-							//				wprintf(L"<0%X>", cTemp);
-							//			else
-							//				wprintf(L"<%2X>", cTemp);
-							//		}
-							//	}
-							//	
-							//	wprintf(L"§FINE STREAM: y = %lu\n\n", y);
-							//	
-							//	fclose(fpTemp);
-							//	fpTemp = NULL;
-							//}
-							
+														
 							if ( bUpdateStreamOffset )
 							{
 								if ( genhtUpdateData(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
 								{
-									wprintf(L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
-									fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: OBJECT(Number: %d, Generation: %d) genhtUpdateData failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									//fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets: OBJECT(Number: %lu, Generation: %lu) genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
 									retValue = 0;
 									goto uscita;
 								}
@@ -1131,13 +1081,17 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 							{
 								if ( genhtUpdateData(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
 								{
-									wprintf(L"ERROR getObjsOffsets OBJECT(Number: %lu, Generation: %lu): genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
-									fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets OBJECT(Number: %lu, Generation: %lu): genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									snprintf(pParams->szError, 8192, "ERROR getObjsOffsets OBJECT(Number: %d, Generation: %d): genhtUpdateData failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"ERROR getObjsOffsets OBJECT(Number: %lu, Generation: %lu): genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									//fwprintf(pParams->fpErrors, L"ERROR getObjsOffsets OBJECT(Number: %lu, Generation: %lu): genhtUpdateData failed for key '%d'.\n", myHT_Data.Number, myHT_Data.Generation, key);
 									retValue = 0;
 									goto uscita;
 								}
 								
-								fwprintf(pParams->fpErrors, L"\nWARNING OBJECT(Number: %lu, Generation: %lu): STREAM NOT CLOSED BY 'endstream', but 'endobj' keyword.\n", myHT_Data.Number, myHT_Data.Generation);
+								snprintf(pParams->szError, 8192, "\nWARNING OBJECT(Number: %d, Generation: %d): STREAM NOT CLOSED BY 'endstream', but 'endobj' keyword.\n", myHT_Data.Number, myHT_Data.Generation);
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//fwprintf(pParams->fpErrors, L"\nWARNING OBJECT(Number: %lu, Generation: %lu): STREAM NOT CLOSED BY 'endstream', but 'endobj' keyword.\n", myHT_Data.Number, myHT_Data.Generation);
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN) || defined(MYDEBUG_PRINT_ON_getObjsOffsets2_FN)
 								wprintf(L"\nWARNING OBJECT(Number: %lu, Generation: %lu): STREAM NOT CLOSED BY 'endstream', but 'endobj' keyword.\n", myHT_Data.Number, myHT_Data.Generation);
@@ -1170,8 +1124,10 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 	pParams->myObjsTable = (PdfObjsTableItem **)malloc(sizeof(PdfObjsTableItem*) * pParams->nObjsTableSizeFromPrescanFile);
 	if ( !(pParams->myObjsTable) )
 	{
-		wprintf(L"ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
-		fwprintf(pParams->fpErrors,L"ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
+		snprintf(pParams->szError, 8192, "ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -1185,8 +1141,10 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 		pParams->myObjsTable[k] = (PdfObjsTableItem *)malloc(sizeof(PdfObjsTableItem));
 		if ( !(pParams->myObjsTable) )
 		{
-			wprintf(L"ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
-			fwprintf(pParams->fpErrors, L"ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
+			snprintf(pParams->szError, 8192, "ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
+			//fwprintf(pParams->fpErrors, L"ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
 			retValue = 0;
 			goto uscita;
 		}
@@ -1267,15 +1225,16 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	FilesList* n;
 	uint32_t x;
 	int len;
-	
-	int lung;
-		
+	//int lung;
+			
 	int retReadTrailer;
 	
 	pParams->pReadNextChar = ReadNextChar;
 	
 	pParams->nCurrentParsingLengthObj = 0;
 	pParams->nCurrentParsingObj = 0;
+	
+	pParams->fpErrors = NULL;
 				
 	pParams->myBlock = NULL;
 	pParams->fp = NULL;
@@ -1353,8 +1312,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	
 	if ( !InitCMapHT(pParams) )
 	{
-		wprintf(L"ERROR Parse: InitCMapHT FAILED\n");
-		fwprintf(pParams->fpErrors, L"ERROR Parse: InitCMapHT FAILED\n");
+		snprintf(pParams->szError, 8192, "ERROR Parse: InitCMapHT FAILED\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERROR Parse: InitCMapHT FAILED\n");
+		//fwprintf(pParams->fpErrors, L"ERROR Parse: InitCMapHT FAILED\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -1367,8 +1328,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	pParams->lexeme = (char *)malloc( sizeof(char) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(char) );
 	if ( !(pParams->lexeme) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 1: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE Parse 1: Memoria insufficiente.\n\n");
-		fwprintf(pParams->fpErrors, L"ERRORE Parse 1: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 1: Memoria insufficiente.\n\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -1379,8 +1342,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	pParams->lexemeTemp = (char *)malloc( sizeof(char) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(char) );
 	if ( !(pParams->lexemeTemp) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 1 bis: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE Parse 1: Memoria insufficiente.\n\n");
-		fwprintf(pParams->fpErrors, L"ERRORE Parse 1 bis: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 1 bis: Memoria insufficiente.\n\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -1390,8 +1355,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	pParams->pUtf8String = (wchar_t*)malloc( sizeof(wchar_t) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t) );
 	if ( !(pParams->pUtf8String) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 2: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE Parse 2: Memoria insufficiente.\n\n");
-		fwprintf(pParams->fpErrors, L"ERRORE Parse 2: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 2: Memoria insufficiente.\n\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -1401,8 +1368,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	pParams->myBlock = (unsigned char *)malloc(sizeof(unsigned char) * BLOCK_SIZE);
 	if ( !(pParams->myBlock) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 3: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE Parse 3: Memoria insufficiente.\n\n");
-		fwprintf(pParams->fpErrors, L"ERRORE Parse 3: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 3: Memoria insufficiente.\n\n");
 		retValue = 0;
 		goto uscita;
 	}	
@@ -1410,8 +1379,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	pParams->myBlockLengthObj = (unsigned char *)malloc(sizeof(unsigned char) * BLOCK_SIZE);
 	if ( !(pParams->myBlockLengthObj) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 4: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE Parse 4: Memoria insufficiente.\n\n");
-		fwprintf(pParams->fpErrors, L"ERRORE Parse 4: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 4: Memoria insufficiente.\n\n");
 		retValue = 0;
 		goto uscita;
 	}	
@@ -1451,33 +1422,15 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		pParams->fp = fopen(pParams->szFileName, "rb");
 		if ( pParams->fp == NULL )
 		{
-			wprintf(L"ERRORE Parse 5: nell'apertura del file '%s'.\n", pParams->szFileName);
-			fwprintf(pParams->fpErrors, L"ERRORE Parse 5: nell'apertura del file '%s'.\n\n", pParams->szFileName);
-			
-			lung = strnlen(pParams->szFileName, MAX_LEN_STR);
-			wprintf(L"FILE SCHIFOSO = <");
-			for ( int idx = 0; idx < lung; idx++ )
-			{
-				wprintf(L"%c", pParams->szFileName[idx]);
-			}
-			wprintf(L">\n\n");
-							
+			snprintf(pParams->szError, 8192, "ERRORE Parse 5: nell'apertura del file '%s'.\n\n", pParams->szFileName);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE Parse 5: nell'apertura del file '%s'.\n", pParams->szFileName);
+			//fwprintf(pParams->fpErrors, L"ERRORE Parse 5: nell'apertura del file '%s'.\n\n", pParams->szFileName);
+										
 			retValue = 0;
 			goto successivo;
 		}
-		
-		#if !defined(_WIN64) && !defined(_WIN32)
-		fwprintf(pParams->fpErrors, L"\nFile: '%s'\n", pParams->szFileName);
-		#else
-		lung = strnlen(pParams->szFileName, MAX_LEN_STR);
-		fwprintf(pParams->fpErrors, L"\nFILE = <");
-		for ( int idx = 0; idx < lung; idx++ )
-		{
-			fwprintf(pParams->fpErrors, L"%c", pParams->szFileName[idx]);
-		}
-		fwprintf(pParams->fpErrors, L">\n");
-		#endif
-						
+								
 		if ( pParams->szOutputFile[0] != '\0' )
 		{
 			#if !defined(_WIN64) && !defined(_WIN32)
@@ -1512,8 +1465,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		
 		if ( !ReadHeader(pParams) )
 		{
+			snprintf(pParams->szError, 8192, "ERRORE Parse 5 tris nella lettura del file header '%s'.\n\n", pParams->szFileName);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE Parse 5 tris nella lettura del file header '%s'.\n\n", pParams->szFileName);
-			fwprintf(pParams->fpErrors, L"ERRORE Parse 5 tris nella lettura del file header '%s'.\n\n", pParams->szFileName);
+			//fwprintf(pParams->fpErrors, L"ERRORE Parse 5 tris nella lettura del file header '%s'.\n\n", pParams->szFileName);
 			retValue = 0;
 			goto successivo;
 		}
@@ -1552,13 +1507,17 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		{
 			if ( pParams->isEncrypted )
 			{
+				snprintf(pParams->szError, 8192, "Encrypted file '%s'.\n", pParams->szFileName);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Encrypted file '%s'.\n", pParams->szFileName);
-				fwprintf(pParams->fpErrors, L"Encrypted file '%s'.\n", pParams->szFileName);
+				//fwprintf(pParams->fpErrors, L"Encrypted file '%s'.\n", pParams->szFileName);
 			}
 			else
 			{
+				snprintf(pParams->szError, 8192, "ERRORE Parse 6 nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ERRORE Parse 6 nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
-				fwprintf(pParams->fpErrors, L"ERRORE Parse 6 nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+				//fwprintf(pParams->fpErrors, L"ERRORE Parse 6 nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
 			}
 			retValue = 0;
 			mynumstacklist_Free( &(pParams->myNumStack) );			
@@ -1576,8 +1535,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 				{
 					if ( !CheckObjectType(pParams, k) )
 					{
-						wprintf(L"ERRORE Parse 6 (CheckObjectType) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
-						fwprintf(pParams->fpErrors, L"ERRORE Parse 6(CheckObjectType) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+						snprintf(pParams->szError, 8192, "ERRORE Parse 6(CheckObjectType) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+						myShowErrorMessage(pParams, pParams->szError, 1);
+						//wprintf(L"ERRORE Parse 6 (CheckObjectType) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+						//fwprintf(pParams->fpErrors, L"ERRORE Parse 6(CheckObjectType) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
 						PrintThisObject(pParams, k, 0, 0, NULL);
 						PrintThisObject(pParams, k, 0, 0, pParams->fpErrors);
 						retValue = 0;
@@ -1599,8 +1560,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			{
 				if ( !ParseStmObj(pParams, myObjNum) )
 				{
-					wprintf(L"ERRORE Parse 6 (ParseStmObj) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
-					fwprintf(pParams->fpErrors, L"ERRORE Parse 6(ParseStmObj) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+					snprintf(pParams->szError, 8192, "ERRORE Parse 6(ParseStmObj) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+					myShowErrorMessage(pParams, pParams->szError, 1);
+					//wprintf(L"ERRORE Parse 6 (ParseStmObj) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+					//fwprintf(pParams->fpErrors, L"ERRORE Parse 6(ParseStmObj) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
 					PrintThisObject(pParams, myObjNum, 0, 0, NULL);
 					PrintThisObject(pParams, myObjNum, 0, 0, pParams->fpErrors);
 					myintqueuelist_Free(&myObjsQueue);
@@ -1628,8 +1591,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			
 			if ( !ParseTrailerXRefStreamObject(pParams) )
 			{
-				wprintf(L"ERRORE Parse 6 (ParseTrailerXRefStreamObject) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
-				fwprintf(pParams->fpErrors, L"ERRORE Parse 6(ParseTrailerXRefStreamObject) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+				snprintf(pParams->szError, 8192, "ERRORE Parse 6(ParseTrailerXRefStreamObject) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				//wprintf(L"ERRORE Parse 6 (ParseTrailerXRefStreamObject) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
+				//fwprintf(pParams->fpErrors, L"ERRORE Parse 6(ParseTrailerXRefStreamObject) nella lettura del trailer del file '%s'.\n\n", pParams->szFileName);
 				retValue = 0;
 				goto successivo;
 			}
@@ -1885,6 +1850,7 @@ uscita:
 int match(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunctionName)
 {
 	int retValue = 1;
+	char szError[1024];
 	
 	if ( pParams->myToken.Type == ExpectedToken )
 	{
@@ -1896,12 +1862,16 @@ int match(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunctionName)
 		
 		if ( NULL != pszFunctionName )
 		{
-			fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
+			snprintf(szError, 1024, "\nERROR(OBJ num = %d, gen = %d): FUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
+			myShowErrorMessage(pParams, szError, 1);
+			//fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
 			//wprintf(L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
 		}
 		else
 		{
-			fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);
+			snprintf(szError, 1024, "\nERROR(OBJ num = %d, gen = %d): FUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);
+			myShowErrorMessage(pParams, szError, 1);
+			//fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);
 			//wprintf(L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);			
 		}
 		
@@ -2013,12 +1983,16 @@ int matchLengthObj(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFuncti
 		
 		if ( NULL != pszFunctionName )
 		{
-			fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE matchLengthObj(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
+			snprintf(pParams->szError, 8192, "\nERROR(OBJ num = %d, gen = %d): FUNZIONE matchLengthObj(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE matchLengthObj(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
 			//wprintf(L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE matchLengthObj(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, pszFunctionName, ExpectedToken, pParams->myToken.Type);
 		}
 		else
 		{
-			fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE matchLengthObj -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);
+			snprintf(pParams->szError, 8192, "\nERROR(OBJ num = %d, gen = %d): FUNZIONE matchLengthObj -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE matchLengthObj -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);
 			//wprintf(L"\nERROR(OBJ num = %lu, gen = %lu): FUNZIONE matchLengthObj -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingLengthObj]->Obj.Generation, ExpectedToken, pParams->myToken.Type);			
 		}
 	}	
@@ -2335,8 +2309,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	pszString = (unsigned char *)malloc(MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(unsigned char));
 	if ( NULL == pszString )
 	{
-		wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -2344,8 +2320,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	pParams->pwszCurrentWord = (wchar_t*)malloc(MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t));
 	if ( NULL == pParams->pwszCurrentWord )
 	{
-		wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pwszCurrentWord.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pwszCurrentWord.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
 		retValue = 0;
 		goto uscita;
 	}	
@@ -2353,8 +2331,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	pParams->pwszPreviousWord = (wchar_t*)malloc(MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t));
 	if ( NULL == pParams->pwszPreviousWord )
 	{
-		wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pwszPreviousWord.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pwszPreviousWord.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
 		retValue = 0;
 		goto uscita;
 	}	
@@ -2382,8 +2362,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			pParams->myBlock = (unsigned char *)malloc(sizeof(unsigned char) * nBlockSize);
 			if ( !(pParams->myBlock) )
 			{
-				wprintf(L"ERRORE ManageDecodedContent: Memoria insufficiente.\n\n");
-				fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: Memoria insufficiente.\n\n");
+				snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: Memoria insufficiente.\n\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				//wprintf(L"ERRORE ManageDecodedContent: Memoria insufficiente.\n\n");
+				//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: Memoria insufficiente.\n\n");
 				retValue = 0;
 				goto uscita;
 			}
@@ -2793,7 +2775,9 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							bContentAlreadyProcessed = 1;
 							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 1) )
 							{
-								wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+								snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
 								retValue = 0;
 								goto uscita;
 							}
@@ -2811,13 +2795,22 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 										
 							if ( !ParseStreamXObject(pParams, nTemp) )
 							{
+								snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseStreamXObject.\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
 								//wprintf(L"ERRORE ManageDecodedContent ParseStreamXObject.\n");
-								fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseStreamXObject.\n");
+								//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseStreamXObject.\n");
+								
+								snprintf(pParams->szError, 8192, "\n***** ECCO LO SCHIFO:\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
 								//wprintf(L"\n***** ECCO LO SCHIFO:\n");
-								fwprintf(pParams->fpErrors, L"\n***** ECCO LO SCHIFO:\n");
+								//fwprintf(pParams->fpErrors, L"\n***** ECCO LO SCHIFO:\n");
 								PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
+								
+								snprintf(pParams->szError, 8192, "\n***** FINE DELLO SCHIFO:\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
 								//wprintf(L"\n***** FINE DELLO SCHIFO\n"); 
-								fwprintf(pParams->fpErrors, L"\n***** FINE DELLO SCHIFO\n"); 
+								//fwprintf(pParams->fpErrors, L"\n***** FINE DELLO SCHIFO\n"); 
+								
 								retValue = 0;
 								goto uscita;
 							}							
@@ -2856,8 +2849,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				}
 				else
 				{
+					snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
-					fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
+					//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
 					retValue = 0;
 					goto uscita;
 				}
@@ -2889,7 +2884,9 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							bContentAlreadyProcessed = 1;
 							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
 							{
-								wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+								snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
 								retValue = 0;
 								goto uscita;
 							}
@@ -2903,12 +2900,19 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 																	
 							if ( !ParseFontObject(pParams, nTemp) )
 							{
-								fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
-								fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
+								snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseFontObject.\n"); 
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
+								
+								snprintf(pParams->szError, 8192, "\n***** ECCO L'OGGETTO ERRATO:\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
 								
 								PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
 								
-								fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
+								snprintf(pParams->szError, 8192, "\n***** FINE OGGETTO ERRATO:\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
 								retValue = 0;
 								goto uscita;
 							}
@@ -2929,8 +2933,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				}
 				else
 				{
+					snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
-					fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
+					//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: trovato comando 'Do' ma non e' preceduto dal nome della Resource!\n");
 					retValue = 0;
 					goto uscita;
 				}
@@ -3093,8 +3099,10 @@ int ManageContent(Params *pParams, int nPageNumber)
 	pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream = (unsigned char *)malloc( DecodedStreamSize );
 	if ( NULL == pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream )
 	{
-		wprintf(L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
-		fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
+		snprintf(pParams->szError, 8192, "ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
+		//fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile allocare la memoria per pszDecodedStream sullo stack %d.\n", pParams->nStreamsStackTop);
 		pParams->nStreamsStackTop--;
 		retValue = 0;
 		goto uscita;		
@@ -3150,9 +3158,10 @@ int ManageContent(Params *pParams, int nPageNumber)
 			pszDecodedStreamNew = (unsigned char*)realloc(pParams->myStreamsStack[pParams->nStreamsStackTop].pszDecodedStream, bytesAllocatedForDecodedStreamOnStack);
 			if ( NULL == pszDecodedStreamNew )
 			{
-				wprintf(L"ERRORE ManageContent: impossibile reallocare %lu byte per leggere lo stream\n", bytesAllocatedForDecodedStreamOnStack);
-								      
-				fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile reallocare %lu byte per leggere lo stream\n", bytesAllocatedForDecodedStreamOnStack);
+				snprintf(pParams->szError, 8192, "ERRORE ManageContent: impossibile reallocare %lu byte per leggere lo stream\n", bytesAllocatedForDecodedStreamOnStack);
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				//wprintf(L"ERRORE ManageContent: impossibile reallocare %lu byte per leggere lo stream\n", bytesAllocatedForDecodedStreamOnStack);				      
+				//fwprintf(pParams->fpErrors, L"ERRORE ManageContent: impossibile reallocare %lu byte per leggere lo stream\n", bytesAllocatedForDecodedStreamOnStack);
 						      								      
 				retValue = 0;
 				goto uscita;
@@ -3213,10 +3222,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 	wprintf(L"FINE STREAM(Pag. %d)     *********************.\n", nPageNumber);
 	#endif	
-	
-	//retValue = 0;
-	//goto uscita;
-	
+		
 	retValue = ManageDecodedContent(pParams, nPageNumber);
 			
 uscita:
@@ -3266,8 +3272,10 @@ int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName)
 		
 		if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Obj.Offset - 1, SEEK_SET) )
 		{
-			wprintf(L"Errore LoadFirstBlock(%s) fseek\n", pszFunctionName);
-			fwprintf(pParams->fpErrors, L"Errore LoadFirstBlock(%s) fseek\n", pszFunctionName);
+			snprintf(pParams->szError, 8192, "Errore LoadFirstBlock(%s) fseek\n", pszFunctionName);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"Errore LoadFirstBlock(%s) fseek\n", pszFunctionName);
+			//fwprintf(pParams->fpErrors, L"Errore LoadFirstBlock(%s) fseek\n", pszFunctionName);
 			retValue = 0;
 			goto uscita;
 		}		
@@ -3276,8 +3284,10 @@ int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName)
 	
 		if ( pParams->blockLen < 3 )
 		{
+			snprintf(pParams->szError, 8192, "Errore LoadFirstBlock(%s): Offset oggetto n. %d errato -> %d\n", pszFunctionName, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore LoadFirstBlock(%s): Offset oggetto n. %d errato -> %d\n", pszFunctionName, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
-			fwprintf(pParams->fpErrors, L"Errore LoadFirstBlock(%s): Offset oggetto n. %d errato -> %d\n", pszFunctionName, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+			//fwprintf(pParams->fpErrors, L"Errore LoadFirstBlock(%s): Offset oggetto n. %d errato -> %d\n", pszFunctionName, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
 			retValue = 0;
 			goto uscita;
 		}
@@ -3287,8 +3297,10 @@ int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName)
 		c = pParams->myBlock[pParams->blockCurPos++];
 		if ( (c != '\n' && c != '\r' && c != ' ' && c != '\t' && c != '\f' && c != '\b' && c != '\0') )
 		{
+			snprintf(pParams->szError, 8192, "Errore LoadFirstBlock(%s): oggetto n. %d; atteso spazio, trovato '%c'\n", pszFunctionName, objNum, c);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore LoadFirstBlock(%s): oggetto n. %d; atteso spazio, trovato '%c'\n", pszFunctionName, objNum, c);
-			fwprintf(pParams->fpErrors, L"Errore LoadFirstBlock(%s): oggetto n. %d; atteso spazio, trovato '%c'\n", pszFunctionName, objNum, c);
+			//fwprintf(pParams->fpErrors, L"Errore LoadFirstBlock(%s): oggetto n. %d; atteso spazio, trovato '%c'\n", pszFunctionName, objNum, c);
 			retValue = 0;
 			goto uscita;		
 		}
@@ -3322,8 +3334,10 @@ int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName)
 			pParams->myBlock = (unsigned char *)malloc(sizeof(unsigned char) * nBlockSize);
 			if ( !(pParams->myBlock) )
 			{
-				wprintf(L"ERROR LoadFirstBlock(%s): malloc failed for pParams->myBlock.\n\n", pszFunctionName);
-				fwprintf(pParams->fpErrors, L"ERRORE LoadFirstBlock(%s): malloc failed for pParams->myBlock.\n\n", pszFunctionName);
+				snprintf(pParams->szError, 8192, "ERRORE LoadFirstBlock(%s): malloc failed for pParams->myBlock.\n\n", pszFunctionName);
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				//wprintf(L"ERROR LoadFirstBlock(%s): malloc failed for pParams->myBlock.\n\n", pszFunctionName);
+				//fwprintf(pParams->fpErrors, L"ERRORE LoadFirstBlock(%s): malloc failed for pParams->myBlock.\n\n", pszFunctionName);
 				retValue = 0;
 				goto uscita;
 			}
@@ -3362,8 +3376,10 @@ int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName)
 	{
 		pParams->pReadNextChar = ReadNextChar;
 		
+		snprintf(pParams->szError, 8192, "ERRORE LoadFirstBlock(%s): INVALID OBJ TYPE.\n\n", pszFunctionName);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERROR LoadFirstBlock(%s): INVALID OBJ TYPE.\n\n", pszFunctionName);
-		fwprintf(pParams->fpErrors, L"ERRORE LoadFirstBlock(%s): INVALID OBJ TYPE.\n\n", pszFunctionName);
+		//fwprintf(pParams->fpErrors, L"ERRORE LoadFirstBlock(%s): INVALID OBJ TYPE.\n\n", pszFunctionName);
 		retValue = 0;
 		goto uscita;
 	}
@@ -3396,8 +3412,10 @@ int ParseObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -3452,8 +3470,10 @@ int ParseObject(Params *pParams, int objNum)
 	
 	if ( !ParseNextObject(pParams, pParams->ObjPageTreeRoot.Number) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE!!! ParseNextObject\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE!!! ParseNextObject\n");
-		fwprintf(pParams->fpErrors, L"ERRORE!!! ParseNextObject\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE!!! ParseNextObject\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -3479,8 +3499,10 @@ int ParseObject(Params *pParams, int objNum)
 	{
 		if ( !ParseDictionaryObject(pParams, pParams->nCurrentPageResources) )
 		{
-			wprintf(L"ERRORE ParseObject ROOT -> ParseDictionaryObject\n");
-			fwprintf(pParams->fpErrors, L"ERRORE ParseObject ROOT -> ParseDictionaryObject\n");
+			snprintf(pParams->szError, 8192, "ERRORE ParseObject ROOT -> ParseDictionaryObject\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE ParseObject ROOT -> ParseDictionaryObject\n");
+			//fwprintf(pParams->fpErrors, L"ERRORE ParseObject ROOT -> ParseDictionaryObject\n");
 		}		
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)		
@@ -3535,7 +3557,9 @@ int ParseObject(Params *pParams, int objNum)
 		pParams->pPagesArray = (Page*)malloc(sizeof(Page) * (pParams->nCountPagesFromPdf + 1));
 		if ( NULL == pParams->pPagesArray )
 		{
-			wprintf(L"ERRORE!!! ParseObject. Impossibile allocare la memoria per l'array delle pagine per %d pagine\n", pParams->nCountPagesFromPdf);
+			snprintf(pParams->szError, 8192, "ERRORE!!! ParseObject. Impossibile allocare la memoria per l'array delle pagine per %d pagine\n", pParams->nCountPagesFromPdf);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE!!! ParseObject. Impossibile allocare la memoria per l'array delle pagine per %d pagine\n", pParams->nCountPagesFromPdf);
 			retValue = 0;
 			goto uscita;			
 		}
@@ -3570,8 +3594,10 @@ int ParseObject(Params *pParams, int objNum)
 			pParams->eCurrentObjType = OBJ_TYPE_GENERIC;
 			if ( !ParseNextObject(pParams, nInt) )
 			{
+				snprintf(pParams->szError, 8192, "ERRORE!!! ParseNextObject 2\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ERRORE!!! ParseNextObject 2\n");
-				fwprintf(pParams->fpErrors, L"ERRORE!!! ParseNextObject 2\n");
+				//fwprintf(pParams->fpErrors, L"ERRORE!!! ParseNextObject 2\n");
 				retValue = 0;
 				goto uscita;
 			}
@@ -3659,10 +3685,10 @@ int ParseObject(Params *pParams, int objNum)
 			{
 				if ( !ParseDictionaryObject(pParams, pParams->nCurrentPageResources) )
 				{
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
+					snprintf(pParams->szError, 8192, "ERRORE ParseObject -> ParseDictionaryObject\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ERRORE ParseObject -> ParseDictionaryObject\n");
-					fwprintf(pParams->fpErrors, L"ERRORE ParseObject -> ParseDictionaryObject\n");
-					#endif
+					//fwprintf(pParams->fpErrors, L"ERRORE ParseObject -> ParseDictionaryObject\n");
 				}		
 		
 				if ( OBJ_TYPE_PAGE == pParams->eCurrentObjType )
@@ -3810,16 +3836,22 @@ int ParseObject(Params *pParams, int objNum)
 		{
 			if ( !ParseStreamObject(pParams, pParams->pPagesArray[nInt].numObjContent) )
 			{
+				snprintf(pParams->szError, 8192, "ERRORE ParseStreamObject streamobj number %d\n", pParams->pPagesArray[nInt].numObjContent);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ERRORE ParseStreamObject streamobj number %d\n", pParams->pPagesArray[nInt].numObjContent);
-				fwprintf(pParams->fpErrors, L"ERRORE ParseStreamObject streamobj number %d\n", pParams->pPagesArray[nInt].numObjContent);
+				//fwprintf(pParams->fpErrors, L"ERRORE ParseStreamObject streamobj number %d\n", pParams->pPagesArray[nInt].numObjContent);
 				
+				snprintf(pParams->szError, 8192, "ECCO L'OGGETTO X:\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ECCO L'OGGETTO X:\n");
-				fwprintf(pParams->fpErrors, L"ECCO L'OGGETTO X:\n");
+				//fwprintf(pParams->fpErrors, L"ECCO L'OGGETTO X:\n");
 				
 				PrintThisObject(pParams, pParams->pPagesArray[nInt].numObjContent, 0, 0, pParams->fpErrors);
 				
+				snprintf(pParams->szError, 8192, "FINE OGGETTO X:\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"FINE OGGETTO X:\n");
-				fwprintf(pParams->fpErrors, L"FINE OGGETTO X:\n");
+				//fwprintf(pParams->fpErrors, L"FINE OGGETTO X:\n");
 				
 				retValue = 0;
 				goto uscita;
@@ -3831,16 +3863,22 @@ int ParseObject(Params *pParams, int objNum)
 			{				
 				if ( !ParseStreamObject(pParams, numObjQueueContent) )
 				{
+					snprintf(pParams->szError, 8192, "ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
-					fwprintf(pParams->fpErrors, L"ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
+					//fwprintf(pParams->fpErrors, L"ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
 					
+					snprintf(pParams->szError, 8192, "ECCO L'OGGETTO Y:\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ECCO L'OGGETTO Y:\n");
-					fwprintf(pParams->fpErrors, L"ECCO L'OGGETTO Y:\n");
+					//fwprintf(pParams->fpErrors, L"ECCO L'OGGETTO Y:\n");
 					
 					PrintThisObject(pParams, numObjQueueContent, 0, 0, pParams->fpErrors);
 					
+					snprintf(pParams->szError, 8192, "FINE OGGETTO Y:\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"FINE OGGETTO Y:\n");
-					fwprintf(pParams->fpErrors, L"FINE OGGETTO Y:\n");
+					//fwprintf(pParams->fpErrors, L"FINE OGGETTO Y:\n");
 									
 					retValue = 0;
 					goto uscita;
@@ -4001,9 +4039,15 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 	{
 		retValue = 0;
 		if ( NULL == fpOutput )
+		{
 			wprintf(L"Errore PrintThisObject: objNum non valido -> %d; \n", objNum);
+		}
 		else
-			fwprintf(fpOutput, L"Errore PrintThisObject: objNum non valido -> %d\n", objNum);
+		{
+			snprintf(pParams->szError, 8192, "Errore PrintThisObject: objNum non valido -> %d\n", objNum);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(fpOutput, L"Errore PrintThisObject: objNum non valido -> %d\n", objNum);
+		}
 		goto uscita;
 	}
 	
@@ -4106,8 +4150,10 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 		{
 			if ( fseek(pParams->fp, uStreamOffset + uStreamLength, SEEK_SET) != 0 )
 			{
-				wprintf(L"ERRORE PrintThisObject: fseek\n");
-				fwprintf(pParams->fpErrors, L"ERRORE PrintThisObject: fseek\n");
+				snprintf(pParams->szError, 8192, "ERRORE PrintThisObject: fseek\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				//wprintf(L"ERRORE PrintThisObject: fseek\n");
+				//fwprintf(pParams->fpErrors, L"ERRORE PrintThisObject: fseek\n");
 				retValue = 0;
 				goto uscita;		
 			}
@@ -4171,8 +4217,10 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 		
 		if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Obj.Offset, SEEK_SET) != 0 )
 		{
-			wprintf(L"ERRORE PrintThisObject: fseek\n");
-			fwprintf(pParams->fpErrors, L"ERRORE PrintThisObject: fseek\n");
+			snprintf(pParams->szError, 8192, "ERRORE PrintThisObject: fseek\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE PrintThisObject: fseek\n");
+			//fwprintf(pParams->fpErrors, L"ERRORE PrintThisObject: fseek\n");
 			retValue = 0;
 			goto uscita;		
 		}
@@ -4198,7 +4246,9 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 					pParams->myToken.Value.vString = NULL;
 				}
 			}
-			wprintf(L"\n\nERRORE PrintThisObject -> contentobj: objNum = %d; pParams->myObjsTable[%d]->Obj.Offset = %lu\n\n", objNum, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+			snprintf(pParams->szError, 8192, "\n\nERRORE PrintThisObject -> contentobj: objNum = %d; pParams->myObjsTable[%d]->Obj.Offset = %d\n\n", objNum, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"\n\nERRORE PrintThisObject -> contentobj: objNum = %d; pParams->myObjsTable[%d]->Obj.Offset = %lu\n\n", objNum, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
 			retValue = 0;
 			goto uscita;
 		}
@@ -4211,10 +4261,12 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 		pszDecodedStream = getDecodedStream(pParams, &DecodedStreamSize, NULL);
 		if ( NULL == pszDecodedStream )
 		{
-				//wprintf(L"ERRORE PrintThisObject: getDecodedStream\n");
-				fwprintf(pParams->fpErrors, L"ERRORE PrintThisObject: getDecodedStream\n");
-				retValue = 0;
-				goto uscita;
+			snprintf(pParams->szError, 8192, "ERRORE PrintThisObject: getDecodedStream\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE PrintThisObject: getDecodedStream\n");
+			//fwprintf(pParams->fpErrors, L"ERRORE PrintThisObject: getDecodedStream\n");
+			retValue = 0;
+			goto uscita;
 		}
 
 			
@@ -4292,8 +4344,10 @@ int ParseNextObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseNextObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseNextObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseNextObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseNextObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -4373,8 +4427,10 @@ unsigned char * getDecodedStream(Params *pParams, unsigned long int *pDecodedStr
 		
 	if ( 0 == pContent->Offset )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE getDecodedStream: pContent->Offset = 0\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE getDecodedStream: pContent->Offset = 0\n");
-		fwprintf(pParams->fpErrors, L"ERRORE getDecodedStream: pContent->Offset = 0\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE getDecodedStream: pContent->Offset = 0\n");
 		goto uscita;
 	}
 	
@@ -4383,8 +4439,10 @@ unsigned char * getDecodedStream(Params *pParams, unsigned long int *pDecodedStr
 	pszEncodedStream = (unsigned char*)malloc(EncodedStreamSize);
 	if ( NULL == pszEncodedStream )
 	{
-		wprintf(L"ERRORE getDecodedStream: impossibile allocare %lu byte per leggere lo stream\n", EncodedStreamSize);
-		fwprintf(pParams->fpErrors, L"ERRORE getDecodedStream: impossibile allocare %lu byte per leggere lo stream\n", EncodedStreamSize);
+		snprintf(pParams->szError, 8192, "ERRORE getDecodedStream: impossibile allocare %lu byte per leggere lo stream\n", EncodedStreamSize);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE getDecodedStream: impossibile allocare %lu byte per leggere lo stream\n", EncodedStreamSize);
+		//fwprintf(pParams->fpErrors, L"ERRORE getDecodedStream: impossibile allocare %lu byte per leggere lo stream\n", EncodedStreamSize);
 		goto uscita;
 	}
 
@@ -4393,16 +4451,20 @@ unsigned char * getDecodedStream(Params *pParams, unsigned long int *pDecodedStr
 	bytesRead = fread(pszEncodedStream, 1, pContent->LengthFromPdf, pParams->fp);
 	if ( bytesRead < pContent->LengthFromPdf )
 	{
+		snprintf(pParams->szError, 8192, "\nERRORE getDecodedStream: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pContent->LengthFromPdf);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"\nERRORE getDecodedStream: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pContent->LengthFromPdf);
-		fwprintf(pParams->fpErrors, L"\nERRORE getDecodedStream: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pContent->LengthFromPdf);
+		//fwprintf(pParams->fpErrors, L"\nERRORE getDecodedStream: fread ha letto %lu byte quando il pdf ne specifica, invece, %lu\n", bytesRead, pContent->LengthFromPdf);
 		goto uscita;
 	}
 	
 	pszDecodedStream = DecodeStream(pszEncodedStream, EncodedStreamSize, pContent, pParams->fpErrors, pszDecodedStream, pDecodedStreamSize);
 	if ( NULL ==  pszDecodedStream )
 	{
+		snprintf(pParams->szError, 8192, "\nERRORE getDecodedStream: DecodeStream failed.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"\nERRORE getDecodedStream: DecodeStream failed.\n");
-		fwprintf(pParams->fpErrors, L"\nERRORE getDecodedStream: DecodeStream failed.\n");
+		//fwprintf(pParams->fpErrors, L"\nERRORE getDecodedStream: DecodeStream failed.\n");
 		goto uscita;
 	}
 	
@@ -4425,7 +4487,9 @@ int CheckObjectType(Params *pParams, int objNum)
 	if ( objNum < 1 || (uint32_t)objNum >= pParams->nObjsTableSizeFromPrescanFile )
 	{
 		retValue = 0;
-		fwprintf(pParams->fpErrors, L"Errore CheckObjectType: objNum non valido -> %d\n", objNum);
+		snprintf(pParams->szError, 8192, "Errore CheckObjectType: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"Errore CheckObjectType: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -4441,8 +4505,10 @@ int CheckObjectType(Params *pParams, int objNum)
 		
 	if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Obj.Offset, SEEK_SET) )
 	{
-		wprintf(L"Errore CheckObjectType fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore CheckObjectType fseek\n");
+		snprintf(pParams->szError, 8192, "Errore CheckObjectType fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore CheckObjectType fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore CheckObjectType fseek\n");
 		retValue = 0;
 		goto uscita;
 	}		
@@ -4484,7 +4550,9 @@ int ParseStmObj(Params *pParams, int objNum)
 	if ( objNum < 1 || (uint32_t)objNum >= pParams->nObjsTableSizeFromPrescanFile )
 	{
 		retValue = 0;
-		fwprintf(pParams->fpErrors, L"Errore ParseStmObj: objNum non valido -> %d\n", objNum);
+		snprintf(pParams->szError, 8192, "Errore ParseStmObj: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"Errore ParseStmObj: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -4507,8 +4575,10 @@ int ParseStmObj(Params *pParams, int objNum)
 		
 	if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Obj.Offset, SEEK_SET) )
 	{
-		wprintf(L"Errore ParseStmObj fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseStmObj fseek\n");
+		snprintf(pParams->szError, 8192, "Errore ParseStmObj fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore ParseStmObj fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseStmObj fseek\n");
 		retValue = 0;
 		goto uscita;
 	}		
@@ -4577,8 +4647,10 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 		
 	if ( fseek(pParams->fp, pParams->offsetXRefObjStream, SEEK_SET) )
 	{
-		wprintf(L"Errore ParseTrailerXRefStreamObject fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject fseek\n");
+		snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore ParseTrailerXRefStreamObject fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject fseek\n");
 		retValue = 0;
 		goto uscita;
 	}		
@@ -4588,8 +4660,10 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 	
 	if ( pParams->blockLen < 3 )
 	{
+		snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject: Offset oggetto n. %d errato -> %d\n", pParams->nXRefStreamObjNum, pParams->offsetXRefObjStream);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseTrailerXRefStreamObject: Offset oggetto n. %d errato -> %d\n", pParams->nXRefStreamObjNum, pParams->offsetXRefObjStream);
-		fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: Offset oggetto n. %d errato -> %d\n", pParams->nXRefStreamObjNum, pParams->offsetXRefObjStream);
+		//fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: Offset oggetto n. %d errato -> %d\n", pParams->nXRefStreamObjNum, pParams->offsetXRefObjStream);
 		retValue = 0;
 		goto uscita;
 	}
@@ -4617,8 +4691,10 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 				pParams->myToken.Value.vString = NULL;
 			}
 		}
+		snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -4628,8 +4704,10 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 	pszDecodedStream = getDecodedStream(pParams, &DecodedStreamSize, NULL);
 	if ( NULL ==  pszDecodedStream )
 	{
+		snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -4810,8 +4888,10 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 			
 		if ( fseek(pParams->fp, pParams->myPdfTrailer.Prev, SEEK_SET) )
 		{
-			wprintf(L"Errore ParseTrailerXRefStreamObject fseek\n");
-			fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject fseek\n");
+			snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject fseek\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"Errore ParseTrailerXRefStreamObject fseek\n");
+			//fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject fseek\n");
 			retValue = 0;
 			goto uscita;
 		}		
@@ -4831,8 +4911,10 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 					pParams->myToken.Value.vString = NULL;
 				}
 			}
+			snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
-			fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
+			//fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
 			retValue = 0;
 			goto uscita;
 		}
@@ -4842,8 +4924,10 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 		pszDecodedStream = getDecodedStream(pParams, &DecodedStreamSize, NULL);
 		if ( NULL ==  pszDecodedStream )
 		{
+			snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
-			fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
+			//fwprintf(pParams->fpErrors, L"Errore ParseTrailerXRefStreamObject: getDecodedStream failed\n");
 			retValue = 0;
 			goto uscita;
 		}
@@ -5019,8 +5103,10 @@ int ParseStreamObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseStreamObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseStreamObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -5036,8 +5122,10 @@ int ParseStreamObject(Params *pParams, int objNum)
 		
 	if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Obj.Offset - 1, SEEK_SET) )
 	{
-		wprintf(L"Errore ParseStreamObject fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamObject fseek\n");
+		snprintf(pParams->szError, 8192, "Errore ParseStreamObject: fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore ParseStreamObject fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamObject fseek\n");
 		retValue = 0;
 		goto uscita;
 	}		
@@ -5046,8 +5134,10 @@ int ParseStreamObject(Params *pParams, int objNum)
 	
 	if ( pParams->blockLen < 3 )
 	{
+		snprintf(pParams->szError, 8192, "Errore ParseStreamObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseStreamObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
 		retValue = 0;
 		goto uscita;
 	}
@@ -5057,8 +5147,10 @@ int ParseStreamObject(Params *pParams, int objNum)
 	c = pParams->myBlock[pParams->blockCurPos++];
 	if ( (c != '\n' && c != '\r' && c != ' ' && c != '\t' && c != '\f' && c != '\b' && c != '\0') )
 	{
+		snprintf(pParams->szError, 8192, "Errore ParseStreamObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseStreamObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
 		retValue = 0;
 		goto uscita;		
 	}
@@ -5097,8 +5189,10 @@ int ParseStreamXObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseStreamXObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseStreamXObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -5114,8 +5208,10 @@ int ParseStreamXObject(Params *pParams, int objNum)
 		
 	if ( fseek(pParams->fp, pParams->myObjsTable[objNum]->Obj.Offset - 1, SEEK_SET) )
 	{
-		wprintf(L"Errore ParseStreamXObject fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject fseek\n");
+		snprintf(pParams->szError, 8192, "Errore ParseStreamXObject fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore ParseStreamXObject fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject fseek\n");
 		retValue = 0;
 		goto uscita;
 	}		
@@ -5124,8 +5220,10 @@ int ParseStreamXObject(Params *pParams, int objNum)
 	
 	if ( pParams->blockLen < 3 )
 	{
+		snprintf(pParams->szError, 8192, "Errore ParseStreamXObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseStreamXObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
 		retValue = 0;
 		goto uscita;
 	}
@@ -5135,8 +5233,10 @@ int ParseStreamXObject(Params *pParams, int objNum)
 	c = pParams->myBlock[pParams->blockCurPos++];
 	if ( (c != '\n' && c != '\r' && c != ' ' && c != '\t' && c != '\f' && c != '\b' && c != '\0') )
 	{
+		snprintf(pParams->szError, 8192, "Errore ParseStreamXObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseStreamXObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
-		fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		//fwprintf(pParams->fpErrors, L"Errore ParseStreamXObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
 		retValue = 0;
 		goto uscita;		
 	}
@@ -5285,7 +5385,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				pParams->pCodeSpaceRangeArray = (CodeSpaceRange_t*)malloc(sizeof(CodeSpaceRange_t) * lastInteger);
 				if ( NULL == pParams->pCodeSpaceRangeArray )
 				{
-					fwprintf(pParams->fpErrors, L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					snprintf(pParams->szError, 8192, "ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
+					//fwprintf(pParams->fpErrors, L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 					wprintf(L"ParseCMapStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
 					#endif
@@ -5499,10 +5601,12 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						
 						if ( codeSpaceRange2 > 0xFFFF )
 						{
-							fwprintf(pParams->fpErrors, L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
+							snprintf(pParams->szError, 8192, "ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %u, codeSpaceRange2 = %u\n", codeSpaceRange1, codeSpaceRange2);
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
 							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-							wprintf(L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
+							wprintf(L"ParseCMapStream: VALORI ARRAY UNICODE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %u, codeSpaceRange2 = %u\n", codeSpaceRange1, codeSpaceRange2);
 							#endif
 							
 							pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
@@ -5529,7 +5633,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE CODE SPACE RANGE -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);	
+							wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE CODE SPACE RANGE -> codeSpaceRange1 = %u, codeSpaceRange2 = %u\n", codeSpaceRange1, codeSpaceRange2);	
 						}	
 						#endif	
 						
@@ -5564,7 +5668,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ERRORE ParseCMapStream 1: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 1: atteso T_INT_LITERAL\n");
+							snprintf(pParams->szError, 8192, "ERRORE ParseCMapStream 1: atteso T_INT_LITERAL\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 1: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
@@ -5576,7 +5682,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 								pParams->paCustomizedFont_CharSet[i] = cidRange3;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-								wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", i, cidRange3);
+								wprintf(L"ParseCMapStream: OK!!! ARRAY UNICODE -> pParams->paCustomizedFont_CharSet[%lu] = %u\n", i, cidRange3);
 								#endif								
 								
 								cidRange3++;
@@ -5585,7 +5691,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 						else
 						{
-							wprintf(L"ParseCMapStream: VALORI CIDRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidRange1 = %lu, cidRange2 = %lu, cidRange3 = %lu\n", cidRange1, cidRange2, cidRange3);
+							wprintf(L"ParseCMapStream: VALORI CIDRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> cidRange1 = %u, cidRange2 = %u, cidRange3 = %u\n", cidRange1, cidRange2, cidRange3);
 						}
 						#endif
 						
@@ -5613,7 +5719,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ERRORE ParseCMapStream 2: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 2: atteso T_INT_LITERAL\n");
+							snprintf(pParams->szError, 8192, "ERRORE ParseCMapStream 2: atteso T_INT_LITERAL\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 2: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
@@ -5661,7 +5769,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ERRORE ParseCMapStream 3: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 3: atteso T_INT_LITERAL\n");
+							snprintf(pParams->szError, 8192, "ERRORE ParseCMapStream 3: atteso T_INT_LITERAL\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 3: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
@@ -5710,7 +5820,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ERRORE ParseCMapStream 4: atteso T_INT_LITERAL\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 4: atteso T_INT_LITERAL\n");
+							snprintf(pParams->szError, 8192, "ERRORE ParseCMapStream 4: atteso T_INT_LITERAL\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream 4: atteso T_INT_LITERAL\n");
 							retValue = 0;
 							goto uscita;							
 						}
@@ -5819,7 +5931,9 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
 							wprintf(L"ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							snprintf(pParams->szError, 8192, "ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ERRORE ParseCMapStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
 							retValue = 0;
 							goto uscita;
 						}						
@@ -5991,7 +6105,9 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 				pParams->pCodeSpaceRangeArray = (CodeSpaceRange_t*)malloc(sizeof(CodeSpaceRange_t) * lastInteger);
 				if ( NULL == pParams->pCodeSpaceRangeArray )
 				{
-					fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					snprintf(pParams->szError, 8192, "ParseToUnicodeStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
+					//fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 					wprintf(L"ParseToUnicodeStream: impossibile allocare la memoria per pParams->pCodeSpaceRangeArray\n");
 					#endif
@@ -6151,10 +6267,12 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						
 						if ( codeSpaceRange2 > 0xFFFF )
 						{
-							fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
+							snprintf(pParams->szError, 8192, "ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %u, codeSpaceRange2 = %u\n", codeSpaceRange1, codeSpaceRange2);
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
 							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-							wprintf(L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);
+							wprintf(L"ParseToUnicodeStream: VALORI CODESPACERANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> codeSpaceRange1 = %u, codeSpaceRange2 = %u\n", codeSpaceRange1, codeSpaceRange2);
 							#endif
 							
 							pParams->bHasCodeSpaceOneByte = pParams->bHasCodeSpaceTwoByte = 0;
@@ -6175,7 +6293,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 						else
 						{
-							wprintf(L"ParseToUnicodeStream: OK!!! CODESPACERANGE -> codeSpaceRange1 = %lu, codeSpaceRange2 = %lu\n", codeSpaceRange1, codeSpaceRange2);	
+							wprintf(L"ParseToUnicodeStream: OK!!! CODESPACERANGE -> codeSpaceRange1 = %u, codeSpaceRange2 = %u\n", codeSpaceRange1, codeSpaceRange2);	
 						}	
 						#endif			
 						
@@ -6287,13 +6405,13 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 							
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", bfChar1, bfChar2);
+								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %u\n", bfChar1, bfChar2);
 								#endif
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							else
 							{
-								wprintf(L"ParseToUnicodeStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %lu, bfChar2 = %lu\n", bfChar1, bfChar2);
+								wprintf(L"ParseToUnicodeStream: VALORI BFCHAR > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfChar1 = %u, bfChar2 = %u\n", bfChar1, bfChar2);
 							}
 							#endif
 						
@@ -6310,7 +6428,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %lu -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
+								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %u -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
 								#endif																
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
@@ -6325,7 +6443,9 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							wprintf(L"ERRORE ParseToUnicodeStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
 							#endif
-							fwprintf(pParams->fpErrors, L"ERRORE ParseToUnicodeStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							snprintf(pParams->szError, 8192, "ERRORE ParseToUnicodeStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//fwprintf(pParams->fpErrors, L"ERRORE ParseToUnicodeStream: atteso T_STRING_HEXADECIMAL o T_NAME\n");
 							retValue = 0;
 							goto uscita;
 						}						
@@ -6355,7 +6475,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 								pParams->paCustomizedFont_CharSet[i] = bfRange3;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-								wprintf(L"ParseToUnicodeStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%lu] = %lu\n", i, bfRange3);
+								wprintf(L"ParseToUnicodeStream: OK!!! BFRANGE -> pParams->paCustomizedFont_CharSet[%lu] = %u\n", i, bfRange3);
 								#endif								
 								
 								bfRange3++;
@@ -6364,7 +6484,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 						else
 						{
-							wprintf(L"ParseToUnicodeStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %lu, bfRange2 = %lu, bfRange3 = %lu\n", bfRange1, bfRange2, bfRange3);
+							wprintf(L"ParseToUnicodeStream: VALORI BFRANGE > 0xFFFF PER IL MOMENTO NON SUPPORTATI -> bfRange1 = %u, bfRange2 = %u, bfRange3 = %lu\n", bfRange1, bfRange2, bfRange3);
 						}
 						#endif
 						
@@ -6415,8 +6535,10 @@ int ParseCMapObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseCMapObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseCMapObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseCMapObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseCMapObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -6521,8 +6643,10 @@ int ParseFontObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseFontObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseFontObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseFontObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseFontObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -6575,8 +6699,10 @@ int ParseEncodingObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseEncodingObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseEncodingObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseEncodingObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseEncodingObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -6628,8 +6754,10 @@ int ParseDictionaryObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseDictionaryObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseDictionaryObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseDictionaryObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseDictionaryObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -6664,9 +6792,11 @@ int ParseDictionaryObject(Params *pParams, int objNum)
 				free(pParams->myToken.Value.vString);
 				pParams->myToken.Value.vString = NULL;
 			}
-		}		
+		}
+		snprintf(pParams->szError, 8192, "\nERRORE ParseDictionaryObject resourcesdictionary -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
+		myShowErrorMessage(pParams, pParams->szError, 1);	
 		//wprintf(L"\nERRORE ParseDictionaryObject resourcesdictionary -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
-		fwprintf(pParams->fpErrors, L"\nERRORE ParseDictionaryObject resourcesdictionary -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
+		//fwprintf(pParams->fpErrors, L"\nERRORE ParseDictionaryObject resourcesdictionary -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
 		
 		PrintThisObject(pParams, pParams->nObjToParse, 0, pParams->nCurrentPageNum, pParams->fpErrors);
 		
@@ -6690,8 +6820,10 @@ int ParseLengthObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -6707,8 +6839,10 @@ int ParseLengthObject(Params *pParams, int objNum)
 	pParams->fpLengthObjRef = fopen(pParams->szFileName, "rb");
 	if ( pParams->fpLengthObjRef == NULL )
 	{
-		wprintf(L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
-		fwprintf(pParams->fpErrors, L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
+		snprintf(pParams->szError, 8192, "Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
+		//fwprintf(pParams->fpErrors, L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
 		retValue = 0;
 		goto uscita;
 	}	
@@ -6717,8 +6851,10 @@ int ParseLengthObject(Params *pParams, int objNum)
 		
 	if ( fseek(pParams->fpLengthObjRef, pParams->myObjsTable[objNum]->Obj.Offset - 1, SEEK_SET) )
 	{
-		wprintf(L"Errore ParseLengthObject fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject fseek\n");
+		snprintf(pParams->szError, 8192, "Errore ParseLengthObject fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore ParseLengthObject fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseLengthObject fseek\n");
 		retValue = 0;
 		goto uscita;
 	}		
@@ -6727,8 +6863,10 @@ int ParseLengthObject(Params *pParams, int objNum)
 	
 	if ( pParams->blockLenLengthObj < 3 )
 	{
+		snprintf(pParams->szError, 8192, "Errore ParseLengthObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseLengthObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		//fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
 		retValue = 0;
 		goto uscita;
 	}
@@ -6745,9 +6883,11 @@ int ParseLengthObject(Params *pParams, int objNum)
 				free(pParams->myToken.Value.vString);
 				pParams->myToken.Value.vString = NULL;
 			}
-		}		
+		}
+		snprintf(pParams->szError, 8192, "Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		myShowErrorMessage(pParams, pParams->szError, 1);		
 		//wprintf(L"Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		//fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
 		retValue = 0;
 		goto uscita;		
 	}
@@ -6763,8 +6903,10 @@ int ParseLengthObject(Params *pParams, int objNum)
 		
 	if ( !lengthobj(pParams) )
 	{
+		snprintf(pParams->szError, 8192, "\nERRORE ParseLengthObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"\nERRORE ParseLengthObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
-		fwprintf(pParams->fpErrors, L"\nERRORE ParseLengthObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
+		//fwprintf(pParams->fpErrors, L"\nERRORE ParseLengthObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
 		retValue = 0;
 		goto uscita;
 	}
@@ -6793,8 +6935,10 @@ int ParseIntegerObject(Params *pParams, int objNum)
 	if ( objNum < 1 || objNum >= pParams->myPdfTrailer.Size )
 	{
 		retValue = 0;
+		snprintf(pParams->szError, 8192, "Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
+		//fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: objNum non valido -> %d\n", objNum);
 		goto uscita;
 	}
 	
@@ -6810,8 +6954,10 @@ int ParseIntegerObject(Params *pParams, int objNum)
 	pParams->fpLengthObjRef = fopen(pParams->szFileName, "rb");
 	if ( pParams->fpLengthObjRef == NULL )
 	{
-		wprintf(L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
-		fwprintf(pParams->fpErrors, L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
+		snprintf(pParams->szError, 8192, "Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
+		//fwprintf(pParams->fpErrors, L"Errore nell'apertura del file '%s'.\n\n", pParams->szFileName);
 		retValue = 0;
 		goto uscita;
 	}	
@@ -6820,8 +6966,10 @@ int ParseIntegerObject(Params *pParams, int objNum)
 		
 	if ( fseek(pParams->fpLengthObjRef, pParams->myObjsTable[objNum]->Obj.Offset - 1, SEEK_SET) )
 	{
-		wprintf(L"Errore ParseLengthObject fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject fseek\n");
+		snprintf(pParams->szError, 8192, "Errore ParseIntegerObject fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore ParseIntegerObject fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore ParseIntegerObject fseek\n");
 		retValue = 0;
 		goto uscita;
 	}		
@@ -6830,8 +6978,10 @@ int ParseIntegerObject(Params *pParams, int objNum)
 	
 	if ( pParams->blockLenLengthObj < 3 )
 	{
-		//wprintf(L"Errore ParseLengthObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		snprintf(pParams->szError, 8192, "Errore ParseIntegerObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"Errore ParseIntegerObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
+		//fwprintf(pParams->fpErrors, L"Errore ParseIntegerObject: Offset oggetto n. %d errato -> %d\n", objNum, pParams->myObjsTable[objNum]->Obj.Offset);
 		retValue = 0;
 		goto uscita;
 	}
@@ -6848,9 +6998,11 @@ int ParseIntegerObject(Params *pParams, int objNum)
 				free(pParams->myToken.Value.vString);
 				pParams->myToken.Value.vString = NULL;
 			}
-		}		
-		//wprintf(L"Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
-		fwprintf(pParams->fpErrors, L"Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		}
+		snprintf(pParams->szError, 8192, "Errore ParseIntegerObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		myShowErrorMessage(pParams, pParams->szError, 1);	
+		//wprintf(L"Errore ParseIntegerObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
+		//fwprintf(pParams->fpErrors, L"Errore ParseIntegerObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
 		retValue = 0;
 		goto uscita;		
 	}
@@ -6866,8 +7018,10 @@ int ParseIntegerObject(Params *pParams, int objNum)
 		
 	if ( !integer_obj(pParams) )
 	{
-		//wprintf(L"\nERRORE ParseLengthObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
-		fwprintf(pParams->fpErrors, L"\nERRORE ParseLengthObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
+		snprintf(pParams->szError, 8192, "\nERRORE ParseIntegerObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"\nERRORE ParseIntegerObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
+		//fwprintf(pParams->fpErrors, L"\nERRORE ParseIntegerObject lengthobj -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
 		retValue = 0;
 		goto uscita;
 	}
@@ -6898,7 +7052,9 @@ int obj(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
-		fwprintf(pParams->fpErrors, L"ERRORE obj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		snprintf(pParams->szError, 8192, "ERRORE obj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"ERRORE obj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -6912,8 +7068,10 @@ int obj(Params *pParams)
 	
 	if ( pParams->nObjToParse != pParams->nCurrentObjNum )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE parsing obj: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE parsing obj: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
-		fwprintf(pParams->fpErrors, L"ERRORE parsing obj: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
+		//fwprintf(pParams->fpErrors, L"ERRORE parsing obj: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
 		return 0;
 	}
 	
@@ -7071,8 +7229,10 @@ int objitem(Params *pParams)
 				return 0;
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "Errore parsing objitem: pParams->myToken.Type = %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore parsing objitem: pParams->myToken.Type = %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"Errore parsing objitem: pParams->myToken.Type = %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"Errore parsing objitem: pParams->myToken.Type = %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -7301,8 +7461,10 @@ int prepagetree(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "AHIA! ERRORE prepagetree: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE prepagetree: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"AHIA! ERRORE prepagetree: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"AHIA! ERRORE prepagetree: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
@@ -7313,8 +7475,10 @@ int prepagetree(Params *pParams)
 			
 	if ( pParams->nObjToParse != pParams->nCurrentObjNum )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE parsing prepagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE parsing prepagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
-		fwprintf(pParams->fpErrors, L"ERRORE parsing prepagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
+		//fwprintf(pParams->fpErrors, L"ERRORE parsing prepagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
 	}
@@ -7348,15 +7512,12 @@ int prepagetree(Params *pParams)
 	{		
 		if ( pParams->myToken.Type == T_ERROR || pParams->myToken.Type == T_EOF )
 		{
+			snprintf(pParams->szError, 8192, "Errore parsing prepagetree: token non valido: %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore parsing prepagetree: token non valido: %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"Errore parsing prepagetree: token non valido: %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"Errore parsing prepagetree: token non valido: %d\n", pParams->myToken.Type);
 			PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 			PrintToken(&(pParams->myToken), '\0', ' ', 1);
-			
-			wprintf(L"\nprepagetree: OBJ(%lu) <> pParams->blockLen = %d; pParams->blockCurPos = %d; pParams->bStreamState = %d\n", pParams->nCurrentObjNum, pParams->blockLen, pParams->blockCurPos, pParams->bStreamState);
-			wprintf(L"\tADDRESS OF ReadNextChar                 = <%X>\n", ReadNextChar);
-			wprintf(L"\tADDRESS OF ReadNextCharFromStmObjStream = <%X>\n", ReadNextCharFromStmObjStream);
-			wprintf(L"\tADDRESS OF pParams->pReadNextChar       = <%X>\n", pParams->pReadNextChar);
 				
 			return 0;
 		}
@@ -7496,11 +7657,12 @@ int pagetree(Params *pParams)
 	wprintf(L"\n");
 	#endif	
 	
-	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE pagetree: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE pagetree: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE pagetree: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE pagetree: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -7514,8 +7676,10 @@ int pagetree(Params *pParams)
 		
 	if ( pParams->nObjToParse != pParams->nCurrentObjNum )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE parsing pagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE parsing pagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
-		fwprintf(pParams->fpErrors, L"ERRORE parsing pagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
+		//fwprintf(pParams->fpErrors, L"ERRORE parsing pagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
 		return 0;
 	}
 	
@@ -7693,11 +7857,7 @@ int pagetreeobj(Params *pParams)
 				#endif
 								
 				if ( !match(pParams, T_KW_R, "pagetreeobj") )
-				{
-					//wprintf(L"Errore parsing pagetreeobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
-					fwprintf(pParams->fpErrors, L"Errore parsing pagetreeobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
 					return 0;
-				}
 				
 				mynumstacklist_Pop(&(pParams->myNumStack), &dNum);
 				//iGen = (int)dNum;
@@ -7851,8 +8011,10 @@ int pagetreeobj(Params *pParams)
 			pParams->bFontsKeys = 0;
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "Errore parsing pagetreeobj: token non valido: %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore parsing pagetreeobj: token non valido: %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"Errore parsing pagetreeobj: token non valido: %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"Errore parsing pagetreeobj: token non valido: %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), '\0', ' ', 1);
 			return 0;
 			break;
@@ -7946,8 +8108,10 @@ int pagetreearrayobjs(Params *pParams)
 													
 			if ( pParams->myToken.Type == T_ERROR || pParams->myToken.Type == T_EOF )
 			{
+				snprintf(pParams->szError, 8192, "Errore parsing pagetreearrayobjs: token non valido: %d\n", pParams->myToken.Type);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore parsing pagetreearrayobjs: token non valido: %d\n", pParams->myToken.Type);
-				fwprintf(pParams->fpErrors, L"Errore parsing pagetreearrayobjs: token non valido: %d\n", pParams->myToken.Type);
+				//fwprintf(pParams->fpErrors, L"Errore parsing pagetreearrayobjs: token non valido: %d\n", pParams->myToken.Type);
 				PrintToken(&(pParams->myToken), '\0', ' ', 1);
 	
 				return 0;
@@ -8019,8 +8183,10 @@ int contentobj(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE contentobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE contentobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE contentobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE contentobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -8068,8 +8234,10 @@ int contentobj(Params *pParams)
 			
 	if ( !(pParams->bStreamLengthIsPresent) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE contentobj: la chiave 'Length' e' assente.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE contentobj: la chiave 'Length' e' assente.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE contentobj: la chiave 'Length' e' assente.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE contentobj: la chiave 'Length' e' assente.\n");
 		return 0;
 	}
 	
@@ -8131,8 +8299,10 @@ int contentobjbody(Params *pParams)
 		
 	if ( pParams->myToken.Type != T_KW_STREAM )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE contentobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE contentobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"ERRORE contentobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE contentobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		retValue = 0;
 		goto uscita;
@@ -8158,8 +8328,10 @@ int contentobjbody(Params *pParams)
 	//GetNextToken(pParams);
 	if ( fseek(pParams->fp, pParams->CurrentContent.Offset + pParams->CurrentContent.LengthFromPdf, SEEK_SET) != 0 )
 	{
-		wprintf(L"ERRORE contentobjbody: fseek\n");
-		fwprintf(pParams->fpErrors, L"ERRORE contentobjbody: fseek\n");
+		snprintf(pParams->szError, 8192, "ERRORE contentobjbody: fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE contentobjbody: fseek\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE contentobjbody: fseek\n");
 		retValue = 0;
 		goto uscita;		
 	}
@@ -8190,24 +8362,17 @@ int contentobjbody(Params *pParams)
 	if ( pParams->nCountDecodeParams > 0 )
 	{
 		if ( pParams->nCountDecodeParams != pParams->nCountFilters )
-		{
+		{			
+			snprintf(pParams->szError, 8192, "ERRORE parsing contentobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE parsing contentobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
-			fwprintf(pParams->fpErrors, L"ERRORE parsing contentobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
+			//fwprintf(pParams->fpErrors, L"ERRORE parsing contentobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
 			retValue = 0;
 			goto uscita;
 		}
-		
-		//if ( pParams->bStreamStateToUnicode )
-		//{
-		//	//wprintf(L"ERRORE parsing contentobjbody(bStreamStateToUnicode): DecodeParams non supportati in questa versione del programma\n");
-		//	fwprintf(pParams->fpErrors, L"ERRORE parsing contentobjbody(bStreamStateToUnicode): DecodeParams non supportati in questa versione del programma\n");
-		//	retValue = 0;
-		//	goto uscita;			
-		//}
 	}	
 	
 	if ( !(pParams->bStreamStateToUnicode) )
-	//if ( pParams->bStreamStateToUnicode != 0 )
 	{
 		mycontentqueuelist_Enqueue(&(pParams->pPagesArray[pParams->nCurrentPageNum].queueContens), &(pParams->CurrentContent));
 	}
@@ -8215,7 +8380,6 @@ int contentobjbody(Params *pParams)
 uscita:
 	
 	if ( !(pParams->bStreamStateToUnicode) )
-	//if ( pParams->bStreamStateToUnicode != 0 )
 	{
 		mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));	
 		mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
@@ -8230,8 +8394,10 @@ int streamdictitems(Params *pParams)
 {
 	if ( pParams->myToken.Type !=  T_NAME )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE streamdictitems: Atteso token T_NAME, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE streamdictitems: Atteso token T_NAME, trovato TOKEN n° %d\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"ERRORE streamdictitems: Atteso token T_NAME, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE streamdictitems: Atteso token T_NAME, trovato TOKEN n° %d\n", pParams->myToken.Type);
 		return 0;
 	}
 	strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
@@ -8329,8 +8495,10 @@ int contentkeyvalue(Params *pParams)
 					
 					if ( !ParseLengthObject(pParams, n1) )
 					{
+						snprintf(pParams->szError, 8192, "ERRORE contentkeyvalue streamobj number %d\n", n1);
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"ERRORE contentkeyvalue streamobj number %d\n", n1);
-						fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue streamobj number %d\n", n1);
+						//fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue streamobj number %d\n", n1);
 						return 0;
 					}
 					
@@ -8348,8 +8516,10 @@ int contentkeyvalue(Params *pParams)
 			{
 				if ( (strncmp(pParams->myToken.Value.vString, "FlateDecode", 1024) != 0) && pParams->bStreamStateToUnicode )
 				{
+					snprintf(pParams->szError, 8192, "ERRORE contentkeyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ERRORE contentkeyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
-					fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
+					//fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
 					return 0;					
 				}
 				
@@ -8424,8 +8594,10 @@ int contentkeyvalue(Params *pParams)
 				pParams->nCountDecodeParams++;				
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -8501,8 +8673,10 @@ int contentkeyarray(Params *pParams)
 			}
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE contentkeyarray: Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE contentkeyarray: Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE contentkeyarray: Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE contentkeyarray: Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -8541,8 +8715,10 @@ int contentkeydict(Params *pParams)
 	pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));	
 	if ( NULL == pParams->myDataDecodeParams.pszKey )
 	{
-		wprintf(L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
-		fwprintf(pParams->fpErrors, L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+		snprintf(pParams->szError, 8192, "ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+		//fwprintf(pParams->fpErrors, L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 		return 0;
 	}
 	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
@@ -8567,8 +8743,10 @@ int contentkeydict(Params *pParams)
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
-			wprintf(L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
-			fwprintf(pParams->fpErrors, L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			snprintf(pParams->szError, 8192, "ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			//fwprintf(pParams->fpErrors, L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 			return 0;
 		}
 		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
@@ -8692,8 +8870,10 @@ int contentkeyvalueinternal(Params *pParams)
 				return 0;
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE contentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -8752,8 +8932,10 @@ int lengthobj(Params *pParams)
 		
 	if ( pParams->myTokenLengthObj.Type != T_INT_LITERAL )
 	{
+		snprintf(pParams->szError, 8192, "\nERRORE lengthobj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"\nERRORE lengthobj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
-		fwprintf(pParams->fpErrors, L"\nERRORE lengthobj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
+		//fwprintf(pParams->fpErrors, L"\nERRORE lengthobj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
 		PrintToken(&(pParams->myTokenLengthObj), '\0', ' ', 1);
 		return 0;
 	}
@@ -8788,8 +8970,10 @@ int integer_obj(Params *pParams)
 		
 	if ( pParams->myTokenLengthObj.Type != T_INT_LITERAL )
 	{
+		snprintf(pParams->szError, 8192, "\nERRORE integer_obj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"\nERRORE integer_obj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
-		fwprintf(pParams->fpErrors, L"\nERRORE integer_obj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
+		//fwprintf(pParams->fpErrors, L"\nERRORE integer_obj -> errore di sintassi: Atteso token T_INT_LITERAL, trovato token n° %d\n", pParams->myTokenLengthObj.Type);
 		PrintToken(&(pParams->myTokenLengthObj), '\0', ' ', 1);
 		return 0;
 	}
@@ -8815,8 +8999,10 @@ int resourcesdictionary(Params *pParams)
 {	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE resourcesdictionary: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE resourcesdictionary: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE resourcesdictionary: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE resourcesdictionary: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -8976,11 +9162,7 @@ int resourcesdictionaryitems(Params *pParams)
 				#endif
 								
 				if ( !match(pParams, T_KW_R, "resourcesdictionaryitems") )
-				{
-					//wprintf(L"Errore parsing resourcesdictionaryitems: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
-					fwprintf(pParams->fpErrors, L"Errore parsing resourcesdictionaryitems: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
 					return 0;
-				}
 				
 				mynumstacklist_Pop(&(pParams->myNumStack), &dNum);
 				//iGen = (int)dNum;
@@ -9160,7 +9342,9 @@ int resourcesdictionaryitems(Params *pParams)
 			pParams->bFontsKeys = 0;
 			break;
 		default:
-			wprintf(L"Errore parsing resourcesdictionaryitems: token non valido: %d\n", pParams->myToken.Type);
+			snprintf(pParams->szError, 8192, "Errore parsing resourcesdictionaryitems: token non valido: %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"Errore parsing resourcesdictionaryitems: token non valido: %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), '\0', ' ', 1);
 			return 0;
 			break;
@@ -9181,8 +9365,10 @@ int resourcesarrayobjs(Params *pParams)
 												
 		if ( pParams->myToken.Type == T_ERROR || pParams->myToken.Type == T_EOF )
 		{
+			snprintf(pParams->szError, 8192, "Errore parsing resourcesarrayobjs: token non valido: %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore parsing resourcesarrayobjs: token non valido: %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"Errore parsing resourcesarrayobjs: token non valido: %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"Errore parsing resourcesarrayobjs: token non valido: %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), '\0', ' ', 1);
 			return 0;
 		}
@@ -9259,8 +9445,10 @@ int contentxobj(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE contentxobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE contentxobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE contentxobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE contentxobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -9315,8 +9503,10 @@ int contentxobj(Params *pParams)
 			
 	if ( !(pParams->bStreamLengthIsPresent) )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE contentxobj: la chiave 'Length' è assente.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE contentxobj: la chiave 'Length' e' assente.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE contentxobj: la chiave 'Length' è assente.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE contentxobj: la chiave 'Length' è assente.\n");
 		return 0;
 	}
 	
@@ -9401,8 +9591,10 @@ int contentxobjbody(Params *pParams)
 				
 	if ( pParams->myToken.Type != T_KW_STREAM )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE contentxobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE contentxobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"ERRORE contentxobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE contentxobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		retValue = 0;
 		goto uscita;
@@ -9432,8 +9624,10 @@ int contentxobjbody(Params *pParams)
 	//GetNextToken(pParams);
 	if ( fseek(pParams->fp, pParams->CurrentContent.Offset + pParams->CurrentContent.LengthFromPdf, SEEK_SET) != 0 )
 	{
-		wprintf(L"ERRORE contentxobjbody: fseek\n");
-		fwprintf(pParams->fpErrors, L"ERRORE contentxobjbody: fseek\n");
+		snprintf(pParams->szError, 8192, "ERRORE contentxobjbody: fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE contentxobjbody: fseek\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE contentxobjbody: fseek\n");
 		retValue = 0;
 		goto uscita;		
 	}
@@ -9464,8 +9658,10 @@ int contentxobjbody(Params *pParams)
 	{
 		if ( pParams->nCountDecodeParams != pParams->nCountFilters )
 		{
+			snprintf(pParams->szError, 8192, "ERRORE parsing contentxobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE parsing contentxobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
-			fwprintf(pParams->fpErrors, L"ERRORE parsing contentxobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
+			//fwprintf(pParams->fpErrors, L"ERRORE parsing contentxobjbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
 			retValue = 0;
 			goto uscita;
 		}
@@ -9565,8 +9761,10 @@ int xobjcontentkeyvalue(Params *pParams)
 					
 					if ( !ParseLengthObject(pParams, n1) )
 					{
+						snprintf(pParams->szError, 8192, "ERRORE xobjcontentkeyvalue streamobj number %d\n", n1);
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"ERRORE xobjcontentkeyvalue streamobj number %d\n", n1);
-						fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeyvalue streamobj number %d\n", n1);
+						//fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeyvalue streamobj number %d\n", n1);
 						return 0;
 					}
 					
@@ -9722,7 +9920,9 @@ int xobjcontentkeyvalue(Params *pParams)
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
 			wprintf(L"ERRORE xobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
 			#endif
-			fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			snprintf(pParams->szError, 8192, "ERRORE xobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -9835,8 +10035,10 @@ int xobjcontentkeydict(Params *pParams)
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
+			snprintf(pParams->szError, 8192, "ERRORE xobjcontentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE xobjcontentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
-			fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			//fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 			return 0;
 		}
 		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
@@ -9895,8 +10097,10 @@ int contentfontobj(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE contentfontobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE contentfontobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE contentfontobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE contentfontobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -10386,9 +10590,7 @@ int contentfontobjbody(Params *pParams)
 	#endif
 		
 	if ( !match(pParams, T_DICT_BEGIN, "contentfontobjbody") )
-	{
 		return 0;
-	}
 	
 	if ( !fontobjstreamdictitems(pParams) )
 		return 0;
@@ -10398,9 +10600,7 @@ int contentfontobjbody(Params *pParams)
 	#endif
 		
 	if ( !match(pParams, T_DICT_END, "contentfontobjbody") )
-	{
 		return 0;
-	}
 	
 	return 1;
 }
@@ -10524,8 +10724,10 @@ int fontobjcontentkeyvalue(Params *pParams)
 				return 0;
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE fontobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE fontobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE fontobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE fontobjcontentkeyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;			
 			break;
@@ -10565,8 +10767,10 @@ int fontdirectencodingobjarray(Params *pParams)
 		
 		if ( pParams->myToken.Type != T_NAME )
 		{
+			snprintf(pParams->szError, 8192, "ERRORE fontdirectencodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE fontdirectencodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE fontdirectencodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE fontdirectencodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;			
 		}
@@ -10766,8 +10970,10 @@ int encodingobj(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE encodingobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE encodingobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE encodingobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE encodingobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -10899,8 +11105,10 @@ int encodingobjbody(Params *pParams)
 	}
 	else
 	{
+		snprintf(pParams->szError, 8192, "ERRORE encodingobjbody: Atteso uno di questi token: T_NAME, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE encodingobjbody: Atteso uno di questi token: T_NAME, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"ERRORE encodingobjbody: Atteso uno di questi token: T_NAME, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE encodingobjbody: Atteso uno di questi token: T_NAME, TDICT_BEGIN; trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		return 0;		
 	}
@@ -10990,8 +11198,10 @@ int encodingobjarray(Params *pParams)
 		
 		if ( pParams->myToken.Type != T_NAME )
 		{
+			snprintf(pParams->szError, 8192, "ERRORE encodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE encodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE encodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE encodingobjarray: Atteso T_NAME, trovato invece TOKEN n° %d:\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;			
 		}
@@ -11082,8 +11292,10 @@ int xrefstream_obj(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE xrefstream_obj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE xrefstream_obj: la chiave 'Length' e' assente.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE xrefstream_obj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_obj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
@@ -11134,8 +11346,10 @@ int xrefstream_obj(Params *pParams)
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
 		wprintf(L"ERRORE xrefstream_obj: la chiave 'Lenght' e' assente.\n");
 		#endif
-		//wprintf(L"ERRORE xrefstream_obj: la chiave 'Length' e' assente.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE xrefstream_obj: la chiave 'Length' e' assente.\n");
+		
+		snprintf(pParams->szError, 8192, "ERRORE xrefstream_obj: la chiave 'Length' e' assente.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_obj: la chiave 'Length' e' assente.\n");
 		return 0;
 	}
 	
@@ -11156,7 +11370,10 @@ int xrefstream_obj(Params *pParams)
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
 		wprintf(L"ERRORE xrefstream_obj: la chiave 'W' e' assente.\n");
 		#endif
-		fwprintf(pParams->fpErrors, L"ERRORE xrefstream_obj: la chiave 'W' e' assente.\n");
+		
+		snprintf(pParams->szError, 8192, "ERRORE xrefstream_obj: la chiave 'W' e' assente.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_obj: la chiave 'W' e' assente.\n");
 		return 0;
 	}
 	myintqueuelist_Dequeue(&(pParams->queueTrailerW), &(pParams->trailerW3) );
@@ -11180,16 +11397,20 @@ int xrefstream_obj(Params *pParams)
 		pParams->myPdfTrailer.pIndexArray = (TrailerIndex**)malloc(sizeof(TrailerIndex*));
 		if ( NULL == pParams->myPdfTrailer.pIndexArray )
 		{
-			wprintf(L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
-			fwprintf(pParams->fpErrors, L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+			snprintf(pParams->szError, 8192, "ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+			//fwprintf(pParams->fpErrors, L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
 			return 0;
 		}
 		
 		pParams->myPdfTrailer.pIndexArray[0] = (TrailerIndex*)malloc(sizeof(TrailerIndex));
 		if ( NULL == pParams->myPdfTrailer.pIndexArray[0] )
 		{
-			wprintf(L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray[0].\n");
-			fwprintf(pParams->fpErrors, L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray[0].\n");
+			snprintf(pParams->szError, 8192, "ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray[0].\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray[0].\n");
+			//fwprintf(pParams->fpErrors, L"ERRORE refstream_obj: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray[0].\n");
 			return 0;
 		}
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
@@ -11217,7 +11438,10 @@ int xrefstream_obj(Params *pParams)
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
 			wprintf(L"ERRORE refstream_obj: pParams->myPdfTrailer.pIndexArray deve contenere un numero pari di coppie di interi.\n");
 			#endif
-			fwprintf(pParams->fpErrors, L"ERRORE refstream_obj: pParams->myPdfTrailer.pIndexArray deve contenere un numero pari di coppie di interi.\n");
+			
+			snprintf(pParams->szError, 8192, "ERRORE refstream_obj: pParams->myPdfTrailer.pIndexArray deve contenere un numero pari di coppie di interi.\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"ERRORE refstream_obj: pParams->myPdfTrailer.pIndexArray deve contenere un numero pari di coppie di interi.\n");
 			return 0;
 		}
 		
@@ -11236,8 +11460,10 @@ int xrefstream_obj(Params *pParams)
 		pParams->myPdfTrailer.pIndexArray = (TrailerIndex**)malloc(sizeof(TrailerIndex*) * pParams->myPdfTrailer.indexArraySize);
 		if ( NULL == pParams->myPdfTrailer.pIndexArray )
 		{
-			wprintf(L"ERRORE refstream_obj 1: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
-			fwprintf(pParams->fpErrors, L"ERRORE refstream_obj 2: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+			snprintf(pParams->szError, 8192, "ERRORE refstream_obj 1: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE refstream_obj 1: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+			//fwprintf(pParams->fpErrors, L"ERRORE refstream_obj 2: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
 			return 0;
 		}
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
@@ -11259,8 +11485,10 @@ int xrefstream_obj(Params *pParams)
 			pParams->myPdfTrailer.pIndexArray[myIdx] = (TrailerIndex*)malloc(sizeof(TrailerIndex));
 			if ( NULL == pParams->myPdfTrailer.pIndexArray[myIdx] )
 			{
-				wprintf(L"ERRORE refstream_obj 2: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
-				fwprintf(pParams->fpErrors, L"ERRORE refstream_obj 2: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+				snprintf(pParams->szError, 8192, "ERRORE refstream_obj 2: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				//wprintf(L"ERRORE refstream_obj 2: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
+				//fwprintf(pParams->fpErrors, L"ERRORE refstream_obj 2: impossibile allocare la memoria per pParams->myPdfTrailer.pIndexArray.\n");
 				return 0;
 			}
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
@@ -11344,8 +11572,10 @@ int xrefstream_objbody(Params *pParams)
 					
 	if ( pParams->myToken.Type != T_KW_STREAM )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE xrefstream_objbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE xrefstream_objbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"ERRORE xrefstream_objbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_objbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		retValue = 0;
 		goto uscita;
@@ -11370,8 +11600,10 @@ int xrefstream_objbody(Params *pParams)
 	//GetNextToken(pParams);
 	if ( fseek(pParams->fp, pParams->CurrentContent.Offset + pParams->CurrentContent.LengthFromPdf, SEEK_SET) != 0 )
 	{
-		wprintf(L"ERRORE xrefstream_objbody: fseek\n");
-		fwprintf(pParams->fpErrors, L"ERRORE xrefstream_objbody: fseek\n");
+		snprintf(pParams->szError, 8192, "ERRORE xrefstream_objbody: fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE xrefstream_objbody: fseek\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_objbody: fseek\n");
 		retValue = 0;
 		goto uscita;		
 	}
@@ -11403,8 +11635,10 @@ int xrefstream_objbody(Params *pParams)
 	{
 		if ( pParams->nCountDecodeParams != pParams->nCountFilters )
 		{
+			snprintf(pParams->szError, 8192, "ERRORE parsing xrefstream_objbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE parsing xrefstream_objbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
-			fwprintf(pParams->fpErrors, L"ERRORE parsing xrefstream_objbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
+			//fwprintf(pParams->fpErrors, L"ERRORE parsing xrefstream_objbody: il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->nCountDecodeParams, pParams->nCountFilters);
 			retValue = 0;
 			goto uscita;
 		}
@@ -11515,8 +11749,10 @@ int xrefstream_keyvalue(Params *pParams)
 					
 					if ( !ParseLengthObject(pParams, n1) )
 					{
+						snprintf(pParams->szError, 8192, "ERRORE xrefstream_keyvalue: ParseLengthObject: streamobj number %d\n", n1);
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"ERRORE xrefstream_keyvalue streamobj number %d\n", n1);
-						fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue: ParseLengthObject: streamobj number %d\n", n1);
+						//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue: ParseLengthObject: streamobj number %d\n", n1);
 						return 0;
 					}
 					
@@ -11534,8 +11770,10 @@ int xrefstream_keyvalue(Params *pParams)
 			{
 				if ( strncmp(pParams->myToken.Value.vString, "FlateDecode", 1024) != 0 )
 				{
+					snprintf(pParams->szError, 8192, "ERRORE xrefstream_keyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ERRORE xrefstream_keyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
-					fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
+					//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
 					return 0;					
 				}
 				
@@ -11592,8 +11830,10 @@ int xrefstream_keyvalue(Params *pParams)
 				pParams->nCountDecodeParams++;				
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -11704,8 +11944,10 @@ int xrefstream_keyarray(Params *pParams)
 			}
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE xrefstream_keyarray: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE xrefstream_keyarray: Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyarray: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyarray: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -11748,8 +11990,10 @@ int xrefstream_keydict(Params *pParams)
 	pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));	
 	if ( NULL == pParams->myDataDecodeParams.pszKey )
 	{
-		wprintf(L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
-		fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+		snprintf(pParams->szError, 8192, "ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+		//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 		return 0;
 	}
 	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
@@ -11774,8 +12018,10 @@ int xrefstream_keydict(Params *pParams)
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
-			wprintf(L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
-			fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			snprintf(pParams->szError, 8192, "ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
+			//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 			return 0;
 		}
 		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
@@ -11903,8 +12149,10 @@ int xrefstream_keyvalueinternal(Params *pParams)
 				return 0;
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keyvalue: Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -11974,8 +12222,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 	pArray = (PdfIndirectObject*)malloc(sizeof(PdfIndirectObject) * pParams->currentObjStm.N);
 	if ( NULL == pArray )
 	{
-		wprintf(L"\n\nERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc failed\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
-		fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		snprintf(pParams->szError, 8192, "\n\nERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): malloc failed\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"\n\nERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc failed\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 		retValue = 0;
 		goto uscita;
 	}
@@ -11983,8 +12233,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 	cPrev = pParams->currentObjStm.pszDecodedStream[0];
 	if ( cPrev < '0' || cPrev > '9' )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): atteso T_INT_LITERAL; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, cPrev);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, cPrev);
-		fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, cPrev);
+		//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, cPrev);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 1, 0, pParams->fpErrors);
 		retValue = 0;
 		goto uscita;
@@ -12002,8 +12254,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 		{
 			if ( ' ' == cPrev )
 			{
+				snprintf(pParams->szError, 8192, "ERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): atteso T_INT_LITERAL; trovato SPAZIO.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato SPAZIO.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
-				fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato SPAZIO.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+				//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato SPAZIO.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 				PrintThisObject(pParams, pParams->nCurrentParsingObj, 1, 0, pParams->fpErrors);
 				retValue = 0;
 				goto uscita;	
@@ -12018,8 +12272,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 				
 				if ( objNum < 1 || objNum >= pParams->nObjsTableSizeFromPrescanFile )
 				{
+					snprintf(pParams->szError, 8192, "Errore getObjStmDataFromDecodedStream: objNum non valido -> %d; pParams->nObjsTableSizeFromPrescanFile = %u\n", objNum, pParams->nObjsTableSizeFromPrescanFile);
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore getObjStmDataFromDecodedStream: objNum non valido -> %d; pParams->nObjsTableSizeFromPrescanFile = %lu\n", objNum, pParams->nObjsTableSizeFromPrescanFile);
-					fwprintf(pParams->fpErrors, L"Errore getObjStmDataFromDecodedStream: objNum non valido -> %d; pParams->nObjsTableSizeFromPrescanFile = %lu\n", objNum, pParams->nObjsTableSizeFromPrescanFile);
+					//fwprintf(pParams->fpErrors, L"Errore getObjStmDataFromDecodedStream: objNum non valido -> %d; pParams->nObjsTableSizeFromPrescanFile = %lu\n", objNum, pParams->nObjsTableSizeFromPrescanFile);
 					retValue = 0;
 					goto uscita;
 				}
@@ -12051,8 +12307,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 				}
 				else
 				{
+					snprintf(pParams->szError, 8192, "ERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): N = %d; idx = %u\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.N, idx);
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): bjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.pszDecodedStream[k]);
-					fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): N = %d; idx = %lu\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.N, idx);
+					//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): N = %d; idx = %lu\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.N, idx);
 					retValue = 0;
 					goto uscita;
 				}
@@ -12068,8 +12326,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 		}
 		else
 		{
+			snprintf(pParams->szError, 8192, "ERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): atteso T_INT_LITERAL o SPAZIO; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.pszDecodedStream[k]);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL o SPAZIO; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.pszDecodedStream[k]);
-			fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL o SPAZIO; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.pszDecodedStream[k]);
+			//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): atteso T_INT_LITERAL o SPAZIO; trovato carattere(hex) %X.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.pszDecodedStream[k]);
 			PrintThisObject(pParams, pParams->nCurrentParsingObj, 1, 0, pParams->fpErrors);
 			retValue = 0;
 			goto uscita;
@@ -12078,8 +12338,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 	
 	if ( objNum != 0 || objOffset != 0 )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): odd numer of integer in ObjStm Decoded Stream.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): odd numer of integer in ObjStm Decoded Stream.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
-		fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): odd numer of integer in ObjStm Decoded Stream.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): odd numer of integer in ObjStm Decoded Stream.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 1, 0, pParams->fpErrors);
 		retValue = 0;
 		goto uscita;
@@ -12087,8 +12349,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 	
 	if ( (int)idx != pParams->currentObjStm.N )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): NUMERO OGGETTI NON CORRISPONDENTE -> N = %d; idx = %u\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.N, idx);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): NUMERO OGGETTI NON CORRISPONDENTE -> N = %d; idx = %lu\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.N, idx);
-		fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): NUMERO OGGETTI NON CORRISPONDENTE -> N = %d; idx = %lu\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.N, idx);
+		//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): NUMERO OGGETTI NON CORRISPONDENTE -> N = %d; idx = %lu\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->currentObjStm.N, idx);
 		retValue = 0;
 		goto uscita;
 	}
@@ -12125,8 +12389,10 @@ int getObjStmDataFromDecodedStream(Params *pParams)
 			pParams->myObjsTable[pArray[i].Number]->Obj.pszDecodedStream = (unsigned char*)malloc(sizeof(unsigned char) * pParams->myObjsTable[pArray[i].Number]->Obj.StreamLength);
 			if ( NULL == pParams->myObjsTable[pArray[i].Number]->Obj.pszDecodedStream )
 			{
-				wprintf(L"\n\nERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc 2 failed\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
-				fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc 2 failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+				snprintf(pParams->szError, 8192, "ERRORE getObjStmDataFromDecodedStream(num = %u, gen = %u): malloc 2 failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				//wprintf(L"\n\nERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc 2 failed\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+				//fwprintf(pParams->fpErrors, L"ERRORE getObjStmDataFromDecodedStream(num = %lu, gen = %lu): malloc 2 failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 				retValue = 0;
 				goto uscita;
 			}		
@@ -12161,12 +12427,12 @@ int stmobj(Params *pParams)
 {	
 	pParams->nCountDecodeParams = pParams->nCountFilters = 0;
 	
-
-
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE stmobj(num = %u, gen = %u): atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE stmobj: atteso T_INT_LITERAL; trovato token n° pParams->myToken.Type.\n");
-		fwprintf(pParams->fpErrors, L"ERRORE stmobj(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE stmobj(num = %lu, gen = %lu): atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
@@ -12187,60 +12453,53 @@ int stmobj(Params *pParams)
 	#endif
 	
 	if ( !match(pParams, T_INT_LITERAL, "stmobj") )
-	{
-		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
-	}
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 		
 	if ( !match(pParams, T_KW_OBJ, "stmobj") )
-	{
-		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
-	}
 		
 	if ( !stmobjbody(pParams) )
-	{
-		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
-	}
 
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 	
 	if ( !match(pParams, T_KW_ENDOBJ, "stmobj") )
-	{
-		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
-	}
-		
-		
+				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 	wprintf(L"\n\n");
 	#endif		
 			
 	if ( !(pParams->bStreamLengthIsPresent) )
 	{
+		snprintf(pParams->szError, 8192, "ERROR stmobj(num = %u, gne = %u): 'Length' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE stmobj: la chiave 'Length' e' assente.\n");
-		fwprintf(pParams->fpErrors, L"ERROR stmobj(num = %lu, gne = %lu): 'Length' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		//fwprintf(pParams->fpErrors, L"ERROR stmobj(num = %lu, gne = %lu): 'Length' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
 	}
 	
 	if ( 0 == pParams->currentObjStm.N )
 	{
-		fwprintf(pParams->fpErrors, L"ERROR parsing stmobj(num = %lu, gen = %lu): 'N' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		snprintf(pParams->szError, 8192, "ERROR parsing stmobj(num = %u, gen = %u): 'N' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"ERROR parsing stmobj(num = %d, gen = %d): 'N' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
 	}
 	
 	if ( 0 == pParams->currentObjStm.First )
 	{
-		fwprintf(pParams->fpErrors, L"ERROR parsing stmobj(num = %lu, gen = %lu): 'First' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		snprintf(pParams->szError, 8192, "ERROR parsing stmobj(num = %u, gen = %u): 'First' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"ERROR parsing stmobj(num = %d, gen = %d): 'First' key not found.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
 	}
@@ -12310,8 +12569,10 @@ int stmobjbody(Params *pParams)
 					
 	if ( pParams->myToken.Type != T_KW_STREAM )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE stmobjbody(OBJ num = %u, gen = %u): Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE stmobjbody: Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"ERRORE stmobjbody(OBJ num = %lu, gen = %lu): Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE stmobjbody(OBJ num = %lu, gen = %lu): Atteso token T_KW_STREAM, trovato TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		retValue = 0;
 		goto uscita;
@@ -12339,8 +12600,10 @@ int stmobjbody(Params *pParams)
 	
 	if ( fseek(pParams->fp, pParams->CurrentContent.Offset + pParams->CurrentContent.LengthFromPdf, SEEK_SET) != 0 )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE stmobjbody(OBJ num = %u, gen = %u): fseek\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		wprintf(L"ERRORE stmobjbody(OBJ num = %lu, gen = %lu): fseek\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
-		fwprintf(pParams->fpErrors, L"ERRORE stmobjbody(OBJ num = %lu, gen = %lu): fseek\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		//fwprintf(pParams->fpErrors, L"ERRORE stmobjbody(OBJ num = %lu, gen = %lu): fseek\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 		retValue = 0;
 		goto uscita;		
 	}
@@ -12370,8 +12633,10 @@ int stmobjbody(Params *pParams)
 	{
 		if ( pParams->nCountDecodeParams != pParams->nCountFilters )
 		{
+			snprintf(pParams->szError, 8192, "ERRORE parsing stmobjbody(OBJ num = %u, gen = %u): il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->nCountDecodeParams, pParams->nCountFilters);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE parsing stmobjbody(OBJ num = %lu, gen = %lu): il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->nCountDecodeParams, pParams->nCountFilters);
-			fwprintf(pParams->fpErrors, L"ERRORE parsing stmobjbody(OBJ num = %lu, gen = %lu): il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->nCountDecodeParams, pParams->nCountFilters);
+			//fwprintf(pParams->fpErrors, L"ERRORE parsing stmobjbody(OBJ num = %d, gen = %d): il numero di DecodeParams(%d) non coincide col numero di Filters(%d)\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->nCountDecodeParams, pParams->nCountFilters);
 			retValue = 0;
 			goto uscita;
 		}
@@ -12380,8 +12645,10 @@ int stmobjbody(Params *pParams)
 	pParams->currentObjStm.pszDecodedStream = getDecodedStream(pParams, &(pParams->currentObjStm.nDecodedStreamSize), &(pParams->CurrentContent));
 	if ( NULL == pParams->currentObjStm.pszDecodedStream )
 	{
-		wprintf(L"ERRORE parsing stmobjbody(OBJ num = %lu, gen = %lu): getDecodedStream failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
-		fwprintf(pParams->fpErrors, L"ERRORE parsing stmobjbody(OBJ num = %lu, gen = %lu): getDecodedStream failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		snprintf(pParams->szError, 8192, "ERRORE parsing stmobjbody(OBJ num = %u, gen = %u): getDecodedStream failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE parsing stmobjbody(OBJ num = %d, gen = %d): getDecodedStream failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
+		//fwprintf(pParams->fpErrors, L"ERRORE parsing stmobjbody(OBJ num = %d, gen = %d): getDecodedStream failed.\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation);
 		retValue = 0;
 		goto uscita;
 	}
@@ -12482,8 +12749,10 @@ int stmobjkeyvalue(Params *pParams)
 					
 					if ( !ParseLengthObject(pParams, n1) )
 					{
+						snprintf(pParams->szError, 8192, "ERRORE stmobjkeyvalue(OBJ num = %u, gen = %u) streamobj number %u\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
-						fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
+						//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
 						return 0;
 					}
 					
@@ -12493,8 +12762,10 @@ int stmobjkeyvalue(Params *pParams)
 				{					
 					if ( !ParseLengthObject(pParams, n1) )
 					{
+						snprintf(pParams->szError, 8192, "ERRORE stmobjkeyvalue(OBJ num = %u, gen = %u) streamobj number %u\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
-						fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
+						//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
 						return 0;
 					}
 					
@@ -12504,8 +12775,10 @@ int stmobjkeyvalue(Params *pParams)
 				{					
 					if ( !ParseLengthObject(pParams, n1) )
 					{
+						snprintf(pParams->szError, 8192, "ERRORE stmobjkeyvalue(OBJ num = %u, gen = %u) streamobj number %u\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
-						fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
+						//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu) streamobj number %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, n1);
 						return 0;
 					}
 					
@@ -12567,8 +12840,10 @@ int stmobjkeyvalue(Params *pParams)
 				pParams->nCountDecodeParams++;				
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE stmobjkeyvalue(OBJ num = %u, gen = %u): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %d, gen = %d): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -12670,8 +12945,10 @@ int stmobjkeyarray(Params *pParams)
 			}
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE stmobjkeyvalue(OBJ num = %u, gen = %u): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE stmobjkeyarray(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyarray(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyarray(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_NAME, T_KW_NULL, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -12710,8 +12987,10 @@ int stmobjkeydict(Params *pParams)
 	pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));	
 	if ( NULL == pParams->myDataDecodeParams.pszKey )
 	{
-		wprintf(L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
-		fwprintf(pParams->fpErrors, L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
+		snprintf(pParams->szError, 8192, "ERRORE stmobjkeydict(OBJ num = %u, gen = %u): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
+		//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
 		return 0;
 	}
 	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
@@ -12736,8 +13015,10 @@ int stmobjkeydict(Params *pParams)
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
-			wprintf(L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
-			fwprintf(pParams->fpErrors, L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
+			snprintf(pParams->szError, 8192, "ERRORE stmobjkeydict(OBJ num = %u, gen = %u): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
+			//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
 			return 0;
 		}
 		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
@@ -12861,8 +13142,10 @@ int stmobjkeyvalueinternal(Params *pParams)
 				return 0;
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "ERRORE stmobjkeyvalue(OBJ num = %u, gen = %u): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeyvalue(OBJ num = %lu, gen = %lu): Atteso uno di questi token: T_INT_LITERAL, T_NAME, T_QOPAREN, TDICT_BEGIN; trovato invece TOKEN n° %d\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, pParams->myToken.Type);
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			return 0;
 			break;
@@ -12917,8 +13200,10 @@ int cot(Params *pParams)
 	
 	if ( T_INT_LITERAL != pParams->myToken.Type )
 	{
+		snprintf(pParams->szError, 8192, "ERRORE cot: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE cot: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"ERRORE cot: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"ERRORE cot: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		retValue = 0;
 		goto uscita;
@@ -13144,4 +13429,3 @@ int pdf(Params *pParams)
 	
 	return retValue;
 }
-

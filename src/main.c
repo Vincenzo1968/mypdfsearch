@@ -68,6 +68,8 @@ FilesList* addFileToFilesList(FilesList *first, FilesList *newFile)
 	#endif
 	strcpy(n->myFileName, newFile->myFileName);
 	
+	//wprintf(L"ECCO: <%s/%s>\n", n->myPathName, n->myFileName);
+	
 	n->next = NULL;
 	
 	if ( first != NULL )
@@ -183,6 +185,100 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 {
 	FilesList myFile;		
 	DIR *dir = NULL;
+	struct dirent *entry;
+	char pathName[PATH_MAX + 1];
+		
+	int i;
+	int len;
+	int len2;
+	int index;
+	char *szExt;	
+
+	dir = opendir(dirName);
+	if( dir == NULL )
+	{
+		wprintf(L"Errore nell'apertura della directory '%s': %s\n", dirName, strerror(errno));
+		return myFilesList;
+	}	
+	
+	myFile.myPathName[0] = '\0';
+	myFile.myFileName[0] = '\0';
+	
+	
+	entry = readdir(dir);
+	while( entry != NULL )
+	{
+		struct stat entryInfo;
+		
+		if( ( strncmp(entry->d_name, ".", PATH_MAX) == 0 ) ||
+		    ( strncmp(entry->d_name, "..", PATH_MAX) == 0 ) )
+		{
+			entry = readdir(dir);
+		    continue;
+		}
+		 		
+		strncpy(pathName, dirName, PATH_MAX);
+		strncat(pathName, "/", PATH_MAX);
+		strncat(pathName, entry->d_name, PATH_MAX);
+				
+		if( lstat(pathName, &entryInfo) == 0 )
+		{						
+			if( S_ISDIR(entryInfo.st_mode) )		// directory 
+			{								
+				myFilesList = getFilesRecursive(pathName, lenOrig, myFilesList);
+			}
+			else if( S_ISREG(entryInfo.st_mode) )	// regular file 
+			{
+				len = strlen(entry->d_name);				
+				
+				index = 0;
+				for ( i = len - 1; i >= 0; i-- )
+				{
+						
+					if ( entry->d_name[i] == '.' )
+					{						
+						index = i;
+						break;
+					}
+				}
+											
+				if ( index > 0 )
+				{
+					szExt = &entry->d_name[index];
+					if ( strcmp(".pdf", szExt) == 0 )
+					{
+						len2 = strnlen(pathName, PATH_MAX);
+						strncpy(myFile.myPathName, pathName, len2 + 1);
+						index = strlen(pathName) - len - 1;
+						myFile.myPathName[index] = '\0';
+				
+						strncpy(myFile.myFileName, entry->d_name, PATH_MAX);
+						
+						myFilesList = addFileToFilesList(myFilesList, &myFile);
+						if ( !myFilesList )
+							return NULL;
+					}
+				}								
+			}			
+		}
+		else
+		{
+			wprintf(L"Errore lstat %s: %s\n", pathName, strerror(errno));
+		}
+
+		entry = readdir(dir);
+	}
+		
+	closedir(dir);	
+	
+	return myFilesList;
+}
+
+/*
+FilesList* getFilesRecursive_OLD(char *dirName, int lenOrig, FilesList* myFilesList)
+{
+	FilesList myFile;		
+	DIR *dir = NULL;
 	struct dirent entry;
 	struct dirent *entryPtr = NULL;
 	char pathName[PATH_MAX + 1];
@@ -205,7 +301,8 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 	myFile.myPathName[0] = '\0';
 	myFile.myFileName[0] = '\0';
 	
-	/* retval = */ readdir_r(dir, &entry, &entryPtr);
+	// retval = readdir_r(dir, &entry, &entryPtr);
+	readdir_r(dir, &entry, &entryPtr);
 	while( entryPtr != NULL )
 	{
 		struct stat entryInfo;
@@ -213,7 +310,8 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 		if( ( strncmp(entry.d_name, ".", PATH_MAX) == 0 ) ||
 		    ( strncmp(entry.d_name, "..", PATH_MAX) == 0 ) )
 		{
-			/* retval = */ readdir_r(dir, &entry, &entryPtr);
+			// retval = readdir_r(dir, &entry, &entryPtr);
+			readdir_r(dir, &entry, &entryPtr);
 		    continue;
 		}
 		 		
@@ -223,11 +321,11 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 				
 		if( lstat(pathName, &entryInfo) == 0 )
 		{						
-			if( S_ISDIR(entryInfo.st_mode) )		/* directory */
+			if( S_ISDIR(entryInfo.st_mode) )		// directory 
 			{								
 				myFilesList = getFilesRecursive(pathName, lenOrig, myFilesList);
 			}
-			else if( S_ISREG(entryInfo.st_mode) )	/* regular file */
+			else if( S_ISREG(entryInfo.st_mode) )	// regular file 
 			{
 				len = strlen(entry.d_name);				
 				
@@ -266,13 +364,15 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 			wprintf(L"Errore lstat %s: %s\n", pathName, strerror(errno));
 		}
 
-		/* retval = */ readdir_r(dir, &entry, &entryPtr);
+		readdir_r(dir, &entry, &entryPtr);
+		// retval =  readdir_r(dir, &entry, &entryPtr);
 	}
 		
 	closedir(dir);	
 	
 	return myFilesList;
 }
+*/
 #endif
 
 /* -------------------------------------------------------------------------------------------------- */
@@ -615,7 +715,7 @@ void PrintHelpCommandLine()
 void PrintVersionInfo()
 {
 	//wprintf(L"\n   mypdfsearch version 1.3.5\n");	
-	wprintf(L"\n   mypdfsearch version 1.5.5\n");	
+	wprintf(L"\n   mypdfsearch version 1.5.8\n");	
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -1103,41 +1203,6 @@ int MakeAndOpenOutputFile(Params *pParams)
 	return retValue;
 }
 
-int MakeAndOpenErrorsFile(Params *pParams)
-{
-	int retValue = 1;
-			
-	#if !defined(_WIN64) && !defined(_WIN32)
-	unsigned char szBOM[21];
-	// UTF-8 BOM -> EF BB BF 
-	szBOM[0] = 0xEF;
-	szBOM[1] = 0xBB;
-	szBOM[2] = 0xBF;
-	szBOM[3] = '\0';
-	#endif
-	
-	pParams->fpErrors = fopen("AAA_mypdfsearch_parsing_errors.txt", "wb");
-	if ( pParams->fpErrors == NULL )
-	{
-		wprintf(L"\n\nERRORE: impossibile creara il file specificato per i messaggi d'errore.\n\n");
-		retValue = 0;
-		goto uscita;
-	}	
-	
-	#if defined(_WIN64) || defined(_WIN32)
-	_setmode(_fileno(pParams->fpErrors), _O_U8TEXT);	
-	#endif	
-	
-	#if !defined(_WIN64) && !defined(_WIN32)
-	// UTF-8 BOM -> EF BB BF 
-	fwprintf(pParams->fpErrors, L"%s", szBOM);
-	#endif
-		
-	uscita:
-	
-	return retValue;
-}
-
 void checkEndianness(Params *pParams)
 {
 	//int i = 0xDEED1234;
@@ -1223,7 +1288,7 @@ gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURC
  
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=1 --topage=1
 
-valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
  
@@ -1242,7 +1307,7 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
  
 
 
-valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="/home/vincenzo/Varie/GCC/Varie/Files/Giornali" --words="Virginia Orbán branco"
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="../Files/FileProblematico" --words="Virginia Orbán branco"
 
@@ -1311,6 +1376,8 @@ int main(int argc, char **argv)
 					
 	FilesList* myFilesList = NULL;
 	
+	struct stat entryInfo;
+	
 	//long numProcessors;
 		
 	int len;
@@ -1346,17 +1413,17 @@ int main(int argc, char **argv)
 	}
 #endif	
 
-	if ( !MakeAndOpenErrorsFile(&myParams) )
-	{
-		retValue = EXIT_FAILURE;
-		goto uscita;
-	}
+	//if ( !MakeAndOpenErrorsFile(&myParams) )
+	//{
+	//	retValue = EXIT_FAILURE;
+	//	goto uscita;
+	//}
 	
 	//numProcessors = GetProcessors();
 	//wprintf(L"\n\nQUESTA MACCHINA HA %ld PROCESSORI.\n\n", numProcessors);
-	
+			
 	checkEndianness(&myParams);
-
+	
 	if ( !myParseCommandLine(&myParams, argc, argv) )
 	{
 		retValue = EXIT_FAILURE;
@@ -1377,7 +1444,7 @@ int main(int argc, char **argv)
 			goto uscita;
 		}
 	}
-		
+			
 	if ( myParams.szFilePdf[0] != '\0' )
 	{
 		#if !defined(_WIN64) && !defined(_WIN32)
@@ -1424,13 +1491,63 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		len = strnlen(myParams.szPath, MAX_LEN_STR);
-		myFilesList = getFilesRecursive(myParams.szPath, len, myFilesList);	
-		if ( !myFilesList )
-		{
-			wprintf(L"Errore: impossibile ottenere la lista dei file.\n");
-			retValue = EXIT_FAILURE;
-			goto uscita;
+		if( lstat(myParams.szPath, &entryInfo) == 0 )
+		{						
+			if( S_ISDIR(entryInfo.st_mode) )		// directory 
+			{
+				len = strnlen(myParams.szPath, MAX_LEN_STR);
+				myFilesList = getFilesRecursive(myParams.szPath, len, myFilesList);	
+				if ( !myFilesList )
+				{
+					wprintf(L"Errore: impossibile ottenere la lista dei file.\n");
+					retValue = EXIT_FAILURE;
+					goto uscita;
+				}				
+			}
+			else if( S_ISREG(entryInfo.st_mode) )	// regular file
+			{
+				#if !defined(_WIN64) && !defined(_WIN32)
+				char* psz = NULL;
+				int x;
+				int y;		
+				#endif
+		
+				myFilesList = (FilesList*)malloc(sizeof(FilesList));
+		
+				if( myFilesList == NULL )
+				{
+					wprintf(L"Errore main: impossibile aggiungere il file alla lista.\n");
+					retValue = EXIT_FAILURE;
+					goto uscita;			
+				}
+
+				#if !defined(_WIN64) && !defined(_WIN32)
+				strcpy(myFilesList->myPathName, myParams.szPath);
+				myFilesList->next = NULL;
+						
+				x = strlen(myFilesList->myPathName);
+				while ( x >= 0 )
+				{
+					if ( myFilesList->myPathName[x] == '/' )
+					{
+						myFilesList->myPathName[x] = '\0';
+						break;
+					}
+					x--;
+				}
+		
+				if ( x > 0 )
+					x++;
+				psz = &(myParams.szPath[x]);
+				y = 0;
+				while ( *psz != '\0' )
+					myFilesList->myFileName[y++] = *(psz++);
+				myFilesList->myFileName[y] = '\0';		
+				#else
+				strcpy(myFilesList->myFileName, myParams.szPath);
+				myFilesList->next = NULL;
+				#endif
+			}
 		}
 	}
 				

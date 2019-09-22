@@ -57,6 +57,79 @@ typedef uint32_t* MY_DWORD_PTR;
 #define MY_HIBYTE(w) ((MY_BYTE)((MY_DWORD_PTR)(w) >> 8))
 */
 
+int MakeAndOpenErrorsFile(Params *pParams, int bBom)
+{
+	int retValue = 1;
+			
+	#if !defined(_WIN64) && !defined(_WIN32)
+	unsigned char szBOM[21];
+	#endif
+	
+	if ( NULL != pParams->fpErrors )
+		goto uscita;
+		
+	#if !defined(_WIN64) && !defined(_WIN32)
+	// UTF-8 BOM -> EF BB BF 
+	szBOM[0] = 0xEF;
+	szBOM[1] = 0xBB;
+	szBOM[2] = 0xBF;
+	szBOM[3] = '\0';
+	#endif
+	
+	pParams->fpErrors = fopen("AAA_mypdfsearch_parsing_errors.txt", "wb");
+	if ( pParams->fpErrors == NULL )
+	{
+		wprintf(L"\n\nERRORE: impossibile creara il file specificato per i messaggi d'errore.\n\n");
+		retValue = 0;
+		goto uscita;
+	}	
+	
+	if ( !bBom )
+		goto uscita;
+	
+	#if defined(_WIN64) || defined(_WIN32)
+	_setmode(_fileno(pParams->fpErrors), _O_U8TEXT);	
+	#endif	
+	
+	#if !defined(_WIN64) && !defined(_WIN32)
+	// UTF-8 BOM -> EF BB BF 
+	fwprintf(pParams->fpErrors, L"%s", szBOM);
+	#endif
+		
+	uscita:
+	
+	return retValue;
+}
+
+int myShowErrorMessage(Params *pParams, const char *szMsg, int bPrintToErrorFile)
+{	
+	if ( bPrintToErrorFile )
+	{
+		if ( !MakeAndOpenErrorsFile(pParams, 1) )
+			return 0;
+			
+		#if !defined(_WIN64) && !defined(_WIN32)
+		fwprintf(pParams->fpErrors, L"\nFile: '%s'\n", pParams->szFileName);
+		#else
+		int lung = strnlen(pParams->szFileName, MAX_LEN_STR);
+		fwprintf(pParams->fpErrors, L"\nFILE = <");
+		for ( int idx = 0; idx < lung; idx++ )
+		{
+			fwprintf(pParams->fpErrors, L"%c", pParams->szFileName[idx]);
+		}
+		fwprintf(pParams->fpErrors, L">\n");
+		#endif
+		
+		fwprintf(pParams->fpErrors, L"\t%s\n", szMsg);
+	}
+	else
+	{
+		wprintf(L"%s\n", szMsg);
+	}
+	
+	return 1;
+}
+
 int myCodepointToUtf8(uint32_t codepoint, uint32_t *pUtf8)
 {	
 	uint8_t bytes[4];
@@ -90,7 +163,7 @@ int myCodepointToUtf8(uint32_t codepoint, uint32_t *pUtf8)
 	else
 	{
 		// illegal!
-		printf("\nIllegal codepoint\n");
+		//printf("\nIllegal codepoint\n");
 		return 0;
 	}
 
@@ -266,11 +339,19 @@ int matchTrailer(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunction
 		retValue = 0;
 		
 		if ( NULL != pszFunctionName )
-			fwprintf(pParams->fpErrors, L"\nFUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pszFunctionName, ExpectedToken, pParams->myToken.Type);
+		{
+			snprintf(pParams->szError, 1024, "\nFUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pszFunctionName, ExpectedToken, pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"\nFUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pszFunctionName, ExpectedToken, pParams->myToken.Type);
 			//wprintf(L"\nFUNZIONE match(richiamata dalla funzione '%s' -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", pszFunctionName, ExpectedToken, pParams->myToken.Type);
+		}
 		else
-			fwprintf(pParams->fpErrors, L"\nFUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", ExpectedToken, pParams->myToken.Type);			
+		{
+			snprintf(pParams->szError, 1024, "\nFUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", ExpectedToken, pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"\nFUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", ExpectedToken, pParams->myToken.Type);
 			//wprintf(L"\nFUNZIONE match -> errore di sintassi: Atteso token n° %d, trovato token n° %d\n", ExpectedToken, pParams->myToken.Type);			
+		}
 	}
 	
 #if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_MATCH)
@@ -366,7 +447,7 @@ int matchTrailer(Params *pParams, TokenTypeEnum ExpectedToken, char *pszFunction
 
 // trailerbody      : T_DICT_BEGIN traileritems T_DICT_END;
 int trailerbody(Params *pParams)
-{	
+{		
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)
 	PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
 	#endif
@@ -411,16 +492,21 @@ int trailerbody(Params *pParams)
 		
 	if ( pParams->myPdfTrailer.Size <= 0 )
 	{
+		snprintf(pParams->szError, 1024, "Error parsing trailerbody: trailer Size value must be > 0 %d\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore parsing trailerbody: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"Error parsing trailerbody: trailer Size value must be > 0 %d\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"Error parsing trailerbody: trailer Size value must be > 0 %d\n", pParams->myToken.Type);
 		return 0;		
 	}
 	
 	if ( pParams->myPdfTrailer.Root.Number <= 0 )
 	{
 		mynumstacklist_Free( &(pParams->myNumStack) );
+		
+		snprintf(pParams->szError, 1024, "Error parsing trailerbody: trailer Root value must be > 0 %d\n", pParams->myToken.Type);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore parsing trailerbody: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
-		fwprintf(pParams->fpErrors, L"Error parsing trailerbody: trailer Root value must be > 0 %d\n", pParams->myToken.Type);
+		//fwprintf(pParams->fpErrors, L"Error parsing trailerbody: trailer Root value must be > 0 %d\n", pParams->myToken.Type);
 		return 0;		
 	}
 	
@@ -504,8 +590,10 @@ int trailerobj(Params *pParams)
 								
 				if ( !matchTrailer(pParams, T_KW_R, "trailerobj") )
 				{
+					snprintf(pParams->szError, 1024, "Errore parsing trailerobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore parsing trailerobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
-					fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
+					//fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: atteso T_KW_R, trovato %d\n", pParams->myToken.Type);
 					return 0;
 				}
 				
@@ -520,8 +608,10 @@ int trailerobj(Params *pParams)
 				{
 					if ( iGen < 0 )
 					{
+						snprintf(pParams->szError, 1024, "Errore parsing trailerobj: Root value shall be an indirect reference\n");
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"Errore parsing trailerobj: Root value shall not be an indirect reference");
-						fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Root value shall be an indirect reference\n");
+						//fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Root value shall be an indirect reference\n");
 						return 0;
 					}
 										
@@ -532,8 +622,10 @@ int trailerobj(Params *pParams)
 				{
 					if ( iGen < 0 )
 					{
+						snprintf(pParams->szError, 1024, "Errore parsing trailerobj: Size value shall be an indirect reference\n");
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"Errore parsing trailerobj: Size value shall not be an indirect reference");
-						fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Size value shall be an indirect reference\n");
+						//fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Size value shall be an indirect reference\n");
 						return 0;
 					}										
 				}				
@@ -551,8 +643,10 @@ int trailerobj(Params *pParams)
 				{
 					if ( iGen < 0 )
 					{
+						snprintf(pParams->szError, 1024, "Errore parsing trailerobj: Prev value shall be an indirect reference\n");
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"Errore parsing trailerobj: Prev value shall not be an indirect reference");
-						fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Prev value shall be an indirect reference\n");
+						//fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: Prev value shall be an indirect reference\n");
 						return 0;
 					}
 										
@@ -619,8 +713,10 @@ int trailerobj(Params *pParams)
 				return 0;
 			break;
 		default:
+			snprintf(pParams->szError, 1024, "Errore parsing trailerobj: token non valido: %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore parsing trailerobj: token non valido: %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: token non valido: %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"Errore parsing trailerobj: token non valido: %d\n", pParams->myToken.Type);
 			PrintTokenTrailer(&(pParams->myToken), '\0', ' ', 1);
 			return 0;
 			break;
@@ -641,8 +737,10 @@ int trailerarrayobjs(Params *pParams)
 													
 		if ( pParams->myToken.Type == T_ERROR || pParams->myToken.Type == T_EOF )
 		{
+			snprintf(pParams->szError, 8192, "Errore parsing trailerarrayobjs: token non valido: %d\n", pParams->myToken.Type);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore parsing trailerarrayobjs: token non valido: %d\n", pParams->myToken.Type);
-			fwprintf(pParams->fpErrors, L"Errore parsing trailerarrayobjs: token non valido: %d\n", pParams->myToken.Type);
+			//fwprintf(pParams->fpErrors, L"Errore parsing trailerarrayobjs: token non valido: %d\n", pParams->myToken.Type);
 			PrintTokenTrailer(&(pParams->myToken), '\0', ' ', 1);
 			return 0;
 		}
@@ -685,7 +783,7 @@ int ReadTrailerBody(Params *pParams, unsigned char *szInput, int index)
 	int x;
 	char szTemp[1024];
 	int bSizeYes, bRootYes;
-		
+	
 	c = szInput[index++];		
 	while ( (c == '\n' || c == '\r' || c == '\t' || c == ' ' || c == '\f' || c == '\b') )
 	{
@@ -697,9 +795,10 @@ int ReadTrailerBody(Params *pParams, unsigned char *szInput, int index)
 	
 	if ( c != '<' )
 	{
-		
+		snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 1: atteso '<' trovato '%c'\n", c);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ReadTrailerBody 1: atteso '<' trovato '%c'\n", c);
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 1: atteso '<' trovato '%c'\n", c);		
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 1: atteso '<' trovato '%c'\n", c);		
 		return 0;			
 	}
 		
@@ -707,8 +806,10 @@ int ReadTrailerBody(Params *pParams, unsigned char *szInput, int index)
 	
 	if ( c != '<' )
 	{	
+		snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 2: atteso '<' trovato '%c'\n", c);		
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ReadTrailerBody 2: atteso '<' trovato '%c'\n", c);
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 2: atteso '<' trovato '%c'\n", c);		
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 2: atteso '<' trovato '%c'\n", c);		
 		return 0;			
 	}		
 
@@ -726,8 +827,10 @@ ciclo2:
 	
 	if ( c != '/' )
 	{	
+		snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 3: atteso '/' trovato '%c'\n", c);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ReadTrailerBody 3: atteso '/' trovato '%c'\n", c);
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 3: atteso '/' trovato '%c'\n", c);		
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 3: atteso '/' trovato '%c'\n", c);
 		return 0;			
 	}
 				
@@ -1050,9 +1153,11 @@ ciclo2:
 	}
 	
 	if ( c == '\0' )
-	{	
+	{
+		snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 4: atteso '<' trovato carattere NULL -> '\\0'\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ReadTrailerBody 4: atteso '<' trovato '%c'\n", c);
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 4: atteso '<' trovato carattere NULLL -> '\\0'\n");
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 4: atteso '<' trovato carattere NULL -> '\\0'\n");
 		return 0;			
 	}
 	
@@ -1068,8 +1173,10 @@ ciclo2:
 			
 			if ( x <= 0 || x >= 1024 )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 5\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 5\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 5\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 5\n");
 				return 0;			
 			}
 			
@@ -1088,8 +1195,10 @@ ciclo2:
 			
 			if ( x <= 0 || x >= 1024 )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 6\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 6\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 5\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 6\n");
 				return 0;			
 			}
 				
@@ -1106,8 +1215,10 @@ ciclo2:
 			
 			if ( x <= 0 || x >= 1024 )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 7\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 7\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 7\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 7\n");
 				return 0;			
 			}
 				
@@ -1117,8 +1228,10 @@ ciclo2:
 			
 			if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 8: atteso spazio trovato '%c'\n", c);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 8: atteso spazio trovato '%c'\n", c);
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 8: atteso spazio trovato '%c'\n", c);
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 8: atteso spazio trovato '%c'\n", c);
 				return 0;			
 			}	
 							
@@ -1130,8 +1243,10 @@ ciclo2:
 			
 			if ( c == '\0' )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 9\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 9\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 9\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 9\n");
 				return 0;			
 			}
 				
@@ -1144,8 +1259,10 @@ ciclo2:
 			
 			if ( x <= 0 || x >= 1024 )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 10\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 10\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 10\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 10\n");
 				return 0;			
 			}
 				
@@ -1155,8 +1272,10 @@ ciclo2:
 			
 			if ( (c != ' ' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 11: atteso spazio trovato '%c'\n", c);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 11: atteso spazio trovato '%c'\n", c);
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 11: atteso spazio trovato '%c'\n", c);
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 11: atteso spazio trovato '%c'\n", c);
 				return 0;			
 			}
 				
@@ -1168,19 +1287,20 @@ ciclo2:
 			
 			if ( c != 'R' )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 12\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 12\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 12\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 12\n");
 				return 0;			
 			}
 				
 			c = szInput[index++];
 			if ( (c != '/' && c != ' ' && c != '>' && c != '\r' && c != '\n' && c != '\t' && c != '\f' && c != '\b') )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 13: atteso '/' o spazio, trovato '%c'\n", c);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 13: atteso spazio trovato '%c'\n", c);
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 13: atteso '/' o spazio, trovato '%c'\n", c);
-				wprintf(L"\n\nINPUT:\n");
-				wprintf(L"%s", szInput);
-				wprintf(L"\nFINE INPUT\n\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 13: atteso '/' o spazio, trovato '%c'\n", c);
 				return 0;			
 			}
 						
@@ -1194,8 +1314,10 @@ ciclo2:
 			
 			if ( c == '\0' )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 14\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 14\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 14\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 14\n");
 				return 0;			
 			}
 				
@@ -1209,8 +1331,10 @@ ciclo2:
 			
 			if ( c == '\0' )
 			{	
+				snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 15\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadTrailerBody 15\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 15\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 15\n");
 				return 0;			
 			}
 				
@@ -1241,27 +1365,11 @@ ciclo3:
 	c = szInput[index++];
 	if ( c != '>' )
 	{	
-		int ktemp;
+		snprintf(pParams->szError, 8192, "Errore ReadTrailerBody 16: atteso '>', trovato '%c'\n", c);
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ReadTrailerBody 16: atteso '>' trovato '%c'\n", c);
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 16: atteso '>', trovato '%c'\n", c);
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody 16: atteso '>', trovato '%c'\n", c);
 		
-		wprintf(L"INIZIO BLOCCO ERRATO>\n");
-		ktemp = 0;
-		c = szInput[ktemp];
-		while ( c != '\0' )
-		{
-			wprintf(L"%c", c);
-			
-			if ( ktemp == index - 1 )
-			{
-				wprintf(L"#>ERRORE QUI<#");
-			}
-			
-			c = szInput[ktemp];
-			ktemp++;
-			
-		}
-		wprintf(L"<FINE BLOCCO ERRATO\n");
 		return 0;			
 	}
 	
@@ -1269,15 +1377,23 @@ ciclo4:
 		
 	if ( !bSizeYes )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadTrailerBody: manca la voce 'Size' nel trailer\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ReadTrailerBody: manca la voce 'Size' nel trailer\n");
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody: manca la voce 'Size' nel trailer\n");
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody: manca la voce 'Size' nel trailer\n");
 		return 0;
 	}
 
 	if ( !bRootYes )
 	{
-		wprintf(L"Errore ReadTrailerBody: manca la voce 'Root' nel trailer\n");
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody: manca la voce 'Root' nel trailer\n");
+		//snprintf(pParams->szError, 8192, "Errore ReadTrailerBody: manca la voce 'Root' nel trailer\n");
+		//myShowErrorMessage(pParams, pParams->szError, 0);
+		//wprintf(L"Errore ReadTrailerBody: manca la voce 'Root' nel trailer\n");
+		
+		snprintf(pParams->szError, 8192, "Errore ReadTrailerBody: manca la voce 'Root' nel trailer\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailerBody: manca la voce 'Root' nel trailer\n");
+		
 		return 0;
 	}
 		
@@ -1299,8 +1415,11 @@ int GetLenNextInput(Params *pParams, int startxref, int *len)
 	
 	if ( fseek(pParams->fp, startxref, SEEK_SET) )
 	{
-		wprintf(L"Errore GetLenNextInput fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore GetLenNextInput fseek\n");
+		snprintf(pParams->szError, 8192, "Errore GetLenNextInput fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		myShowErrorMessage(pParams, pParams->szError, 0);
+		//wprintf(L"Errore GetLenNextInput fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore GetLenNextInput fseek\n");
 		retValue = 0;
 		goto uscita;
 	}	
@@ -1308,8 +1427,11 @@ int GetLenNextInput(Params *pParams, int startxref, int *len)
 	myBlock = (unsigned char *)malloc(sizeof(unsigned char) * BLOCK_SIZE);
 	if ( !myBlock )
 	{
-		wprintf(L"Errore GetLenNextInput: memoria insufficiente.\n");
-		fwprintf(pParams->fpErrors, L"Errore GetLenNextInput: memoria insufficiente.\n");
+		snprintf(pParams->szError, 8192, "Errore GetLenNextInput: memoria insufficiente.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		myShowErrorMessage(pParams, pParams->szError, 0);
+		//wprintf(L"Errore GetLenNextInput: memoria insufficiente.\n");
+		//fwprintf(pParams->fpErrors, L"Errore GetLenNextInput: memoria insufficiente.\n");
 		retValue = 0;
 		goto uscita;
 	}
@@ -1415,8 +1537,10 @@ int ReadLastTrailer(Params *pParams, unsigned char *szInput)
 			
 			if ( x >= 7 )
 			{
+				snprintf(pParams->szError, 8192, "Errore ReadLastTrailer XRefStream: T_INT_LITERAL troppo lungo.\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadLastTrailer XRefStream: T_INT_LITERAL troppo lungo.\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadLastTrailer XRefStream: T_INT_LITERAL troppo lungo.\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadLastTrailer XRefStream: T_INT_LITERAL troppo lungo.\n");
 				return 0;
 			}
 			
@@ -1426,12 +1550,18 @@ int ReadLastTrailer(Params *pParams, unsigned char *szInput)
 		}
 		else
 		{
+			snprintf(pParams->szError, 8192, "Errore ReadLastTrailer: atteso 'x' o T_INT_LITERAL. Trovato invece '%c'\n", c);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore ReadLastTrailer: atteso 'x' trovato '%c'\n", c);
-			fwprintf(pParams->fpErrors, L"Errore ReadLastTrailer: atteso 'x' o T_INT_LITERAL. Trovato invece '%c'\n", c);
+			//fwprintf(pParams->fpErrors, L"Errore ReadLastTrailer: atteso 'x' o T_INT_LITERAL. Trovato invece '%c'\n", c);
+			
 			pszTemp = (char*)szInput + index - 1;
 			pszTemp[index + 144] = '\0';
+			
+			snprintf(pParams->szError, 8192, "szInput = <%s>\n", pszTemp);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"szInput = <%s>\n", pszTemp);
-			fwprintf(pParams->fpErrors, L"szInput = <%s>\n", pszTemp);
+			//fwprintf(pParams->fpErrors, L"szInput = <%s>\n", pszTemp);
 			
 			return 0;
 		}
@@ -1535,8 +1665,11 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 		pParams->myObjsTable = (PdfObjsTableItem **)malloc(sizeof(PdfObjsTableItem*) * pParams->nObjsTableSizeFromPrescanFile);
 		if ( !(pParams->myObjsTable) )
 		{
-			wprintf(L"ERROR ReadSubSectionBody: memoria insufficiente per la tabella degli oggetti.\n\n");
-			fwprintf(pParams->fpErrors,L"ERROR ReadSubSectionBody: memoria insufficiente per la tabella degli oggetti.\n\n");
+			snprintf(pParams->szError, 8192, "ERROR ReadSubSectionBody: memoria insufficiente per la tabella degli oggetti.\n\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			myShowErrorMessage(pParams, pParams->szError, 0);
+			//wprintf(L"ERROR ReadSubSectionBody: memoria insufficiente per la tabella degli oggetti.\n\n");
+			//fwprintf(pParams->fpErrors,L"ERROR ReadSubSectionBody: memoria insufficiente per la tabella degli oggetti.\n\n");
 			return 0;
 		}
 		for ( x = 0; x < pParams->nObjsTableSizeFromPrescanFile; x++ )
@@ -1585,8 +1718,11 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 				pParams->myObjsTable[numInit] = (PdfObjsTableItem *)malloc(sizeof(PdfObjsTableItem));
 				if ( NULL == pParams->myObjsTable[numInit] )
 				{
-					wprintf(L"ERRORE ReadSubSectionBody 0 bis: malloc failed\n");
-					fwprintf(pParams->fpErrors, L"ERROR ReadSubSectionBody 0 bis: malloc failed\n");
+					snprintf(pParams->szError, 8192, "ERRORE ReadSubSectionBody 0 bis: malloc failed\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
+					myShowErrorMessage(pParams, pParams->szError, 0);
+					//wprintf(L"ERRORE ReadSubSectionBody 0 bis: malloc failed\n");
+					//fwprintf(pParams->fpErrors, L"ERROR ReadSubSectionBody 0 bis: malloc failed\n");
 					return 0;
 				}
 			}
@@ -1609,8 +1745,10 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 		{
 			if ( numInit != 0 )
 			{
+				snprintf(pParams->szError, 8192, "ERROR ReadSubSectionBody 0: INDEX %d OUT OF RANGE [0-%d]\n", numInit, pParams->nObjsTableSizeFromPrescanFile);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ERRORE ReadSubSectionBody 0: INDEX %d OUT OF RANGE [0-%lu]\n", numInit, pParams->nObjsTableSizeFromPrescanFile);
-				fwprintf(pParams->fpErrors, L"ERROR ReadSubSectionBody 0: INDEX %d OUT OF RANGE [0-%lu]\n", numInit, pParams->nObjsTableSizeFromPrescanFile);
+				//fwprintf(pParams->fpErrors, L"ERROR ReadSubSectionBody 0: INDEX %d OUT OF RANGE [0-%lu]\n", numInit, pParams->nObjsTableSizeFromPrescanFile);
 				return 0;
 			}
 						
@@ -1619,8 +1757,11 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 				pParams->myObjsTable[numInit] = (PdfObjsTableItem *)malloc(sizeof(PdfObjsTableItem));
 				if ( NULL == pParams->myObjsTable[numInit] )
 				{
-					wprintf(L"ERRORE ReadSubSectionBody 0 tris: malloc failed\n");
-					fwprintf(pParams->fpErrors, L"ERROR ReadSubSectionBody 0 tris: malloc failed\n");
+					snprintf(pParams->szError, 8192, "ERRORE ReadSubSectionBody 0 tris: malloc failed\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
+					myShowErrorMessage(pParams, pParams->szError, 0);
+					//wprintf(L"ERRORE ReadSubSectionBody 0 tris: malloc failed\n");
+					//fwprintf(pParams->fpErrors, L"ERROR ReadSubSectionBody 0 tris: malloc failed\n");
 					return 0;
 				}
 			}
@@ -1644,8 +1785,10 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 			c2 = szInput[(*index)++];
 			if ( c2 != '\r' && c2 != '\n' )
 			{
+				snprintf(pParams->szError, 8192, "ERRORE ReadSubSectionBody 1: c = '%c', c2 = '%c'\n", c, c2);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ERRORE ReadSubSectionBody 1: c = '%c', c2 = '%c'\n", c, c2);
-				fwprintf(pParams->fpErrors, L"ERRORE ReadSubSectionBody 1: c = '%c', c2 = '%c'\n", c, c2);
+				//fwprintf(pParams->fpErrors, L"ERRORE ReadSubSectionBody 1: c = '%c', c2 = '%c'\n", c, c2);
 				return 0;
 			}
 			break;
@@ -1653,14 +1796,18 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 			c2 = szInput[(*index)++];
 			if ( c2 != '\n' )
 			{
+				snprintf(pParams->szError, 8192, "ERRORE ReadSubSectionBody 2: c = '%c', c2 = '%c'\n", c, c2);
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"ERRORE ReadSubSectionBody 2: c = '%c', c2 = '%c'\n", c, c2);
-				fwprintf(pParams->fpErrors, L"ERRORE ReadSubSectionBody 2: c = '%c', c2 = '%c'\n", c, c2);
+				//fwprintf(pParams->fpErrors, L"ERRORE ReadSubSectionBody 2: c = '%c', c2 = '%c'\n", c, c2);
 				return 0;	
 			}
 			break;
 		default:
+			snprintf(pParams->szError, 8192, "Errore ReadSubSectionBody: atteso spazio trovato '%c'\n", c);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore ReadSubSectionBody: atteso spazio trovato '%c'\n", c);
-			fwprintf(pParams->fpErrors, L"Errore ReadSubSectionBody: atteso spazio trovato '%c'\n", c);
+			//fwprintf(pParams->fpErrors, L"Errore ReadSubSectionBody: atteso spazio trovato '%c'\n", c);
 			return 0;
 			break;
 		}
@@ -1810,16 +1957,22 @@ int ReadHeader(Params *pParams)
 
 	if ( fseek(pParams->fp, 0, SEEK_CUR) )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadHeader fseek\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		myShowErrorMessage(pParams, pParams->szError, 0);
 		//wprintf(L"Errore ReadHeader fseek\n");
-		fwprintf(pParams->fpErrors, L"Errore ReadHeader fseek\n");
+		//fwprintf(pParams->fpErrors, L"Errore ReadHeader fseek\n");
 		return 0;
 	}		
 	
 	bytereads = fread(szTemp, 1, BLOCK_SIZE, pParams->fp);
 	if ( bytereads <= 5 )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadHeader fred\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		myShowErrorMessage(pParams, pParams->szError, 0);
 		//wprintf(L"Errore ReadHeader fread\n");
-		fwprintf(pParams->fpErrors, L"Errore ReadHeader fread\n");
+		//fwprintf(pParams->fpErrors, L"Errore ReadHeader fread\n");
 		return 0;
 	}
 	
@@ -1842,36 +1995,46 @@ int ReadHeader(Params *pParams)
 	
 	if ( pParams->szPdfHeader[0] != '%' )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadHeader formato file non valido\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE ReadHeader: formaro file non valido\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formato file non valido\n");
 		return 0;
 	}
 	
 	if ( pParams->szPdfHeader[1] != 'P' )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadHeader formato file non valido\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE ReadHeader: formaro file non valido\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
 		return 0;
 	}
 	
 	if ( pParams->szPdfHeader[2] != 'D' )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadHeader formato file non valido\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE ReadHeader: formaro file non valido\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
 		return 0;
 	}
 
 	if ( pParams->szPdfHeader[3] != 'F' )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadHeader formato file non valido\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE ReadHeader: formaro file non valido\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
 		return 0;
 	}
 	
 	if ( pParams->szPdfHeader[4] != '-' )
 	{
+		snprintf(pParams->szError, 8192, "Errore ReadHeader formato file non valido\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE ReadHeader: formaro file non valido\n");
-		fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ReadHeader: formaro file non valido\n");
 		return 0;
 	}
 	
@@ -1927,7 +2090,10 @@ int ReadTrailer(Params *pParams)
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 			wprintf(L"Errore ReadTrailer: fseek 1\n");
 			#endif
-			fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fseek 1\n");
+			
+			snprintf(pParams->szError, 8192, "Errore ReadTrailer: fseek 1\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fseek 1\n");
 			return 0;
 		}
 	}
@@ -1938,50 +2104,22 @@ int ReadTrailer(Params *pParams)
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 			wprintf(L"Errore ReadTrailer: fseek 2\n");
 			#endif
-			fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fseek 2\n");
+			
+			snprintf(pParams->szError, 8192, "Errore ReadTrailer: fseek 2\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fseek 2\n");
 			return 0;
 		}		
 	}
-	
-	// ***********************************************************************************	
-	/*
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
-	
-	if ( fseek(pParams->fp, 0, SEEK_SET) )
-	{
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
-		wprintf(L"Errore ReadTrailer: fseek 2\n");
-		#endif
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fseek 2\n");
-		return 0;
-	}	
-	
+			
 	bytereads = fread(szTemp, 1, BLOCK_SIZE, pParams->fp);
 	if ( bytereads <= 5 )
 	{
-		wprintf(L"Errore ReadTrailer: fread 1\n");
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fread 1\n");
-		return 0;
-	}
-	
-	wprintf(L"ReadTrailer: bytes read for szTemp -> %d\n", bytereads);
-	wprintf(L"szTemp -> <");
-	for ( int i = 0; i < bytereads; i++ )
-	{
-		wprintf(L"%c", szTemp[i]);
-	}
-	wprintf(L">\n");
-	#endif
-	
-	return 0;
-	*/
-	// ***********************************************************************************
-		
-	bytereads = fread(szTemp, 1, BLOCK_SIZE, pParams->fp);
-	if ( bytereads <= 5 )
-	{
-		wprintf(L"Errore ReadTrailer: fread 1\n");
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fread 1\n");
+		snprintf(pParams->szError, 8192, "Errore ReadTrailer: fread 1\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		myShowErrorMessage(pParams, pParams->szError, 0);
+		//wprintf(L"Errore ReadTrailer: fread 1\n");
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailer: fread 1\n");
 		return 0;
 	}
 	
@@ -2077,7 +2215,10 @@ int ReadTrailer(Params *pParams)
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 		wprintf(L"Errore ReadTrailer: manca l'offset per xref.\n");
 		#endif
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailer: manca l'offset per xref.\n");
+		
+		snprintf(pParams->szError, 8192, "Errore ReadTrailer: manca l'offset per xref.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailer: manca l'offset per xref.\n");
 		return 0;
 	}
 	
@@ -2087,7 +2228,10 @@ int ReadTrailer(Params *pParams)
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 		wprintf(L"Errore ReadTrailer: memoria insufficiente.\n");
 		#endif
-		fwprintf(pParams->fpErrors, L"Errore ReadTrailer: memoria insufficiente.\n");
+		
+		snprintf(pParams->szError, 8192, "Errore ReadTrailer: memoria insufficiente.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//fwprintf(pParams->fpErrors, L"Errore ReadTrailer: memoria insufficiente.\n");
 		return 0;
 	}
 
@@ -2179,23 +2323,29 @@ int ReadTrailer(Params *pParams)
 		free(szInput);
 		if ( !GetLenNextInput(pParams, pParams->myPdfTrailer.Prev, &dimInput) )
 		{
+			snprintf(pParams->szError, 8192, "Errore GetLenNextInput\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore GetLenNextInput\n");
-			fwprintf(pParams->fpErrors, L"Errore GetLenNextInput\n");
+			//fwprintf(pParams->fpErrors, L"Errore GetLenNextInput\n");
 			return 0;
 		}
 		
 		szInput = (unsigned char*)malloc(sizeof(unsigned char)*(dimInput) + 1);
 		if ( !szInput )
 		{
+			snprintf(pParams->szError, 8192, "GetLenNextInput errore ReadTrailer: memoria insufficiente.\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"GetLenNextInput errore ReadTrailer: memoria insufficiente.\n");
-			fwprintf(pParams->fpErrors, L"GetLenNextInput errore ReadTrailer: memoria insufficiente.\n");
+			//fwprintf(pParams->fpErrors, L"GetLenNextInput errore ReadTrailer: memoria insufficiente.\n");
 			return 0;
 		}
 		
 		if ( fseek(pParams->fp, pParams->myPdfTrailer.Prev, SEEK_SET) )
 		{
+			snprintf(pParams->szError, 8192, "GetLenNextInput: Errore fseek 3\n");
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore fseek 3\n");
-			fwprintf(pParams->fpErrors, L"Errore fseek 3\n");
+			//fwprintf(pParams->fpErrors, L"Errore fseek 3\n");
 			free(szInput);
 			return 0;
 		}
@@ -2838,8 +2988,10 @@ void IgnoreStreamChars(Params *pParams)
 		{
 			if ( fseek(pParams->fp, -BLOCK_SIZE, SEEK_CUR) )
 			{
+				snprintf(pParams->szError, 8192, "Errore IgnoreStreamChars fseek 1\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore IgnoreStreamChars fseek 1\n");
-				fwprintf(pParams->fpErrors, L"Errore IgnoreStreamChars fseek 1\n");
+				//fwprintf(pParams->fpErrors, L"Errore IgnoreStreamChars fseek 1\n");
 				return;
 			}
 		}
@@ -2847,8 +2999,10 @@ void IgnoreStreamChars(Params *pParams)
 		{
 			if ( fseek(pParams->fp, 0, SEEK_SET) )
 			{
+				snprintf(pParams->szError, 8192, "Errore IgnoreStreamChars fseek 2\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore IgnoreStreamChars fseek 2\n");
-				fwprintf(pParams->fpErrors, L"Errore IgnoreStreamChars fseek 2\n");
+				//fwprintf(pParams->fpErrors, L"Errore IgnoreStreamChars fseek 2\n");
 				return;
 			}		
 		}
@@ -2915,8 +3069,10 @@ unsigned char ReadNextChar(Params *pParams)
 		{
 			if ( fseek(pParams->fp, -BLOCK_SIZE, SEEK_CUR) )
 			{
+				snprintf(pParams->szError, 8192, "Errore ReadNextChar fseek 1\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadNextChar fseek 1\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadNextChar fseek 1\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadNextChar fseek 1\n");
 				return 0;
 			}
 		}
@@ -2924,8 +3080,10 @@ unsigned char ReadNextChar(Params *pParams)
 		{
 			if ( fseek(pParams->fp, 0, SEEK_SET) )
 			{
+				snprintf(pParams->szError, 8192, "Errore ReadNextChar fseek 2\n");
+				myShowErrorMessage(pParams, pParams->szError, 1);
 				//wprintf(L"Errore ReadNextChar fseek 2\n");
-				fwprintf(pParams->fpErrors, L"Errore ReadNextChar fseek 2\n");
+				//fwprintf(pParams->fpErrors, L"Errore ReadNextChar fseek 2\n");
 				return 0;
 			}		
 		}
@@ -2947,7 +3105,6 @@ unsigned char ReadNextChar(Params *pParams)
 		pParams->blockLen = fread(pParams->myBlock, 1, BLOCK_SIZE, pParams->fp);	
 		if ( pParams->blockLen == 0 )
 		{
-			wprintf(L"\n\nReadNextChar: END OF FILE. SABBENERICA A TUTTI!\n\n");
 			pParams->myToken.Type = T_EOF;
 			return ' ';
 			//return ' ';
@@ -3003,7 +3160,6 @@ void GetNextToken(Params *pParams)
 		pParams->myToken.Value.vString = NULL;
 	}
 	
-	//if ( pParams->blockCurPos >= pParams->blockLen )
 	if ( pParams->blockCurPos > pParams->blockLen )
 	{
 		pParams->myToken.Type = T_EOF;
@@ -3131,7 +3287,9 @@ void GetNextToken(Params *pParams)
 						if ( !(pParams->bStreamState) )
 						{
 							pParams->myToken.Type = T_ERROR;
-							wprintf(L"Errore GetNextToken: trovato '>' singolo\n");
+							snprintf(pParams->szError, 8192, "Errore GetNextToken: trovato '>' singolo\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							//wprintf(L"Errore GetNextToken: trovato '>' singolo\n");
 							return;
 						}
 					}
@@ -3194,8 +3352,10 @@ void GetNextToken(Params *pParams)
 														if ( c != '\n' )
 														{
 															pParams->myToken.Type = T_ERROR;
+															snprintf(pParams->szError, 8192, "Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'(hex = <%2X>)\n", c, c);
+															myShowErrorMessage(pParams, pParams->szError, 1);
 															//wprintf(L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'(hex = <%2X>)\n", c, c);
-															fwprintf(pParams->fpErrors, L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'(hex = <%2X>)\n", c, c);
+															//fwprintf(pParams->fpErrors, L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'(hex = <%2X>)\n", c, c);
 															return;
 														}
 														
@@ -3266,17 +3426,21 @@ void GetNextToken(Params *pParams)
 							if ( c != '\n' )
 							{
 								pParams->myToken.Type = T_ERROR;
+								snprintf(pParams->szError, 8192, "Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '\\r'\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
 								//wprintf(L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '\\r'\n");
-								fwprintf(pParams->fpErrors, L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '\\r'\n");
+								//fwprintf(pParams->fpErrors, L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '\\r'\n");
 								return;
 							}
 						}
 						else if ( c != '\n' )
 						{
 							pParams->myToken.Type = T_ERROR;
+							snprintf(pParams->szError, 8192, "Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'\n", c);
+							myShowErrorMessage(pParams, pParams->szError, 1);
 							//wprintf(L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'\n", c);
-							fwprintf(pParams->fpErrors, L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'\n", c);
-							return;							
+							//fwprintf(pParams->fpErrors, L"Errore GetNextToken: la keyword 'stream' dev'essere seguita da '\\r\\n' oppure da '\\n'. Trovato invece '%c'\n", c);
+							return;
 						}
 												
 						pParams->bUpdateNumBytesReadFromCurrentStream = 0;
@@ -3635,8 +3799,10 @@ void GetNextToken(Params *pParams)
 				else
 				{
 					pParams->myToken.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextToken: numero esadecimale errato.\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextToken: numero esadecimale errato.\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero esadecimale errato.\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero esadecimale errato.\n");
 					return;
 				}
 				break;
@@ -3650,8 +3816,10 @@ void GetNextToken(Params *pParams)
 				else
 				{
 					pParams->myToken.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextToken: numero esadecimale errato.\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextToken: numero esadecimale errato.\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero esadecimale errato.\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero esadecimale errato.\n");
 					return;
 				}			
 				break;
@@ -4130,8 +4298,10 @@ void GetNextToken(Params *pParams)
 						else
 						{
 							pParams->myToken.Type = T_ERROR;
+							snprintf(pParams->szError, 8192, "Errore GetNextToken: numero ottale errato.\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
 							//wprintf(L"Errore GetNextToken: numero ottale errato.\n");
-							fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero ottale errato.\n");
+							//fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero ottale errato.\n");
 							return;
 						}
 					}
@@ -4164,8 +4334,10 @@ void GetNextToken(Params *pParams)
 						else
 						{
 							pParams->myToken.Type = T_ERROR;
+							snprintf(pParams->szError, 8192, "Errore GetNextToken: numero ottale errato.\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
 							//wprintf(L"Errore GetNextToken: numero ottale errato.\n");
-							fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero ottale errato.\n");
+							//fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero ottale errato.\n");
 							return;
 						}
 					}
@@ -4196,8 +4368,10 @@ void GetNextToken(Params *pParams)
 						else
 						{
 							pParams->myToken.Type = T_ERROR;
+							snprintf(pParams->szError, 8192, "Errore GetNextToken: numero ottale errato.\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
 							//wprintf(L"Errore GetNextToken: numero ottale errato.\n");
-							fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero ottale errato.\n");
+							//fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero ottale errato.\n");
 							return;
 						}
 					}
@@ -4372,7 +4546,6 @@ void GetNextToken(Params *pParams)
 								break;
 						}
 						
-						
 						if ( FONT_SUBTYPE_Type0 == pParams->nCurrentFontSubtype )
 						{
 							pParams->lexemeTemp[z] = cHexadecimal;
@@ -4415,8 +4588,10 @@ void GetNextToken(Params *pParams)
 					pParams->pUtf8String[0] = L'\0';
 					
 					pParams->myToken.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextToken: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextToken: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
-					fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
+					//fwprintf(pParams->fpErrors, L"Errore GetNextToken: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
 					
 					c = pParams->pReadNextChar(pParams);
 					
@@ -4436,8 +4611,10 @@ void GetNextToken(Params *pParams)
 		if ( k > MAX_STRING_LENTGTH_IN_CONTENT_STREAM )
 		{
 			pParams->myToken.Type = T_ERROR;
+			snprintf(pParams->szError, 8192, "Errore GetNextToken: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore GetNextToken: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
-			fwprintf(pParams->fpErrors, L"Errore GetNextToken: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			//fwprintf(pParams->fpErrors, L"Errore GetNextToken: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
 			return;
 		}						
 	}
@@ -4844,8 +5021,10 @@ void GetNextTokenLengthObj(Params *pParams)
 					if ( DELIM_SPACECHAR != nDelimChar )
 					{
 						pParams->myTokenLengthObj.Type = T_ERROR;
+						snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_INT_LITERAL\n");
+						myShowErrorMessage(pParams, pParams->szError, 1);
 						//wprintf(L"Errore GetNextTokenLengthObj: atteso T_INT_LITERAL\n");
-						fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_INT_LITERAL\n");
+						//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_INT_LITERAL\n");
 						return;							
 					}
 					
@@ -4866,8 +5045,10 @@ void GetNextTokenLengthObj(Params *pParams)
 				else
 				{
 					pParams->myTokenLengthObj.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
 					return;							
 				}				
 				break;
@@ -4883,8 +5064,10 @@ void GetNextTokenLengthObj(Params *pParams)
 				else
 				{
 					pParams->myTokenLengthObj.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
 					return;							
 				}
 				break;
@@ -4896,8 +5079,10 @@ void GetNextTokenLengthObj(Params *pParams)
 				else
 				{
 					pParams->myTokenLengthObj.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
 					return;							
 				}				
 				break;
@@ -4909,8 +5094,10 @@ void GetNextTokenLengthObj(Params *pParams)
 				else
 				{
 					pParams->myTokenLengthObj.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
 					return;							
 				}	
 				break;
@@ -4922,8 +5109,10 @@ void GetNextTokenLengthObj(Params *pParams)
 				else
 				{
 					pParams->myTokenLengthObj.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
 					return;							
 				}	
 				break;
@@ -4935,8 +5124,10 @@ void GetNextTokenLengthObj(Params *pParams)
 				else
 				{
 					pParams->myTokenLengthObj.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
 					return;							
 				}				
 				break;
@@ -4952,8 +5143,10 @@ void GetNextTokenLengthObj(Params *pParams)
 				else
 				{
 					pParams->myTokenLengthObj.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenLengthObj: atteso T_KW_OBJ\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLengthObj: atteso T_KW_ENDOBJ\n");
 					return;							
 				}
 				break;
@@ -4968,8 +5161,10 @@ void GetNextTokenLengthObj(Params *pParams)
 		if ( k >= 4096 )
 		{
 			pParams->myTokenLengthObj.Type = T_ERROR;
+			snprintf(pParams->szError, 8192, "Errore GetNextTokenLength: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore GetNextTokenLength: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
-			fwprintf(pParams->fpErrors, L"Errore GetNextTokenLength: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			//fwprintf(pParams->fpErrors, L"Errore GetNextTokenLength: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
 			return;
 		}
 	} // FINE -> While ( 1 )
@@ -5431,8 +5626,10 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				else
 				{
 					pParams->myToken.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
 					return;
 				}
 				break;
@@ -5446,8 +5643,10 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				else
 				{
 					pParams->myToken.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato.\n");
 					return;
 				}			
 				break;
@@ -5587,8 +5786,10 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						else
 						{
 							pParams->myToken.Type = T_ERROR;
+							snprintf(pParams->szError, 8192, "Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
 							//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
-							fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							//fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
 							return;
 						}
 					}
@@ -5615,8 +5816,10 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						else
 						{
 							pParams->myToken.Type = T_ERROR;
+							snprintf(pParams->szError, 8192, "Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
 							//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
-							fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							//fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
 							return;
 						}
 					}
@@ -5641,8 +5844,10 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						else
 						{
 							pParams->myToken.Type = T_ERROR;
+							snprintf(pParams->szError, 8192, "Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							myShowErrorMessage(pParams, pParams->szError, 1);
 							//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
-							fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
+							//fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero ottale errato.\n");
 							return;
 						}
 					}
@@ -5831,8 +6036,10 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					pParams->pUtf8String[0] = L'\0';
 					
 					pParams->myToken.Type = T_ERROR;
+					snprintf(pParams->szError, 8192, "Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
+					myShowErrorMessage(pParams, pParams->szError, 1);
 					//wprintf(L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
-					fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
+					//fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: numero esadecimale errato. Carattere non valido -> codice decimale = %u\n", (unsigned int)c);
 					
 					c = ReadNextCharFromToUnicodeStream(pParams);
 					
@@ -5850,8 +6057,10 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 		if ( k > MAX_STRING_LENTGTH_IN_CONTENT_STREAM )
 		{
 			pParams->myToken.Type = T_ERROR;
+			snprintf(pParams->szError, 8192, "Errore GetNextTokenFromToUnicodeStream: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore GetNextTokenFromToUnicodeStream: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
-			fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+			//fwprintf(pParams->fpErrors, L"Errore GetNextTokenFromToUnicodeStream: lexeme troppo lungo(> %d byte)\n", MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
 			return;
 		}						
 	}

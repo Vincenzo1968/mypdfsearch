@@ -271,6 +271,8 @@ typedef struct tagParams
 	
 	pfnReadNextChar pReadNextChar;
 	
+	char szError[8192];
+	
 	uint32_t currentFileOffset;
 	uint32_t lastTokenOffset;
 	
@@ -497,7 +499,8 @@ typedef enum tagStates
 
 /* ------------------------------------------------------------------------------------------------------------- */
 
-
+int MakeAndOpenErrorsFile(Params *pParams, int bBom);
+int myShowErrorMessage(Params *pParams, const char *szMsg, int bPrintToErrorFile);
 
 unsigned char ReadNextChar(Params *pParams);
 
