@@ -25,6 +25,12 @@
 #include <string.h>
 #include <malloc.h>
 
+#if defined(_WIN64) || defined(_WIN32)
+#include <fcntl.h>
+#include <io.h>
+#include <windows.h>
+#endif
+
 #include "myoctal.h"
 #include "scanner.h"
 

@@ -176,7 +176,8 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE myGenH
 
 
 
-./mypdfsearch --words="Virginia campidoglio Orbán" --path="../Files/Tutti"
+./mypdfsearch --words="Virginia sound Orbán" --path="../Files/Prova"
+./mypdfsearch --words="Virginia sound Orbán" --path="../Files/Prova" --nosubdirs
  
  
  

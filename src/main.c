@@ -112,7 +112,7 @@ void GetErrorString(DWORD err, char *szError, int len)
 	LocalFree(lpMsgBuf);
 }
 
-FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
+FilesList* getFilesRecursive(char *dirName, int lenOrig, int bNoSubDirs, FilesList* myFilesList)
 {
 	char pathName[MAX_PATH + 1];
 
@@ -153,7 +153,8 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 				{
 					if (strncmp(data.cFileName, ".", _MAX_DIR) != 0 && strncmp(data.cFileName, "..", _MAX_DIR) != 0)
 					{
-						myFilesList = getFilesRecursive(pathName, lenOrig, myFilesList);
+						if ( !bNoSubDirs )
+							myFilesList = getFilesRecursive(pathName, lenOrig, bNoSubDirs, myFilesList);
 					}
 				}
 			}
@@ -181,7 +182,7 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 	return myFilesList;
 }
 #else
-FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
+FilesList* getFilesRecursive(char *dirName, int lenOrig, int bNoSubDirs, FilesList* myFilesList)
 {
 	FilesList myFile;		
 	DIR *dir = NULL;
@@ -224,8 +225,9 @@ FilesList* getFilesRecursive(char *dirName, int lenOrig, FilesList* myFilesList)
 		if( lstat(pathName, &entryInfo) == 0 )
 		{						
 			if( S_ISDIR(entryInfo.st_mode) )		// directory 
-			{								
-				myFilesList = getFilesRecursive(pathName, lenOrig, myFilesList);
+			{
+				if ( !bNoSubDirs )
+					myFilesList = getFilesRecursive(pathName, lenOrig, bNoSubDirs, myFilesList);
 			}
 			else if( S_ISREG(entryInfo.st_mode) )	// regular file 
 			{
@@ -706,6 +708,7 @@ void PrintHelpCommandLine()
 	wprintf(L"   Arguments for option '-t, --topage': exactly 1(int)\n");
 	wprintf(L"'-p, --path' (optional)	Specifies the input file\n");
 	wprintf(L"   Arguments for option '-p, --path': one or more(string)\n");
+	wprintf(L"'-n, --nosubdirs' (optional)	Specifies that the search should be performed only in the specified directory and not in its subdirectories\n");
 	wprintf(L"'-w, --words' (optional)	Words to search\n");
 	wprintf(L"   Arguments for option '-w, --words': one or more(string)\n");
 	wprintf(L"'-o, --outputfile' (optional)	Output file: specifies the output file\n");
@@ -715,7 +718,7 @@ void PrintHelpCommandLine()
 void PrintVersionInfo()
 {
 	//wprintf(L"\n   mypdfsearch version 1.3.5\n");	
-	wprintf(L"\n   mypdfsearch version 1.5.8\n");	
+	wprintf(L"\n   mypdfsearch version 1.5.21\n");	
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -814,6 +817,11 @@ int myParseOption(Params *pParams, char *pszOption)
 			PrintVersionInfo();
 			goto uscita;
 		}
+		else if ( c == 'n' )
+		{
+			pParams->bNoSubDirs = 1;
+			goto uscita;
+		}
 				
 		goto readvalue;
 	}	
@@ -867,6 +875,11 @@ int myParseOption(Params *pParams, char *pszOption)
 		{
 			goto readvalue;
 		}
+		else if ( strcmp(szName, "nosubdirs") == 0 )
+		{
+			pParams->bNoSubDirs = 1;
+			goto uscita;
+		}
 		else if ( strcmp(szName, "extracttextfrom") == 0 )
 		{
 			goto readvalue;
@@ -882,6 +895,11 @@ int myParseOption(Params *pParams, char *pszOption)
 		else if ( strcmp(szName, "outputfile") == 0 )
 		{
 			goto readvalue;
+		}
+		else if ( strcmp(szName, "nosubdirs") == 0 )
+		{
+			pParams->bNoSubDirs = 1;
+			goto uscita;
 		}	
 		else if ( strcmp(szName, "version") == 0 )
 		{
@@ -1376,7 +1394,9 @@ int main(int argc, char **argv)
 					
 	FilesList* myFilesList = NULL;
 	
+	#if !defined(_WIN64) && !defined(_WIN32)
 	struct stat entryInfo;
+	#endif
 	
 	//long numProcessors;
 		
@@ -1390,6 +1410,7 @@ int main(int argc, char **argv)
 	myParams.szFilePdf[0] = '\0';
 	myParams.fromPage = 0;
 	myParams.toPage = 0;
+	myParams.bNoSubDirs = 0;
 	myParams.szOutputFile[0] = '\0';
 	myParams.szWordsToSearch[0] = '\0';	
 	myParams.countWordsToSearch = 0;
@@ -1491,12 +1512,13 @@ int main(int argc, char **argv)
 	}
 	else
 	{
+		#if !defined(_WIN64) && !defined(_WIN32)
 		if( lstat(myParams.szPath, &entryInfo) == 0 )
-		{						
+		{		
 			if( S_ISDIR(entryInfo.st_mode) )		// directory 
 			{
 				len = strnlen(myParams.szPath, MAX_LEN_STR);
-				myFilesList = getFilesRecursive(myParams.szPath, len, myFilesList);	
+				myFilesList = getFilesRecursive(myParams.szPath, len, myParams.bNoSubDirs, myFilesList);	
 				if ( !myFilesList )
 				{
 					wprintf(L"Errore: impossibile ottenere la lista dei file.\n");
@@ -1506,11 +1528,9 @@ int main(int argc, char **argv)
 			}
 			else if( S_ISREG(entryInfo.st_mode) )	// regular file
 			{
-				#if !defined(_WIN64) && !defined(_WIN32)
 				char* psz = NULL;
 				int x;
 				int y;		
-				#endif
 		
 				myFilesList = (FilesList*)malloc(sizeof(FilesList));
 		
@@ -1521,7 +1541,6 @@ int main(int argc, char **argv)
 					goto uscita;			
 				}
 
-				#if !defined(_WIN64) && !defined(_WIN32)
 				strcpy(myFilesList->myPathName, myParams.szPath);
 				myFilesList->next = NULL;
 						
@@ -1543,12 +1562,33 @@ int main(int argc, char **argv)
 				while ( *psz != '\0' )
 					myFilesList->myFileName[y++] = *(psz++);
 				myFilesList->myFileName[y] = '\0';		
-				#else
-				strcpy(myFilesList->myFileName, myParams.szPath);
-				myFilesList->next = NULL;
-				#endif
 			}
 		}
+		#else
+		if ( GetFileAttributesA(myParams.szPath) & FILE_ATTRIBUTE_DIRECTORY )
+		{
+			len = strnlen(myParams.szPath, MAX_LEN_STR);
+			myFilesList = getFilesRecursive(myParams.szPath, len, myParams.bNoSubDirs, myFilesList);	
+			if ( !myFilesList )
+			{
+				wprintf(L"Errore: impossibile ottenere la lista dei file.\n");
+				retValue = EXIT_FAILURE;
+				goto uscita;
+			}				
+		}
+		else
+		{
+			myFilesList = (FilesList*)malloc(sizeof(FilesList));
+			if( myFilesList == NULL )
+			{
+				wprintf(L"Errore main: impossibile aggiungere il file alla lista.\n");
+				retValue = EXIT_FAILURE;
+				goto uscita;			
+			}
+			strcpy(myFilesList->myFileName, myParams.szPath);
+			myFilesList->next = NULL;
+		}			
+		#endif		
 	}
 				
 	wprintf(L"\n");

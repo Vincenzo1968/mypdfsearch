@@ -1225,7 +1225,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	FilesList* n;
 	uint32_t x;
 	int len;
-	//int lung;
+	
+	#if defined(_WIN64) || defined(_WIN32)
+	int lung = 0;
+	#endif
 			
 	int retReadTrailer;
 	
@@ -1437,6 +1440,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			fwprintf(pParams->fpOutput, L"File: '%s'\n", pParams->szFileName);
 			#else
 			fwprintf(pParams->fpOutput, L"FILE = <");
+			lung = strnlen(pParams->szFileName, PATH_MAX);
 			for ( int idx = 0; idx < lung; idx++ )
 			{
 				fwprintf(pParams->fpOutput, L"%c", pParams->szFileName[idx]);
@@ -1449,6 +1453,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			#if !defined(_WIN64) && !defined(_WIN32)
 			wprintf(L"File: '%s'\n", pParams->szFileName);
 			#else
+			lung = strnlen(pParams->szFileName, PATH_MAX);
 			wprintf(L"FILE = <");
 			for ( int idx = 0; idx < lung; idx++ )
 			{

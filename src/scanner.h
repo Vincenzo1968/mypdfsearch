@@ -288,6 +288,7 @@ typedef struct tagParams
 	char szFilePdf[MAX_LEN_STR + 1];
 	int fromPage;
 	int toPage;	
+	int bNoSubDirs;
 	char szWordsToSearch[MAX_LEN_STR + 1];
 	wchar_t *pwszWordsToSearch;
 	char szOutputFile[MAX_LEN_STR + 1];
