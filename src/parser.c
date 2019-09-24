@@ -2284,6 +2284,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	int retValue = 1;
 	
 	char szName[512];
+	char szPrevFontResName[512];
 	
 	unsigned long int nBlockSize = BLOCK_SIZE;
 	unsigned long int x;
@@ -2325,10 +2326,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	pParams->pwszCurrentWord = (wchar_t*)malloc(MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t));
 	if ( NULL == pParams->pwszCurrentWord )
 	{
-		snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: impossibile allocare la memoria per pParams->pwszCurrentWord.\n");
 		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pwszCurrentWord.\n");
-		//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pParams->pwszCurrentWord.\n");
 		retValue = 0;
 		goto uscita;
 	}	
@@ -2336,10 +2337,10 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	pParams->pwszPreviousWord = (wchar_t*)malloc(MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t));
 	if ( NULL == pParams->pwszPreviousWord )
 	{
-		snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: impossibile allocare la memoria per pParams->pwszPreviousWord.\n");
 		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pwszPreviousWord.\n");
-		//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pszString.\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent: impossibile allocare la memoria per pParams->pwszPreviousWord.\n");
 		retValue = 0;
 		goto uscita;
 	}	
@@ -2350,6 +2351,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	pParams->pwszPreviousWord[0] = '\0';
 	
 	pParams->bStateSillab = 0;
+	
+	szPrevFontResName[0] = '\0';
 	
 	// ----------------------------------- STACK -----------------------------------------------		
 	while ( pParams->nStreamsStackTop >= 0 )
@@ -2397,6 +2400,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 		#endif
 			
 		szName[0] = '\0';
+		//szPrevFontResName[0] = '\0';
 	
 		PrevType = pParams->myToken.Type;
 				
@@ -2764,7 +2768,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				if ( '\0' != szName[0] )
 				{
 					len = strnlen(szName, 128);
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
 					wprintf(L"TROVATO 'Do' command: vado a prendere la Resource %s\n", szName);
 					#endif
 									
@@ -2773,7 +2777,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					{
 						if ( !bContentAlreadyProcessed )
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
 							wprintf(L"\tVado a fare il parsing dell'oggetto %d 0 R e torno subito.\n", nTemp);
 							#endif
 					
@@ -2838,19 +2842,22 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							goto qui_dopo_push;
 							// **********************************************************************
 						}
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
 						else
 						{
 							wprintf(L"\tOggetto %d 0 R già processato.\n", nTemp);
 						}
 						#endif
 					}
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
 					else
 					{
 						wprintf(L"\tRISORSA XOBJ '%s' NON TROVATA!!!.\n", szName);
 					}
-					#endif					
+					#endif	
+					
+					//strncpy(szPrevXObjResName, szName, len);
+					szName[0] = '\0';				
 				}
 				else
 				{
@@ -2861,80 +2868,100 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					retValue = 0;
 					goto uscita;
 				}
-				szName[0] = '\0';
+				
+				//strncpy(szPrevName, szName, len);
+				//szName[0] = '\0';
 			}
 			else if ( T_CONTENT_OP_Tf == pParams->myToken.Type )
 			{
 				if ( '\0' != szName[0] )
 				{
+					len = strnlen(szName, 128);
+					
 					if ( bLastNumberIsReal )
 						dFontSize = dLastNumber;
 					else
 						dFontSize = (double)iLastNumber;
 					
-					len = strnlen(szName, 128);
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
-					wprintf(L"TROVATO 'Tf FONT SELECTOR' command: vado a prendere la Resource %s\n", szName);
-					#endif
+					if ( strncmp(szName, szPrevFontResName, 512 - 1) != 0 )
+					{
+						//len = strnlen(szName, 128);
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+						//wprintf(L"\nEHI 1: szName = '%s' -> szPrevFontResName = '%s'\n", szName, szPrevFontResName);
+						wprintf(L"\nTROVATO 'Tf FONT SELECTOR' command: vado a prendere la Resource %s\n", szName);
+						#endif
 									
-					nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 0);
-					if ( nRes >= 0 ) // TROVATO
-					{
-						//if ( !bContentAlreadyProcessed )
-						//{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
-							wprintf(L"\tVado a fare il parsing dell'oggetto FONT %d 0 R e torno subito.\n", nTemp);
-							#endif
+						nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 0);
+						if ( nRes >= 0 ) // TROVATO
+						{
+							//if ( !bContentAlreadyProcessed )
+							//{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+								wprintf(L"\tVado a fare il parsing dell'oggetto FONT %d 0 R e torno subito.\n", nTemp);
+								#endif
 					
-							bContentAlreadyProcessed = 1;
-							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
-							{
-								snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
-								retValue = 0;
-								goto uscita;
-							}
+								bContentAlreadyProcessed = 1;
+								if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
+								{
+									snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+									retValue = 0;
+									goto uscita;
+								}
 							
-							// **********************************************************************
-							//scopePush(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef));
+								// **********************************************************************
+								//scopePush(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef));
 							
-							pParams->bStreamState = 0;
-							pParams->bStringIsDecoded = 0;
-							pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = pParams->blockCurPos;	
+								pParams->bStreamState = 0;
+								pParams->bStringIsDecoded = 0;
+								pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = pParams->blockCurPos;	
 																	
-							if ( !ParseFontObject(pParams, nTemp) )
-							{
-								snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseFontObject.\n"); 
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
+								if ( !ParseFontObject(pParams, nTemp) )
+								{
+									snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseFontObject.\n"); 
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
 								
-								snprintf(pParams->szError, 8192, "\n***** ECCO L'OGGETTO ERRATO:\n");
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
+									snprintf(pParams->szError, 8192, "\n***** ECCO L'OGGETTO ERRATO:\n");
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
 								
-								PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
+									PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
 								
-								snprintf(pParams->szError, 8192, "\n***** FINE OGGETTO ERRATO:\n");
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
-								retValue = 0;
-								goto uscita;
-							}
+									snprintf(pParams->szError, 8192, "\n***** FINE OGGETTO ERRATO:\n");
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
+									retValue = 0;
+									goto uscita;
+								}
 														
-							pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
-							pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
-							pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
+								pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
+								pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
+								pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
+								
+								strncpy(szPrevFontResName, szName, len);
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+								wprintf(L"\nEHI 2: szName = '%s' -> szPrevFontResName = '%s'\n", szName, szPrevFontResName);
+								#endif
+								//szName[0] = '\0';
 							
-							goto qui_dopo_push;
-							// **********************************************************************
+								goto qui_dopo_push;
+								// **********************************************************************
+						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+						else
+						{
+							wprintf(L"\tRISORSA FONT '%s' NON TROVATA!!!.\n", szName);
+						}
+						#endif
 					}
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
-					else
-					{
-						wprintf(L"\tRISORSA FONT '%s' NON TROVATA!!!.\n", szName);
-					}
-					#endif						
+					
+					//strncpy(szPrevFontResName, szName, len);
+					//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+					//wprintf(L"\nEHI 3: szName = '%s' -> szPrevFontResName = '%s'\n", szName, szPrevFontResName);
+					//#endif
+					//szName[0] = '\0';
 				}
 				else
 				{
@@ -2945,7 +2972,12 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					retValue = 0;
 					goto uscita;
 				}
-				szName[0] = '\0';
+				
+				//strncpy(szPrevFontResName, szName, len);
+				//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+				//wprintf(L"\nEHI 2: szName = '%s' -> szPrevFontResName = '%s'\n", szName, szPrevFontResName);
+				//#endif
+				//szName[0] = '\0';
 			}
 			else if ( T_CONTENT_OP_BI == pParams->myToken.Type )
 			{
