@@ -1162,6 +1162,7 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 			pParams->myObjsTable[k]->Obj.pszDecodedStream = NULL;
 			pParams->myObjsTable[k]->Obj.numObjParent = -1;
 			pParams->myObjsTable[k]->Obj.genObjParent = 0;
+			pParams->myObjsTable[k]->Obj.pTreeNode = NULL;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
 			wprintf(L"\tINSERT(1) INTO OBJSTABLE[%d]: objNum = %lu, objGen = %lu, objOffset = %lu, objStreamOffset = %lu, objStreamLength = %lu\n",
@@ -1184,6 +1185,7 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 			pParams->myObjsTable[k]->Obj.pszDecodedStream = NULL;
 			pParams->myObjsTable[k]->Obj.numObjParent = -1;
 			pParams->myObjsTable[k]->Obj.genObjParent = 0;
+			pParams->myObjsTable[k]->Obj.pTreeNode = NULL;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
 			wprintf(L"\tINSERT(2) INTO OBJSTABLE[%d]: objNum = %lu, objGen = %lu, objOffset = %lu, objStreamOffset = %lu, objStreamLength = %lu\n",
@@ -1198,6 +1200,7 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 		}
 		myobjreflist_Init(&(pParams->myObjsTable[k]->myXObjRefList));
 		myobjreflist_Init(&(pParams->myObjsTable[k]->myFontsRefList));
+		myintqueuelist_Init(&(pParams->myObjsTable[k]->queueContentsObjRefs));
 	}
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
@@ -1262,6 +1265,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	
 	pParams->myObjsTable = NULL;
 	pParams->nObjsTableSizeFromPrescanFile = 0;
+	pParams->pPagesTree = NULL;
 	pParams->pPagesArray = NULL;
 	
 	pParams->bUpdateNumBytesReadFromCurrentStream = 1;
@@ -1654,6 +1658,7 @@ successivo:
 					}
 					myobjreflist_Free(&(pParams->myObjsTable[x]->myXObjRefList));
 					myobjreflist_Free(&(pParams->myObjsTable[x]->myFontsRefList));
+					myintqueuelist_Free(&(pParams->myObjsTable[x]->queueContentsObjRefs));
 					free(pParams->myObjsTable[x]);
 					pParams->myObjsTable[x] = NULL;
 				}
@@ -1661,6 +1666,12 @@ successivo:
 		
 			free(pParams->myObjsTable);
 			pParams->myObjsTable = NULL;
+		}
+		
+		if ( NULL != pParams->pPagesTree )
+		{
+			treeFree(pParams->pPagesTree);
+			pParams->pPagesTree = NULL;
 		}
 		
 		if ( NULL != pParams->pPagesArray )
@@ -1759,6 +1770,7 @@ uscita:
 				}
 				myobjreflist_Free(&(pParams->myObjsTable[x]->myXObjRefList));
 				myobjreflist_Free(&(pParams->myObjsTable[x]->myFontsRefList));
+				myintqueuelist_Free(&(pParams->myObjsTable[x]->queueContentsObjRefs));
 				free(pParams->myObjsTable[x]);
 				pParams->myObjsTable[x] = NULL;
 			}
@@ -1766,6 +1778,12 @@ uscita:
 		
 		free(pParams->myObjsTable);
 		pParams->myObjsTable = NULL;
+	}
+	
+	if ( NULL != pParams->pPagesTree )
+	{
+		treeFree(pParams->pPagesTree);
+		pParams->pPagesTree = NULL;
 	}
 		
 	if ( NULL != pParams->pPagesArray )
@@ -2352,7 +2370,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	
 	pParams->bStateSillab = 0;
 	
-	szPrevFontResName[0] = '\0';
+	for ( nTemp = 0; nTemp < 512; nTemp++ )
+		szPrevFontResName[nTemp] = '\0';
 	
 	// ----------------------------------- STACK -----------------------------------------------		
 	while ( pParams->nStreamsStackTop >= 0 )
@@ -3426,12 +3445,145 @@ uscita:
 	return retValue;
 }
 
+void myTreeTraversePostOrderLeafOnly(Tree *head, Params *pParams)
+{
+	Tree *pCurrNode = head;
+	int x;
+		
+	if ( NULL != head->firstchild )
+	{
+		pCurrNode = head->firstchild;
+		while ( NULL != pCurrNode )
+		{
+			myTreeTraversePostOrderLeafOnly(pCurrNode, pParams);
+			pCurrNode = pCurrNode->sibling;		
+		}
+	}
+	else
+	{		
+		pParams->nCurrentPageNum++;
+		
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)
+		wprintf(L"pParams->nCurrentPageNum = %d <> numObjNumber = %d <> numObjParent = %d; ", pParams->nCurrentPageNum, head->numObjNumber, head->numObjParent);
+		#endif
+		
+		pParams->pPagesArray[pParams->nCurrentPageNum].numObjContent = head->nCurrentNumPageObjContent;
+		pParams->pPagesArray[pParams->nCurrentPageNum].bContentIsPresent = head->bCurrentContentIsPresent;
+		
+		//myintqueuelist_Init(&(pParams->pPagesArray[pParams->nCurrentPageNum].queueContentsObjRefs));
+		//mycontentqueuelist_Init(&(pParams->pPagesArray[pParams->nCurrentPageNum].queueContens));
+		
+		while ( myintqueuelist_Dequeue(&(pParams->myObjsTable[head->numObjNumber]->queueContentsObjRefs), &(pParams->nTemp)) )
+		{
+			myintqueuelist_Enqueue(&(pParams->pPagesArray[pParams->nCurrentPageNum].queueContentsObjRefs), pParams->nTemp);
+		}
+						
+		if ( !(head->bCurrentPageHasDirectResources) && (-1 == head->nCurrentPageResources)  )   // La pagina eredita Resources da uno dei suoi parenti.
+		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)				
+			wprintf(L"La pagina %d eredita Resources da uno dei suoi parenti.\n", pParams->nCurrentPageNum);
+			#endif
+			x = head->numObjParent;
+			while ( x > 0 )
+			{
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)						
+				wprintf(L"\tParent -> %d\n", x);
+				#endif
+						
+				while ( myobjreflist_Dequeue(&(pParams->myObjsTable[x]->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
+				{
+					scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
+						
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
+					if ( pParams->myObjsTable[x]->myXObjRefList.count <= 0 )
+						scopeTraverse(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), myOnScopeTraverse, 0);
+					#endif							
+				}
+						
+				while ( myobjreflist_Dequeue(&(pParams->myObjsTable[x]->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
+				{
+					scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
+							
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
+					if ( pParams->myObjsTable[x]->myFontsRefList.count <= 0 )
+						scopeTraverse(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), myOnScopeTraverse, 0);
+					#endif							
+				}						
+						
+				x = pParams->myObjsTable[x]->Obj.numObjParent;
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
+				wprintf(L"\n");
+				#endif
+			}
+		}
+		else if ( !(head->bCurrentPageHasDirectResources) && (0 == head->nCurrentPageResources)  ) // La pagina non ha riferimenti a Resources.
+		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)
+			wprintf(L"La pagina %d non ha riferimenti a Resources.\n", pParams->nCurrentPageNum);
+			#endif
+		}
+		else if ( !(head->bCurrentPageHasDirectResources) && head->nCurrentPageResources > 0 )   // Un intero > 0 indica il riferimento al numero dell'oggetto Resources.
+		{
+			//if ( !ParseDictionaryObject(pParams, head->nCurrentPageResources) )
+			//{
+			//	snprintf(pParams->szError, 8192, "ERRORE ParseObject -> ParseDictionaryObject\n");
+			//	myShowErrorMessage(pParams, pParams->szError, 1);
+			//}		
+		
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)
+			wprintf(L"La pagina %d ha un oggetto Resources indiretto.\n", pParams->nCurrentPageNum);
+			#endif
+					
+			while ( myobjreflist_Dequeue(&(pParams->myObjsTable[head->numObjNumber]->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
+			{
+				scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096)  + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
+			}
+					
+			while ( myobjreflist_Dequeue(&(pParams->myObjsTable[head->numObjNumber]->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
+			{
+				scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096)  + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
+			}					
+					
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)
+			scopeTraverse(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), myOnScopeTraverse, 0);
+			scopeTraverse(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), myOnScopeTraverse, 0);
+			#endif					
+		}
+	
+		if ( head->bCurrentPageHasDirectResources  )   // La pagina ha un oggetto Resources diretto.
+		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)
+			wprintf(L"La pagina %d ha un oggetto Resources diretto.\n", pParams->nCurrentPageNum);
+			#endif
+					
+			while ( myobjreflist_Dequeue(&(pParams->myObjsTable[head->numObjNumber]->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
+			{
+				scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
+			}
+					
+			while ( myobjreflist_Dequeue(&(pParams->myObjsTable[head->numObjNumber]->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
+			{
+				scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
+			}	
+									
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)
+			scopeTraverse(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), myOnScopeTraverse, 0);
+			scopeTraverse(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), myOnScopeTraverse, 0);
+			#endif
+		}
+
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_myTreeTraversePostOrderLeafOnly_FN)
+		wprintf(L"\n");	
+		#endif
+	}
+}
+
 int ParseObject(Params *pParams, int objNum)
 {
 	int retValue = 1;
 	int nInt;
 	int numObjQueueContent;
-	int x;
+	//int x;
 	
 	int nFromPage;
 	int nToPage;
@@ -3480,6 +3632,7 @@ int ParseObject(Params *pParams, int objNum)
 	pParams->ObjPageTreeRoot.Generation = 0;
 	
 	myintqueuelist_Init( &(pParams->myPagesQueue) );
+	myintqueuelist_Init(&(pParams->myPageLeafQueue));
 	
 	GetNextToken(pParams);
 		
@@ -3514,6 +3667,16 @@ int ParseObject(Params *pParams, int objNum)
 		retValue = 0;
 		goto uscita;
 	}
+	
+	pParams->pPagesTree = treeNewNode(pParams->ObjPageTreeRoot.Number, 0); // ROOT
+	if ( NULL == pParams->pPagesTree )
+	{
+		retValue = 0;
+		snprintf(pParams->szError, 8192, "Error ParseObject: treeNewNode failed for pParams->pPagesTree ROOT NODE.\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		goto uscita;
+	}
+	pParams->myObjsTable[pParams->ObjPageTreeRoot.Number]->Obj.pTreeNode = pParams->pPagesTree;
 	
 	pParams->myObjsTable[pParams->nCurrentObjNum]->Obj.numObjParent = pParams->nCurrentPageParent;
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)	
@@ -3588,9 +3751,13 @@ int ParseObject(Params *pParams, int objNum)
 				
 	myobjreflist_Free(&(pParams->myXObjRefList));
 	myobjreflist_Free(&(pParams->myFontsRefList));	
-					
+	
 	if ( pParams->nCountPagesFromPdf > 0 )
-	{	
+	{
+		Tree *pParentNode = NULL;
+		Tree *pFirstChildNode = NULL;
+		Tree *pSiblingNode = NULL;
+				
 		pParams->pPagesArray = (Page*)malloc(sizeof(Page) * (pParams->nCountPagesFromPdf + 1));
 		if ( NULL == pParams->pPagesArray )
 		{
@@ -3639,121 +3806,120 @@ int ParseObject(Params *pParams, int objNum)
 				goto uscita;
 			}
 			
-			pParams->nCurrentPageNum = pParams->nCountPageFound;
 			
-			if ( OBJ_TYPE_PAGE == pParams->eCurrentObjType )
+			
+			pParentNode = pParams->myObjsTable[pParams->nCurrentPageParent]->Obj.pTreeNode;
+			if ( NULL == pParentNode )
 			{
-				pParams->pPagesArray[pParams->nCountPageFound].numObjParent = pParams->nCurrentPageParent;
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)		
-				wprintf(L"PAGETREE PAGE PARSING -> pParams->pPagesArray[%d].numObjParent    = %d\n", pParams->nCountPageFound, pParams->pPagesArray[pParams->nCountPageFound].numObjParent);				
-				#endif
+				snprintf(pParams->szError, 8192, "ERRORE!!! ParseObject: pParentNode è NULL! -> pParams->nCurrentPageParent = %d\n", pParams->nCurrentPageParent);
+				myShowErrorMessage(pParams, pParams->szError, 1);
+				retValue = 0;
+				goto uscita;
 			}
-			else if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
+			pFirstChildNode = pParentNode->firstchild;
+			if ( NULL == pFirstChildNode )
 			{
-				pParams->myObjsTable[pParams->nCurrentObjNum]->Obj.numObjParent = pParams->nCurrentPageParent;
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
-				wprintf(L"PAGETREE PAGES PARSING -> (obj num: %d) pParams->nCurrentPageParent = %d\n", pParams->nCurrentObjNum, pParams->nCurrentPageParent);
-				#endif
+				pParentNode->firstchild = treeNewNode(nInt, pParams->nCurrentPageParent);
+				if ( NULL == pParentNode->firstchild )
+				{
+					retValue = 0;
+					snprintf(pParams->szError, 8192, "Error ParseObject: treeNewNode failed for pParentNode->firstchild NODE FIRST CHILD %d.\n", nInt);
+					myShowErrorMessage(pParams, pParams->szError, 1);
+					goto uscita;
+				}
+				
+				pParentNode->firstchild->bCurrentPageHasDirectResources = pParams->bCurrentPageHasDirectResources;
+				pParentNode->firstchild->nCurrentPageResources = pParams->nCurrentPageResources;
+				
+				pParentNode->firstchild->nCurrentNumPageObjContent = pParams->nCurrentNumPageObjContent;
+				pParentNode->firstchild->bCurrentContentIsPresent = pParams->bCurrentContentIsPresent;
+				
+				pParams->myObjsTable[pParams->nCurrentObjNum]->Obj.pTreeNode = pParentNode->firstchild;				
 			}
+			else
+			{
+				pSiblingNode = pFirstChildNode->sibling;
+				if ( NULL != pSiblingNode )
+				{
+					while ( pSiblingNode->sibling )
+						pSiblingNode = pSiblingNode->sibling;
+				
+					pSiblingNode->sibling = treeNewNode(nInt, pParams->nCurrentPageParent);
+					if ( NULL == pSiblingNode->sibling )
+					{
+						retValue = 0;
+						snprintf(pParams->szError, 8192, "Error ParseObject: treeNewNode failed for pSiblingNode->sibling NODE SIBLING %d.\n", nInt);
+						myShowErrorMessage(pParams, pParams->szError, 1);
+						goto uscita;
+					}
+				
+					pSiblingNode->sibling->bCurrentPageHasDirectResources = pParams->bCurrentPageHasDirectResources;
+					pSiblingNode->sibling->nCurrentPageResources = pParams->nCurrentPageResources;
+				
+					pSiblingNode->sibling->nCurrentNumPageObjContent = pParams->nCurrentNumPageObjContent;
+					pSiblingNode->sibling->bCurrentContentIsPresent = pParams->bCurrentContentIsPresent;
+				
+					pParams->myObjsTable[pParams->nCurrentObjNum]->Obj.pTreeNode = pSiblingNode->sibling;
+				}
+				else
+				{
+					pFirstChildNode->sibling = treeNewNode(nInt, pParams->nCurrentPageParent);
+					if ( NULL == pFirstChildNode->sibling )
+					{
+						retValue = 0;
+						snprintf(pParams->szError, 8192, "Error ParseObject: treeNewNode failed for pFirstChildNode->sibling NODE SIBLING %d.\n", nInt);
+						myShowErrorMessage(pParams, pParams->szError, 1);
+						goto uscita;
+					}
+				
+					pFirstChildNode->sibling->bCurrentPageHasDirectResources = pParams->bCurrentPageHasDirectResources;
+					pFirstChildNode->sibling->nCurrentPageResources = pParams->nCurrentPageResources;
+				
+					pFirstChildNode->sibling->nCurrentNumPageObjContent = pParams->nCurrentNumPageObjContent;
+					pFirstChildNode->sibling->bCurrentContentIsPresent = pParams->bCurrentContentIsPresent;
+				
+					pParams->myObjsTable[pParams->nCurrentObjNum]->Obj.pTreeNode = pFirstChildNode->sibling;
+				}
+			}			
+			
+			
+			
+			pParams->myObjsTable[pParams->nCurrentObjNum]->Obj.numObjParent = pParams->nCurrentPageParent;
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
+			wprintf(L"PAGETREE PAGES PARSING -> (obj num: %d) pParams->nCurrentPageParent = %d\n", pParams->nCurrentObjNum, pParams->nCurrentPageParent);
+			#endif
 	
 			if ( !(pParams->bCurrentPageHasDirectResources) && (-1 == pParams->nCurrentPageResources)  )   // La pagina(o il nodo interno) eredita Resources da uno dei suoi parenti.
 			{
-				if ( OBJ_TYPE_PAGE == pParams->eCurrentObjType )
+				if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
 				{
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)					
-					wprintf(L"La pagina %d eredita Resources da uno dei suoi parenti.\n", pParams->nCountPageFound);
+					wprintf(L"Il nodo(obj num: %d) eredita Resources da uno dei suoi parenti.\n", pParams->nCurrentObjNum);
 					#endif
-					x = pParams->pPagesArray[pParams->nCountPageFound].numObjParent;
-					while ( x > 0 )
-					{
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)						
-						wprintf(L"\tParent -> %d\n", x);
-						#endif
-						
-						while ( myobjreflist_Dequeue(&(pParams->myObjsTable[x]->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
-						{
-							scopeInsert(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_XObjRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
-							
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
-							if ( pParams->myObjsTable[x]->myXObjRefList.count <= 0 )
-								scopeTraverse(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_XObjRef), myOnScopeTraverse, 0);
-							#endif							
-						}
-						
-						while ( myobjreflist_Dequeue(&(pParams->myObjsTable[x]->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
-						{
-							scopeInsert(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_FontsRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
-							
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
-							if ( pParams->myObjsTable[x]->myFontsRefList.count <= 0 )
-								scopeTraverse(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_FontsRef), myOnScopeTraverse, 0);
-							#endif							
-						}						
-						
-						x = pParams->myObjsTable[x]->Obj.numObjParent;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
-						wprintf(L"\n");
-						#endif
-					}
 				}
-				else if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
-				{
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)					
-					wprintf(L"Il nodo interno(obj num: %d) eredita Resources da uno dei suoi parenti.\n", pParams->nCurrentObjNum);
-					#endif
-				}		
 			}
 			else if ( !(pParams->bCurrentPageHasDirectResources) && (0 == pParams->nCurrentPageResources)  ) // La pagina(o il nodo interno) non ha riferimenti a Resources.
 			{
-				if ( !pParams->bCurrentPageHasDirectResources && OBJ_TYPE_PAGE == pParams->eCurrentObjType )
-				{
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)					
-					wprintf(L"La pagina %d non ha riferimenti a Resources.\n", pParams->nCountPageFound);
-					#endif
-				}
-				else if ( !pParams->bCurrentPageHasDirectResources && OBJ_TYPE_PAGES == pParams->eCurrentObjType )
+				if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
 				{
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
-					wprintf(L"Il nodo interno(obj num: %d) non ha riferimenti a Resources\n", pParams->nCurrentObjNum);
+					wprintf(L"Il nodo(obj num: %d) non ha riferimenti a Resources\n", pParams->nCurrentObjNum);
 					#endif
-				}		
+				}
 			}
 			else if ( !(pParams->bCurrentPageHasDirectResources) && pParams->nCurrentPageResources > 0 )   // Un intero > 0 indica il riferimento al numero dell'oggetto Resources.
 			{
-				if ( !ParseDictionaryObject(pParams, pParams->nCurrentPageResources) )
-				{
-					snprintf(pParams->szError, 8192, "ERRORE ParseObject -> ParseDictionaryObject\n");
-					myShowErrorMessage(pParams, pParams->szError, 1);
-					//wprintf(L"ERRORE ParseObject -> ParseDictionaryObject\n");
-					//fwprintf(pParams->fpErrors, L"ERRORE ParseObject -> ParseDictionaryObject\n");
-				}		
-		
-				if ( OBJ_TYPE_PAGE == pParams->eCurrentObjType )
+				//if ( !ParseDictionaryObject(pParams, pParams->nCurrentPageResources) )
+				//{
+				//	snprintf(pParams->szError, 8192, "ERRORE ParseObject -> ParseDictionaryObject\n");
+				//	myShowErrorMessage(pParams, pParams->szError, 1);
+				//}		
+				
+				if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
 				{
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)					
-					wprintf(L"La pagina %d ha un oggetto Resources indiretto.\n", pParams->nCountPageFound);
-					#endif
-					
-					while ( myobjreflist_Dequeue(&(pParams->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
-					{
-						scopeInsert(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_XObjRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096)  + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
-					}
-					
-					while ( myobjreflist_Dequeue(&(pParams->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
-					{
-						scopeInsert(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_FontsRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096)  + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
-					}					
-					
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
-					scopeTraverse(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_XObjRef), myOnScopeTraverse, 0);
-					scopeTraverse(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_FontsRef), myOnScopeTraverse, 0);
-					#endif					
-				}
-				else if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
-				{
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)					
-					wprintf(L"Il nodo interno(obj num: %d) ha un oggetto Resources indiretto.\n", pParams->nCurrentObjNum);
-					wprintf(L"PAGETREE PAGES(INTERNAL NODE %d) PARSING -> pParams->nCurrentPageResources = %d 0 R\n", pParams->nCurrentObjNum, pParams->nCurrentPageResources);
+					wprintf(L"Il nodo(obj num: %d) ha un oggetto Resources indiretto.\n", pParams->nCurrentObjNum);
+					wprintf(L"PAGETREE PAGES(NODE %d) PARSING -> pParams->nCurrentPageResources = %d 0 R\n", pParams->nCurrentObjNum, pParams->nCurrentPageResources);
 					#endif
 					
 					while ( myobjreflist_Dequeue(&(pParams->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
@@ -3771,36 +3937,15 @@ int ParseObject(Params *pParams, int objNum)
 						#endif
 						myobjreflist_Enqueue( &(pParams->myObjsTable[pParams->nCurrentObjNum]->myFontsRefList), pParams->szTemp, pParams->nTemp );
 					}
-				}		
+				}
 			}
 	
 			if ( pParams->bCurrentPageHasDirectResources  )   // La pagina(o il nodo interno) ha un oggetto Resources diretto.
 			{
-				if ( OBJ_TYPE_PAGE == pParams->eCurrentObjType )
+				if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
 				{
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)					
-					wprintf(L"La pagina %d ha un oggetto Resources diretto.\n", pParams->nCountPageFound);
-					#endif
-					
-					while ( myobjreflist_Dequeue(&(pParams->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
-					{
-						scopeInsert(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_XObjRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
-					}
-					
-					while ( myobjreflist_Dequeue(&(pParams->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
-					{
-						scopeInsert(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_FontsRef), (void*)(pParams->szTemp), strnlen(pParams->szTemp, 4096) + sizeof(char), (void*)&(pParams->nTemp), sizeof(pParams->nTemp), 0);
-					}	
-									
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
-					scopeTraverse(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_XObjRef), myOnScopeTraverse, 0);
-					scopeTraverse(&(pParams->pPagesArray[pParams->nCountPageFound].myScopeHT_FontsRef), myOnScopeTraverse, 0);
-					#endif
-				}
-				else if ( OBJ_TYPE_PAGES == pParams->eCurrentObjType )
-				{
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)					
-					wprintf(L"Il nodo interno(obj num: %d) ha un oggetto Resources diretto.\n", pParams->nCurrentObjNum);
+					wprintf(L"Il nodo(obj num: %d) ha un oggetto Resources diretto.\n", pParams->nCurrentObjNum);
 					#endif
 					while ( myobjreflist_Dequeue(&(pParams->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
 					{
@@ -3816,8 +3961,8 @@ int ParseObject(Params *pParams, int objNum)
 						wprintf(L"\tKey = '%s' -> FontsObjectRef = %d 0 R\n", pParams->szTemp, pParams->nTemp);
 						#endif
 						myobjreflist_Enqueue( &(pParams->myObjsTable[pParams->nCurrentObjNum]->myFontsRefList), pParams->szTemp, pParams->nTemp );
-					}					
-				}		
+					}
+				}
 			}
 
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)			
@@ -3827,7 +3972,18 @@ int ParseObject(Params *pParams, int objNum)
 			myobjreflist_Free(&(pParams->myXObjRefList));
 			myobjreflist_Free(&(pParams->myFontsRefList));
 		}
+				
+		pParams->nCurrentPageNum = 0;
+		
+		myTreeTraversePostOrderLeafOnly(pParams->pPagesTree, pParams);
+		
+		pParams->nCountPageFound = pParams->nCurrentPageNum;
+		
+		myobjreflist_Free(&(pParams->myXObjRefList));
+		myobjreflist_Free(&(pParams->myFontsRefList));
 	}
+
+
 								
 	if ( pParams->fromPage <= 0 )
 		nFromPage = 1;
@@ -3856,7 +4012,8 @@ int ParseObject(Params *pParams, int objNum)
 		wprintf(L"PAGINA %d -> Obj Number = %d\n", nInt, pParams->pPagesArray[nInt].numObjNumber);
 		#endif
 		
-		if ( pParams->pPagesArray[nInt].numObjContent <= 0 && pParams->pPagesArray[nInt].queueContentsObjRefs.count <= 0 )
+		//if ( pParams->pPagesArray[nInt].numObjContent <= 0 && pParams->pPagesArray[nInt].queueContentsObjRefs.count <= 0 )
+		if ( pParams->pPagesArray[nInt].queueContentsObjRefs.count <= 0 )
 		{
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)			
 			wprintf(L"\t****************************\n");
@@ -3869,58 +4026,31 @@ int ParseObject(Params *pParams, int objNum)
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN)
 		wprintf(L"\tContents -> { ");
 		#endif
-		if ( pParams->pPagesArray[nInt].numObjContent > 0 )
-		{
-			if ( !ParseStreamObject(pParams, pParams->pPagesArray[nInt].numObjContent) )
+
+		while ( myintqueuelist_Dequeue(&(pParams->pPagesArray[nInt].queueContentsObjRefs), &numObjQueueContent) )
+		{				
+			if ( !ParseStreamObject(pParams, numObjQueueContent) )
 			{
-				snprintf(pParams->szError, 8192, "ERRORE ParseStreamObject streamobj number %d\n", pParams->pPagesArray[nInt].numObjContent);
+				snprintf(pParams->szError, 8192, "ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
 				myShowErrorMessage(pParams, pParams->szError, 1);
-				//wprintf(L"ERRORE ParseStreamObject streamobj number %d\n", pParams->pPagesArray[nInt].numObjContent);
-				//fwprintf(pParams->fpErrors, L"ERRORE ParseStreamObject streamobj number %d\n", pParams->pPagesArray[nInt].numObjContent);
-				
-				snprintf(pParams->szError, 8192, "ECCO L'OGGETTO X:\n");
+				//wprintf(L"ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
+				//fwprintf(pParams->fpErrors, L"ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
+					
+				snprintf(pParams->szError, 8192, "ECCO L'OGGETTO Y:\n");
 				myShowErrorMessage(pParams, pParams->szError, 1);
-				//wprintf(L"ECCO L'OGGETTO X:\n");
-				//fwprintf(pParams->fpErrors, L"ECCO L'OGGETTO X:\n");
-				
-				PrintThisObject(pParams, pParams->pPagesArray[nInt].numObjContent, 0, 0, pParams->fpErrors);
-				
-				snprintf(pParams->szError, 8192, "FINE OGGETTO X:\n");
+				//wprintf(L"ECCO L'OGGETTO Y:\n");
+				//fwprintf(pParams->fpErrors, L"ECCO L'OGGETTO Y:\n");
+					
+				PrintThisObject(pParams, numObjQueueContent, 0, 0, pParams->fpErrors);
+					
+				snprintf(pParams->szError, 8192, "FINE OGGETTO Y:\n");
 				myShowErrorMessage(pParams, pParams->szError, 1);
-				//wprintf(L"FINE OGGETTO X:\n");
-				//fwprintf(pParams->fpErrors, L"FINE OGGETTO X:\n");
-				
+				//wprintf(L"FINE OGGETTO Y:\n");
+				//fwprintf(pParams->fpErrors, L"FINE OGGETTO Y:\n");
+									
 				retValue = 0;
 				goto uscita;
 			}
-		}
-		else
-		{
-			while ( myintqueuelist_Dequeue(&(pParams->pPagesArray[nInt].queueContentsObjRefs), &numObjQueueContent) )
-			{				
-				if ( !ParseStreamObject(pParams, numObjQueueContent) )
-				{
-					snprintf(pParams->szError, 8192, "ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
-					myShowErrorMessage(pParams, pParams->szError, 1);
-					//wprintf(L"ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
-					//fwprintf(pParams->fpErrors, L"ERRORE ParseStreamObject streamobj number %d\n", numObjQueueContent);
-					
-					snprintf(pParams->szError, 8192, "ECCO L'OGGETTO Y:\n");
-					myShowErrorMessage(pParams, pParams->szError, 1);
-					//wprintf(L"ECCO L'OGGETTO Y:\n");
-					//fwprintf(pParams->fpErrors, L"ECCO L'OGGETTO Y:\n");
-					
-					PrintThisObject(pParams, numObjQueueContent, 0, 0, pParams->fpErrors);
-					
-					snprintf(pParams->szError, 8192, "FINE OGGETTO Y:\n");
-					myShowErrorMessage(pParams, pParams->szError, 1);
-					//wprintf(L"FINE OGGETTO Y:\n");
-					//fwprintf(pParams->fpErrors, L"FINE OGGETTO Y:\n");
-									
-					retValue = 0;
-					goto uscita;
-				}
-			}			
 		}
 
 		tstInit(&(pParams->myTST));
@@ -3993,6 +4123,7 @@ uscita:
 	{
 		myobjreflist_Free(&(pParams->myObjsTable[nInt]->myXObjRefList));
 		myobjreflist_Free(&(pParams->myObjsTable[nInt]->myFontsRefList));
+		myintqueuelist_Free(&(pParams->myObjsTable[nInt]->queueContentsObjRefs));
 		
 		if ( NULL != pParams->myObjsTable[nInt]->Obj.pszDecodedStream )
 		{
@@ -4005,6 +4136,8 @@ uscita:
 	}	
 	
 	myintqueuelist_Free(&(pParams->myPagesQueue));
+	
+	myintqueuelist_Free(&(pParams->myPageLeafQueue));
 	
 	myobjreflist_Free(&(pParams->myXObjRefList));
 	myobjreflist_Free(&(pParams->myFontsRefList));
@@ -4396,14 +4529,15 @@ int ParseNextObject(Params *pParams, int objNum)
 	
 	pParams->pReadNextChar = ReadNextChar;
 	
+	mynumstacklist_Init( &(pParams->myNumStack) );
+	
+	/*
 	if ( !LoadFirstBlock(pParams, objNum, "ParseNextObject") )
 	{
 		retValue = 0;
 		goto uscita;
 	}
-			
-	mynumstacklist_Init( &(pParams->myNumStack) );
-			
+	
 	GetNextToken(pParams);
 				
 	if ( !prepagetree(pParams) )
@@ -4416,6 +4550,7 @@ int ParseNextObject(Params *pParams, int objNum)
 	pParams->bPrePageTreeExit = 1;
 		
 	mynumstacklist_Free( &(pParams->myNumStack) );
+	*/
 	
 	// --------------------------------------------------------------------------------------------------------------------------------------
 			
@@ -7465,214 +7600,24 @@ int dictionary(Params *pParams)
 	return 1;
 }
 
-// ************************************************************************************************************************
-
-//prepagetree          : T_INT_LITERAL T_INT_LITERAL T_KW_OBJ pagetreebody T_KW_ENDOBJ;
-int prepagetree(Params *pParams)
-{	
-	int bPreviousTokenIsDictBegin;
-	
-	int bPreviousTokenIsName;
-	char szPreviousName[1024];
-	
-	char szLastName[1024];
-	
-		
-	// nCurrentPageResources            -> 0 se la pagina non ha riferimenti a Resources;
-	//                                     -1 se la pagina eredita Resources da uno dei suoi parenti;
-	//                                     altrimenti un intero > 0 che indica il riferimento al numero dell'oggetto Resources.
-	
-	// bCurrentPageHasDirectResources   -> 1 Se risorsa diretta; 0 altrimenti.
-	
-	pParams->bIsInXObjState = 0;
-		
-	pParams->bCurrentPageHasDirectResources = 0;
-	pParams->nCurrentPageResources = -1;
-	
-	pParams->nCountPageAlreadyDone = 0;	
-	
-	//if ( pParams->bPrePageTreeExit )
-	//{
-	//	return 1;
-	//}
-	
-	if ( T_INT_LITERAL != pParams->myToken.Type )
-	{
-		snprintf(pParams->szError, 8192, "AHIA! ERRORE prepagetree: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
-		myShowErrorMessage(pParams, pParams->szError, 1);
-		//wprintf(L"ERRORE prepagetree: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
-		//fwprintf(pParams->fpErrors, L"AHIA! ERRORE prepagetree: atteso T_INT_LITERAL; trovato token n° %d.\n", pParams->myToken.Type);
-		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
-		PrintToken(&(pParams->myToken), '\t', ' ', 1);
-		return 0;
-	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
-					
-	pParams->nCurrentObjNum = pParams->myToken.Value.vInt;
-			
-	if ( pParams->nObjToParse != pParams->nCurrentObjNum )
-	{
-		snprintf(pParams->szError, 8192, "ERRORE parsing prepagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
-		myShowErrorMessage(pParams, pParams->szError, 1);
-		//wprintf(L"ERRORE parsing prepagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
-		//fwprintf(pParams->fpErrors, L"ERRORE parsing prepagetree: il numero %d specificato nel trailer, non corrisponde col numero corrente -> %d\n", pParams->nObjToParse, pParams->nCurrentObjNum);
-		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
-		return 0;
-	}
-	
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PREPAGETREEOBJ)
-	PrintToken(&(pParams->myToken), ' ', ' ', 1);
-	#endif
-	
-	GetNextToken(pParams);
-					
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PREPAGETREEOBJ)
-	PrintToken(&(pParams->myToken), ' ', ' ', 1);
-	#endif
-	
-	if ( !match(pParams, T_INT_LITERAL, "prepagetree") )
-		return 0;
-	
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PREPAGETREEOBJ)
-	PrintToken(&(pParams->myToken), ' ', ' ', 1);
-	#endif
-		
-	if ( !match(pParams, T_KW_OBJ, "prepagetree") )
-		return 0;
-				
-
-	bPreviousTokenIsDictBegin = 0;
-	bPreviousTokenIsName = 0;
-	szPreviousName[0] = '\0';
-	szLastName[0] = '\0';
-	do
-	{		
-		if ( pParams->myToken.Type == T_ERROR || pParams->myToken.Type == T_EOF )
-		{
-			snprintf(pParams->szError, 8192, "Errore parsing prepagetree: token non valido: %d\n", pParams->myToken.Type);
-			myShowErrorMessage(pParams, pParams->szError, 1);
-			//wprintf(L"Errore parsing prepagetree: token non valido: %d\n", pParams->myToken.Type);
-			//fwprintf(pParams->fpErrors, L"Errore parsing prepagetree: token non valido: %d\n", pParams->myToken.Type);
-			PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
-			PrintToken(&(pParams->myToken), '\0', ' ', 1);
-				
-			return 0;
-		}
-		
-		if ( T_NAME == pParams->myToken.Type )
-		{
-			bPreviousTokenIsName = 1;
-			strncpy(szPreviousName, pParams->myToken.Value.vString, 1023);
-			strncpy(szLastName, pParams->myToken.Value.vString, 1023);
-		}
-		else if ( T_DICT_BEGIN == pParams->myToken.Type )
-		{
-			bPreviousTokenIsDictBegin = 1;
-			bPreviousTokenIsName = 0;
-			szPreviousName[0] = '\0';			
-		}
-		else if ( T_DICT_END == pParams->myToken.Type )
-		{			
-			if ( bPreviousTokenIsDictBegin && strncmp(szLastName, "Resources", 1024) == 0 )
-			{
-				pParams->nCurrentPageResources = 0;
-			}
-			bPreviousTokenIsDictBegin = 0;
-			bPreviousTokenIsName = 0;
-			szPreviousName[0] = '\0';			
-		}		
-		else
-		{
-			bPreviousTokenIsDictBegin = 0;
-			bPreviousTokenIsName = 0;
-			szPreviousName[0] = '\0';
-		}
-		
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PREPAGETREEOBJ)
-		PrintToken(&(pParams->myToken), ' ', ' ', 1);
-		#endif
-					
-		GetNextToken(pParams);
-		
-		if ( (bPreviousTokenIsName) && (T_NAME == pParams->myToken.Type) && (strncmp(szPreviousName, "Type", 4096) == 0) )
-		{
-			if ( strncmp(pParams->myToken.Value.vString, "Pages", 4096) == 0 )
-			{
-				pParams->eCurrentObjType = OBJ_TYPE_PAGES;
-			}
-			else if ( strncmp(pParams->myToken.Value.vString, "Page", 4096) == 0 )
-			{
-				pParams->eCurrentObjType = OBJ_TYPE_PAGE;
-					
-				if ( !pParams->nCountPageAlreadyDone )
-				{
-					pParams->nCountPageFound++;
-					pParams->nCountPageAlreadyDone = 1;						
-				}					
-					
-				//pParams->pPagesArray[pParams->nCountPageFound].numObjNumber = pParams->nCurrentObjNum;
-				pParams->pPagesArray[pParams->nCountPageFound].numObjNumber = pParams->nCurrentParsingObj;
-				pParams->pPagesArray[pParams->nCountPageFound].numObjContent = 0;
-					
-				mycontentqueuelist_Init(&(pParams->pPagesArray[pParams->nCountPageFound].queueContens));
-				myintqueuelist_Init(&(pParams->pPagesArray[pParams->nCountPageFound].queueContentsObjRefs));
-			}
-		}
-		else if ( T_NAME == pParams->myToken.Type )
-		{
-			strncpy(szLastName, pParams->myToken.Value.vString, 1023);
-		}	
-		else if ( T_DICT_BEGIN == pParams->myToken.Type )
-		{
-			bPreviousTokenIsDictBegin = 1;
-			bPreviousTokenIsName = 0;
-			szPreviousName[0] = '\0';			
-		}
-		else if ( T_DICT_END == pParams->myToken.Type )
-		{			
-			if ( bPreviousTokenIsDictBegin && strncmp(szLastName, "Resources", 1024) == 0 )
-			{
-				pParams->nCurrentPageResources = 0;
-			}		
-			
-			bPreviousTokenIsDictBegin = 0;
-			bPreviousTokenIsName = 0;
-			szPreviousName[0] = '\0';						
-		}			
-		else
-		{
-			bPreviousTokenIsDictBegin = 0;
-			bPreviousTokenIsName = 0;
-			szPreviousName[0] = '\0';
-		}			
-	} while ( pParams->myToken.Type != T_KW_ENDOBJ );
-	
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PREPAGETREEOBJ)
-	wprintf(L"\n");
-	#endif
-											
-	return 1;
-}	
-
-
 //*************************************************************************************************************************
 
 //pagetree          : T_INT_LITERAL T_INT_LITERAL T_KW_OBJ pagetreebody T_KW_ENDOBJ;
 int pagetree(Params *pParams)
 {
 	//pParams->nCountPageAlreadyDone = 0;
-	//pParams->nCountPagesFromPdf = 0;
-	//pParams->nCurrentPageResources = -1;
-	//pParams->bCurrentPageHasDirectResources = 0;
+	pParams->nCurrentPageResources = -1;
+	pParams->bCurrentPageHasDirectResources = 0;
 
-
-	// nCurrentPageParent            -> 0 se nodo radice; altrimenti intero > 0 indica il nodo genitore della pagina corrente
+	// nCurrentPageParent            -> 0 se nodo radice. Altrimenti intero > 0 che indica il nodo genitore della pagina corrente.
 	
 	// nCurrentPageResources         -> 0 se la pagina non ha riferimenti a Resources;
 	//                                  -1 se la pagina eredita Resources da uno dei suoi parenti;
 	//                                  altrimenti un intero > 0 che indica il riferimento al numero dell'oggetto Resources.
 	
 	// bCurrentPageDirectResources   -> 1 Se risorsa diretta; 0 altrimenti.
+	
+	int nCurrentPageParsingObj;
 			
 	pParams->bIsInXObjState = 0;
 	
@@ -7689,7 +7634,7 @@ int pagetree(Params *pParams)
 	pParams->bFontsKeys = 0;	
 	
 	pParams->nDictionaryType = DICTIONARY_TYPE_GENERIC;
-		
+			
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
 	wprintf(L"\n");
 	#endif	
@@ -7710,6 +7655,8 @@ int pagetree(Params *pParams)
 	#endif
 	
 	pParams->nCurrentObjNum = pParams->myToken.Value.vInt;
+	
+	nCurrentPageParsingObj = pParams->myToken.Value.vInt;
 		
 	if ( pParams->nObjToParse != pParams->nCurrentObjNum )
 	{
@@ -7721,6 +7668,8 @@ int pagetree(Params *pParams)
 	}
 	
 	GetNextToken(pParams);			
+	
+	myintqueuelist_Init(&(pParams->myObjsTable[pParams->nCurrentObjNum]->queueContentsObjRefs));
 					
 	//if ( !match(pParams, T_INT_LITERAL, "pagetree") )
 	//	return 0;
@@ -7761,13 +7710,21 @@ int pagetree(Params *pParams)
 	//	wprintf(L"ERRORE parsing pagetree: numero indice pagina corrente %d maggiore del numero totale di pagine attesi -> %d\n", pParams->nCountPageFound, pParams->nCountPagesFromPdf);
 	//	return 0;
 	//}	
-	
+							
 	if ( pParams->nCurrentPageResources > 0 )
 	{
 		pParams->nDictionaryType = DICTIONARY_TYPE_RESOURCES;
 		if ( !ParseDictionaryObject(pParams, pParams->nCurrentPageResources) )
-		{
 			return 0;
+			
+		while ( myobjreflist_Dequeue(&(pParams->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
+		{
+			myobjreflist_Enqueue(&(pParams->myObjsTable[nCurrentPageParsingObj]->myXObjRefList), pParams->szTemp, pParams->nTemp);
+		}
+		
+		while ( myobjreflist_Dequeue(&(pParams->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
+		{
+			myobjreflist_Enqueue(&(pParams->myObjsTable[nCurrentPageParsingObj]->myFontsRefList), pParams->szTemp, pParams->nTemp);
 		}
 	}
 		
@@ -7776,13 +7733,23 @@ int pagetree(Params *pParams)
 		pParams->nDictionaryType = DICTIONARY_TYPE_XOBJ;
 		if ( !ParseDictionaryObject(pParams, pParams->nCurrentXObjRef) )
 			return 0;
+		
+		while ( myobjreflist_Dequeue(&(pParams->myXObjRefList), pParams->szTemp, &(pParams->nTemp)) )
+		{
+			myobjreflist_Enqueue(&(pParams->myObjsTable[nCurrentPageParsingObj]->myXObjRefList), pParams->szTemp, pParams->nTemp);
+		}
 	}
 	
 	if ( pParams->nCurrentFontsRef > 0 )
 	{
 		pParams->nDictionaryType = DICTIONARY_TYPE_FONT;
 		if ( !ParseDictionaryObject(pParams, pParams->nCurrentFontsRef) )
-			return 0;		
+			return 0;
+			
+		while ( myobjreflist_Dequeue(&(pParams->myFontsRefList), pParams->szTemp, &(pParams->nTemp)) )
+		{
+			myobjreflist_Enqueue(&(pParams->myObjsTable[nCurrentPageParsingObj]->myFontsRefList), pParams->szTemp, pParams->nTemp);
+		}	
 	}	
 	
 	pParams->nCurrentXObjRef = 0;
@@ -7820,16 +7787,7 @@ int pagetreeitems(Params *pParams)
 	while ( pParams->myToken.Type == T_NAME )
 	{
 		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, 4096 - 1);
-		
-		if ( !pParams->nCountPageAlreadyDone && strncmp(pParams->szCurrKeyName, "Contents", 4096 - 1) == 0 )
-		{
-			pParams->nCountPageFound++;
-			pParams->nCountPageAlreadyDone = 1;
-			
-			myintqueuelist_Init(&(pParams->pPagesArray[pParams->nCountPageFound].queueContentsObjRefs));
-			mycontentqueuelist_Init(&(pParams->pPagesArray[pParams->nCountPageFound].queueContens));	
-		}
-		
+				
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
 		#endif		
@@ -7905,7 +7863,9 @@ int pagetreeobj(Params *pParams)
 				
 				if ( strncmp(pParams->szCurrKeyName, "Contents", 4096) == 0 )
 				{
-					pParams->pPagesArray[pParams->nCountPageFound].numObjContent = iNum;
+					//pParams->pPagesArray[pParams->nCountPageFound].numObjContent = iNum;
+					pParams->nCurrentNumPageObjContent = iNum;
+					myintqueuelist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentObjNum]->queueContentsObjRefs), iNum);
 				}
 				else if ( strncmp(pParams->szCurrKeyName, "Parent", 4096) == 0  )
 				{
@@ -7926,22 +7886,27 @@ int pagetreeobj(Params *pParams)
 							if ( strncmp(pParams->szCurrResourcesKeyName, "XObject", 4096) != 0  )
 							{
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
-								wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCountPageFound);
+								wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina(objnum = %d)\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentParsingObj);
 								#endif						
-								myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);
+								//myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);
+								myobjreflist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentParsingObj]->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);
 							}
 							else
 							{
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
-								wprintf(L"ECCO, pagetreeobj -> NON metto in coda pParams->nCurrentXObjRef %d della pagina %d\n", iNum, pParams->nCountPageFound);
+								wprintf(L"ECCO, pagetreeobj -> NON metto in coda pParams->nCurrentXObjRef %d della pagina(objnum %d)\n", iNum, pParams->nCurrentParsingObj);
 								#endif									
 								pParams->nCurrentXObjRef = iNum;
+								myobjreflist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentParsingObj]->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);
 							}							
 						}
 						else
 						{
 							if ( strncmp(pParams->szCurrResourcesKeyName, "XObject", 4096) == 0  )
+							{
 								pParams->nCurrentXObjRef = iNum;
+								myobjreflist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentParsingObj]->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);
+							}
 						}
 					
 						if ( pParams->bFontsKeys )
@@ -7949,16 +7914,18 @@ int pagetreeobj(Params *pParams)
 							if ( strncmp(pParams->szCurrResourcesKeyName, "Font", 4096) != 0  )
 							{
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
-								wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCountPageFound);
+								wprintf(L"ECCO, pagetreeobj -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina(objnum = %d)\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentParsingObj);
 								#endif						
-								myobjreflist_Enqueue(&(pParams->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);
+								//myobjreflist_Enqueue(&(pParams->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);
+								myobjreflist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentParsingObj]->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);
 							}
 							else
 							{
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
-								wprintf(L"ECCO, pagetreeobj -> NON metto in coda pParams->nCurrentFontsRef %d della pagina %d\n", iNum, pParams->nCountPageFound);
+								wprintf(L"ECCO, pagetreeobj -> NON metto in coda pParams->nCurrentFontsRef %d della pagina(objnum = %d)\n", iNum, pParams->nCurrentParsingObj);
 								#endif	
 								pParams->nCurrentFontsRef = iNum;
+								myobjreflist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentParsingObj]->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);
 							}
 						}
 						else
@@ -7967,6 +7934,7 @@ int pagetreeobj(Params *pParams)
 							if ( strncmp(pParams->szCurrKeyName, "Font", 4096) == 0  )
 							{
 								pParams->nCurrentFontsRef = iNum;
+								myobjreflist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentParsingObj]->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);
 							}
 						}
 					}
@@ -7980,10 +7948,6 @@ int pagetreeobj(Params *pParams)
 				{
 					pParams->nCountPagesFromPdf = iNum;
 				}
-				//if ( (strncmp(pParams->szCurrKeyName, "Count", 4096) == 0) )
-				//{
-				//	pParams->nCountPagesFromPdf = iNum;
-				//}				
 			}
 			break;
 		case T_STRING_LITERAL:
@@ -8128,10 +8092,10 @@ int pagetreearrayobjs(Params *pParams)
 			}
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
-			wprintf(L"ECCO, Metto in coda il contenuto Obj(%d) della pagina %d\n", nInt, pParams->nCountPageFound);
+			wprintf(L"ECCO, Metto in coda il contenuto Obj(%d) della pagina(objnum = %d)\n", nInt, pParams->nCurrentParsingObj);
 			#endif
 				
-			myintqueuelist_Enqueue(&(pParams->pPagesArray[pParams->nCountPageFound].queueContentsObjRefs), nInt);
+			myintqueuelist_Enqueue(&(pParams->myObjsTable[pParams->nCurrentObjNum]->queueContentsObjRefs), nInt);
 		}
 	}	
 	else
@@ -8188,8 +8152,6 @@ int pagetreedictobjs(Params *pParams)
 				pParams->bFontsKeys = 1;
 				pParams->bXObjectKeys = 0;
 			}			
-			
-			//strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
 		}
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
@@ -8204,7 +8166,6 @@ int pagetreedictobjs(Params *pParams)
 			
 	return 1;
 }
-
 
 // ************************************************************************************************************************
 
@@ -9219,9 +9180,9 @@ int resourcesdictionaryitems(Params *pParams)
 					{
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 						//wprintf(L"ECCO, metto in coda(pParams->myXObjRefList) l'XObjRef -> %s %d 0 R\n", pParams->szCurrResourcesKeyName, iNum);
-						wprintf(L"ECCO, resourcesdictionaryitems -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentPageNum);
+						wprintf(L"ECCO, resourcesdictionaryitems -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina(objnum = %d)\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentObjNum);
 						#endif						
-						myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);					
+						myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);	
 					}
 					else
 					{
@@ -9233,7 +9194,7 @@ int resourcesdictionaryitems(Params *pParams)
 					{
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 						//wprintf(L"ECCO, metto in coda(pParams->myFontsRefList) il FontsRef -> %s %d 0 R\n", pParams->szCurrResourcesKeyName, iNum);
-						wprintf(L"ECCO, resourcesdictionaryitems -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina %d\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentPageNum);
+						wprintf(L"ECCO, resourcesdictionaryitems -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina(obinum = %d)\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentObjNum);
 						#endif						
 						myobjreflist_Enqueue(&(pParams->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);					
 					}
@@ -9249,29 +9210,11 @@ int resourcesdictionaryitems(Params *pParams)
 				{
 					if ( pParams->bXObjectKeys )
 					{
-						Scope PageScope;
-						int nRes;
-						size_t len;
-						uint32_t nDataSize;
-						uint32_t bContentAlreadyProcessed;						
-						int n1;
-						
-						PageScope = pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef;
-						len = strnlen(pParams->szCurrResourcesKeyName, 128);
-						nRes = scopeFind(&PageScope, pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&n1, &nDataSize, &bContentAlreadyProcessed, 1);
-						//nRes = scopeFind(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&n1, &nDataSize, &bContentAlreadyProcessed, 1);
-						if ( nRes < 0 ) // NON TROVATO
-						{
-							bContentAlreadyProcessed = 0;
-							nRes = scopeInsert(&PageScope, pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&(iNum), sizeof(iNum), bContentAlreadyProcessed);
-							//nRes = scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_XObjRef), pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&(iNum), sizeof(iNum), bContentAlreadyProcessed);
-							if ( nRes )
-							{
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
-								wprintf(L"resourcesdictionaryitems -> INSERITO XOBJ Key = '%s' -> %d 0 R NELLO SCOPE\n", pParams->szCurrResourcesKeyName, iNum);
-								#endif
-							}
-						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+						//wprintf(L"ECCO, metto in coda(pParams->myXObjRefList) l'XObjRef -> %s %d 0 R\n", pParams->szCurrResourcesKeyName, iNum);
+						wprintf(L"ECCO 2, resourcesdictionaryitems -> metto in coda(pParams->myXObjRefList) l'XObjRef(Key = '%s') %d della pagina(objnum = %d)\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentObjNum);
+						#endif						
+						myobjreflist_Enqueue(&(pParams->myXObjRefList), pParams->szCurrResourcesKeyName, iNum);	
 					}
 					else
 					{
@@ -9281,29 +9224,11 @@ int resourcesdictionaryitems(Params *pParams)
 					
 					if ( pParams->bFontsKeys )
 					{
-						Scope PageScope;
-						int nRes;
-						size_t len;
-						uint32_t nDataSize;
-						uint32_t bContentAlreadyProcessed;
-						int n1;
-						
-						PageScope = pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef;
-						len = strnlen(pParams->szCurrResourcesKeyName, 128);
-						nRes = scopeFind(&PageScope, pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&n1, &nDataSize, &bContentAlreadyProcessed, 1);
-						//nRes = scopeFind(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&n1, &nDataSize, &bContentAlreadyProcessed, 1);
-						if ( nRes < 0 ) // NON TROVATO
-						{
-							bContentAlreadyProcessed = 0;
-							nRes = scopeInsert(&PageScope, pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&(iNum), sizeof(iNum), bContentAlreadyProcessed);
-							//nRes = scopeInsert(&(pParams->pPagesArray[pParams->nCurrentPageNum].myScopeHT_FontsRef), pParams->szCurrResourcesKeyName, len + sizeof(char), (void*)&(iNum), sizeof(iNum), bContentAlreadyProcessed);
-							if ( nRes )
-							{
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
-								wprintf(L"resourcesdictionaryitems -> INSERITO FONTS Key = '%s' -> %d 0 R NELLO SCOPE\n", pParams->szCurrResourcesKeyName, iNum);
-								#endif
-							}
-						}
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
+						//wprintf(L"ECCO, metto in coda(pParams->myFontsRefList) il FontsRef -> %s %d 0 R\n", pParams->szCurrResourcesKeyName, iNum);
+						wprintf(L"ECCO 2, resourcesdictionaryitems -> metto in coda(pParams->myFontsRefList) il FontsRef(Key = '%s') %d della pagina(objnum = %d)\n", pParams->szCurrResourcesKeyName, iNum, pParams->nCurrentObjNum);
+						#endif						
+						myobjreflist_Enqueue(&(pParams->myFontsRefList), pParams->szCurrResourcesKeyName, iNum);	
 					}
 					else
 					{

@@ -68,6 +68,7 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 
 int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName);
 
+void myTreeTraversePostOrderLeafOnly(Tree *head, Params *pParams);
 int ParseObject(Params *pParams, int objNum);
 int ParseNextObject(Params *pParams, int objNum);
 int CheckObjectType(Params *pParams, int objNum);

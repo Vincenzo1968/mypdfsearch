@@ -1744,8 +1744,10 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 			pParams->myObjsTable[numInit]->Obj.pszDecodedStream = NULL;
 			//pParams->myObjsTable[numInit]->Obj.StreamOffset = 0;
 			//pParams->myObjsTable[numInit]->Obj.StreamLength = 0;
+			pParams->myObjsTable[numInit]->Obj.pTreeNode = NULL;
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myXObjRefList));
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myFontsRefList));
+			myintqueuelist_Init(&(pParams->myObjsTable[numInit]->queueContentsObjRefs));
 		}
 		else
 		{
@@ -1780,6 +1782,7 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 			pParams->myObjsTable[numInit]->Obj.pszDecodedStream = NULL;
 			pParams->myObjsTable[numInit]->Obj.StreamOffset = 0;
 			pParams->myObjsTable[numInit]->Obj.StreamLength = 0;
+			pParams->myObjsTable[numInit]->Obj.pTreeNode = NULL;
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myXObjRefList));
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myFontsRefList));
 		}

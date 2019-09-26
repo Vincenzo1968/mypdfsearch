@@ -3,13 +3,19 @@ all: mypdfsearch.exe
 
 
 
-mypdfsearch.exe: main.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
-	gcc main.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o -o mypdfsearch.exe -lm -lz -liconv 
+mypdfsearch.exe: main.o mytime.o myTree.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
+	gcc main.o mytime.o myTree.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o -o mypdfsearch.exe -lm -lz -liconv 
 
 
 
 main.o: main.c mypdfsearch.h parser.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
 	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o main.o main.c
+	
+mytime.o: mytime.c mytime.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o mytime.o mytime.c
+
+myTree.o: myTree.c myTree.h mypdfsearch.h
+	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o myTree.o myTree.c
 
 mycontentqueuelist.o: mycontentqueuelist.c mycontentqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h
 	gcc -Wall -W -pedantic -O3 -Wno-overlength-strings -c -o mycontentqueuelist.o mycontentqueuelist.c

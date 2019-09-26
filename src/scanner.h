@@ -24,6 +24,7 @@
 #define __MYSCANNER__
 
 #include "mypdfsearch.h"
+#include "myTree.h"
 #include "myobjrefqueuelist.h"
 #include "mynumstacklist.h"
 #include "myintqueuelist.h"
@@ -193,8 +194,9 @@ typedef struct tagPdfIndirectObject
 	uint32_t StreamOffset;
 	uint32_t StreamLength;
 	unsigned char *pszDecodedStream;
-	int32_t  numObjParent;    // Usato per gli oggetti di tipo Pages(nodi interni del page tree) o 'Page'
-	uint32_t genObjParent;    // Usato per gli oggetti di tipo Pages(nodi interni del page tree) o 'Page'
+	int32_t  numObjParent;    // Usato per gli oggetti di tipo 'Pages'(nodi interni del page tree) o 'Page'
+	uint32_t genObjParent;    // Usato per gli oggetti di tipo 'Pages'(nodi interni del page tree) o 'Page'
+	Tree *pTreeNode;
 } PdfIndirectObject;
 
 typedef struct tagTrailerIndex
@@ -217,12 +219,13 @@ typedef struct tagPdfObjsTableItem
 	PdfIndirectObject Obj;
 	MyObjRefList_t myXObjRefList;
 	MyObjRefList_t myFontsRefList;
+	MyIntQueueList_t queueContentsObjRefs; // Coda di riferimenti agli obj che contengono i contents(stream) della pagina
 } PdfObjsTableItem;
 
 typedef struct tagPage
 {
-	int numObjNumber;
-	int numObjParent;
+	int32_t numObjNumber;
+	int32_t numObjParent;
 	Scope myScopeHT_XObjRef;
 	Scope myScopeHT_FontsRef;
 	int numObjContent;   
@@ -424,6 +427,7 @@ typedef struct tagParams
 	PdfIndirectObject ObjPageTreeRoot;
 	int nCountPagesFromPdf;
 	MyIntQueueList_t myPagesQueue;
+	Tree *pPagesTree;
 	Page *pPagesArray;
 	int eCurrentObjType;
 	int nCurrentObjNum;
@@ -432,6 +436,11 @@ typedef struct tagParams
 	int nCountPageAlreadyDone;
 	int nCurrentPageNum;
 	int nPreviousPageNum;
+	
+	int nCurrentNumPageObjContent;   
+	int bCurrentContentIsPresent;
+	
+	MyIntQueueList_t myPageLeafQueue;
 	
 	int nCurrentPageParent;      // 0 se nodo radice; altrimenti intero > 0 indica il nodo genitore della pagina corrente
 	
@@ -450,7 +459,6 @@ typedef struct tagParams
 	MyObjRefList_t myXObjRefList;
 	char szTemp[MAX_STRLEN];
 	int nTemp;
-	
 	
 	int nCurrentFontsRef;
 	MyObjRefList_t myFontsRefList;

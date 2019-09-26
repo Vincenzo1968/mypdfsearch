@@ -20,8 +20,8 @@
    along with mypdfsearch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef	__MYTIME_H
-#define	__MYTIME_H
+#ifndef	__MYTREE_H
+#define	__MYTREE_H
 
 #ifdef __cplusplus
 #  define BEGIN_C_DECLS extern "C" {
@@ -31,33 +31,38 @@
 #  define END_C_DECLS
 #endif /* __cplusplus */
 
+#include "mypdfsearch.h"
 
-#if defined(_WIN64) || defined(_WIN32)
-   #include <Windows.h> 
-#elif defined(__unix__) || defined(__unix) || defined(unix) || (defined(__APPLE__) && defined(__MACH__))
-   /* #define _GNU_SOURCE */
-   #include <unistd.h>
-   #include <sys/times.h>
-   #include <time.h>
-#else
-   #error "Unable to define getTimes(myTimes *pTimes) for an unknown OS."
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-
-typedef struct _myTimes
+typedef struct tagTree
 {
-	double realTime;
-	double userTime;
-	double systemTime;
-} myTimes;
+	int32_t numObjNumber;
+	int32_t numObjParent;
+	
+	int bCurrentPageHasDirectResources;
+	int nCurrentPageResources;   // 0 se la pagina non ha riferimenti a Resources; -1 se la pagina eredita Resources da uno dei suoi genitori; altrimenti un intero maggiore di zero che indica il riferimento al numero dell'oggetto Resources.
+	
+	int nCurrentNumPageObjContent;   
+	int bCurrentContentIsPresent;
 
+	//struct tagTree *father;
+	struct tagTree *firstchild;
+	struct tagTree *sibling;
+} Tree;
 
 BEGIN_C_DECLS
 
-int getTimes(myTimes *pTimes);
+Tree * treeNewNode(int32_t numObjNumber, int32_t numObjParent);
+
+void treeFree(Tree *head);
+
+void treeTraversePreOrder(Tree *head);
+void treeTraversePostOrder(Tree *head);
+void treeTraverseInOrder(Tree *head);
+
+void treeTraversePreOrderLeafOnly(Tree *head);
+void treeTraversePostOrderLeafOnly(Tree *head);
+void treeTraverseInOrderLeafOnly(Tree *head);
 
 END_C_DECLS
 
-#endif /* __MYTIME_H */
+#endif /* __MYTREE_H */
