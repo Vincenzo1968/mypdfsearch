@@ -31,6 +31,7 @@
 #include <limits.h>
 #include <ctype.h>
 #include <wctype.h>
+#include <stdint.h>
 
 //#define HT_SIZE 8191
 #define BLOCK_SIZE 4096
