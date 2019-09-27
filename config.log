@@ -136,7 +136,7 @@ configure:3849: found /usr/bin/ranlib
 configure:3860: result: ranlib
 configure:3887: checking for library containing inflate
 configure:3918: gcc -o conftest -Wall -W -pedantic -O3 -Wno-overlength-strings   conftest.c  >&5
-/tmp/cc5lLHge.o: In function `main':
+/tmp/cc8ZIrfn.o: In function `main':
 conftest.c:(.text.startup+0x7): undefined reference to `inflate'
 collect2: error: ld returned 1 exit status
 configure:3918: $? = 1
@@ -176,7 +176,7 @@ conftest.c:18:6: warning: conflicting types for built-in function 'ceil'; expect
       |      ^~~~
 conftest.c:1:1: note: 'ceil' is declared in header '<math.h>'
     1 | /* confdefs.h */
-/tmp/cceW9vTe.o: In function `main':
+/tmp/cc5UlXpt.o: In function `main':
 conftest.c:(.text.startup+0x7): undefined reference to `ceil'
 collect2: error: ld returned 1 exit status
 configure:3974: $? = 1
@@ -328,6 +328,7 @@ on vincenzo-p6-2302el
 config.status:859: creating Makefile
 config.status:859: creating src/Makefile
 config.status:859: creating config.h
+config.status:1040: config.h is unchanged
 config.status:1088: executing depfiles commands
 
 ## ---------------- ##

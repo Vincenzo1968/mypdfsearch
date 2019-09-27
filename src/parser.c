@@ -2791,7 +2791,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					wprintf(L"TROVATO 'Do' command: vado a prendere la Resource %s\n", szName);
 					#endif
 									
-					nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 1);
+					//nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 1);
+					nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 0);
 					if ( nRes >= 0 ) // TROVATO
 					{
 						if ( !bContentAlreadyProcessed )
@@ -2801,7 +2802,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							#endif
 					
 							bContentAlreadyProcessed = 1;
-							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 1) )
+							//if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 1) )
+							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
 							{
 								snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
 								myShowErrorMessage(pParams, pParams->szError, 1);

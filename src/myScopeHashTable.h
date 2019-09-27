@@ -52,7 +52,7 @@
 
 //#define SCOPE_SIZE 4096
 //#define SCOPE_SIZE 1024
-#define SCOPE_SIZE 32
+#define SCOPE_SIZE 128
 
 #include <stdint.h>
 #include "mypdfsearch.h"

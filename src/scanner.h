@@ -440,6 +440,7 @@ typedef struct tagParams
 	int nCurrentNumPageObjContent;   
 	int bCurrentContentIsPresent;
 	
+
 	MyIntQueueList_t myPageLeafQueue;
 	
 	int nCurrentPageParent;      // 0 se nodo radice; altrimenti intero > 0 indica il nodo genitore della pagina corrente

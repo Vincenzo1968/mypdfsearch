@@ -501,7 +501,7 @@ int scopePush(Scope *pScope)
 	pScope->top++;
 	if ( pScope->top > SCOPE_SIZE - 1 )
 	{
-		wprintf(L"\nERRORE scopePush: scope stack pieno!\n");
+		//wprintf(L"\nERRORE scopePush: scope stack pieno!\n");
 		pScope->top = SCOPE_SIZE - 1;
 		return 0;
 	}
@@ -514,21 +514,21 @@ int scopePush(Scope *pScope)
 			pHT[x] = (HashTable_t*)malloc(sizeof(HashTable_t));
 			if ( pHT[x] == NULL )
 			{
-				wprintf(L"\nERRORE scopePush: memoria non sufficiente.\n");
+				wprintf(L"\nERROR scopePush: malloc insufficient memory.\n");
 				free(pHT);
 				pHT = NULL;
 				return 0; 
 			}
 			if ( !(htInit(pHT[x], HT_SIZE, StringHashFunc, StringCompareFunc)) )
 			{
-				wprintf(L"\nErrore scopePush -> htInit.\n");
+				//wprintf(L"\nErrore scopePush -> htInit.\n");
 				return -1;
 			}
 		}
 	}
 	else
 	{
-		wprintf(L"ERRORE scopePush: memoria non sufficiente.\n");
+		wprintf(L"\nERROR scopePush: malloc insufficient memory.\n");
 		return 0;
 	}
 			
