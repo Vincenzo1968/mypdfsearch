@@ -2301,8 +2301,11 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 {
 	int retValue = 1;
 	
-	char szName[512];
-	char szPrevFontResName[512];
+	//char szName[512];
+	//char szPrevFontResName[512];
+	char szName[128];
+	char szPrevFontResName[128];
+
 	
 	unsigned long int nBlockSize = BLOCK_SIZE;
 	unsigned long int x;
@@ -2370,7 +2373,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	
 	pParams->bStateSillab = 0;
 	
-	for ( nTemp = 0; nTemp < 512; nTemp++ )
+	for ( nTemp = 0; nTemp < 128; nTemp++ )
 		szPrevFontResName[nTemp] = '\0';
 	
 	// ----------------------------------- STACK -----------------------------------------------		
@@ -2712,7 +2715,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			}
 			else if ( T_NAME == pParams->myToken.Type )
 			{
-				strncpy(szName, pParams->myToken.Value.vString, 512 - 1);
+				strncpy(szName, pParams->myToken.Value.vString, 127);
 			}
 			else if ( T_QOPAREN == pParams->myToken.Type )
 			{
@@ -2897,14 +2900,14 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			{
 				if ( '\0' != szName[0] )
 				{
-					len = strnlen(szName, 128);
+					len = strnlen(szName, 127);
 					
 					if ( bLastNumberIsReal )
 						dFontSize = dLastNumber;
 					else
 						dFontSize = (double)iLastNumber;
 					
-					if ( strncmp(szName, szPrevFontResName, 512 - 1) != 0 )
+					if ( strncmp(szName, szPrevFontResName, 127) != 0 )
 					{
 						//len = strnlen(szName, 128);
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
