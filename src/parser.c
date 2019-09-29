@@ -2900,14 +2900,14 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			{
 				if ( '\0' != szName[0] )
 				{
-					len = strnlen(szName, 127);
+					len = strnlen(szName, 128);
 					
 					if ( bLastNumberIsReal )
 						dFontSize = dLastNumber;
 					else
 						dFontSize = (double)iLastNumber;
 					
-					if ( strncmp(szName, szPrevFontResName, 127) != 0 )
+					if ( strncmp(szName, szPrevFontResName, 128) != 0 )
 					{
 						//len = strnlen(szName, 128);
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
