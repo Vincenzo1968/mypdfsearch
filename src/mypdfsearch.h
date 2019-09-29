@@ -150,8 +150,6 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/VerticalWriting.pdf" --frompage=2 --topage=2
 
-./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
- 
  
  
 ./mypdfsearch --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17

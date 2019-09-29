@@ -5002,8 +5002,11 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 		if ( nCountEntries >= nNumberOfEntries )
 		{
 			nSubSectionNum++;
-			nObjNum = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->FirstObjNumber;
-			nNumberOfEntries = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->NumberOfEntries;
+			if ( nSubSectionNum < pParams->myPdfTrailer.indexArraySize )
+			{
+				nObjNum = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->FirstObjNumber;
+				nNumberOfEntries = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->NumberOfEntries;
+			}
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseTrailerXRefStreamObject_FN) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
 			wprintf(L"SubSection %d -> NumberOfEntries = %d, FirstObjNumber = %d\n", nSubSectionNum, nNumberOfEntries, nObjNum);
@@ -5220,8 +5223,11 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 			if ( nCountEntries > nNumberOfEntries )
 			{
 				nSubSectionNum++;
-				nObjNum = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->FirstObjNumber;
-				nNumberOfEntries = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->NumberOfEntries;
+				if ( nSubSectionNum < pParams->myPdfTrailer.indexArraySize )
+				{
+					nObjNum = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->FirstObjNumber;
+					nNumberOfEntries = pParams->myPdfTrailer.pIndexArray[nSubSectionNum]->NumberOfEntries;
+				}
 			
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseTrailerXRefStreamObject_FN) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
 				wprintf(L"SubSection %d -> NumberOfEntries = %d, FirstObjNumber = %d\n", nSubSectionNum, nNumberOfEntries, nObjNum);
@@ -10346,7 +10352,20 @@ int contentfontobj(Params *pParams)
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 		wprintf(L"\t***** 2 pParams->nToUnicodeStreamObjRef = %d, pParams->nCurrentUseCMapRef = %d *****\n", pParams->nToUnicodeStreamObjRef, pParams->nCurrentUseCMapRef);
-		#endif		
+		#endif	
+		
+		
+		
+		if ( pParams->nCurrentEncodingObj > 0 )
+		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
+			wprintf(L"\t***** 2 pParams->nCurrentEncodingObj = %d *****\n\n", pParams->nCurrentEncodingObj);
+			#endif
+				
+			ParseEncodingObject(pParams, pParams->nCurrentEncodingObj);
+		}
+		
+		
 		
 		if ( pParams->nCurrentUseCMapRef > 0 )
 		{

@@ -19,6 +19,7 @@
    You should have received a copy of the GNU General Public License
    along with mypdfsearch.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifndef	__MYOBJREFQUEUELIST_H
 #define	__MYOBJREFQUEUELIST_H
 

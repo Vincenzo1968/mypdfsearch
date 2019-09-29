@@ -1773,7 +1773,7 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 					return 0;
 				}
 			}
-		
+			
 			pParams->myObjsTable[numInit]->Obj.Type = OBJ_TYPE_FREE;
 			pParams->myObjsTable[numInit]->Obj.Number = 0;
 			pParams->myObjsTable[numInit]->Obj.Generation = 0xFFFF;

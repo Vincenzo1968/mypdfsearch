@@ -728,7 +728,7 @@ void PrintHelpCommandLine()
 void PrintVersionInfo()
 {
 	//wprintf(L"\n   mypdfsearch version 1.3.5\n");	
-	wprintf(L"\n   mypdfsearch version 1.8.0\n");	
+	wprintf(L"\n   mypdfsearch version 1.8.1\n");	
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -1317,6 +1317,8 @@ gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURC
 gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
 
 ------------------------------------------------------------------------------------------------------------------------------------
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
  
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=1 --topage=1
 
