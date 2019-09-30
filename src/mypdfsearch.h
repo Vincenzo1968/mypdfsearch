@@ -175,6 +175,18 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 
 /*
 ./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+ 
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 76.27000
+User Time  : 69.45000
+System Time: 1.43000
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 69.70000
+User Time  : 68.47000
+System Time: 1.21000
 
 
 

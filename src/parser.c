@@ -2900,14 +2900,14 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			{
 				if ( '\0' != szName[0] )
 				{
-					len = strnlen(szName, 128);
+					len = strnlen(szName, 127);
 					
 					if ( bLastNumberIsReal )
 						dFontSize = dLastNumber;
 					else
 						dFontSize = (double)iLastNumber;
 					
-					if ( strncmp(szName, szPrevFontResName, 128) != 0 )
+					if ( strncmp(szName, szPrevFontResName, 127) != 0 )
 					{
 						//len = strnlen(szName, 128);
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
@@ -2922,6 +2922,11 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							//{
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
 								wprintf(L"\tVado a fare il parsing dell'oggetto FONT %d 0 R e torno subito.\n", nTemp);
+								//if ( 18 == nTemp )
+								//{
+								//	PrintThisObject(pParams, 19, 0, 0, NULL);
+								//	PrintThisObject(pParams, 645, 0, 0, NULL);
+								//}
 								#endif
 					
 								bContentAlreadyProcessed = 1;
@@ -10364,8 +10369,12 @@ int contentfontobj(Params *pParams)
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 			wprintf(L"\t***** 2 pParams->nCurrentEncodingObj = %d *****\n\n", pParams->nCurrentEncodingObj);
 			#endif
-				
-			ParseEncodingObject(pParams, pParams->nCurrentEncodingObj);
+			
+			if ( FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )
+				ParseEncodingObject(pParams, pParams->nCurrentEncodingObj);
+			
+			//if ( !ParseEncodingObject(pParams, pParams->nCurrentEncodingObj) )
+			//	return 0;
 		}
 		
 		
