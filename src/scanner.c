@@ -204,22 +204,22 @@ void PrintTokenTrailer(Token *pToken, char cCarattereIniziale, char cCarattereFi
 	switch ( pToken->Type )
 	{
 		case T_NAME:
-			wprintf(L"T_NAME = '%s'", pToken->Value.vString);
+			wprintf(L"T_NAME = '%s'", pToken->vString);
 			break;
 		case T_STRING:
-			wprintf(L"T_STRING = '%s'", pToken->Value.vString);
+			wprintf(L"T_STRING = '%s'", pToken->vString);
 			break;
 		case T_STRING_LITERAL:
-			wprintf(L"T_STRING_LITERAL = '%s'", pToken->Value.vString);
+			wprintf(L"T_STRING_LITERAL = '%s'", pToken->vString);
 			break;
 		case T_STRING_HEXADECIMAL:
-			wprintf(L"T_STRING_HEXADECIMAL = '%s'", pToken->Value.vString);
+			wprintf(L"T_STRING_HEXADECIMAL = '%s'", pToken->vString);
 			break;
 		case T_INT_LITERAL:
-			wprintf(L"T_INT_LITERAL = %d", pToken->Value.vInt);			
+			wprintf(L"T_INT_LITERAL = %d", pToken->vInt);			
 			break;
 		case T_REAL_LITERAL:
-			wprintf(L"T_REAL_LITERAL = %f", pToken->Value.vDouble);
+			wprintf(L"T_REAL_LITERAL = %f", pToken->vDouble);
 			break;
 		case T_KW_NULL:
 			wprintf(L"T_KW_NULL");
@@ -524,7 +524,7 @@ int traileritems(Params *pParams)
 {		
 	while ( pParams->myToken.Type == T_NAME )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, 4096 - 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, 4096 - 1);
 		
 		if ( strncmp(pParams->szCurrKeyName, "Encrypt", 4096) == 0  )
 		{
@@ -572,7 +572,7 @@ int trailerobj(Params *pParams)
 			
 			break;
 		case T_INT_LITERAL:
-			mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+			mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)		
 			PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
@@ -582,7 +582,7 @@ int trailerobj(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL )
 			{
-				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_ON_ReadTrailer_OBJ)	
 				PrintTokenTrailer(&(pParams->myToken), ' ', ' ', 1);
@@ -3163,11 +3163,11 @@ void GetNextToken(Params *pParams)
 	int y;
 	int z;
 			
-	if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-	{
-		free(pParams->myToken.Value.vString);
-		pParams->myToken.Value.vString = NULL;
-	}
+	//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+	//{
+	//	free(pParams->myToken.vString);
+	//	pParams->myToken.vString = NULL;
+	//}
 	
 	if ( pParams->blockCurPos > pParams->blockLen )
 	{
@@ -3670,12 +3670,13 @@ void GetNextToken(Params *pParams)
 						if ( k > 0 )
 						{
 							pParams->myToken.Type = T_STRING;
-							pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-							if (  pParams->myToken.Value.vString != NULL )
-								strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+							//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+							//if (  pParams->myToken.vString != NULL )
+							//	strcpy(pParams->myToken.vString, pParams->lexeme);
+							pParams->myToken.vString = pParams->lexeme;
 								
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)						
-							wprintf(L"GetNextToken: T_STRING -> '%s'\n", pParams->myToken.Value.vString);
+							wprintf(L"GetNextToken: T_STRING -> '%s'\n", pParams->myToken.vString);
 							#endif	
 							
 							pParams->lastTokenOffset = pParams->currentFileOffset - (k + 1);
@@ -3718,9 +3719,9 @@ void GetNextToken(Params *pParams)
 				{
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_INT_LITERAL;
-					pParams->myToken.Value.vInt = atoi(pParams->lexeme);
+					pParams->myToken.vInt = atoi(pParams->lexeme);
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-					wprintf(L"GetNextToken: T_INT_LITERAL -> %d\n", pParams->myToken.Value.vInt);
+					wprintf(L"GetNextToken: T_INT_LITERAL -> %d\n", pParams->myToken.vInt);
 					#endif
 					nDelimChar = IsDelimiterChar(c);
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
@@ -3745,9 +3746,9 @@ void GetNextToken(Params *pParams)
 					pParams->lexeme[k] = '\0';
 
 					pParams->myToken.Type = T_REAL_LITERAL;
-					pParams->myToken.Value.vDouble = atof(pParams->lexeme);
+					pParams->myToken.vDouble = atof(pParams->lexeme);
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-					wprintf(L"GetNextTOken: T_REAL_LITERAL -> %lf\n", pParams->myToken.Value.vDouble);
+					wprintf(L"GetNextTOken: T_REAL_LITERAL -> %lf\n", pParams->myToken.vDouble);
 					#endif
 					nDelimChar = IsDelimiterChar(c);
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
@@ -3779,12 +3780,13 @@ void GetNextToken(Params *pParams)
 				{
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_NAME;
-					pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-					if (  pParams->myToken.Value.vString != NULL )
-						strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+					//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+					//if (  pParams->myToken.vString != NULL )
+					//	strcpy(pParams->myToken.vString, pParams->lexeme);
+					pParams->myToken.vString = pParams->lexeme;
 						
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)						
-					wprintf(L"GetNextToken: T_NAME -> '/%s'\n", pParams->myToken.Value.vString);
+					wprintf(L"GetNextToken: T_NAME -> '/%s'\n", pParams->myToken.vString);
 					#endif
 					
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
@@ -4175,14 +4177,15 @@ void GetNextToken(Params *pParams)
 							}
 							
 							pParams->myToken.Type = T_STRING_LITERAL;
-							pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-							if (  pParams->myToken.Value.vString != NULL )
-								strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+							//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+							//if (  pParams->myToken.vString != NULL )
+							//	strcpy(pParams->myToken.vString, pParams->lexeme);
+							pParams->myToken.vString = pParams->lexeme;
 								
 							pParams->bReadingStringState = 0;
 								
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
-							wprintf(L"GetNextToken: T_STRING_LITERAL -> '%s'\n", pParams->myToken.Value.vString);
+							wprintf(L"GetNextToken: T_STRING_LITERAL -> '%s'\n", pParams->myToken.vString);
 							#endif
 							
 							pParams->lastTokenOffset = pParams->currentFileOffset - (k + 1);
@@ -4575,12 +4578,13 @@ void GetNextToken(Params *pParams)
 						pParams->pUtf8String[z] = L'\0';
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_STRING_HEXADECIMAL;					
-					pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-					if (  pParams->myToken.Value.vString != NULL )
-						strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+					//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+					//if (  pParams->myToken.vString != NULL )
+					//	strcpy(pParams->myToken.vString, pParams->lexeme);
+					pParams->myToken.vString = pParams->lexeme;
 					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-					wprintf(L"\nGetNextToken: T_STRING_HEXADECIMAL -> '%s'\n", pParams->myToken.Value.vString);
+					wprintf(L"\nGetNextToken: T_STRING_HEXADECIMAL -> '%s'\n", pParams->myToken.vString);
 					#endif
 					
 					pParams->lastTokenOffset = pParams->currentFileOffset - (k + 1);
@@ -4948,14 +4952,14 @@ void GetNextTokenLengthObj(Params *pParams)
 	int k = 0;
 	int nDelimChar;
 		
-	if ( (T_NAME == pParams->myTokenLengthObj.Type ||
-	 T_STRING == pParams->myTokenLengthObj.Type ||
-	 T_STRING_LITERAL == pParams->myTokenLengthObj.Type ||
-	 T_STRING_HEXADECIMAL == pParams->myTokenLengthObj.Type) && (NULL != pParams->myTokenLengthObj.Value.vString) )
-	{
-		free(pParams->myTokenLengthObj.Value.vString);
-		pParams->myTokenLengthObj.Value.vString = NULL;
-	}
+	//if ( (T_NAME == pParams->myTokenLengthObj.Type ||
+	// T_STRING == pParams->myTokenLengthObj.Type ||
+	// T_STRING_LITERAL == pParams->myTokenLengthObj.Type ||
+	// T_STRING_HEXADECIMAL == pParams->myTokenLengthObj.Type) && (NULL != pParams->myTokenLengthObj.vString) )
+	//{
+	//	free(pParams->myTokenLengthObj.vString);
+	//	pParams->myTokenLengthObj.vString = NULL;
+	//}
 			
 	c = ReadNextCharLengthObj(pParams);
 	if ( pParams->myTokenLengthObj.Type == T_EOF )
@@ -5039,9 +5043,9 @@ void GetNextTokenLengthObj(Params *pParams)
 					
 					lexeme[k] = '\0';
 					pParams->myTokenLengthObj.Type = T_INT_LITERAL;
-					pParams->myTokenLengthObj.Value.vInt = atoi(lexeme);
+					pParams->myTokenLengthObj.vInt = atoi(lexeme);
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)
-					wprintf(L"GetNextTOkenLengthObj: T_INT_LITERAL -> %d\n", pParams->myTokenLengthObj.Value.vInt);
+					wprintf(L"GetNextTOkenLengthObj: T_INT_LITERAL -> %d\n", pParams->myTokenLengthObj.vInt);
 					#endif
 					return;
 				}
@@ -5222,11 +5226,11 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 	int y;
 	int z;
 		
-	if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-	{
-		free(pParams->myToken.Value.vString);
-		pParams->myToken.Value.vString = NULL;
-	}
+	//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+	//{
+	//	free(pParams->myToken.vString);
+	//	pParams->myToken.vString = NULL;
+	//}
 	
 	if ( pParams->blockCurPosToUnicode > pParams->blockLenToUnicode )
 	{
@@ -5520,12 +5524,13 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						if ( k > 0 )
 						{
 							pParams->myToken.Type = T_STRING;
-							pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-							if (  pParams->myToken.Value.vString != NULL )
-								strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+							//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+							//if (  pParams->myToken.vString != NULL )
+							//	strcpy(pParams->myToken.vString, pParams->lexeme);
+							pParams->myToken.vString = pParams->lexeme;
 								
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)						
-							wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING -> '%s'\n", pParams->myToken.Value.vString);
+							wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING -> '%s'\n", pParams->myToken.vString);
 							#endif								
 						}
 						else
@@ -5556,9 +5561,9 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				{
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_INT_LITERAL;
-					pParams->myToken.Value.vInt = atoi(pParams->lexeme);
+					pParams->myToken.vInt = atoi(pParams->lexeme);
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
-					wprintf(L"GetNextTokenFromToUnicodeStream: T_INT_LITERAL -> %d\n", pParams->myToken.Value.vInt);
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_INT_LITERAL -> %d\n", pParams->myToken.vInt);
 					#endif
 					nDelimChar = IsDelimiterChar(c);
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
@@ -5579,9 +5584,9 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					pParams->lexeme[k] = '\0';
 
 					pParams->myToken.Type = T_REAL_LITERAL;
-					pParams->myToken.Value.vDouble = atof(pParams->lexeme);
+					pParams->myToken.vDouble = atof(pParams->lexeme);
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)	
-					wprintf(L"GetNextTOken: T_REAL_LITERAL -> %lf\n", pParams->myToken.Value.vDouble);
+					wprintf(L"GetNextTOken: T_REAL_LITERAL -> %lf\n", pParams->myToken.vDouble);
 					#endif
 					nDelimChar = IsDelimiterChar(c);
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
@@ -5609,12 +5614,13 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				{
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_NAME;
-					pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-					if (  pParams->myToken.Value.vString != NULL )
-						strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+					//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+					//if (  pParams->myToken.vString != NULL )
+					//	strcpy(pParams->myToken.vString, pParams->lexeme);
+					pParams->myToken.vString = pParams->lexeme;
 						
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)						
-					wprintf(L"GetNextTokenFromToUnicodeStream: T_NAME -> '/%s'\n", pParams->myToken.Value.vString);
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_NAME -> '/%s'\n", pParams->myToken.vString);
 					#endif
 					
 					if ( DELIM_SPECIALSYMBOL == nDelimChar )
@@ -5677,12 +5683,13 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 							pParams->lexeme[--k] = '\0';
 							pParams->pUtf8String[k] = L'\0';
 							pParams->myToken.Type = T_STRING_LITERAL;
-							pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-							if (  pParams->myToken.Value.vString != NULL )
-								strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+							//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+							//if (  pParams->myToken.vString != NULL )
+							//	strcpy(pParams->myToken.vString, pParams->lexeme);
+							pParams->myToken.vString = pParams->lexeme;
 								
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)
-							wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING_LITERAL -> '%s'\n", pParams->myToken.Value.vString);
+							wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING_LITERAL -> '%s'\n", pParams->myToken.vString);
 							#endif
 							return;
 						}
@@ -6031,12 +6038,13 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					pParams->pUtf8String[z] = L'\0';
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_STRING_HEXADECIMAL;					
-					pParams->myToken.Value.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-					if (  pParams->myToken.Value.vString != NULL )
-						strcpy(pParams->myToken.Value.vString, pParams->lexeme);
+					//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+					//if (  pParams->myToken.vString != NULL )
+					//	strcpy(pParams->myToken.vString, pParams->lexeme);
+					pParams->myToken.vString = pParams->lexeme;
 					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextTokenFromToUnicodeStream_FN)
-					wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING_HEXADECIMAL -> '%s'\n", pParams->myToken.Value.vString);
+					wprintf(L"GetNextTokenFromToUnicodeStream: T_STRING_HEXADECIMAL -> '%s'\n", pParams->myToken.vString);
 					#endif
 					return;					
 				}

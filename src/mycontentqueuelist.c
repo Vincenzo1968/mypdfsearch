@@ -197,7 +197,7 @@ int mycontentqueuelist_Dequeue(MyContentQueueList_t* p, MyContent_t* pContent)
 	}	
 	
 	myDataTemp.pszKey = NULL;
-	myDataTemp.tok.Value.vString = NULL;
+	myDataTemp.tok.vString = NULL;
 	while ( mydictionaryqueuelist_Dequeue(&(p->head->myContent.decodeParms), &myDataTemp) )
 	{
 		mydictionaryqueuelist_Enqueue(&(pContent->decodeParms), &myDataTemp);

@@ -20,6 +20,12 @@
    along with mypdfsearch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <math.h>
+#include "mypdfsearch.h"
+#include "myoctal.h"
+#include "mydecode.h"
+
+
 
 /*
 http://www.unicode.org/
@@ -56,62 +62,7 @@ QUINDI : Se i primi due byte sono 254 e 255, la stringa è in formato UTF-16BE.
 
 // OCCHIO : PDF3000_2008: pagg. 250-251 <----- *****
 
-#include <math.h>
-#include "mypdfsearch.h"
-#include "myoctal.h"
-#include "mydecode.h"
 
-
-
-/*
-To help anyone else following this let's pull out some more from the xrefstm object:
-
-... /Index [10 11]  /W[1 2 1]
-
-So, the first two entries will be for objects 10 and 11.
-I will not use any decimal numbers [except for object numbers], they just confuse me.
-
-Object 10 is at offset 0x0010
-Object 11 is at offset 0x0250.
-
-So, let's look at the undecoded data
-0201001000 
-0200025C00
-
-This should decode to
-01001000
-01026C00
-
-which parses (thanks to /W[1 2 1]) to
-01 0010 00
-01 026C 00
-
-Now, this is type=1, so the values mean
-
-type=01 offset=0010 generation=0
-type=01 offset=026C generation=0
-
-So, the address of object 10 is good, of object 11 is bad.
-But I'm going to speculate.
-You mention 64 as a decimal number so I going to try modelling this with hex data
-
-0201001000 
-0200024000
-
-This should decode to
-01001000
-01025000
-
-which parses (thanks to /W[1 2 1]) to
-01 0010 00
-01 0250 00
-
-and so 0250 which is the right answer for object 11.
-
-I hope this points you in the right direction.
-It looks as if one part of your error is to think that the objects given are
-in the order they appear in the file, rather than by their strictly defined numbers (from /Index).
-*/
 
 int PaethPredictor(int a, int b, int c)
 {
@@ -459,15 +410,15 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 					{
 						case T_INT_LITERAL:					
 							if ( strncmp(myDataTemp.pszKey, "Predictor", 4096) == 0 )
-								dpPredictor = myDataTemp.tok.Value.vInt;
+								dpPredictor = myDataTemp.tok.vInt;
 							else if ( strncmp(myDataTemp.pszKey, "Columns", 4096) == 0 )
-								dpColumns = myDataTemp.tok.Value.vInt;
+								dpColumns = myDataTemp.tok.vInt;
 							else if ( strncmp(myDataTemp.pszKey, "BitsPerComponent", 4096) == 0 )
-								dpBitsPerComponent = myDataTemp.tok.Value.vInt;
+								dpBitsPerComponent = myDataTemp.tok.vInt;
 							else if ( strncmp(myDataTemp.pszKey, "Colors", 4096) == 0 )
-								dpColors = myDataTemp.tok.Value.vInt;
+								dpColors = myDataTemp.tok.vInt;
 							//else if ( strncmp(myDataTemp.pszKey, "EarlyChange", 4096) == 0 )
-							//	dpEarlyChange = myDataTemp.tok.Value.vInt;
+							//	dpEarlyChange = myDataTemp.tok.vInt;
 					
 							free(myDataTemp.pszKey);
 							myDataTemp.pszKey = NULL;
@@ -495,8 +446,8 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 							else
 								wprintf(L"ERRORE DecodeStream: atteso T_INT_LITERAL per DecodeParms.\n");
 					
-							free(myDataTemp.tok.Value.vString);
-							myDataTemp.tok.Value.vString = NULL;
+							free(myDataTemp.tok.vString);
+							myDataTemp.tok.vString = NULL;
 					
 							free(myDataTemp.pszKey);
 							myDataTemp.pszKey = NULL;

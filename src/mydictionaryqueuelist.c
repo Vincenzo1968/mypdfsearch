@@ -95,10 +95,10 @@ void mydictionaryqueuelist_Free(MyDictionaryQueueList_t* p)
 			
 		if ( T_NAME == n1->myDataItem.tok.Type || T_STRING_LITERAL == n1->myDataItem.tok.Type || T_STRING_HEXADECIMAL == n1->myDataItem.tok.Type || T_STRING == n1->myDataItem.tok.Type )
 		{
-			if ( NULL != n1->myDataItem.tok.Value.vString )
+			if ( NULL != n1->myDataItem.tok.vString )
 			{
-				free(n1->myDataItem.tok.Value.vString);
-				n1->myDataItem.tok.Value.vString = NULL;
+				free(n1->myDataItem.tok.vString);
+				n1->myDataItem.tok.vString = NULL;
 			}
 		}
 			
@@ -155,23 +155,23 @@ MyDictionaryQueueItem_t* mydictionaryqueuelist_NewNode(MyData_t *pDataItem)
 		T_STRING_HEXADECIMAL == pDataItem->tok.Type ||
 		T_STRING == pDataItem->tok.Type )
 	{
-		if ( NULL != pDataItem->tok.Value.vString )
+		if ( NULL != pDataItem->tok.vString )
 		{
-			len = strnlen(pDataItem->tok.Value.vString, MAX_STRLEN);
+			len = strnlen(pDataItem->tok.vString, MAX_STRLEN);
 				
-			n->myDataItem.tok.Value.vString = (char*)malloc(sizeof(char) * len + sizeof(char));
-			if ( NULL == n->myDataItem.tok.Value.vString )
+			n->myDataItem.tok.vString = (char*)malloc(sizeof(char) * len + sizeof(char));
+			if ( NULL == n->myDataItem.tok.vString )
 			{
-				wprintf(L"ERRORE mystringqueuelist_NewNode: impossibile allocare la memoria per n->myDataItem.tok.Value.vString\n");
+				wprintf(L"ERRORE mystringqueuelist_NewNode: impossibile allocare la memoria per n->myDataItem.tok.vString\n");
 				free(n);
 				n = NULL;
 				return NULL;
 			}
-			strncpy(n->myDataItem.tok.Value.vString, pDataItem->tok.Value.vString, len + 1);
+			strncpy(n->myDataItem.tok.vString, pDataItem->tok.vString, len + 1);
 		}
 		else
 		{
-			n->myDataItem.tok.Value.vString = NULL;
+			n->myDataItem.tok.vString = NULL;
 		}
 	}
 	else
@@ -179,10 +179,10 @@ MyDictionaryQueueItem_t* mydictionaryqueuelist_NewNode(MyData_t *pDataItem)
 		switch ( pDataItem->tok.Type )
 		{
 			case T_INT_LITERAL:
-				n->myDataItem.tok.Value.vInt = pDataItem->tok.Value.vInt;
+				n->myDataItem.tok.vInt = pDataItem->tok.vInt;
 				break;
 			case T_REAL_LITERAL:
-				n->myDataItem.tok.Value.vDouble = pDataItem->tok.Value.vDouble;
+				n->myDataItem.tok.vDouble = pDataItem->tok.vDouble;
 				break;
 			default:
 				break;
@@ -223,10 +223,10 @@ int mydictionaryqueuelist_Enqueue(MyDictionaryQueueList_t* p, MyData_t *pDataIte
 				T_STRING_HEXADECIMAL == pDataItem->tok.Type ||
 				T_STRING == pDataItem->tok.Type )
 			{
-				if ( NULL != pDataItem->tok.Value.vString )
+				if ( NULL != pDataItem->tok.vString )
 				{
-					free(pDataItem->tok.Value.vString);
-					pDataItem->tok.Value.vString = NULL;
+					free(pDataItem->tok.vString);
+					pDataItem->tok.vString = NULL;
 				}
 			}		
 		}		
@@ -261,10 +261,10 @@ int mydictionaryqueuelist_Enqueue(MyDictionaryQueueList_t* p, MyData_t *pDataIte
 			T_STRING_HEXADECIMAL == pDataItem->tok.Type ||
 			T_STRING == pDataItem->tok.Type )
 		{
-			if ( NULL != pDataItem->tok.Value.vString )
+			if ( NULL != pDataItem->tok.vString )
 			{
-				free(pDataItem->tok.Value.vString);
-				pDataItem->tok.Value.vString = NULL;
+				free(pDataItem->tok.vString);
+				pDataItem->tok.vString = NULL;
 			}
 		}		
 	}
@@ -314,30 +314,30 @@ int mydictionaryqueuelist_Dequeue(MyDictionaryQueueList_t* p, MyData_t *pDataIte
 		T_STRING_HEXADECIMAL == p->head->myDataItem.tok.Type ||
 		T_STRING == p->head->myDataItem.tok.Type )
 	{
-		if ( NULL != p->head->myDataItem.tok.Value.vString )
+		if ( NULL != p->head->myDataItem.tok.vString )
 		{
-			len = strnlen(p->head->myDataItem.tok.Value.vString, MAX_STRLEN);
+			len = strnlen(p->head->myDataItem.tok.vString, MAX_STRLEN);
 			if ( p->bAllocUserDataOnDequeue )
 			{
-				pDataItem->tok.Value.vString = (char*)malloc(sizeof(char) * len + sizeof(char));
-				if ( NULL == pDataItem->tok.Value.vString )
+				pDataItem->tok.vString = (char*)malloc(sizeof(char) * len + sizeof(char));
+				if ( NULL == pDataItem->tok.vString )
 				{
-					wprintf(L"ERRORE mystringqueuelist_NewNode: impossibile allocare la memoria per pDataItem->tok.Value.vString\n");
+					wprintf(L"ERRORE mystringqueuelist_NewNode: impossibile allocare la memoria per pDataItem->tok.vString\n");
 					return 0;
 				}
 			}
 				
-			strncpy(pDataItem->tok.Value.vString, p->head->myDataItem.tok.Value.vString, len + 1);
+			strncpy(pDataItem->tok.vString, p->head->myDataItem.tok.vString, len + 1);
 		}
 		else
 		{
 			if ( p->bFreeUserDataOnEnqueue )
 			{
-				if ( NULL != pDataItem->tok.Value.vString )
+				if ( NULL != pDataItem->tok.vString )
 				{
-					free(pDataItem->tok.Value.vString);
+					free(pDataItem->tok.vString);
 				}
-				pDataItem->tok.Value.vString = NULL;
+				pDataItem->tok.vString = NULL;
 			}
 		}
 	}
@@ -346,10 +346,10 @@ int mydictionaryqueuelist_Dequeue(MyDictionaryQueueList_t* p, MyData_t *pDataIte
 		switch ( p->head->myDataItem.tok.Type )
 		{
 			case T_INT_LITERAL:
-				pDataItem->tok.Value.vInt = p->head->myDataItem.tok.Value.vInt;
+				pDataItem->tok.vInt = p->head->myDataItem.tok.vInt;
 				break;
 			case T_REAL_LITERAL:
-				pDataItem->tok.Value.vDouble = p->head->myDataItem.tok.Value.vDouble;
+				pDataItem->tok.vDouble = p->head->myDataItem.tok.vDouble;
 				break;
 			default:
 				break;
@@ -371,11 +371,11 @@ int mydictionaryqueuelist_Dequeue(MyDictionaryQueueList_t* p, MyData_t *pDataIte
 		T_STRING_HEXADECIMAL == n->myDataItem.tok.Type ||
 		T_STRING == n->myDataItem.tok.Type )
 	{	
-		if ( NULL != n->myDataItem.tok.Value.vString )
+		if ( NULL != n->myDataItem.tok.vString )
 		{
-			free(n->myDataItem.tok.Value.vString);
+			free(n->myDataItem.tok.vString);
 		}
-		n->myDataItem.tok.Value.vString = NULL;
+		n->myDataItem.tok.vString = NULL;
 	}
 	
 	free(n);
@@ -427,28 +427,28 @@ int mydictionaryqueuelist_Peek(MyDictionaryQueueList_t* p, MyData_t *pDataItem)
 		T_STRING == p->head->myDataItem.tok.Type )
 	{
 		
-		if ( NULL != p->head->myDataItem.tok.Value.vString )
+		if ( NULL != p->head->myDataItem.tok.vString )
 		{
-			len = strnlen(p->head->myDataItem.tok.Value.vString, MAX_STRLEN);	
+			len = strnlen(p->head->myDataItem.tok.vString, MAX_STRLEN);	
 			if ( p->bAllocUserDataOnDequeue )
 			{	
-				pDataItem->tok.Value.vString = (char*)malloc(sizeof(char) * len + sizeof(char));
-				if ( NULL == pDataItem->tok.Value.vString )
+				pDataItem->tok.vString = (char*)malloc(sizeof(char) * len + sizeof(char));
+				if ( NULL == pDataItem->tok.vString )
 				{
-					wprintf(L"ERRORE mystringqueuelist_NewNode: impossibile allocare la memoria per pDataItem->tok.Value.vString\n");
+					wprintf(L"ERRORE mystringqueuelist_NewNode: impossibile allocare la memoria per pDataItem->tok.vString\n");
 					return 0;
 				}
 			}
 				
-			strncpy(pDataItem->tok.Value.vString, p->head->myDataItem.tok.Value.vString, len + 1);
+			strncpy(pDataItem->tok.vString, p->head->myDataItem.tok.vString, len + 1);
 		}
 		else
 		{
 			if ( p->bFreeUserDataOnEnqueue )
 			{
-				if ( NULL != pDataItem->tok.Value.vString )
-					free(pDataItem->tok.Value.vString);
-				pDataItem->tok.Value.vString = NULL;
+				if ( NULL != pDataItem->tok.vString )
+					free(pDataItem->tok.vString);
+				pDataItem->tok.vString = NULL;
 			}
 		}
 	}
@@ -457,10 +457,10 @@ int mydictionaryqueuelist_Peek(MyDictionaryQueueList_t* p, MyData_t *pDataItem)
 		switch ( p->head->myDataItem.tok.Type )
 		{
 			case T_INT_LITERAL:
-				pDataItem->tok.Value.vInt = p->head->myDataItem.tok.Value.vInt;
+				pDataItem->tok.vInt = p->head->myDataItem.tok.vInt;
 				break;
 			case T_REAL_LITERAL:
-				pDataItem->tok.Value.vDouble = p->head->myDataItem.tok.Value.vDouble;
+				pDataItem->tok.vDouble = p->head->myDataItem.tok.vDouble;
 				break;
 			default:
 				break;

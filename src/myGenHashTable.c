@@ -436,3 +436,26 @@ int GenStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2
 	
 	return strncmp((char*)pKey1, (char*)pKey2, BLOCK_SIZE - 1);
 }
+
+int GenWideStringHashFunc(GenHashTable_t* p, const void* pKey, uint32_t keysize)
+{
+	unsigned n = 0;
+	const wchar_t* s = (const wchar_t*)pKey;
+	
+	UNUSED(keysize);
+	
+	for ( ; *s; s++)
+		n = 31 * n + *s;
+		
+	return n % p->genhtSize;
+}
+
+int GenWideStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2)
+{
+	UNUSED(keysize1);
+	UNUSED(keysize2);
+	
+	//wprintf(L"GenWideStringCompareFunc -> KEY1[%ls](length = %lu) <> KEY2[%ls](length = %lu)\n", pKey1, keysize1, pKey2, keysize2);
+	
+	return wcsncmp((wchar_t*)pKey1, (wchar_t*)pKey2, BLOCK_SIZE - 1);
+}

@@ -62,6 +62,8 @@ typedef struct tagFilesList
 
 
 /*
+MYPDFSEARCH_USE_TST 
+
 MYDEBUG_PRINT_ALL
 MYDEBUG_PRINT_ON_MATCH
 MYDEBUG_PRINT_ON_PARSE_OBJ
@@ -142,6 +144,9 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 
 
 /*
+git clone https://github.com/Vincenzo1968/mypdfsearch
+
+https://vlcfreecode.netsons.org/wp-admin/
 ------------------------------------------------------------------------------------------------------------------------------------
  
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
@@ -184,12 +189,21 @@ System Time: 1.43000
 
 Tempo impiegato(in secondi): 
 Elapsed time (in seconds): 
-Real Time  : 69.70000
-User Time  : 68.47000
-System Time: 1.21000
+Real Time  : 73.83000
+User Time  : 69.69000
+System Time: 4.12000
+ 
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 66.23000
+User Time  : 65.05000
+System Time: 1.17000
 
 
+./mypdfsearch --path="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --words='代表取締役'
 
+
+./mypdfsearch --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf" --frompage=34 --topage=34
 ./mypdfsearch --words="sound" --path="../Files/JapaneseGrammarGuide.pdf"
 ./mypdfsearch --extracttextfrom="../Files/JapaneseGrammarGuide.pdf" --frompage=1 --topage=5
 

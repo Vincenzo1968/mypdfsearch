@@ -239,22 +239,22 @@ void PrintToken(Token *pToken, char cCarattereIniziale, char cCarattereFinale, i
 	switch ( pToken->Type )
 	{
 		case T_NAME:
-			wprintf(L"T_NAME = '%s'", pToken->Value.vString);
+			wprintf(L"T_NAME = '%s'", pToken->vString);
 			break;
 		case T_STRING:
-			wprintf(L"T_STRING = '%s'", pToken->Value.vString);
+			wprintf(L"T_STRING = '%s'", pToken->vString);
 			break;
 		case T_STRING_LITERAL:
-			wprintf(L"T_STRING_LITERAL = '%s'", pToken->Value.vString);
+			wprintf(L"T_STRING_LITERAL = '%s'", pToken->vString);
 			break;
 		case T_STRING_HEXADECIMAL:
-			wprintf(L"T_STRING_HEXADECIMAL = '%s'", pToken->Value.vString);
+			wprintf(L"T_STRING_HEXADECIMAL = '%s'", pToken->vString);
 			break;
 		case T_INT_LITERAL:
-			wprintf(L"T_INT_LITERAL = %d", pToken->Value.vInt);			
+			wprintf(L"T_INT_LITERAL = %d", pToken->vInt);			
 			break;
 		case T_REAL_LITERAL:
-			wprintf(L"T_REAL_LITERAL = %f", pToken->Value.vDouble);
+			wprintf(L"T_REAL_LITERAL = %f", pToken->vDouble);
 			break;
 		case T_KW_NULL:
 			wprintf(L"T_KW_NULL");
@@ -1253,10 +1253,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	pParams->fpLengthObjRef = NULL;	
 	
 	pParams->myToken.Type = T_NAME;
-	pParams->myToken.Value.vString = NULL;
+	pParams->myToken.vString = NULL;
 	
 	pParams->myTokenLengthObj.Type = T_NAME;
-	pParams->myTokenLengthObj.Value.vString = NULL;
+	pParams->myTokenLengthObj.vString = NULL;
 		
 	pParams->isEncrypted = 0;
 	
@@ -1327,10 +1327,42 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		goto uscita;
 	}
 	
+	#if defined(MYPDFSEARCH_USE_TST)
 	tstInit(&(pParams->myTST));
+	#else
+	genhtInit(&(pParams->myHT), 0, GenWideStringHashFunc, GenWideStringCompareFunc);
+	#endif
 		
 	myobjreflist_Init(&(pParams->myXObjRefList));
 	myobjreflist_Init(&(pParams->myFontsRefList));
+	
+	/*
+	pParams->myToken.vString = (char *)malloc( sizeof(char) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(char) );
+	if ( !(pParams->myToken.vString) )
+	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 1: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE Parse 1: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 1: Memoria insufficiente.\n\n");
+		retValue = 0;
+		goto uscita;
+	}
+	for ( x = 0; x < MAX_STRING_LENTGTH_IN_CONTENT_STREAM; x++ )
+		pParams->myToken.vString[x] = '\0';
+		
+	pParams->myTokenLengthObj.vString = (char *)malloc( sizeof(char) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(char) );
+	if ( !(pParams->myTokenLengthObj.vString) )
+	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 1: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE Parse 1: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 1: Memoria insufficiente.\n\n");
+		retValue = 0;
+		goto uscita;
+	}
+	for ( x = 0; x < MAX_STRING_LENTGTH_IN_CONTENT_STREAM; x++ )
+		pParams->myTokenLengthObj.vString[x] = '\0';
+	*/
 	
 	pParams->lexeme = (char *)malloc( sizeof(char) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(char) );
 	if ( !(pParams->lexeme) )
@@ -1393,7 +1425,6 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		retValue = 0;
 		goto uscita;
 	}	
-		
 
 	n = myFilesList;
 	while( n != NULL )
@@ -1467,7 +1498,6 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			#endif
 		}
 		
-				
 		// ****************************************** PRE PARSING FILE ***************************************************************
 		getObjsOffsets(pParams, pParams->szFileName);		
 		// ***************************************************************************************************************************
@@ -1680,10 +1710,14 @@ successivo:
 			pParams->pPagesArray = NULL;
 		}
 			
+		#if defined(MYPDFSEARCH_USE_TST)
 		if ( NULL != pParams->myTST.pRoot )
 		{
 			tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
 		}
+		#else
+		genhtFree(&(pParams->myHT));
+		#endif
 		
 		if ( NULL != pParams->pwszCurrentWord )
 		{
@@ -1697,14 +1731,14 @@ successivo:
 			pParams->pwszPreviousWord = NULL;
 		}		
 	
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}
 		
 		if ( NULL != pParams->currentObjStm.pszDecodedStream )
 		{
@@ -1728,6 +1762,20 @@ uscita:
 		free(pParams->lexeme);
 		pParams->lexeme = NULL;
 	}
+	
+	/*
+	if ( pParams->myToken.vString != NULL )
+	{
+		free(pParams->myToken.vString);
+		pParams->myToken.vString = NULL;
+	}
+	
+	if ( pParams->myTokenLengthObj.vString != NULL )
+	{
+		free(pParams->myTokenLengthObj.vString);
+		pParams->myTokenLengthObj.vString = NULL;
+	}
+	*/
 	
 	if ( pParams->lexemeTemp != NULL )
 	{
@@ -1793,11 +1841,15 @@ uscita:
 	}
 		
 	htFree(&(pParams->myCharSetHashTable));
-	
+		
+	#if defined(MYPDFSEARCH_USE_TST)
 	if ( NULL != pParams->myTST.pRoot )
 	{
 		tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
 	}
+	#else
+	genhtFree(&(pParams->myHT));
+	#endif
 		
 	if ( NULL != pParams->pwszCurrentWord )
 	{
@@ -1811,14 +1863,14 @@ uscita:
 		pParams->pwszPreviousWord = NULL;
 	}		
 	
-	if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-	{
-		if ( NULL != pParams->myToken.Value.vString )
-		{
-			free(pParams->myToken.Value.vString);
-			pParams->myToken.Value.vString = NULL;
-		}
-	}
+	//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+	//{
+	//	if ( NULL != pParams->myToken.vString )
+	//	{
+	//		free(pParams->myToken.vString);
+	//		pParams->myToken.vString = NULL;
+	//	}
+	//}
 	
 	if ( NULL != pParams->paCustomizedFont_CharSet )
 	{
@@ -2238,7 +2290,13 @@ int InsertWordIntoTst(Params *pParams)
 	{
 		if ( !(pParams->bStateSillab) )
 		{
+			#if defined(MYPDFSEARCH_USE_TST)
 			pParams->myTST.pRoot = tstInsertRecursive(pParams->myTST.pRoot, pParams->pwszCurrentWord, NULL, 0, NULL);
+			#else
+			//genhtInsert(&(pParams->myHT), pParams->pwszCurrentWord, wcslen(pParams->pwszCurrentWord) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
+			genhtInsert(&(pParams->myHT), pParams->pwszCurrentWord, pParams->idxCurrentWordChar * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
+			#endif
+			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_TST)
 			//wprintf(L"INSERT KEY(%ls) INTO TERNARY SEARCH TREE\n", pParams->pwszCurrentWord);
 			wprintf(L"(%ls)\n", pParams->pwszCurrentWord);
@@ -2257,8 +2315,7 @@ int InsertWordIntoTst(Params *pParams)
 			wprintf(L"\tPREVIOUS WORD = (%ls)\n\n", pParams->pwszPreviousWord);
 			// ************************************************************************************************************
 			#endif
-								
-					
+			
 			pParams->idxCurrentWordChar = 0;
 			//pParams->idxPreviousWordChar = 0; // QUI NON VA BENE.
 		}
@@ -2272,7 +2329,14 @@ int InsertWordIntoTst(Params *pParams)
 			}
 			pParams->pwszPreviousWord[pParams->idxPreviousWordChar + k] = L'\0';
 			
+			#if defined(MYPDFSEARCH_USE_TST)
 			pParams->myTST.pRoot = tstInsertRecursive(pParams->myTST.pRoot, pParams->pwszPreviousWord, NULL, 0, NULL);
+			#else
+			//genhtInsert(&(pParams->myHT), pParams->pwszPreviousWord, wcslen(pParams->pwszPreviousWord) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
+			//genhtInsert(&(pParams->myHT), pParams->pwszPreviousWord, (pParams->idxPreviousWordChar + k) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
+			genhtInsert(&(pParams->myHT), pParams->pwszPreviousWord, (pParams->idxPreviousWordChar + k) * sizeof(wchar_t), NULL, 0);
+			#endif
+			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_TST)
 			//wprintf(L"INSERT KEY(%ls) INTO TERNARY SEARCH TREE\n", pParams->pwszPreviousWord);
 			wprintf(L"(%ls)\n", pParams->pwszPreviousWord);
@@ -2446,8 +2510,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			
 			if ( T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type )
 			{
-				len = strnlen(pParams->myToken.Value.vString, MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
-				memcpy(pszString, (unsigned char*)pParams->myToken.Value.vString, len + 1);
+				len = strnlen(pParams->myToken.vString, MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
+				memcpy(pszString, (unsigned char*)pParams->myToken.vString, len + 1);
 											
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings)
 				//wprintf(L"\tSTRINGA: (%s) <-> UTF-8: (%ls)\n", pszString, (wchar_t*)(pParams->pUtf8String));
@@ -2462,7 +2526,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				#endif
 				
 								
-				if ( pParams->szFilePdf[0] == '\0' )
+				if ( '\0' != pParams->szWordsToSearch[0] )
 				{
 					// SPLIT WORDS INIZIO
 					c = (wchar_t)pParams->pUtf8String[0];
@@ -2471,7 +2535,103 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					{
 						c = towlower(c);
 					
-						if ( c >= L'a' && c <= L'z' )
+						//if ( c >= L'a' && c <= L'z' )
+						if (
+						     (c >= 0x0041 && c <= 0x007A) ||
+						     (c >= 0x00C0 && c <= 0x00FF) ||
+						     (c >= 0x0100 && c <= 0x017F) ||
+						     (c >= 0x0180 && c <= 0x024F) ||
+						     (c >= 0x0250 && c <= 0x02AF) ||
+						     (c >= 0x1D00 && c <= 0x1DBF) ||
+						     (c >= 0x1E00 && c <= 0x1EFF) ||
+						     (c >= 0x2C60 && c <= 0x2C7F) ||
+						     (c >= 0xA720 && c <= 0xA7FF) ||
+						     (c >= 0xAB30 && c <= 0xAB7F) ||
+						     (c >= 0xFB00 && c <= 0xFB06) ||
+						     (c >= 0x0370 && c <= 0x03FF) ||
+						     (c >= 0x1F00 && c <= 0x1FFF) ||
+						     (c >= 0x0400 && c <= 0x04FF) ||
+						     (c >= 0x0500 && c <= 0x052F) ||
+						     (c >= 0x2DE0 && c <= 0x2DFF) ||
+						     (c >= 0xA640 && c <= 0xA69F) ||
+						     (c >= 0x1C80 && c <= 0x1C8F) ||
+						     (c >= 0x0530 && c <= 0x580F) ||
+						     (c >= 0x10A0 && c <= 0x10FF) ||
+						     (c >= 0x1C90 && c <= 0x1CBF) ||
+						     (c >= 0x2D00 && c <= 0x2D2F) ||
+						     (c >= 0x02B0 && c <= 0x02FF) ||
+						     (c >= 0xA700 && c <= 0xA71F) ||
+						     (c >= 0x0300 && c <= 0x036F) ||
+						     (c >= 0x1AB0 && c <= 0x1AFF) ||
+						     (c >= 0x1DC0 && c <= 0x1DFF) ||
+						     (c >= 0x20D0 && c <= 0x20FF) ||
+						     (c >= 0xFE20 && c <= 0xFE2F) ||
+						     (c >= 0x16A0 && c <= 0x16F0) ||
+						     (c >= 0x1680 && c <= 0x169F) ||
+						     (c >= 0x0590 && c <= 0x05FF) ||
+						     (c >= 0xFB1D && c <= 0xFB4F) ||
+						     (c >= 0x0600 && c <= 0x06FF) ||
+						     (c >= 0x0750 && c <= 0x077F) ||
+						     (c >= 0x08A0 && c <= 0x08FF) ||
+						     (c >= 0xFB50 && c <= 0xFDFF) ||
+						     (c >= 0xFE70 && c <= 0xFEFF) ||
+						     (c >= 0x0700 && c <= 0x074F) ||
+						     (c >= 0x0800 && c <= 0x083F) ||
+						     (c >= 0x0840 && c <= 0x085F) ||
+						     (c >= 0x0900 && c <= 0x097F) ||
+						     (c >= 0x0980 && c <= 0x09FF) ||
+						     (c >= 0x0A00 && c <= 0x0A7F) ||
+						     (c >= 0x0A80 && c <= 0x0AFF) ||
+						     (c >= 0x0B00 && c <= 0x0B7F) ||
+						     (c >= 0x0B80 && c <= 0x0BFF) ||
+						     (c >= 0x0C00 && c <= 0x0C7F) ||
+						     (c >= 0x0C80 && c <= 0x0CFF) ||
+						     (c >= 0x0D00 && c <= 0x0D7F) ||
+						     (c >= 0x0780 && c <= 0x07BF) ||
+						     (c >= 0x0D80 && c <= 0x0DFF) ||
+						     (c >= 0x0F00 && c <= 0x0FFF) ||
+						     (c >= 0x1800 && c <= 0x18AF) ||
+						     (c >= 0x1900 && c <= 0x194F) ||
+						     (c >= 0xABC0 && c <= 0xABFF) ||
+						     (c >= 0x1C50 && c <= 0x1C7F) ||
+						     (c >= 0x1C00 && c <= 0x1C4F) ||
+						     (c >= 0xA880 && c <= 0xA8DF) ||
+						     (c >= 0xA840 && c <= 0xA87F) ||
+						     (c >= 0xA800 && c <= 0xA82F) ||
+						     (c >= 0x0E00 && c <= 0x0E7F) ||
+						     (c >= 0x0E80 && c <= 0x0EFF) ||
+						     (c >= 0x1000 && c <= 0x109F) ||
+						     (c >= 0x1780 && c <= 0x17FF) ||
+						     (c >= 0x1950 && c <= 0x197F) ||
+						     (c >= 0x1980 && c <= 0x19DF) ||
+						     (c >= 0x1A20 && c <= 0x1AAF) ||
+						     (c >= 0xAA80 && c <= 0xAADF) ||
+						     (c >= 0xA900 && c <= 0xA92F) ||
+						     (c >= 0xAA5F && c <= 0xAA00) ||
+						     (c >= 0x1700 && c <= 0x171F) ||
+						     (c >= 0x1720 && c <= 0x173F) ||
+						     (c >= 0x1740 && c <= 0x175F) ||
+						     (c >= 0x1760 && c <= 0x177F) ||
+						     (c >= 0x1A00 && c <= 0x1A1F) ||
+						     (c >= 0x1B00 && c <= 0x1B7F) ||
+						     (c >= 0xA980 && c <= 0xA9DF) ||
+						     (c >= 0xA930 && c <= 0xA95F) ||
+						     (c >= 0x1BC0 && c <= 0x1BFF) ||
+						     (c >= 0x1B80 && c <= 0x1BBF) ||
+						     (c >= 0xF900 && c <= 0xFAFF) ||
+						     (c >= 0x3190 && c <= 0x319F) ||
+						     (c >= 0x2E80 && c <= 0x2FD5) ||
+						     (c >= 0x31C0 && c <= 0x31EF) ||
+						     (c >= 0x1200 && c <= 0x137F) ||
+						     (c >= 0x2D30 && c <= 0x2D7F) ||
+						     (c >= 0x07C7 && c <= 0x07FF) ||
+						     (c >= 0xA500 && c <= 0xA63F) ||
+						     (c >= 0xA6A0 && c <= 0xA6FF) ||
+						     (c >= 0x13A0 && c <= 0x13FF) ||
+						     (c >= 0xAB70 && c <= 0xABBF) ||
+						     (c >= 0x1400 && c <= 0x167F) ||
+						     (c >= 0x2800 && c <= 0x28FF)
+						   )
 						{
 							pParams->pwszCurrentWord[pParams->idxCurrentWordChar++] = c;
 							//wprintf(L"EQQUE QUA -> pParams->pwszCurrentWord[%d] = '%c'\n", pParams->idxCurrentWordChar - 1, pParams->pwszCurrentWord[pParams->idxCurrentWordChar - 1]);
@@ -2480,170 +2640,13 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						{				
 							pParams->pwszPreviousWord[pParams->idxPreviousWordChar] = L'\0';
 							pParams->bStateSillab = 1;
-						}					
-						else
-						{
-							switch ( c )
-							{
-								case 0x00E1:
-								case 0x0103:
-								case 0x00E4:
-								case 0x00E6:
-								case 0x01FD:
-								case 0x00E0:
-								case 0x03B1:
-								case 0x03AC:
-								case 0x0101:
-								case 0x0105:
-								case 0x00E5:
-								case 0x01FB:
-								case 0x00E3:
-								case 0x03B2:
-								case 0x0107:
-								case 0x010D:
-								case 0x00E7:
-								case 0x0109:
-								case 0x010B:
-								case 0x03C7:
-								case 0x010F:
-								case 0x0111:
-								case 0x03B4:
-								case 0x0131:
-								case 0x0065:
-								case 0x00E9:
-								case 0x0115:
-								case 0x011B:
-								case 0x00EA:
-								case 0x00EB:
-								case 0x0117:
-								case 0x00E8:
-								case 0x0113:
-								case 0x014B:
-								case 0x0119:
-								case 0x03B5:
-								case 0x03AD:
-								case 0x03B7:
-								case 0x03AE:
-								case 0x00F0:
-								case 0x0192:
-								case 0x03B3:
-								case 0x011F:
-								case 0x01E7:
-								case 0x011D:
-								case 0x0121:
-								case 0x00DF:
-								case 0x0127:
-								case 0x0125:
-								case 0x00ED:
-								case 0x012D:
-								case 0x00EE:
-								case 0x00EF:
-								case 0x00EC:
-								case 0x0133:
-								case 0x012B:
-								case 0x012F:
-								case 0x03B9:
-								case 0x03CA:
-								case 0x0390:
-								case 0x03AF:
-								case 0x0129:
-								case 0x0135:
-								case 0x03BA:
-								case 0x0138:
-								case 0x013A:
-								case 0x03BB:
-								case 0x013E:
-								case 0x0140:
-								case 0x017F:
-								case 0x0142:
-								case 0x0144:
-								case 0x0149:
-								case 0x0148:
-								case 0x00F1:
-								case 0x03BD:
-								case 0x00F3:
-								case 0x014F:
-								case 0x00F4:
-								case 0x00F6:
-								case 0x0153:
-								case 0x00F2:
-								case 0x01A1:
-								case 0x0151:
-								case 0x014D:
-								case 0x03C9:
-								case 0x03CE:
-								case 0x03BF:
-								case 0x03CC:
-								case 0x00F8:
-								case 0x01FF:
-								case 0x00F5:
-								case 0x03C6:
-								case 0x03D5:
-								case 0x03C0:
-								case 0x03C8:
-								case 0x0071:
-								case 0x0155:
-								case 0x0159:
-								case 0x03C1:
-								case 0x015B:
-								case 0x0161:
-								case 0x015F:
-								case 0x015D:
-								case 0x03C3:
-								case 0x03C2:
-								case 0x0074:
-								case 0x03C4:
-								case 0x0167:
-								case 0x0165:
-								case 0x00FE:
-								case 0x00FA:
-								case 0x016D:
-								case 0x00FB:
-								case 0x00FC:
-								case 0x00F9:
-								case 0x01B0:
-								case 0x0171:
-								case 0x016B:
-								case 0x0173:
-								case 0x03C5:
-								case 0x03CB:
-								case 0x03B0:
-								case 0x03CD:
-								case 0x016F:
-								case 0x0169:
-								case 0x1E83:
-								case 0x0175:
-								case 0x1E85:
-								case 0x2118:
-								case 0x1E81:
-								case 0x03BE:
-								case 0x00FD:
-								case 0x0177:
-								case 0x00FF:
-								case 0x1EF3:
-								case 0x017A:
-								case 0x017E:
-								case 0x017C:
-								case 0x03B6:
-									pParams->pwszCurrentWord[pParams->idxCurrentWordChar++] = c;
-									goto letterastrana;
-									break;
-								default:
-									break;
-							}						
-																																
-							InsertWordIntoTst(pParams);
 						}
+						else
+						{																																
+							InsertWordIntoTst(pParams);
+						}				
 						
-						letterastrana:
-						c = (wchar_t)pParams->pUtf8String[x++];
-						
-						// ATTENZIONE!!! IL CODICE COMMENTATO SEGUENTE, È UN ROGNOSISSIMO BUG! NON DECOMMENTARE! NON CANCELLARE IL CODICE COMMENTATO: A FUTURA MEMORIA!!!
-						//if ( L'\0' == c )
-						//{
-						//	InsertWordIntoTst(pParams);
-						//	wprintf(L"INSERITA WORD DOPO LETTERA STRANA. CIAO\n");
-						//}
+						c = (wchar_t)pParams->pUtf8String[x++];						
 					}					
 					// SPLIT WORDS FINE
 				}
@@ -2658,7 +2661,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			else if ( T_INT_LITERAL == pParams->myToken.Type )
 			{
 				bLastNumberIsReal = 0;
-				iLastNumber = pParams->myToken.Value.vInt;
+				iLastNumber = pParams->myToken.vInt;
 				
 				if ( bArrayState )
 				{
@@ -2670,7 +2673,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						//wprintf(L" <SPAZIO INTEGER %d> ", iLastNumber);
 						wprintf(L" ");
 						#endif
-						if ( pParams->szFilePdf[0] == '\0' )
+						if ( '\0' != pParams->szWordsToSearch[0] )
 						{							
 							InsertWordIntoTst(pParams);
 						}
@@ -2687,7 +2690,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			else if ( T_REAL_LITERAL == pParams->myToken.Type )
 			{
 				bLastNumberIsReal = 1;
-				dLastNumber = pParams->myToken.Value.vDouble;
+				dLastNumber = pParams->myToken.vDouble;
 				
 				if ( bArrayState )
 				{
@@ -2699,7 +2702,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						wprintf(L" ");
 						#endif
 						
-						if ( pParams->szFilePdf[0] == '\0' )
+						if ( '\0' != pParams->szWordsToSearch[0] )
 						{
 							InsertWordIntoTst(pParams);
 						}
@@ -2715,7 +2718,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			}
 			else if ( T_NAME == pParams->myToken.Type )
 			{
-				strncpy(szName, pParams->myToken.Value.vString, 127);
+				strncpy(szName, pParams->myToken.vString, 127);
 			}
 			else if ( T_QOPAREN == pParams->myToken.Type )
 			{
@@ -2740,7 +2743,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				*/
 
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings)
-				if ( pParams->szFilePdf[0] == '\0' )
+				if ( '\0' != pParams->szWordsToSearch[0] )
 				{
 					wprintf(L"\n");
 				}
@@ -2773,7 +2776,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				}
 				#endif		
 								
-				if ( pParams->szFilePdf[0] == '\0' )
+				if ( '\0' != pParams->szWordsToSearch[0] )
 				{
 					InsertWordIntoTst(pParams);
 				}
@@ -3600,7 +3603,11 @@ int ParseObject(Params *pParams, int objNum)
 	
 	int idxWord;
 	
+	#if defined(MYPDFSEARCH_USE_TST)
 	uint32_t res;
+	#else
+	int res;
+	#endif
 	
 	int count;
 	
@@ -4063,8 +4070,16 @@ int ParseObject(Params *pParams, int objNum)
 			}
 		}
 
+		#if defined(MYPDFSEARCH_USE_TST)
+		if ( NULL != pParams->myTST.pRoot )
+			tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);			
 		tstInit(&(pParams->myTST));
-		
+		#else
+		if ( NULL != pParams->myHT.pHashTable )
+			genhtFree(&(pParams->myHT));
+		genhtInit(&(pParams->myHT), 0, GenWideStringHashFunc, GenWideStringCompareFunc);
+		#endif
+				
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintPageNum)
 		wprintf(L"\nPAGINA %d ------------------------------------------------------------------------------------------------------------------\n", nInt);
 		#endif		
@@ -4088,7 +4103,8 @@ int ParseObject(Params *pParams, int objNum)
 		scopeFree(&(pParams->pPagesArray[nInt].myScopeHT_XObjRef));
 		scopeFree(&(pParams->pPagesArray[nInt].myScopeHT_FontsRef));
 	
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_TST)
+		
+		#if defined(MYDEBUG_PRINT_ALL) || ( defined(MYDEBUG_PRINT_TST) && defined(MYPDFSEARCH_USE_TST) )
 			wprintf(L"\nTERNARY SEARCH TREE (Page %d) -> TRAVERSE START\n", nInt);
 			count = tstTraverseRecursive(pParams->myTST.pRoot, OnTraverseTST, 0);
 			//count = tstTraverseDescRecursive(pParams->myTST.pRoot, OnTraverseTST, 0);
@@ -4098,6 +4114,18 @@ int ParseObject(Params *pParams, int objNum)
 		
 		for ( idxWord = 0; idxWord < pParams->countWordsToSearch; idxWord++ )
 		{
+			/*
+			#if defined(MYPDFSEARCH_USE_TST)
+			if ( NULL != pParams->myTST.pRoot )
+			{
+				tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
+			}
+			#else
+			genhtFree(&(pParams->myHT));
+			#endif
+			*/	
+			
+			#if defined(MYPDFSEARCH_USE_TST)
 			res = tstSearchRecursive(pParams->myTST.pRoot, pParams->pWordsToSearchArray[idxWord], NULL, NULL);						
 			if ( res )
 			{				
@@ -4110,10 +4138,36 @@ int ParseObject(Params *pParams, int objNum)
 					wprintf(L"\tKey '%ls' found on page %d\n", pParams->pWordsToSearchArray[idxWord], nInt);
 				}
 			}
+			//else
+			//{
+			//	wprintf(L"\nKey '%ls' NOT found\n", pParams->pWordsToSearchArray[idxWord]);
+			//}
+			#else
+			res = genhtFind(&(pParams->myHT), pParams->pWordsToSearchArray[idxWord], wcslen(pParams->pWordsToSearchArray[idxWord]) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
+			if ( res >= 0 )
+			{				
+				if ( pParams->szOutputFile[0] != '\0' )
+				{
+					fwprintf(pParams->fpOutput, L"\tKey '%ls' found on page %d\n", pParams->pWordsToSearchArray[idxWord], nInt);
+				}
+				else
+				{
+					wprintf(L"\tKey '%ls' found on page %d\n", pParams->pWordsToSearchArray[idxWord], nInt);
+				}
+			}
+			//else
+			//{
+			//	wprintf(L"\nKey '%ls' NOT found\n", pParams->pWordsToSearchArray[idxWord]);
+			//}
+			#endif
 		}
 		
+		#if defined(MYPDFSEARCH_USE_TST)
 		if ( NULL != pParams->myTST.pRoot )
 			tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);			
+		#else
+		genhtFree(&(pParams->myHT));
+		#endif
 	}
 	
 uscita:
@@ -4151,23 +4205,38 @@ uscita:
 	
 	myobjreflist_Free(&(pParams->myXObjRefList));
 	myobjreflist_Free(&(pParams->myFontsRefList));
-	
+		
+	#if defined(MYPDFSEARCH_USE_TST)
 	if ( NULL != pParams->myTST.pRoot )
-		tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
-
-	if ( 0 == retValue )
-	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
-	}
+		tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);			
+	#else
+	genhtFree(&(pParams->myHT));
+	#endif
 		
 	return retValue;
+}
+
+int OnTraverseHT(const void* key, uint32_t keySize, void* data, uint32_t dataSize)
+{			
+	if ( NULL != data )
+	{
+		#if defined(_WIN64) || defined(_WIN32)
+		wchar_t *pWideCharString = NULL;
+		wprintf(L"KEY = '%ls' keySize = %u <-> DATA = '%ls' dataSize = %d\n", (wchar_t*)key, keySize, (wchar_t*)pWideCharString, dataSize);
+		#else
+		wprintf(L"KEY = '%ls' keySize = %u <->  DATA = '%s' dataSize = %d\n", (wchar_t*)key, keySize, (char*)data, dataSize);
+		#endif
+	}
+	else
+	{
+		#if defined(_WIN64) || defined(_WIN32)
+		wprintf(L"KEY = '%ls' keySize = %u <-> DATA = NULL\n", (wchar_t*)key, keySize);	
+		#else
+		wprintf(L"KEY = '%ls' keySize = %u <-> DATA = NULL\n", (wchar_t*)key, keySize);
+		#endif
+	}
+				
+	return 1;
 }
 
 int OnTraverseTST(const wchar_t* key, void* data, uint32_t dataSize)
@@ -4418,14 +4487,14 @@ int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNum
 		pParams->bStreamStateToUnicode = 0;
 		if ( !contentobj(pParams) )
 		{
-			if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-			{
-				if ( NULL != pParams->myToken.Value.vString )
-				{
-					free(pParams->myToken.Value.vString);
-					pParams->myToken.Value.vString = NULL;
-				}
-			}
+			//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+			//{
+			//	if ( NULL != pParams->myToken.vString )
+			//	{
+			//		free(pParams->myToken.vString);
+			//		pParams->myToken.vString = NULL;
+			//	}
+			//}
 			snprintf(pParams->szError, 8192, "\n\nERRORE PrintThisObject -> contentobj: objNum = %d; pParams->myObjsTable[%d]->Obj.Offset = %d\n\n", objNum, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
 			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"\n\nERRORE PrintThisObject -> contentobj: objNum = %d; pParams->myObjsTable[%d]->Obj.Offset = %lu\n\n", objNum, objNum, pParams->myObjsTable[objNum]->Obj.Offset);
@@ -4574,14 +4643,14 @@ int ParseNextObject(Params *pParams, int objNum)
 	
 	if ( !pagetree(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 				
 		goto uscita;
@@ -4705,14 +4774,14 @@ int CheckObjectType(Params *pParams, int objNum)
 	
 	if ( !cot(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 		goto uscita;
 	}
@@ -4775,14 +4844,14 @@ int ParseStmObj(Params *pParams, int objNum)
 	
 	if ( !stmobj(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 		goto uscita;
 	}
@@ -4865,14 +4934,14 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 	
 	if ( !xrefstream_obj(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}
 		snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
 		myShowErrorMessage(pParams, pParams->szError, 1);
 		//wprintf(L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
@@ -5088,14 +5157,14 @@ int ParseTrailerXRefStreamObject(Params *pParams)
 
 		if ( !xrefstream_obj(pParams) )
 		{
-			if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-			{
-				if ( NULL != pParams->myToken.Value.vString )
-				{
-					free(pParams->myToken.Value.vString);
-					pParams->myToken.Value.vString = NULL;
-				}
-			}
+			//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+			//{
+			//	if ( NULL != pParams->myToken.vString )
+			//	{
+			//		free(pParams->myToken.vString);
+			//		pParams->myToken.vString = NULL;
+			//	}
+			//}
 			snprintf(pParams->szError, 8192, "Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
 			myShowErrorMessage(pParams, pParams->szError, 1);
 			//wprintf(L"Errore ParseTrailerXRefStreamObject: xrefstream_obj failed\n");
@@ -5350,14 +5419,14 @@ int ParseStreamObject(Params *pParams, int objNum)
 	pParams->bStreamStateToUnicode = 0;
 	if ( !contentobj(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 		goto uscita;
 	}
@@ -5435,14 +5504,14 @@ int ParseStreamXObject(Params *pParams, int objNum)
 	
 	if ( !contentxobj(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 		goto uscita;
 	}
@@ -5562,7 +5631,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 		switch ( pParams->myToken.Type )
 		{
 			case T_INT_LITERAL:
-				lastInteger = pParams->myToken.Value.vInt;
+				lastInteger = pParams->myToken.vInt;
 				break;
 			case T_CONTENT_OP_begincodespacerange:
 				if ( NULL != pParams->pCodeSpaceRangeArray )
@@ -5692,17 +5761,17 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 			case T_STRING_HEXADECIMAL:
 				myValue = 0;
 				base = 1;
-				len = strnlen(pParams->myToken.Value.vString, 1024);
+				len = strnlen(pParams->myToken.vString, 1024);
 				for ( i = len - 1; i >= 0; i-- ) 
 				{
-					if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+					if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 					{
-						myValue += (pParams->myToken.Value.vString[i] - 48) * base;
+						myValue += (pParams->myToken.vString[i] - 48) * base;
 						base = base * 16; 
 					} 
 					else
 					{
-						c = toupper(pParams->myToken.Value.vString[i]);
+						c = toupper(pParams->myToken.vString[i]);
 						if ( c >= 'A' && c <= 'F' ) 
 						{ 
 							myValue += (c - 55) * base; 
@@ -5717,22 +5786,22 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 
 				if ( 8 == len )
 				{					
-					c = pParams->myToken.Value.vString[0];
+					c = pParams->myToken.vString[0];
 					if ( toupper(c) == 'D' )
 					{
-						c = pParams->myToken.Value.vString[4];
+						c = pParams->myToken.vString[4];
 						if ( toupper(c) == 'D' )
 						{
 							for ( i = 0; i < 4; i++ )
 							{
-								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 								{
-									lead += (pParams->myToken.Value.vString[i] - 48) * base;
+									lead += (pParams->myToken.vString[i] - 48) * base;
 									base = base * 16; 
 								} 
 								else
 								{
-									c = toupper(pParams->myToken.Value.vString[i]);
+									c = toupper(pParams->myToken.vString[i]);
 									if ( c >= 'A' && c <= 'F' ) 
 									{ 
 										lead += (c - 55) * base; 
@@ -5743,14 +5812,14 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 							
 							for ( i = 4; i < 8; i++ )
 							{
-								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 								{
-									trail += (pParams->myToken.Value.vString[i] - 48) * base;
+									trail += (pParams->myToken.vString[i] - 48) * base;
 									base = base * 16; 
 								} 
 								else
 								{
-									c = toupper(pParams->myToken.Value.vString[i]);
+									c = toupper(pParams->myToken.vString[i]);
 									if ( c >= 'A' && c <= 'F' ) 
 									{ 
 										trail += (c - 55) * base;
@@ -5849,7 +5918,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						
 						if ( T_INT_LITERAL == pParams->myToken.Type )
 						{
-							cidRange3 = pParams->myToken.Value.vInt;
+							cidRange3 = pParams->myToken.vInt;
 						}
 						else
 						{
@@ -5900,7 +5969,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						
 						if ( T_INT_LITERAL == pParams->myToken.Type )
 						{
-							cidChar2 = pParams->myToken.Value.vInt;
+							cidChar2 = pParams->myToken.vInt;
 						}
 						else
 						{
@@ -5950,7 +6019,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						
 						if ( T_INT_LITERAL == pParams->myToken.Type )
 						{
-							notdefRange3 = pParams->myToken.Value.vInt;
+							notdefRange3 = pParams->myToken.vInt;
 						}
 						else
 						{
@@ -6001,7 +6070,7 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						
 						if ( T_INT_LITERAL == pParams->myToken.Type )
 						{
-							notdefChar2 = pParams->myToken.Value.vInt;
+							notdefChar2 = pParams->myToken.vInt;
 						}
 						else
 						{
@@ -6048,17 +6117,17 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						{
 							myValue = 0;
 							base = 1;
-							len = strnlen(pParams->myToken.Value.vString, 1024);
+							len = strnlen(pParams->myToken.vString, 1024);
 							for ( i = len - 1; i >= 0; i-- ) 
 							{
-								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 								{
-									myValue += (pParams->myToken.Value.vString[i] - 48) * base;
+									myValue += (pParams->myToken.vString[i] - 48) * base;
 									base = base * 16; 
 								} 
 								else
 								{
-									c = toupper(pParams->myToken.Value.vString[i]);
+									c = toupper(pParams->myToken.vString[i]);
 									if ( c >= 'A' && c <= 'F' ) 
 									{ 
 										myValue += (c - 55) * base; 
@@ -6097,20 +6166,20 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 						}
 						else if ( T_NAME == pParams->myToken.Type )
 						{
-							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
-							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
+							tnameLen = strnlen(pParams->myToken.vString, 4096);
+							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
 							if ( nRes >= 0 ) // TROVATO
 							{				
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM)
-								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %d -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
+								wprintf(L"ParseCMapStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %d -> (%s)\n", bfChar1, bfChar2, pParams->myToken.vString);
 								#endif																
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							else
 							{
-								wprintf(L"ParseCMapStream: BFCHAR -> KEY(%s) NOT FOUND\n", pParams->myToken.Value.vString);
+								wprintf(L"ParseCMapStream: BFCHAR -> KEY(%s) NOT FOUND\n", pParams->myToken.vString);
 							}
 							#endif							
 						}
@@ -6282,7 +6351,7 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 		switch ( pParams->myToken.Type )
 		{
 			case T_INT_LITERAL:
-				lastInteger = pParams->myToken.Value.vInt;
+				lastInteger = pParams->myToken.vInt;
 				break;
 			case T_CONTENT_OP_begincodespacerange:
 				if ( NULL != pParams->pCodeSpaceRangeArray )
@@ -6360,17 +6429,17 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 			case T_STRING_HEXADECIMAL:
 				myValue = 0;
 				base = 1;
-				len = strnlen(pParams->myToken.Value.vString, 1024);
+				len = strnlen(pParams->myToken.vString, 1024);
 				for ( i = len - 1; i >= 0; i-- ) 
 				{
-					if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+					if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 					{
-						myValue += (pParams->myToken.Value.vString[i] - 48) * base;
+						myValue += (pParams->myToken.vString[i] - 48) * base;
 						base = base * 16; 
 					} 
 					else
 					{
-						c = toupper(pParams->myToken.Value.vString[i]);
+						c = toupper(pParams->myToken.vString[i]);
 						if ( c >= 'A' && c <= 'F' ) 
 						{ 
 							myValue += (c - 55) * base; 
@@ -6387,22 +6456,22 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 							
 					if ( 8 == len )
 					{					
-						c = pParams->myToken.Value.vString[0];
+						c = pParams->myToken.vString[0];
 						if ( toupper(c) == 'D' )
 						{
-							c = pParams->myToken.Value.vString[4];
+							c = pParams->myToken.vString[4];
 							if ( toupper(c) == 'D' )
 							{
 								for ( i = 0; i < 4; i++ )
 								{
-									if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+									if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 									{
-										lead += (pParams->myToken.Value.vString[i] - 48) * base;
+										lead += (pParams->myToken.vString[i] - 48) * base;
 										base = base * 16; 
 									} 
 									else
 									{
-										c = toupper(pParams->myToken.Value.vString[i]);
+										c = toupper(pParams->myToken.vString[i]);
 										if ( c >= 'A' && c <= 'F' ) 
 										{ 
 											lead += (c - 55) * base; 
@@ -6413,14 +6482,14 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 							
 								for ( i = 4; i < 8; i++ )
 								{
-									if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+									if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 									{
-										trail += (pParams->myToken.Value.vString[i] - 48) * base;
+										trail += (pParams->myToken.vString[i] - 48) * base;
 										base = base * 16; 
 									} 
 									else
 									{
-										c = toupper(pParams->myToken.Value.vString[i]);
+										c = toupper(pParams->myToken.vString[i]);
 										if ( c >= 'A' && c <= 'F' ) 
 										{ 
 											trail += (c - 55) * base;
@@ -6507,17 +6576,17 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						{
 							myValue = 0;
 							base = 1;
-							len = strnlen(pParams->myToken.Value.vString, 1024);
+							len = strnlen(pParams->myToken.vString, 1024);
 							for ( i = len - 1; i >= 0; i-- ) 
 							{
-								if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+								if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 								{
-									myValue += (pParams->myToken.Value.vString[i] - 48) * base;
+									myValue += (pParams->myToken.vString[i] - 48) * base;
 									base = base * 16; 
 								} 
 								else
 								{
-									c = toupper(pParams->myToken.Value.vString[i]);
+									c = toupper(pParams->myToken.vString[i]);
 									if ( c >= 'A' && c <= 'F' ) 
 									{ 
 										myValue += (c - 55) * base; 
@@ -6532,22 +6601,22 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 							
 							if ( 8 == len )
 							{					
-								c = pParams->myToken.Value.vString[0];
+								c = pParams->myToken.vString[0];
 								if ( toupper(c) == 'D' )
 								{
-									c = pParams->myToken.Value.vString[4];
+									c = pParams->myToken.vString[4];
 									if ( toupper(c) == 'D' )
 									{
 										for ( i = 0; i < 4; i++ )
 										{
-											if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+											if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 											{
-												lead += (pParams->myToken.Value.vString[i] - 48) * base;
+												lead += (pParams->myToken.vString[i] - 48) * base;
 												base = base * 16; 
 											} 
 											else
 											{
-												c = toupper(pParams->myToken.Value.vString[i]);
+												c = toupper(pParams->myToken.vString[i]);
 												if ( c >= 'A' && c <= 'F' ) 
 												{ 
 													lead += (c - 55) * base; 
@@ -6558,14 +6627,14 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 							
 										for ( i = 4; i < 8; i++ )
 										{
-											if ( pParams->myToken.Value.vString[i] >= '0' && pParams->myToken.Value.vString[i] <= '9' ) 
+											if ( pParams->myToken.vString[i] >= '0' && pParams->myToken.vString[i] <= '9' ) 
 											{
-												trail += (pParams->myToken.Value.vString[i] - 48) * base;
+												trail += (pParams->myToken.vString[i] - 48) * base;
 												base = base * 16; 
 											} 
 											else
 											{
-												c = toupper(pParams->myToken.Value.vString[i]);
+												c = toupper(pParams->myToken.vString[i]);
 												if ( c >= 'A' && c <= 'F' ) 
 												{ 
 													trail += (c - 55) * base;
@@ -6609,20 +6678,20 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 						}
 						else if ( T_NAME == pParams->myToken.Type )
 						{
-							tnameLen = strnlen(pParams->myToken.Value.vString, 4096);
-							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
+							tnameLen = strnlen(pParams->myToken.vString, 4096);
+							nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.vString, tnameLen + sizeof(char), (void*)&bfChar2, &nDataSize, &bContentAlreadyProcessed);
 							if ( nRes >= 0 ) // TROVATO
 							{				
 								pParams->paCustomizedFont_CharSet[bfChar1] = bfChar2;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
-								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %u -> (%s)\n", bfChar1, bfChar2, pParams->myToken.Value.vString);
+								wprintf(L"ParseToUnicodeStream: OK!!! BFCHAR -> pParams->paCustomizedFont_CharSet[%lu] = %u -> (%s)\n", bfChar1, bfChar2, pParams->myToken.vString);
 								#endif																
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM)
 							else
 							{
-								wprintf(L"ParseToUnicodeStream: BFCHAR -> KEY(%s) NOT FOUND\n", pParams->myToken.Value.vString);
+								wprintf(L"ParseToUnicodeStream: BFCHAR -> KEY(%s) NOT FOUND\n", pParams->myToken.vString);
 							}
 							#endif							
 						}
@@ -6757,14 +6826,14 @@ int ParseCMapObject(Params *pParams, int objNum)
 	pParams->bStreamStateToUnicode = 1;
 	if ( !contentobj(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 		goto uscita;
 	}
@@ -6861,14 +6930,14 @@ int ParseFontObject(Params *pParams, int objNum)
 	
 	if ( !contentfontobj(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 		goto uscita;
 	}
@@ -6916,14 +6985,14 @@ int ParseEncodingObject(Params *pParams, int objNum)
 	
 	if ( !encodingobj(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}		
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}		
 		retValue = 0;
 		goto uscita;
 	}
@@ -6973,14 +7042,14 @@ int ParseDictionaryObject(Params *pParams, int objNum)
 	//wprintf(L"\nParseDictionaryObject: INIZIO DIZIONARIO(objNum = %d).\n", objNum);
 	if ( !resourcesdictionary(pParams) )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}
 		snprintf(pParams->szError, 8192, "\nERRORE ParseDictionaryObject resourcesdictionary -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
 		myShowErrorMessage(pParams, pParams->szError, 1);	
 		//wprintf(L"\nERRORE ParseDictionaryObject resourcesdictionary -> pParams->nObjToParse = %d\n", pParams->nObjToParse);
@@ -7064,14 +7133,14 @@ int ParseLengthObject(Params *pParams, int objNum)
 	c = pParams->myBlockLengthObj[pParams->blockCurPosLengthObj++];
 	if ( (c != '\n' && c != '\r' && c != ' ' && c != '\t' && c != '\f' && c != '\b' && c != '\0') )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}
 		snprintf(pParams->szError, 8192, "Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
 		myShowErrorMessage(pParams, pParams->szError, 1);		
 		//wprintf(L"Errore ParseLengthObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
@@ -7179,14 +7248,14 @@ int ParseIntegerObject(Params *pParams, int objNum)
 	c = pParams->myBlockLengthObj[pParams->blockCurPosLengthObj++];
 	if ( (c != '\n' && c != '\r' && c != ' ' && c != '\t' && c != '\f' && c != '\b' && c != '\0') )
 	{
-		if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.Value.vString) )
-		{
-			if ( NULL != pParams->myToken.Value.vString )
-			{
-				free(pParams->myToken.Value.vString);
-				pParams->myToken.Value.vString = NULL;
-			}
-		}
+		//if ( (T_NAME == pParams->myToken.Type || T_STRING == pParams->myToken.Type || T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type) && (NULL != pParams->myToken.vString) )
+		//{
+		//	if ( NULL != pParams->myToken.vString )
+		//	{
+		//		free(pParams->myToken.vString);
+		//		pParams->myToken.vString = NULL;
+		//	}
+		//}
 		snprintf(pParams->szError, 8192, "Errore ParseIntegerObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
 		myShowErrorMessage(pParams, pParams->szError, 1);	
 		//wprintf(L"Errore ParseIntegerObject: oggetto n. %d; atteso spazio, trovato '%c'\n", objNum, c);
@@ -7246,13 +7315,13 @@ int obj(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_OBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 	
-	pParams->nCurrentObjNum = pParams->myToken.Value.vInt;
+	pParams->nCurrentObjNum = pParams->myToken.vInt;
 	
 	if ( pParams->nObjToParse != pParams->nCurrentObjNum )
 	{
@@ -7479,11 +7548,11 @@ int dictionary(Params *pParams)
 		
 	while (pParams->myToken.Type == T_NAME)
 	{				
-		if ( strncmp(pParams->myToken.Value.vString, "Pages", 1024) == 0 )
+		if ( strncmp(pParams->myToken.vString, "Pages", 1024) == 0 )
 		{
 			bNameIsPages = 1;			
 		}
-		else if ( strncmp(pParams->myToken.Value.vString, "Version", 1024) == 0 )
+		else if ( strncmp(pParams->myToken.vString, "Version", 1024) == 0 )
 		{
 			bNameIsVersion = 1;
 		}	
@@ -7541,7 +7610,7 @@ int dictionary(Params *pParams)
 		{
 			if ( bNameIsPages )
 			{
-				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);
 			}
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_OBJ)	
@@ -7552,7 +7621,7 @@ int dictionary(Params *pParams)
 			
 			if ( bNameIsPages && pParams->myToken.Type == T_INT_LITERAL )
 			{
-				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);			
+				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);			
 			}
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_OBJ)
@@ -7582,7 +7651,7 @@ int dictionary(Params *pParams)
 		
 		if ( pParams->myToken.Type == T_NAME && bNameIsVersion )
 		{
-			strncpy(pParams->szPdfVersionFromCatalog, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+			strncpy(pParams->szPdfVersionFromCatalog, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_OBJ)
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -7664,15 +7733,15 @@ int pagetree(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
 	
-	pParams->nCurrentObjNum = pParams->myToken.Value.vInt;
+	pParams->nCurrentObjNum = pParams->myToken.vInt;
 	
-	nCurrentPageParsingObj = pParams->myToken.Value.vInt;
+	nCurrentPageParsingObj = pParams->myToken.vInt;
 		
 	if ( pParams->nObjToParse != pParams->nCurrentObjNum )
 	{
@@ -7802,7 +7871,7 @@ int pagetreeitems(Params *pParams)
 {		
 	while ( pParams->myToken.Type == T_NAME )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, 4096 - 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, 4096 - 1);
 				
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -7845,7 +7914,7 @@ int pagetreeobj(Params *pParams)
 			
 			break;
 		case T_INT_LITERAL:
-			mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+			mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -7855,7 +7924,7 @@ int pagetreeobj(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL )
 			{
-				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8050,7 +8119,7 @@ int pagetreearrayobjs(Params *pParams)
 	{			
 		while ( pParams->myToken.Type == T_INT_LITERAL )
 		{
-			nInt = pParams->myToken.Value.vInt;
+			nInt = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8083,7 +8152,7 @@ int pagetreearrayobjs(Params *pParams)
 	{			
 		while ( pParams->myToken.Type == T_INT_LITERAL )
 		{
-			nInt = pParams->myToken.Value.vInt;
+			nInt = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8151,7 +8220,7 @@ int pagetreedictobjs(Params *pParams)
 {	
 	while ( T_NAME == pParams->myToken.Type )
 	{
-		strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
+		strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.vString, 4096 - 1);
 		
 		if ( strncmp(pParams->szCurrKeyName, "Resources", 4096) == 0 )
 		{	
@@ -8204,7 +8273,7 @@ int contentobj(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8414,7 +8483,7 @@ int streamdictitems(Params *pParams)
 		//fwprintf(pParams->fpErrors, L"ERRORE streamdictitems: Atteso token T_NAME, trovato TOKEN n° %d\n", pParams->myToken.Type);
 		return 0;
 	}
-	strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+	strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 	
 	if ( strncmp(pParams->szCurrKeyName, "Length", 1024) == 0 )
 		pParams->bStreamLengthIsPresent = 1;	
@@ -8433,7 +8502,7 @@ int streamdictitems(Params *pParams)
 		
 	while ( pParams->myToken.Type ==  T_NAME )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 		
 		if ( strncmp(pParams->szCurrKeyName, "Length", 1024) == 0 )
 			pParams->bStreamLengthIsPresent = 1;		
@@ -8473,7 +8542,7 @@ int contentkeyvalue(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8483,7 +8552,7 @@ int contentkeyvalue(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8520,7 +8589,7 @@ int contentkeyvalue(Params *pParams)
 				}				
 				else if ( strncmp(pParams->szCurrKeyName, "UseCMap", 1024) == 0 ) // UseCMap REF
 				{
-					//strncpy(pParams->szUseCMap, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+					//strncpy(pParams->szUseCMap, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 					pParams->nCurrentUseCMapRef = n1;
 				}				
 			}
@@ -8528,7 +8597,7 @@ int contentkeyvalue(Params *pParams)
 		case T_NAME:
 			if ( (strncmp(pParams->szCurrKeyName, "Filter", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 			{
-				if ( (strncmp(pParams->myToken.Value.vString, "FlateDecode", 1024) != 0) && pParams->bStreamStateToUnicode )
+				if ( (strncmp(pParams->myToken.vString, "FlateDecode", 1024) != 0) && pParams->bStreamStateToUnicode )
 				{
 					snprintf(pParams->szError, 8192, "ERRORE contentkeyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
 					myShowErrorMessage(pParams, pParams->szError, 1);
@@ -8540,10 +8609,10 @@ int contentkeyvalue(Params *pParams)
 				//UseCMap PREDEFINED
 				if ( strncmp(pParams->szCurrKeyName, "UseCMap", 1024) == 0 )
 				{
-					strncpy(pParams->szUseCMap, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+					strncpy(pParams->szUseCMap, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 				}
 				
-				mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.Value.vString);
+				mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.vString);
 				if ( (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 					pParams->CurrentContent.bExternalFile = 1;
 				pParams->nCountFilters++;
@@ -8559,8 +8628,8 @@ int contentkeyvalue(Params *pParams)
 			/*
 			if ( (strncmp(pParams->szCurrKeyName, "F", 1024) == 0) )
 			{
-				len = strnlen(pParams->myToken.Value.vString, 4096);
-				strncpy(pParams->CurrentContent.szFileSpecifications, pParams->myToken.Value.vString, len + 1);
+				len = strnlen(pParams->myToken.vString, 4096);
+				strncpy(pParams->CurrentContent.szFileSpecifications, pParams->myToken.vString, len + 1);
 			}
 			*/
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
@@ -8573,8 +8642,8 @@ int contentkeyvalue(Params *pParams)
 			/*
 			if ( (strncmp(pParams->szCurrKeyName, "F", 1024) == 0) )
 			{
-				len = strnlen(pParams->myToken.Value.vString, 4096);
-				strncpy(pParams->CurrentContent.szFileSpecifications, pParams->myToken.Value.vString, len + 1);
+				len = strnlen(pParams->myToken.vString, 4096);
+				strncpy(pParams->CurrentContent.szFileSpecifications, pParams->myToken.vString, len + 1);
 			}
 			*/
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
@@ -8587,8 +8656,8 @@ int contentkeyvalue(Params *pParams)
 			/*
 			if ( (strncmp(pParams->szCurrKeyName, "F", 1024) == 0) )
 			{
-				len = strnlen(pParams->myToken.Value.vString, 4096);
-				strncpy(pParams->CurrentContent.szFileSpecifications, pParams->myToken.Value.vString, len + 1);
+				len = strnlen(pParams->myToken.vString, 4096);
+				strncpy(pParams->CurrentContent.szFileSpecifications, pParams->myToken.vString, len + 1);
 			}
 			*/
 			// IGNORIAMO
@@ -8637,7 +8706,7 @@ int contentkeyarray(Params *pParams)
 			{				
 				if ( (strncmp(pParams->szCurrKeyName, "Filter", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 				{
-					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.Value.vString);
+					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.vString);
 					if ( (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 						pParams->CurrentContent.bExternalFile = 1;
 					pParams->nCountFilters++;
@@ -8725,7 +8794,7 @@ int contentkeydict(Params *pParams)
 		pParams->myDataDecodeParams.pszKey = NULL;
 	}
 	
-	len = strnlen(pParams->myToken.Value.vString, 1024);	
+	len = strnlen(pParams->myToken.vString, 1024);	
 	pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));	
 	if ( NULL == pParams->myDataDecodeParams.pszKey )
 	{
@@ -8735,7 +8804,7 @@ int contentkeydict(Params *pParams)
 		//fwprintf(pParams->fpErrors, L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 		return 0;
 	}
-	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
+	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.vString, len + sizeof(char));
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8753,7 +8822,7 @@ int contentkeydict(Params *pParams)
 			free(pParams->myDataDecodeParams.pszKey);
 			pParams->myDataDecodeParams.pszKey = NULL;
 		}
-		len = strnlen(pParams->myToken.Value.vString, 1024);	
+		len = strnlen(pParams->myToken.vString, 1024);	
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
@@ -8763,7 +8832,7 @@ int contentkeydict(Params *pParams)
 			//fwprintf(pParams->fpErrors, L"ERRORE contentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 			return 0;
 		}
-		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
+		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.vString, len + sizeof(char));
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8807,7 +8876,7 @@ int contentkeyvalueinternal(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8817,7 +8886,7 @@ int contentkeyvalueinternal(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -8833,7 +8902,7 @@ int contentkeyvalueinternal(Params *pParams)
 				if ( (strncmp(pParams->szCurrKeyName, "DecodeParms", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FDecodeParms", 1024) == 0) )
 				{
 					pParams->myDataDecodeParams.tok.Type = T_INT_LITERAL;
-					pParams->myDataDecodeParams.tok.Value.vInt = n1;
+					pParams->myDataDecodeParams.tok.vInt = n1;
 					mydictionaryqueuelist_Enqueue(&(pParams->CurrentContent.decodeParms), &(pParams->myDataDecodeParams));								
 				}
 			}
@@ -8954,7 +9023,7 @@ int lengthobj(Params *pParams)
 		return 0;
 	}
 			
-	pParams->nCurrentStreamLenghtFromObjNum = pParams->myTokenLengthObj.Value.vInt;
+	pParams->nCurrentStreamLenghtFromObjNum = pParams->myTokenLengthObj.vInt;
 
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_LENGTHOBJ)	
 	PrintToken(&(pParams->myTokenLengthObj), ' ', ' ', 1);
@@ -8992,7 +9061,7 @@ int integer_obj(Params *pParams)
 		return 0;
 	}
 			
-	pParams->nCurrentTrailerIntegerNum = pParams->myTokenLengthObj.Value.vInt;
+	pParams->nCurrentTrailerIntegerNum = pParams->myTokenLengthObj.vInt;
 
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_INTEGEROBJ)	
 	PrintToken(&(pParams->myTokenLengthObj), ' ', ' ', 1);
@@ -9020,7 +9089,7 @@ int resourcesdictionary(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -9093,19 +9162,19 @@ int resourcesdictionarybody(Params *pParams)
 		
 	while ( pParams->myToken.Type == T_NAME )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, 4096 - 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, 4096 - 1);
 		
 		
 		if ( DICTIONARY_TYPE_XOBJ == pParams->nDictionaryType )
 		{
-			strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
+			strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.vString, 4096 - 1);
 			
 			pParams->bXObjectKeys = 1;
 			pParams->bFontsKeys = 0;
 		}
 		else if ( DICTIONARY_TYPE_FONT == pParams->nDictionaryType )
 		{
-			strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
+			strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.vString, 4096 - 1);
 			
 			pParams->bXObjectKeys = 0;
 			pParams->bFontsKeys = 1;
@@ -9150,7 +9219,7 @@ int resourcesdictionaryitems(Params *pParams)
 			
 			break;
 		case T_INT_LITERAL:
-			mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+			mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)	
 			wprintf(L"resourcesdictionaryitems -> ");
@@ -9161,7 +9230,7 @@ int resourcesdictionaryitems(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL )
 			{
-				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.Value.vInt);
+				mynumstacklist_Push(&(pParams->myNumStack), pParams->myToken.vInt);
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)	
 				wprintf(L"resourcesdictionaryitems -> ");
@@ -9382,7 +9451,7 @@ int resourcesdictobjs(Params *pParams)
 	
 	while ( T_NAME == pParams->myToken.Type )
 	{		
-		strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, 4096 - 1);
+		strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.vString, 4096 - 1);
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT) || defined(MYDEBUG_PRINT_ON_ManageContent_FN)
 		wprintf(L"resourcesdictobjs -> ");
@@ -9430,7 +9499,7 @@ int contentxobj(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
 	wprintf(L"contentxobj -> ");
@@ -9655,7 +9724,7 @@ int xobjstreamdictitems(Params *pParams)
 {		
 	while ( T_NAME == pParams->myToken.Type )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 		
 		if ( strncmp(pParams->szCurrKeyName, "Length", 1024) == 0 )
 			pParams->bStreamLengthIsPresent = 1;		
@@ -9701,7 +9770,7 @@ int xobjcontentkeyvalue(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 						
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
 			wprintf(L"xobjcontentkeyvalue -> ");	
@@ -9712,7 +9781,7 @@ int xobjcontentkeyvalue(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 							
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
 				wprintf(L"xobjcontentkeyvalue -> ");
@@ -9821,15 +9890,15 @@ int xobjcontentkeyvalue(Params *pParams)
 		case T_NAME:
 			if ( (strncmp(pParams->szCurrKeyName, "Filter", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 			{
-				mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.Value.vString);
+				mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.vString);
 				if ( (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 					pParams->CurrentContent.bExternalFile = 1;
 				pParams->nCountFilters++;
 			}
 			else if ( strncmp(pParams->szCurrKeyName, "Subtype", 1024) == 0 )
 			{
-				//if ( strncmp(pParams->myToken.Value.vString, "Image", 128) == 0 )
-				if ( 'I' == pParams->myToken.Value.vString[0] )
+				//if ( strncmp(pParams->myToken.vString, "Image", 128) == 0 )
+				if ( 'I' == pParams->myToken.vString[0] )
 				{
 					pParams->bXObjIsImage = 1;
 					return 1;
@@ -9987,9 +10056,9 @@ int xobjcontentkeydict(Params *pParams)
 		
 		if ( strncmp(pParams->szCurrKeyName, "Resources", 1024) == 0 )
 		{
-			if ( strncmp(pParams->myToken.Value.vString, "XObject", 1024) == 0)
+			if ( strncmp(pParams->myToken.vString, "XObject", 1024) == 0)
 				pParams->bInXObj = 1;
-			if ( strncmp(pParams->myToken.Value.vString, "Font", 1024) == 0)
+			if ( strncmp(pParams->myToken.vString, "Font", 1024) == 0)
 				pParams->bInFontObj = 1;
 		}
 		else
@@ -10001,7 +10070,7 @@ int xobjcontentkeydict(Params *pParams)
 					
 		if ( pParams->bInXObj || pParams->bInFontObj )	
 		{
-			strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+			strncpy(pParams->szCurrResourcesKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 		}		
 		
 		if ( NULL != pParams->myDataDecodeParams.pszKey )
@@ -10009,7 +10078,7 @@ int xobjcontentkeydict(Params *pParams)
 			free(pParams->myDataDecodeParams.pszKey);
 			pParams->myDataDecodeParams.pszKey = NULL;
 		}
-		len = strnlen(pParams->myToken.Value.vString, 1024);	
+		len = strnlen(pParams->myToken.vString, 1024);	
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
@@ -10019,7 +10088,7 @@ int xobjcontentkeydict(Params *pParams)
 			//fwprintf(pParams->fpErrors, L"ERRORE xobjcontentkeydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 			return 0;
 		}
-		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
+		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.vString, len + sizeof(char));
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)	
 		wprintf(L"xobjcontentkeydict -> ");
@@ -10082,7 +10151,7 @@ int contentfontobj(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -10605,7 +10674,7 @@ int fontobjstreamdictitems(Params *pParams)
 {
 	while ( pParams->myToken.Type == T_NAME )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 			
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -10633,7 +10702,7 @@ int fontobjcontentkeyvalue(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 						
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -10643,7 +10712,7 @@ int fontobjcontentkeyvalue(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 							
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -10678,24 +10747,24 @@ int fontobjcontentkeyvalue(Params *pParams)
 			if ( strncmp(pParams->szCurrKeyName, "Encoding", 1024) == 0 )
 			{
 				// MacRomanEncoding, MacExpertEncoding, or WinAnsiEncoding
-				strncpy(pParams->szTemp, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+				strncpy(pParams->szTemp, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 				pParams->nCurrentEncodingObj = 0;
 			}			
 			else if ( strncmp(pParams->szCurrKeyName, "Subtype", 1024) == 0 )
 			{
-				if ( strncmp(pParams->myToken.Value.vString, "Type1", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+				if ( strncmp(pParams->myToken.vString, "Type1", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_Type1;
-				else if ( strncmp(pParams->myToken.Value.vString, "Type0", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+				else if ( strncmp(pParams->myToken.vString, "Type0", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_Type0;
-				else if ( strncmp(pParams->myToken.Value.vString, "Type3", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+				else if ( strncmp(pParams->myToken.vString, "Type3", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_Type3;
-				else if ( strncmp(pParams->myToken.Value.vString, "MMType1", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+				else if ( strncmp(pParams->myToken.vString, "MMType1", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_MMType1;
-				else if ( strncmp(pParams->myToken.Value.vString, "TrueType", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+				else if ( strncmp(pParams->myToken.vString, "TrueType", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_TrueType;
-				else if ( strncmp(pParams->myToken.Value.vString, "CIDFontType0", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+				else if ( strncmp(pParams->myToken.vString, "CIDFontType0", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_CIDFontType0;
-				else if ( strncmp(pParams->myToken.Value.vString, "CIDFontType2", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+				else if ( strncmp(pParams->myToken.vString, "CIDFontType2", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_CIDFontType2;					
 			}
 
@@ -10752,7 +10821,7 @@ int fontdirectencodingobjarray(Params *pParams)
 		
 	while ( pParams->myToken.Type == T_INT_LITERAL )
 	{	
-		keyValue = pParams->myToken.Value.vInt;
+		keyValue = pParams->myToken.vInt;
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -10770,19 +10839,19 @@ int fontdirectencodingobjarray(Params *pParams)
 			return 0;			
 		}
 		
-		len = strnlen(pParams->myToken.Value.vString, 4096);
-		nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
+		len = strnlen(pParams->myToken.vString, 4096);
+		nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
 		if ( nRes >= 0 ) // TROVATO
 		{				
 			pParams->paCustomizedFont_CharSet[keyValue] = nData;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-			wprintf(L"\tfontdirectencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.Value.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
+			wprintf(L"\tfontdirectencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
 			#endif			
 		}
 		else
 		{
-			//wprintf(L"encodingobjarray -> WARNING: KEY '%s' NON TROVATA\n", pParams->myToken.Value.vString);
+			//wprintf(L"encodingobjarray -> WARNING: KEY '%s' NON TROVATA\n", pParams->myToken.vString);
 			pParams->paCustomizedFont_CharSet[keyValue] = L' ';
 		}
 		
@@ -10796,14 +10865,14 @@ int fontdirectencodingobjarray(Params *pParams)
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif				
 			
-			len = strnlen(pParams->myToken.Value.vString, 4096);
-			nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
+			len = strnlen(pParams->myToken.vString, 4096);
+			nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
 			if ( nRes >= 0 ) // TROVATO
 			{							
 				pParams->paCustomizedFont_CharSet[keyValue] = nData;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
-				wprintf(L"\tfontdirectencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.Value.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
+				wprintf(L"\tfontdirectencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
 				#endif			
 			}
 			else
@@ -10853,7 +10922,7 @@ int fontobjcontentkeyarray(Params *pParams)
 	{	
 		if ( T_INT_LITERAL == pParams->myToken.Type )
 		{
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 		}
 		else
 		{
@@ -10868,7 +10937,7 @@ int fontobjcontentkeyarray(Params *pParams)
 		
 		if ( n1 > 0 && pParams->myToken.Type == T_INT_LITERAL )
 		{
-			n2 = pParams->myToken.Value.vInt;
+			n2 = pParams->myToken.vInt;
 							
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -10972,7 +11041,7 @@ int encodingobj(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -11058,15 +11127,15 @@ int encodingobjbody(Params *pParams)
 		#endif
 			
 		// MacRomanEncoding, MacExpertEncoding, or WinAnsiEncoding
-		if ( strncmp(pParams->szTemp, "WinAnsiEncoding", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+		if ( strncmp(pParams->szTemp, "WinAnsiEncoding", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 		{
 			pParams->pCurrentEncodingArray = &(pParams->aWIN_CharSet[0]);
 		}
-		else if ( strncmp(pParams->szTemp, "MacRomanEncoding", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+		else if ( strncmp(pParams->szTemp, "MacRomanEncoding", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 		{
 			pParams->pCurrentEncodingArray = &(pParams->aMAC_CharSet[0]);
 		}
-		else if ( strncmp(pParams->szTemp, "MacExpertEncoding", strnlen(pParams->myToken.Value.vString, 4096) + 1) == 0 )
+		else if ( strncmp(pParams->szTemp, "MacExpertEncoding", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 		{
 			pParams->pCurrentEncodingArray = &(pParams->aMACEXP_CharSet[0]);
 		}
@@ -11120,7 +11189,7 @@ int encodingobjdictitems(Params *pParams)
 		
 	while ( pParams->myToken.Type == T_NAME )
 	{		
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ)
 		wprintf(L"\tencodingobjdictitems -> pParams->szCurrKeyName = <%s>\n", pParams->szCurrKeyName);
@@ -11148,7 +11217,7 @@ int encodingobjdictitemskeyvalues(Params *pParams)
 		
 		if ( strncmp(pParams->szCurrKeyName, "BaseEncoding", 1024) == 0 )
 		{
-			strncpy(pParams->szTemp, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+			strncpy(pParams->szTemp, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 		}
 		
 		GetNextToken(pParams);
@@ -11183,7 +11252,7 @@ int encodingobjarray(Params *pParams)
 		
 	while ( pParams->myToken.Type == T_INT_LITERAL )
 	{	
-		keyValue = pParams->myToken.Value.vInt;
+		keyValue = pParams->myToken.vInt;
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ)
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -11201,20 +11270,20 @@ int encodingobjarray(Params *pParams)
 			return 0;			
 		}
 		
-		len = strnlen(pParams->myToken.Value.vString, 4096);
-		nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
+		len = strnlen(pParams->myToken.vString, 4096);
+		nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
 		if ( nRes >= 0 ) // TROVATO
 		{				
 			pParams->paCustomizedFont_CharSet[keyValue] = nData;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ)
-			wprintf(L"\tencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.Value.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
+			wprintf(L"\tencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
 			#endif			
 		}
 		else
 		{
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ)
-			wprintf(L"encodingobjarray -> WARNING: KEY '%s' NON TROVATA\n", pParams->myToken.Value.vString);
+			wprintf(L"encodingobjarray -> WARNING: KEY '%s' NON TROVATA\n", pParams->myToken.vString);
 			#endif
 			pParams->paCustomizedFont_CharSet[keyValue] = L' ';
 		}
@@ -11229,20 +11298,20 @@ int encodingobjarray(Params *pParams)
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
 			#endif				
 			
-			len = strnlen(pParams->myToken.Value.vString, 4096);
-			nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.Value.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
+			len = strnlen(pParams->myToken.vString, 4096);
+			nRes = htFind(&(pParams->myCharSetHashTable), pParams->myToken.vString, len + sizeof(char), (void*)&nData, &nDataSize, &bContentAlreadyProcessed);
 			if ( nRes >= 0 ) // TROVATO
 			{							
 				pParams->paCustomizedFont_CharSet[keyValue] = nData;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ)
-				wprintf(L"\tencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.Value.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
+				wprintf(L"\tencodingobjarray KEY -> '%s' -> Value = %d -> char = '%lc'\n", pParams->myToken.vString, keyValue, (wchar_t)pParams->paCustomizedFont_CharSet[keyValue]);
 				#endif			
 			}
 			else
 			{
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ)
-				wprintf(L"encodingobjarray -> WARNING: KEY(%d) '%s' NON TROVATA\n", keyValue, pParams->myToken.Value.vString);
+				wprintf(L"encodingobjarray -> WARNING: KEY(%d) '%s' NON TROVATA\n", keyValue, pParams->myToken.vString);
 				#endif
 				pParams->paCustomizedFont_CharSet[keyValue] = L' ';
 			}
@@ -11294,7 +11363,7 @@ int xrefstream_obj(Params *pParams)
 		PrintToken(&(pParams->myToken), '\t', ' ', 1);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -11649,7 +11718,7 @@ int xrefstream_streamdictitems(Params *pParams)
 {		
 	while ( pParams->myToken.Type ==  T_NAME )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 		
 		if ( strncmp(pParams->szCurrKeyName, "Length", 1024) == 0 )
 			pParams->bStreamLengthIsPresent = 1;		
@@ -11693,7 +11762,7 @@ int xrefstream_keyvalue(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -11703,7 +11772,7 @@ int xrefstream_keyvalue(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -11763,7 +11832,7 @@ int xrefstream_keyvalue(Params *pParams)
 		case T_NAME:
 			if ( (strncmp(pParams->szCurrKeyName, "Filter", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 			{
-				if ( strncmp(pParams->myToken.Value.vString, "FlateDecode", 1024) != 0 )
+				if ( strncmp(pParams->myToken.vString, "FlateDecode", 1024) != 0 )
 				{
 					snprintf(pParams->szError, 8192, "ERRORE xrefstream_keyvalue(bStreamStateToUnicode): Flitri diversi da FlateDecode non supportati in questa versione del programma.\n");
 					myShowErrorMessage(pParams, pParams->szError, 1);
@@ -11772,7 +11841,7 @@ int xrefstream_keyvalue(Params *pParams)
 					return 0;					
 				}
 				
-				mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.Value.vString);
+				mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.vString);
 				if ( (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 					pParams->CurrentContent.bExternalFile = 1;
 				pParams->nCountFilters++;
@@ -11854,11 +11923,11 @@ int xrefstream_keyarray(Params *pParams)
 			{				
 				if ( strncmp(pParams->szCurrKeyName, "Index", 1024) == 0 )
 				{
-					myintqueuelist_Enqueue(	&(pParams->queueTrailerIndex), pParams->myToken.Value.vInt);
+					myintqueuelist_Enqueue(	&(pParams->queueTrailerIndex), pParams->myToken.vInt);
 				}
 				else if ( strncmp(pParams->szCurrKeyName, "W", 1024) == 0 )
 				{
-					myintqueuelist_Enqueue(	&(pParams->queueTrailerW), pParams->myToken.Value.vInt);
+					myintqueuelist_Enqueue(	&(pParams->queueTrailerW), pParams->myToken.vInt);
 				}
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)
@@ -11889,7 +11958,7 @@ int xrefstream_keyarray(Params *pParams)
 			{				
 				if ( (strncmp(pParams->szCurrKeyName, "Filter", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 				{
-					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.Value.vString);
+					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.vString);
 					if ( (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 						pParams->CurrentContent.bExternalFile = 1;
 					pParams->nCountFilters++;
@@ -11981,7 +12050,7 @@ int xrefstream_keydict(Params *pParams)
 		pParams->myDataDecodeParams.pszKey = NULL;
 	}
 	
-	len = strnlen(pParams->myToken.Value.vString, 1024);	
+	len = strnlen(pParams->myToken.vString, 1024);	
 	pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));	
 	if ( NULL == pParams->myDataDecodeParams.pszKey )
 	{
@@ -11991,7 +12060,7 @@ int xrefstream_keydict(Params *pParams)
 		//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 		return 0;
 	}
-	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
+	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.vString, len + sizeof(char));
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)	
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12009,7 +12078,7 @@ int xrefstream_keydict(Params *pParams)
 			free(pParams->myDataDecodeParams.pszKey);
 			pParams->myDataDecodeParams.pszKey = NULL;
 		}
-		len = strnlen(pParams->myToken.Value.vString, 1024);	
+		len = strnlen(pParams->myToken.vString, 1024);	
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
@@ -12019,7 +12088,7 @@ int xrefstream_keydict(Params *pParams)
 			//fwprintf(pParams->fpErrors, L"ERRORE xrefstream_keydict: impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", sizeof(char) * len + sizeof(char));
 			return 0;
 		}
-		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
+		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.vString, len + sizeof(char));
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)	
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12067,7 +12136,7 @@ int xrefstream_keyvalueinternal(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12077,7 +12146,7 @@ int xrefstream_keyvalueinternal(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12093,7 +12162,7 @@ int xrefstream_keyvalueinternal(Params *pParams)
 				if ( (strncmp(pParams->szCurrKeyName, "DecodeParms", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FDecodeParms", 1024) == 0) )
 				{
 					pParams->myDataDecodeParams.tok.Type = T_INT_LITERAL;
-					pParams->myDataDecodeParams.tok.Value.vInt = n1;
+					pParams->myDataDecodeParams.tok.vInt = n1;
 					mydictionaryqueuelist_Enqueue(&(pParams->CurrentContent.decodeParms), &(pParams->myDataDecodeParams));								
 				}
 			}
@@ -12432,7 +12501,7 @@ int stmobj(Params *pParams)
 		PrintThisObject(pParams, pParams->nCurrentParsingObj, 0, 0, pParams->fpErrors);
 		return 0;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12660,7 +12729,7 @@ int stmobjstreamdictitems(Params *pParams)
 {		
 	while ( pParams->myToken.Type ==  T_NAME )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 		
 		if ( strncmp(pParams->szCurrKeyName, "Length", 1024) == 0 )
 			pParams->bStreamLengthIsPresent = 1;		
@@ -12700,7 +12769,7 @@ int stmobjkeyvalue(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12710,7 +12779,7 @@ int stmobjkeyvalue(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -12788,9 +12857,9 @@ int stmobjkeyvalue(Params *pParams)
 		case T_NAME:
 			if ( (strncmp(pParams->szCurrKeyName, "Filter", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 			{
-				if ( (strncmp(pParams->myToken.Value.vString, "FlateDecode", 1024) == 0) )
+				if ( (strncmp(pParams->myToken.vString, "FlateDecode", 1024) == 0) )
 				{
-					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.Value.vString);
+					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.vString);
 					if ( (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 						pParams->CurrentContent.bExternalFile = 1;
 					pParams->nCountFilters++;
@@ -12890,7 +12959,7 @@ int stmobjkeyarray(Params *pParams)
 			{				
 				if ( (strncmp(pParams->szCurrKeyName, "Filter", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 				{
-					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.Value.vString);
+					mystringqueuelist_Enqueue(&(pParams->CurrentContent.queueFilters), pParams->myToken.vString);
 					if ( (strncmp(pParams->szCurrKeyName, "FFilter", 1024) == 0) )
 						pParams->CurrentContent.bExternalFile = 1;
 					pParams->nCountFilters++;
@@ -12978,7 +13047,7 @@ int stmobjkeydict(Params *pParams)
 		pParams->myDataDecodeParams.pszKey = NULL;
 	}
 	
-	len = strnlen(pParams->myToken.Value.vString, 1024);	
+	len = strnlen(pParams->myToken.vString, 1024);	
 	pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));	
 	if ( NULL == pParams->myDataDecodeParams.pszKey )
 	{
@@ -12988,7 +13057,7 @@ int stmobjkeydict(Params *pParams)
 		//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
 		return 0;
 	}
-	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
+	strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.vString, len + sizeof(char));
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -13006,7 +13075,7 @@ int stmobjkeydict(Params *pParams)
 			free(pParams->myDataDecodeParams.pszKey);
 			pParams->myDataDecodeParams.pszKey = NULL;
 		}
-		len = strnlen(pParams->myToken.Value.vString, 1024);	
+		len = strnlen(pParams->myToken.vString, 1024);	
 		pParams->myDataDecodeParams.pszKey = (char*)malloc(sizeof(char) * len + sizeof(char));
 		if ( NULL == pParams->myDataDecodeParams.pszKey )
 		{
@@ -13016,7 +13085,7 @@ int stmobjkeydict(Params *pParams)
 			//fwprintf(pParams->fpErrors, L"ERRORE stmobjkeydict(OBJ num = %lu, gen = %lu): impossibile allocare %lu bytes di memoria per pParams->myDataDecodeParams.pszKey\n", pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Number, pParams->myObjsTable[pParams->nCurrentParsingObj]->Obj.Generation, sizeof(char) * len + sizeof(char));
 			return 0;
 		}
-		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.Value.vString, len + sizeof(char));
+		strncpy(pParams->myDataDecodeParams.pszKey, pParams->myToken.vString, len + sizeof(char));
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -13060,7 +13129,7 @@ int stmobjkeyvalueinternal(Params *pParams)
 	switch ( pParams->myToken.Type )
 	{
 		case T_INT_LITERAL:
-			n1 = pParams->myToken.Value.vInt;
+			n1 = pParams->myToken.vInt;
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 			PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -13070,7 +13139,7 @@ int stmobjkeyvalueinternal(Params *pParams)
 			
 			if ( pParams->myToken.Type == T_INT_LITERAL)
 			{
-				n2 = pParams->myToken.Value.vInt;
+				n2 = pParams->myToken.vInt;
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STMOBJ)	
 				PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -13086,7 +13155,7 @@ int stmobjkeyvalueinternal(Params *pParams)
 				if ( (strncmp(pParams->szCurrKeyName, "DecodeParms", 1024) == 0) || (strncmp(pParams->szCurrKeyName, "FDecodeParms", 1024) == 0) )
 				{
 					pParams->myDataDecodeParams.tok.Type = T_INT_LITERAL;
-					pParams->myDataDecodeParams.tok.Value.vInt = n1;
+					pParams->myDataDecodeParams.tok.vInt = n1;
 					mydictionaryqueuelist_Enqueue(&(pParams->CurrentContent.decodeParms), &(pParams->myDataDecodeParams));
 				}
 			}
@@ -13203,7 +13272,7 @@ int cot(Params *pParams)
 		retValue = 0;
 		goto uscita;
 	}
-	pParams->nCurrentParsingObj = pParams->myToken.Value.vInt;
+	pParams->nCurrentParsingObj = pParams->myToken.vInt;
 				
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_COT)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -13264,7 +13333,7 @@ int cot_dictbody(Params *pParams)
 		
 	while ( T_NAME == pParams->myToken.Type )
 	{
-		strncpy(pParams->szCurrKeyName, pParams->myToken.Value.vString, strnlen(pParams->myToken.Value.vString, 4096) + 1);
+		strncpy(pParams->szCurrKeyName, pParams->myToken.vString, strnlen(pParams->myToken.vString, 4096) + 1);
 						
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_COT)	
 		PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -13305,7 +13374,7 @@ int cot_dictbodyitems(Params *pParams)
 
 			if ( strncmp(pParams->szCurrKeyName, "Type", 1024) == 0 )
 			{
-				if ( strncmp(pParams->myToken.Value.vString, "ObjStm", 1024) == 0 )
+				if ( strncmp(pParams->myToken.vString, "ObjStm", 1024) == 0 )
 				{
 					pParams->nCotObjType = OBJ_TYPE_STREAM;
 					GetNextToken(pParams);

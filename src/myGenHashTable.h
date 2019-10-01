@@ -72,6 +72,9 @@ void genhtFreeList(GenHashTableItem_t* first);
 int GenStringHashFunc(GenHashTable_t* p, const void* pKey, uint32_t keysize);
 int GenStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
 
+int GenWideStringHashFunc(GenHashTable_t* p, const void* pKey, uint32_t keysize);
+int GenWideStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
+
 END_C_DECLS
 
 #endif /* __MY_GENERIC_HASHTABLE_H */

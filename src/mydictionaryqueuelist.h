@@ -39,13 +39,13 @@ typedef struct tagToken2
 {
 	//TokenTypeEnum Type;
 	int Type;
-	union tagMyValue
-	{
-		char vChar;
-		int vInt;
-		double vDouble;
-		char *vString;
-	} Value;
+	//union tagMyValue
+	//{
+	char vChar;
+	int vInt;
+	double vDouble;
+	char *vString;
+	//} Value;
 } Token2;
 
 typedef struct _MyData

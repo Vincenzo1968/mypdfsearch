@@ -41,6 +41,7 @@
 #define MAX_STRLEN 4096
 #endif
 
+#define MAX_STRING_LENTGTH_IN_CONTENT_STREAM 32767
 
 #define STREAMS_STACK_SIZE    128
 
@@ -173,13 +174,13 @@ typedef enum tagObjsTypes
 typedef struct tagToken
 {
 	TokenTypeEnum Type;
-	union tagValue
-	{
-		char vChar;
-		int vInt;
-		double vDouble;
-		char *vString;
-	} Value;
+	//union tagValue
+	//{
+	char vChar;
+	int vInt;
+	double vDouble;
+	char *vString;
+	//} Value;
 	
 	//int line;
 	//int column;
@@ -292,8 +293,7 @@ typedef struct tagParams
 	int fromPage;
 	int toPage;	
 	int bNoSubDirs;
-	char szWordsToSearch[MAX_LEN_STR + 1];
-	wchar_t *pwszWordsToSearch;
+	wchar_t szWordsToSearch[MAX_LEN_STR + 1];
 	char szOutputFile[MAX_LEN_STR + 1];
 	
 	wchar_t **pWordsToSearchArray;
@@ -370,6 +370,7 @@ typedef struct tagParams
 	
 	GenHashTable_t myCMapHT;
 	
+	GenHashTable_t myHT;
 	TernarySearchTree_t myTST;
 	
 	int idxCurrentWordChar;

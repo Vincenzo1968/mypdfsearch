@@ -464,235 +464,6 @@ wchar_t* myMultibyteToWidechar(const char *psz, size_t mbslen)
 	return wcs;
 }
 
-int SplitWords(Params *pParams)
-{
-	int retValue = 1;
-	
-	wchar_t c;
-	int x;
-	
-	size_t len;
-
-	pParams->pwszCurrentWord = (wchar_t*)malloc(MAX_STRING_LENTGTH_IN_CONTENT_STREAM * sizeof(wchar_t) + sizeof(wchar_t));
-	if ( NULL == pParams->pwszCurrentWord )
-	{
-		wprintf(L"ERRORE SplitWords: impossibile allocare la memoria per pszString.\n");
-		retValue = 0;
-		goto uscita;
-	}
-	
-	pParams->idxCurrentWordChar = 0;
-	
-	// SPLIT WORDS INIZIO
-	c = (wchar_t)pParams->pwszWordsToSearch[0];
-	x = 1;
-	while ( L'\0' != c )
-	{
-		c = towlower(c);
-					
-		if ( c >= L'a' && c <= L'z' )
-		{
-			pParams->pwszCurrentWord[pParams->idxCurrentWordChar++] = c;
-		}					
-		else
-		{
-			switch ( c )
-			{
-				case 0x00E1:
-				case 0x0103:
-				case 0x00E4:
-				case 0x00E6:
-				case 0x01FD:
-				case 0x00E0:
-				case 0x03B1:
-				case 0x03AC:
-				case 0x0101:
-				case 0x0105:
-				case 0x00E5:
-				case 0x01FB:
-				case 0x00E3:
-				case 0x03B2:
-				case 0x0107:
-				case 0x010D:
-				case 0x00E7:
-				case 0x0109:
-				case 0x010B:
-				case 0x03C7:
-				case 0x010F:
-				case 0x0111:
-				case 0x03B4:
-				case 0x0131:
-				case 0x0065:
-				case 0x00E9:
-				case 0x0115:
-				case 0x011B:
-				case 0x00EA:
-				case 0x00EB:
-				case 0x0117:
-				case 0x00E8:
-				case 0x0113:
-				case 0x014B:
-				case 0x0119:
-				case 0x03B5:
-				case 0x03AD:
-				case 0x03B7:
-				case 0x03AE:
-				case 0x00F0:
-				case 0x0192:
-				case 0x03B3:
-				case 0x011F:
-				case 0x01E7:
-				case 0x011D:
-				case 0x0121:
-				case 0x00DF:
-				case 0x0127:
-				case 0x0125:
-				case 0x00ED:
-				case 0x012D:
-				case 0x00EE:
-				case 0x00EF:
-				case 0x00EC:
-				case 0x0133:
-				case 0x012B:
-				case 0x012F:
-				case 0x03B9:
-				case 0x03CA:
-				case 0x0390:
-				case 0x03AF:
-				case 0x0129:
-				case 0x0135:
-				case 0x03BA:
-				case 0x0138:
-				case 0x013A:
-				case 0x03BB:
-				case 0x013E:
-				case 0x0140:
-				case 0x017F:
-				case 0x0142:
-				case 0x0144:
-				case 0x0149:
-				case 0x0148:
-				case 0x00F1:
-				case 0x03BD:
-				case 0x00F3:
-				case 0x014F:
-				case 0x00F4:
-				case 0x00F6:
-				case 0x0153:
-				case 0x00F2:
-				case 0x01A1:
-				case 0x0151:
-				case 0x014D:
-				case 0x03C9:
-				case 0x03CE:
-				case 0x03BF:
-				case 0x03CC:
-				case 0x00F8:
-				case 0x01FF:
-				case 0x00F5:
-				case 0x03C6:
-				case 0x03D5:
-				case 0x03C0:
-				case 0x03C8:
-				case 0x0071:
-				case 0x0155:
-				case 0x0159:
-				case 0x03C1:
-				case 0x015B:
-				case 0x0161:
-				case 0x015F:
-				case 0x015D:
-				case 0x03C3:
-				case 0x03C2:
-				case 0x0074:
-				case 0x03C4:
-				case 0x0167:
-				case 0x0165:
-				case 0x00FE:
-				case 0x00FA:
-				case 0x016D:
-				case 0x00FB:
-				case 0x00FC:
-				case 0x00F9:
-				case 0x01B0:
-				case 0x0171:
-				case 0x016B:
-				case 0x0173:
-				case 0x03C5:
-				case 0x03CB:
-				case 0x03B0:
-				case 0x03CD:
-				case 0x016F:
-				case 0x0169:
-				case 0x1E83:
-				case 0x0175:
-				case 0x1E85:
-				case 0x2118:
-				case 0x1E81:
-				case 0x03BE:
-				case 0x00FD:
-				case 0x0177:
-				case 0x00FF:
-				case 0x1EF3:
-				case 0x017A:
-				case 0x017E:
-				case 0x017C:
-				case 0x03B6:
-					pParams->pwszCurrentWord[pParams->idxCurrentWordChar++] = c;
-					goto letterastrana;
-					break;
-				default:
-					break;
-			}						
-									
-			pParams->pwszCurrentWord[pParams->idxCurrentWordChar] = L'\0';
-			pParams->idxCurrentWordChar = 0;
-			
-			len = wcslen(pParams->pwszCurrentWord);
-			pParams->pWordsToSearchArray[pParams->countWordsToSearch] = (wchar_t*)malloc(len * sizeof(wchar_t) + sizeof(wchar_t));
-			if ( NULL == pParams->pWordsToSearchArray[pParams->countWordsToSearch] )
-			{
-				wprintf(L"ERRORE SplitWords: impossibile allocare la memoria per pszString.\n");
-				retValue = 0;
-				goto uscita;
-			}
-			wcscpy(pParams->pWordsToSearchArray[pParams->countWordsToSearch], pParams->pwszCurrentWord);
-			pParams->countWordsToSearch++;			
-		}
-					
-		letterastrana:
-		c = (wchar_t)pParams->pwszWordsToSearch[x++];
-		
-		if ( L'\0' == c )
-		{
-			pParams->pwszCurrentWord[pParams->idxCurrentWordChar] = L'\0';
-			pParams->idxCurrentWordChar = 0;
-			
-			len = wcslen(pParams->pwszCurrentWord);
-			pParams->pWordsToSearchArray[pParams->countWordsToSearch] = (wchar_t*)malloc(len * sizeof(wchar_t) + sizeof(wchar_t));
-			if ( NULL == pParams->pWordsToSearchArray[pParams->countWordsToSearch] )
-			{
-				wprintf(L"ERRORE SplitWords: impossibile allocare la memoria per pszString.\n");
-				retValue = 0;
-				goto uscita;
-			}
-			wcscpy(pParams->pWordsToSearchArray[pParams->countWordsToSearch], pParams->pwszCurrentWord);
-			pParams->countWordsToSearch++;
-		}
-	}					
-	// SPLIT WORDS FINE
-	
-	uscita:
-		
-	if ( NULL != pParams->pwszCurrentWord )
-	{
-		free(pParams->pwszCurrentWord);
-		pParams->pwszCurrentWord = NULL;
-	}
-	
-	return retValue;
-}
-
 void PrintHelpCommandLine()
 {
 	wprintf(L"\nUsage:\n");
@@ -728,7 +499,7 @@ void PrintHelpCommandLine()
 void PrintVersionInfo()
 {
 	//wprintf(L"\n   mypdfsearch version 1.3.5\n");	
-	wprintf(L"\n   mypdfsearch version 1.8.4\n");	
+	wprintf(L"\n   mypdfsearch version 1.9.0\n");
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -751,7 +522,8 @@ void PrintVersionInfo()
 	wprintf(L"\n");
 }
 
-int myParseOption(Params *pParams, char *pszOption)
+/*
+int myParseOption_OLD(Params *pParams, char *pszOption)
 {
 	int retValue = 1;
 	
@@ -772,6 +544,8 @@ int myParseOption(Params *pParams, char *pszOption)
 	x = 0;
 	y = 0;
 	n = 0;
+	
+	//wprintf(L"pszOption = <%s>\n", pszOption);
 	
 	n = strnlen(pszOption, MAX_LEN_STR);
 	if ( n < 2 )
@@ -1105,6 +879,415 @@ int myParseOption(Params *pParams, char *pszOption)
 
 	return retValue;
 }
+*/
+
+int mySplitWords(Params *pParams, wchar_t *pwszOption)
+{
+	int retValue = 1;
+	
+	unsigned long int x;
+	unsigned long int y;
+	wchar_t c;
+	wchar_t wszTemp[MAX_LEN_STR + 1];
+	
+	x = y = 0;
+		
+	while ( 1 )
+	{
+		c = pwszOption[x];
+		if ( L' ' != c && L'\0' != c )
+		{
+			wszTemp[y] = towlower(c);
+			y++;			
+		}
+		else
+		{
+			if ( x > 0 )
+			{
+				wszTemp[y] = L'\0';
+				pParams->pWordsToSearchArray[pParams->countWordsToSearch] = (wchar_t*)malloc(sizeof(wchar_t) * y + sizeof(wchar_t));
+				if ( NULL == pParams->pWordsToSearchArray[pParams->countWordsToSearch] )
+				{
+					retValue = 0;
+					wprintf(L"\n\nError mySplitWords: malloc failed\n\n");
+					goto uscita;
+				}
+				for ( unsigned long int i = 0; i < y + 1; i++ )
+					pParams->pWordsToSearchArray[pParams->countWordsToSearch][i] = L'\0';
+				wcsncpy(pParams->pWordsToSearchArray[pParams->countWordsToSearch], wszTemp, y);
+				//wprintf(L"\nECCO -> pParams->pWordsToSearchArray[%d] = <%ls>\n", pParams->countWordsToSearch, pParams->pWordsToSearchArray[pParams->countWordsToSearch]);
+				pParams->countWordsToSearch++;
+				y = 0;
+			}
+			
+			if ( L'\0' == c )
+				goto uscita;
+		}
+		x++;
+	}
+	
+uscita:
+	
+	return retValue;
+}
+
+int myParseOption(Params *pParams, char *pszOption)
+{
+	int retValue = 1;
+	
+	int bLongName = 0;
+	int bEqualCharFound = 0;
+	
+	wchar_t c;
+	int x;
+	int y;
+	
+	int n;
+	
+	int nLen;
+	
+	wchar_t szName[MAX_LEN_STR + 1];
+	
+	wchar_t *pwszOption = NULL;
+		
+	szName[0] = '\0';
+	
+	x = 0;
+	y = 0;
+	n = 0;
+	
+	//wprintf(L"pszOption = <%s>\n", pszOption);
+	
+	n = strnlen(pszOption, MAX_LEN_STR);
+	if ( n < 2 )
+	{
+		retValue = 0;
+		wprintf(L"\n\nError: unrecognized option '%s'\n\n", pszOption);
+		goto uscita;
+	}
+	
+	//pwszOption = myConvertToUtf8WideCharString(pszOption, n, "UTF-8");
+	pwszOption = myMultibyteToWidechar(pszOption, n);
+	if ( NULL == pwszOption )
+	{
+		retValue = 0;
+		wprintf(L"\n\nError myParseOption: myConvertToUtf8WideCharString return NULL for '%s'\n\n", pszOption);
+		goto uscita;
+	}	
+	
+	n = 0;
+	
+	
+	x = 0;
+	c = pwszOption[x];
+	if ( c != L'-' )
+	{
+		retValue = 0;
+		wprintf(L"\n\nError: invalid option '%s'\n\n", pszOption);
+		goto uscita;
+	}
+	
+	x = 1;
+	c = pwszOption[x];
+	if ( c == L'-' )
+	{
+		bLongName = 1;
+		x++;	
+		c = pwszOption[x];
+		szName[0] = c;
+		szName[1] = L'\0';
+		y = 1;
+		goto readlongname;
+	}
+	else if ( c == L'\0' )
+	{
+		retValue = 0;
+		wprintf(L"\n\nError: invalid option '%s'\n\n", pszOption);
+		goto uscita;
+	}
+	else
+	{
+		szName[0] = c;
+		szName[1] = '\0';
+		x++;
+				
+		if ( c == L'h' )
+		{
+			pParams->bOptVersionOrHelp = 1;
+			PrintHelpCommandLine();
+			goto uscita;			
+		}
+		else if ( c == L'v' )
+		{
+			pParams->bOptVersionOrHelp = 1;
+			PrintVersionInfo();
+			goto uscita;
+		}
+		else if ( c == L'n' )
+		{
+			pParams->bNoSubDirs = 1;
+			goto uscita;
+		}
+				
+		goto readvalue;
+	}	
+	
+	
+	
+	readlongname:
+	
+	if ( bLongName )
+	{
+		c = pwszOption[x];
+		
+		x++;
+		c = pwszOption[x];
+		while ( c != L'\0' )
+		{				
+			szName[y] = c;
+			y++;
+			
+			if ( y > MAX_LEN_STR )
+			{
+				retValue = 0;
+				wprintf(L"Error: option string too long.\n");
+				goto uscita;
+			}
+			
+			if ( c == L'=' )
+			{
+				y--;
+				break;
+			}
+				
+			x++;
+			c = pwszOption[x];
+		}
+		
+		if ( y < 0 )
+		{
+			retValue = 0;
+			wprintf(L"\n\nError: invalid option '%s'\n\n", pszOption);
+			goto uscita;			
+		}
+		
+		szName[y] = L'\0';
+				
+		
+ 		if ( wcsncmp(szName, L"path", MAX_LEN_STR) == 0 )
+		{
+			goto readvalue;
+		}
+		else if ( wcsncmp(szName, L"words", MAX_LEN_STR) == 0 )
+		{
+			goto readvalue;
+		}
+		else if ( wcsncmp(szName, L"nosubdirs", MAX_LEN_STR) == 0 )
+		{
+			pParams->bNoSubDirs = 1;
+			goto uscita;
+		}
+		else if ( wcsncmp(szName, L"extracttextfrom", MAX_LEN_STR) == 0 )
+		{
+			goto readvalue;
+		}
+		else if ( wcsncmp(szName, L"frompage", MAX_LEN_STR) == 0 )
+		{
+			goto readvalue;
+		}	
+		else if ( wcsncmp(szName, L"topage", MAX_LEN_STR) == 0 )
+		{
+			goto readvalue;
+		}
+		else if ( wcsncmp(szName, L"outputfile", MAX_LEN_STR) == 0 )
+		{
+			goto readvalue;
+		}
+		else if ( wcsncmp(szName, L"nosubdirs", MAX_LEN_STR) == 0 )
+		{
+			pParams->bNoSubDirs = 1;
+			goto uscita;
+		}	
+		else if ( wcsncmp(szName, L"version", MAX_LEN_STR) == 0 )
+		{
+			pParams->bOptVersionOrHelp = 1;
+			PrintVersionInfo();
+			goto uscita;
+		}
+		else if ( wcsncmp(szName, L"help", MAX_LEN_STR) == 0 )
+		{
+			pParams->bOptVersionOrHelp = 1;
+			PrintHelpCommandLine();
+			goto uscita;
+		}		
+		else
+		{
+			retValue = 0;
+			wprintf(L"\n\nError: unrecognized option '%s'\n\n", pszOption);
+			goto uscita;			
+		}
+	}
+
+	readvalue:
+		
+	c = szName[0];
+	y = 0;
+	switch ( c )
+	{
+		case L'p':   // path
+			c = pwszOption[x];			
+			while ( c != L'\0' )
+			{
+				nLen = wctomb(&(pParams->szPath[y]), c);
+				y += nLen;
+				//pParams->szPath[y] = (char)c;
+				//y++;
+				if ( c == L'=' )
+				{
+					y = 0;
+					pParams->szPath[0] = '\0';
+				}
+				x++;
+				c = pwszOption[x];
+			}
+			pParams->szPath[y] = '\0';
+			break;
+		case L'w':   // words
+			c = pwszOption[x];			
+			while ( c != L'\0' )
+			{
+				pParams->szWordsToSearch[y] = c;
+				y++;
+				if ( c == L'=' )
+				{
+					y = 0;
+					pParams->szWordsToSearch[0] = L'\0';
+				}				
+				x++;
+				c = pwszOption[x];
+			}
+			pParams->szWordsToSearch[y] = '\0';
+			
+			mySplitWords(pParams, pParams->szWordsToSearch);
+																
+			break;		
+		case L'e':   // extracttextfrom
+			c = pwszOption[x];			
+			while ( c != '\0' )
+			{
+				nLen = wctomb(&(pParams->szFilePdf[y]), c);
+				y += nLen;
+				//pParams->szFilePdf[y] = (char)c;
+				//y++;
+				if ( c == L'=' )
+				{
+					y = 0;
+					pParams->szFilePdf[0] = '\0';
+				}				
+				x++;
+				c = pwszOption[x];
+			}
+			pParams->szFilePdf[y] = '\0';
+			break;
+		case 'f':   // frompage
+			n = 0;
+			c = pwszOption[x];			
+			while ( c != L'\0' )
+			{
+				if ( c >= L'0' && c <= L'9' )
+				{
+					n = n * 10 + c - L'0';
+					x++;
+					c = pwszOption[x];
+				}
+				else if ( c == L'=' )
+				{
+					bEqualCharFound = 1;
+					x++;
+					c = pwszOption[x];
+				}
+				else
+				{
+					if ( bEqualCharFound )
+					{
+						retValue = 0;
+						wprintf(L"\n\nError: invalid option value -> '%s'. Must be a integer number\n\n", pszOption);
+						goto uscita;
+					}
+					
+					x++;
+					c = pwszOption[x];					
+				}
+			}
+			pParams->fromPage = n;
+			break;
+		case L't':   // topage
+			n = 0;
+			c = pwszOption[x];			
+			while ( c != L'\0' )
+			{
+				if ( c >= L'0' && c <= L'9' )
+				{
+					n = n * 10 + c - L'0';
+					x++;
+					c = pwszOption[x];
+				}
+				else if ( c == L'=' )
+				{
+					bEqualCharFound = 1;
+					x++;
+					c = pwszOption[x];
+				}
+				else
+				{
+					if ( bEqualCharFound )
+					{
+						retValue = 0;
+						wprintf(L"\n\nError: invalid option value -> '%s'. Must be a integer number\n\n", pszOption);
+						goto uscita;
+					}
+					
+					x++;
+					c = pszOption[x];					
+				}
+			}
+			pParams->toPage = n;
+			break;
+		case L'o':   // outputfile
+			c = pwszOption[x];			
+			while ( c != L'\0' )
+			{
+				nLen = wctomb(&(pParams->szOutputFile[y]), c);
+				y += nLen;
+				//pParams->szOutputFile[y] = (char)c;
+				//y++;
+				if ( c == L'=' )
+				{
+					y = 0;
+					pParams->szOutputFile[0] = '\0';
+				}				
+				x++;
+				c = pwszOption[x];
+			}
+			pParams->szOutputFile[y] = '\0';
+			break;			
+		default:
+			retValue = 0;
+			wprintf(L"\n\nError: unrecognized option '%s'\n\n", pszOption);
+			goto uscita;
+			break;		
+	}
+	
+	uscita:
+	
+	if ( NULL != pwszOption )
+	{
+		free(pwszOption);
+		pwszOption = NULL;
+	}
+	
+	return retValue;
+}
 
 int myParseCommandLine(Params *pParams, int argc, char **argv)
 {
@@ -1121,9 +1304,7 @@ int myParseCommandLine(Params *pParams, int argc, char **argv)
 	pParams->szOutputFile[0] = '\0';
 	pParams->szWordsToSearch[0] = '\0';	
 	pParams->countWordsToSearch = 0;
-	
-	pParams->pwszWordsToSearch = NULL;
-	
+		
 	pParams->pWordsToSearchArray = NULL;
 	
 	
@@ -1143,7 +1324,7 @@ int myParseCommandLine(Params *pParams, int argc, char **argv)
 	if ( argc > 1 )
 	{
 		while ( x < argc )
-		{
+		{	
 			retValue = myParseOption(pParams, argv[x]);
 			if ( !retValue )
 				goto uscita;
@@ -1306,6 +1487,8 @@ errori e warning stravaganti e sensa senso.
 
 gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
 
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_TST
+
 gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_ON_ParseObject_FN
 
 gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm -DMYDEBUG_PRINT_ON_getObjsOffsets_FN
@@ -1318,7 +1501,11 @@ gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURC
 
 ------------------------------------------------------------------------------------------------------------------------------------
  
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=3 --topage=3
+
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --words='アリス' --path="../Files/JapaneseGrammarGuide.pdf" --frompage=34 --topage=34
  
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=1 --topage=1
 
@@ -1441,8 +1628,11 @@ int main(int argc, char **argv)
 	myParams.toPage = 0;
 	myParams.bNoSubDirs = 0;
 	myParams.szOutputFile[0] = '\0';
-	myParams.szWordsToSearch[0] = '\0';	
+	//myParams.szWordsToSearch[0] = '\0';	
 	myParams.countWordsToSearch = 0;
+	
+	for ( int k = 0; k < MAX_LEN_STR + 1; k++ )
+		myParams.szWordsToSearch[k] = '\0';	
 	
 	myParams.fpOutput = NULL;
 	

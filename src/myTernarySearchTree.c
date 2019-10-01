@@ -27,13 +27,6 @@
 
 #include "myTernarySearchTree.h"
 
-typedef struct _tdata
-{
-	wchar_t*    key;
-	uint8_t* data;
-	uint32_t dataSize;
-} tdata_t;
-
 void tstInit(TernarySearchTree_t* pTree)
 {
 	pTree->pRoot = NULL;	
@@ -82,6 +75,7 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 		}
 		p->splitchar = *s;
 		p->lokid = p->eqkid = p->hikid = NULL;
+		p->pData = NULL;
 	}
 	
 	if ( *s < p->splitchar )
@@ -91,10 +85,9 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 	else if ( *s == p->splitchar )
 	{
 		if ( 0 == *s ) 
-		{
-			tdata_t* pDataStruct = NULL;
-			pDataStruct = (tdata_t*)malloc(sizeof(tdata_t));
-			if ( NULL == pDataStruct )
+		{			
+			p->pData = (tdata_t*)malloc(sizeof(tdata_t));
+			if ( NULL == p->pData )
 			{
 				return NULL;
 			}
@@ -110,16 +103,16 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 				}				
 			}
 				
-			pDataStruct->key = (wchar_t*)malloc(sizeof(wchar_t) * keylen + sizeof(wchar_t));
-			if ( NULL == pDataStruct->key )
+			p->pData->key = (wchar_t*)malloc(sizeof(wchar_t) * keylen + sizeof(wchar_t));
+			if ( NULL == p->pData->key )
 			{
-				free(pDataStruct);
+				free(p->pData);
 				return NULL;
 			}
 			
 			for ( k = 0; k <= keylen; k++ )
 			{
-				pDataStruct->key[k] = pReserved[k];
+				p->pData->key[k] = pReserved[k];
 			}			
 					
 			free(pReserved);
@@ -127,46 +120,26 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 						
 			if ( NULL != pData && dataSize > 0 )
 			{				
-				pDataStruct->data = (uint8_t*)malloc(sizeof(uint8_t) * dataSize);
-				if ( NULL == pDataStruct->data )
+				p->pData->data = (uint8_t*)malloc(sizeof(uint8_t) * dataSize);
+				if ( NULL == p->pData->data )
 				{
-					free(pDataStruct->key);
-					free(pDataStruct);
+					free(p->pData->key);
+					free(p->pData);
 					return NULL;
 				}
-				memcpy(pDataStruct->data, pData, dataSize);
+				memcpy(p->pData->data, pData, dataSize);
 				
-				pDataStruct->dataSize = dataSize;
+				p->pData->dataSize = dataSize;
 				
-				p->eqkid = (tnode_t*)pDataStruct;				
+				p->eqkid = (tnode_t*)p->pData;
 			}
 			else
 			{
-				pDataStruct->data = NULL;
-				pDataStruct->dataSize = 0;
+				p->pData->data = NULL;
+				p->pData->dataSize = 0;
 				
-				p->eqkid = (tnode_t*)pDataStruct;
+				p->eqkid = (tnode_t*)p->pData;
 			}	
-			
-			
-			if ( NULL != pDataStruct )
-			{
-				if ( NULL != pDataStruct->key )
-				{
-					free(pDataStruct->key);
-					pDataStruct->key = NULL;
-				}
-		
-				if ( NULL != pDataStruct->data )
-				{
-					free(pDataStruct->data);
-					pDataStruct->data = NULL;
-				}
-		
-				free(pDataStruct);
-				pDataStruct = NULL;
-			}
-			
 		}
 		else
 		{
@@ -177,8 +150,7 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 	{
 		p->hikid = tstInsertRecursive(p->hikid, s, pData, dataSize, pReserved);
 	}		
-	
-					
+						
 	return p;
 }
 
@@ -193,8 +165,24 @@ void tstFreeRecursive(TernarySearchTree_t* pTree, tnode_t* p)
 			tstFreeRecursive(pTree, p->eqkid);						
 		}
 		
-		tstFreeRecursive(pTree, p->hikid);		
-						
+		tstFreeRecursive(pTree, p->hikid);				
+		
+		if ( NULL != p->pData )
+		{
+			if ( NULL != p->pData->key )
+			{
+				free(p->pData->key);
+				p->pData->key = NULL;
+			}
+			if ( NULL != p->pData->data )
+			{
+				free(p->pData->data);
+				p->pData->data = NULL;
+			}
+			free(p->pData);
+			p->pData = NULL;
+		}
+			
 		free(p);
     }
     

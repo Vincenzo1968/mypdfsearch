@@ -35,9 +35,17 @@
 
 #include <stdint.h>
 
+typedef struct _tdata
+{
+	wchar_t*    key;
+	uint8_t* data;
+	uint32_t dataSize;
+} tdata_t;
+
 typedef struct tnode
 {
 	wchar_t splitchar;
+	tdata_t *pData;
 	struct tnode* lokid;
 	struct tnode* eqkid;
 	struct tnode* hikid;
