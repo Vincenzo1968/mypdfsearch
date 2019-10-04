@@ -277,6 +277,9 @@ typedef struct tagParams
 	
 	char szError[8192];
 	
+	uint32_t nCountImageContent;
+	uint32_t nCountNotImageContent;
+	
 	uint32_t currentFileOffset;
 	uint32_t lastTokenOffset;
 	

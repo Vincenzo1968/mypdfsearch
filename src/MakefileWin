@@ -9,9 +9,9 @@ OBJS = main.o mytime.o myTree.o myGenHashTable.o myInitPredefCMapHT.o myinitarra
 all: mypdfsearch.exe
 
 mypdfsearch.exe: $(OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 #mypdfsearch.exe: main.o mytime.o myTree.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
-#	$(CC) $(LDFLAGS) -o $@ $^
+#	$(CC) -o $@ $^ $(LDFLAGS)
 
 
 

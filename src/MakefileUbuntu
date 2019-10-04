@@ -1,0 +1,76 @@
+
+CC = gcc
+CFLAGS = -Wall -W -pedantic -O3 -Wno-overlength-strings
+#LDFLAGS = -lm -lz -liconv
+LDFLAGS = -lm -lz
+OBJS = main.o mytime.o myTree.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
+#EXE = mypdfsearch.exe
+EXE = mypdfsearch
+
+
+
+all: $(EXE)
+
+$(EXE): $(OBJS)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+
+
+main.o: main.c mypdfsearch.h parser.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+mytime.o: mytime.c mytime.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myTree.o: myTree.c myTree.h mypdfsearch.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+mycontentqueuelist.o: mycontentqueuelist.c mycontentqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+mydecode.o: mydecode.c mypdfsearch.h myoctal.h mydecode.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h myGenHashTable.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+	
+mydictionaryqueuelist.o: mydictionaryqueuelist.c scanner.h mypdfsearch.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myinitarray.o: myinitarray.c parser.h mypdfsearch.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myGenHashTable.o: myGenHashTable.c myGenHashTable.h mypdfsearch.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myInitPredefCMapHT.o: myInitPredefCMapHT.c scanner.h mypdfsearch.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h myInitPredefCMapHT.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myintqueuelist.o: myintqueuelist.c myintqueuelist.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+mynumstacklist.o: mynumstacklist.c mynumstacklist.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myobjrefqueuelist.o: myobjrefqueuelist.c myobjrefqueuelist.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myoctal.o: myoctal.c myoctal.h mypdfsearch.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myScopeHashTable.o: myScopeHashTable.c myScopeHashTable.h mypdfsearch.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+mystringqueuelist.o: mystringqueuelist.c mystringqueuelist.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+myTernarySearchTree.o: myTernarySearchTree.c myTernarySearchTree.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+parser.o: parser.c parser.h mypdfsearch.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h myInitPredefCMapHT.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+scanner.o: scanner.c myoctal.h mypdfsearch.h scanner.h myobjrefqueuelist.h mynumstacklist.h myintqueuelist.h mystringqueuelist.h mydictionaryqueuelist.h mycontentqueuelist.h myScopeHashTable.h myTernarySearchTree.h mydecode.h myGenHashTable.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+
+
+clean:
+	rm *.o $(EXE)
