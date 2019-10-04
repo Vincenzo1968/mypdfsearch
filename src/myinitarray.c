@@ -39,7 +39,8 @@ int InitializeUnicodeArray(Params *pParams)
 	pParams->dimCustomizedFont_CharSet = 16729;
 	
 	//pParams->pArrayUnicode = (wchar_t*)malloc(pParams->dimCustomizedFont_CharSet * sizeof(wchar_t));
-	pParams->pArrayUnicode = (wchar_t*)malloc(0xFFFF * sizeof(wchar_t));
+	//pParams->pArrayUnicode = (wchar_t*)malloc(0xFFFF * sizeof(wchar_t));
+	pParams->pArrayUnicode = (wchar_t*)malloc(0x10000 * sizeof(wchar_t));
 	if ( NULL == pParams->pArrayUnicode )
 	{
 		snprintf(pParams->szError, 4096, "ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->pArrayUnicode\n");
@@ -49,7 +50,8 @@ int InitializeUnicodeArray(Params *pParams)
 	}
 	
 	//pParams->paCustomizedFont_CharSet = (wchar_t*)malloc(pParams->dimCustomizedFont_CharSet * sizeof(wchar_t));
-	pParams->paCustomizedFont_CharSet = (wchar_t*)malloc(0xFFFF * sizeof(wchar_t));
+	//pParams->paCustomizedFont_CharSet = (wchar_t*)malloc(0xFFFF * sizeof(wchar_t));
+	pParams->paCustomizedFont_CharSet = (wchar_t*)malloc(0x10000 * sizeof(wchar_t));
 	if ( NULL == pParams->paCustomizedFont_CharSet )
 	{
 		snprintf(pParams->szError, 4096, "ERRORE InitializeUnicodeArray: impossibile allocare la memoria per pParams->paCustomizedFont_CharSet\n");

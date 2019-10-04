@@ -15,7 +15,7 @@ int genhtInit(GenHashTable_t* p, uint32_t genhtSize, pfnGenHashFunc HashFunc, pf
 	{
 		return 0;
 	}
-	
+		
 	p->pHashTable = NULL;
 	
 	p->genhtSize = genhtSize;
@@ -93,7 +93,73 @@ GenHashTableItem_t* genhtNewNode(const void* pKey, uint32_t keysize, const void*
 	return n;
 }
 
-int genhtFind(GenHashTable_t* p, const void* pKey, uint32_t keysize, void* pData, uint32_t* datasize)
+int genhtFind(GenHashTable_t* p, const void* pKey, uint32_t keysize, void** pData, uint32_t* datasize)
+{	
+	int index = 0;
+	GenHashTableItem_t* t = NULL;
+		
+	if ( NULL == p )
+	{
+		wprintf(L"\n\n\tERRORE genhtFind: p È NULL!!!\n\n");
+		return -2;
+	}
+				
+	if ( NULL == p->HashFunc )
+		wprintf(L"\n\n\tERRORE genhtFind: p->HashFunc È NULL!!! -> KEY = <%s>\n\n", (char*)pKey);
+	
+	index = p->HashFunc(p, pKey, keysize);
+	
+	t = p->pHashTable[index];
+	while ( t != NULL )
+	{
+		if ( p->CompareFunc(t->pKey, t->keysize, pKey, keysize) == 0 )
+		{
+			if ( NULL != *pData )
+			{
+				if ( NULL != t->pData )
+				{
+					memcpy(*pData, t->pData, t->datasize);
+					*datasize = t->datasize;
+					
+					return index;
+				}
+				else
+				{
+					*pData = NULL;
+					*datasize = 0;					
+				}
+			}
+			else
+			{
+				if ( NULL != t->pData && *datasize > 0 )
+				{
+					*pData = malloc(t->datasize);
+					if ( NULL == pData )
+						return -1;
+						
+					memcpy(*pData, t->pData, t->datasize);
+					*datasize = t->datasize;
+					
+					return index;
+				}
+				else
+				{
+					free(*pData);
+					*pData = NULL;
+					*datasize = 0;				
+				}
+			}
+						
+			return index;
+		}
+					
+		t = t->next;
+	}
+	
+	return -1;
+}
+
+int genhtFind_OLD(GenHashTable_t* p, const void* pKey, uint32_t keysize, void* pData, uint32_t* datasize)
 {	
 	int index = 0;
 	GenHashTableItem_t* t = NULL;
@@ -443,7 +509,7 @@ int GenWideStringHashFunc(GenHashTable_t* p, const void* pKey, uint32_t keysize)
 	const wchar_t* s = (const wchar_t*)pKey;
 	
 	UNUSED(keysize);
-	
+
 	for ( ; *s; s++)
 		n = 31 * n + *s;
 		
@@ -455,7 +521,7 @@ int GenWideStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* p
 	UNUSED(keysize1);
 	UNUSED(keysize2);
 	
-	//wprintf(L"GenWideStringCompareFunc -> KEY1[%ls](length = %lu) <> KEY2[%ls](length = %lu)\n", pKey1, keysize1, pKey2, keysize2);
+	//wprintf(L"GenWideStringCompareFunc -> KEY1[%ls](length = %u) <> KEY2[%ls](length = %u)\n", (wchar_t*)pKey1, keysize1, (wchar_t*)pKey2, keysize2);
 	
 	return wcsncmp((wchar_t*)pKey1, (wchar_t*)pKey2, BLOCK_SIZE - 1);
 }

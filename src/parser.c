@@ -519,7 +519,8 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 	uint32_t keyLength;
 	GenHashTable_t myHT;
 	PdfIndirectObject myHT_Data;
-	uint32_t myHT_DataSize;
+	PdfIndirectObject *pmyHT_Data;
+	uint32_t myHT_DataSize = 0;
 	int retKeyFind;
 	
 	int bUpdateStreamOffset = 1;
@@ -759,7 +760,9 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 						key[keyLength++] = 'k';
 						key[keyLength++] = '\0';   // INCREMENTIAMO keyLength ANCHE QUI, PERCHÉ MEMORIZZIAMO ANCHE IL CARATTERE NULL, TERMINATORE DELLA STRINGA, SULLA HASHTABLE.
 												
-						retKeyFind = genhtFind(&myHT, key, keyLength, &myHT_Data, &myHT_DataSize);
+						pmyHT_Data = &myHT_Data;
+						myHT_DataSize = 0;
+						retKeyFind = genhtFind(&myHT, key, keyLength, (void**)&pmyHT_Data, &myHT_DataSize);
 						if ( retKeyFind >= 0 )
 						{
 							if ( myHT_Data.Generation < Generation )
@@ -1150,7 +1153,9 @@ int getObjsOffsets(Params *pParams, char *pszFileName)
 		}
 		
 		sprintf(key, "bk%uek", k);
-		retKeyFind = genhtFind(&myHT, key, strnlen(key, 256), &myHT_Data, &myHT_DataSize);
+		pmyHT_Data = &myHT_Data;
+		myHT_DataSize = 0;
+		retKeyFind = genhtFind(&myHT, key, strnlen(key, 256), (void**)&pmyHT_Data, &myHT_DataSize);
 		if ( retKeyFind >= 0 )
 		{
 			pParams->myObjsTable[k]->Obj.Type         = OBJ_TYPE_UNKNOWN; // Per il momento
@@ -1287,7 +1292,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	
 	pParams->nCurrentFontCodeSpacesNum = 0;
 	pParams->pCodeSpaceRangeArray = NULL;
-	
+		
 	pParams->myPdfTrailer.pIndexArray = NULL;
 	pParams->myPdfTrailer.indexArraySize = 0;
 	
@@ -1327,11 +1332,15 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		goto uscita;
 	}
 	
+	/*
 	#if defined(MYPDFSEARCH_USE_TST)
 	tstInit(&(pParams->myTST));
 	#else
 	genhtInit(&(pParams->myHT), 0, GenWideStringHashFunc, GenWideStringCompareFunc);
 	#endif
+	
+	genhtInit(&(pParams->myHT_EncodingArray), 0, GenStringHashFunc, GenStringCompareFunc);
+	*/
 		
 	myobjreflist_Init(&(pParams->myXObjRefList));
 	myobjreflist_Init(&(pParams->myFontsRefList));
@@ -1432,7 +1441,9 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		pParams->isEncrypted = 0;
 		
 		pParams->pReadNextChar = ReadNextChar;
-			
+		
+		tstInit(&(pParams->myTST));
+						
 		pParams->nCountPagesFromPdf = 0;
 		if ( NULL != pParams->pPagesArray )
 		{
@@ -1710,19 +1721,21 @@ successivo:
 			pParams->pPagesArray = NULL;
 		}
 			
-		#if defined(MYPDFSEARCH_USE_TST)
 		if ( NULL != pParams->myTST.pRoot )
 		{
 			tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
 		}
-		#else
-		genhtFree(&(pParams->myHT));
-		#endif
-		
+				
 		if ( NULL != pParams->pwszCurrentWord )
 		{
 			free(pParams->pwszCurrentWord);
 			pParams->pwszCurrentWord = NULL;
+		}
+		
+		if ( NULL != pParams->pCodeSpaceRangeArray )
+		{
+			free(pParams->pCodeSpaceRangeArray);
+			pParams->pCodeSpaceRangeArray = NULL;
 		}
 	
 		if ( NULL != pParams->pwszPreviousWord )
@@ -1842,14 +1855,16 @@ uscita:
 		
 	htFree(&(pParams->myCharSetHashTable));
 		
-	#if defined(MYPDFSEARCH_USE_TST)
 	if ( NULL != pParams->myTST.pRoot )
 	{
 		tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
 	}
-	#else
-	genhtFree(&(pParams->myHT));
-	#endif
+		
+	if ( NULL != pParams->pCodeSpaceRangeArray )
+	{
+		free(pParams->pCodeSpaceRangeArray);
+		pParams->pCodeSpaceRangeArray = NULL;
+	}
 		
 	if ( NULL != pParams->pwszCurrentWord )
 	{
@@ -2290,12 +2305,7 @@ int InsertWordIntoTst(Params *pParams)
 	{
 		if ( !(pParams->bStateSillab) )
 		{
-			#if defined(MYPDFSEARCH_USE_TST)
 			pParams->myTST.pRoot = tstInsertRecursive(pParams->myTST.pRoot, pParams->pwszCurrentWord, NULL, 0, NULL);
-			#else
-			//genhtInsert(&(pParams->myHT), pParams->pwszCurrentWord, wcslen(pParams->pwszCurrentWord) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
-			genhtInsert(&(pParams->myHT), pParams->pwszCurrentWord, pParams->idxCurrentWordChar * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
-			#endif
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_TST)
 			//wprintf(L"INSERT KEY(%ls) INTO TERNARY SEARCH TREE\n", pParams->pwszCurrentWord);
@@ -2329,13 +2339,7 @@ int InsertWordIntoTst(Params *pParams)
 			}
 			pParams->pwszPreviousWord[pParams->idxPreviousWordChar + k] = L'\0';
 			
-			#if defined(MYPDFSEARCH_USE_TST)
 			pParams->myTST.pRoot = tstInsertRecursive(pParams->myTST.pRoot, pParams->pwszPreviousWord, NULL, 0, NULL);
-			#else
-			//genhtInsert(&(pParams->myHT), pParams->pwszPreviousWord, wcslen(pParams->pwszPreviousWord) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
-			//genhtInsert(&(pParams->myHT), pParams->pwszPreviousWord, (pParams->idxPreviousWordChar + k) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
-			genhtInsert(&(pParams->myHT), pParams->pwszPreviousWord, (pParams->idxPreviousWordChar + k) * sizeof(wchar_t), NULL, 0);
-			#endif
 			
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_TST)
 			//wprintf(L"INSERT KEY(%ls) INTO TERNARY SEARCH TREE\n", pParams->pwszPreviousWord);
@@ -2486,7 +2490,6 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 		#endif
 			
 		szName[0] = '\0';
-		//szPrevFontResName[0] = '\0';
 	
 		PrevType = pParams->myToken.Type;
 				
@@ -2903,14 +2906,14 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			{
 				if ( '\0' != szName[0] )
 				{
-					len = strnlen(szName, 127);
+					len = strnlen(szName, 128);
 					
 					if ( bLastNumberIsReal )
 						dFontSize = dLastNumber;
 					else
 						dFontSize = (double)iLastNumber;
 					
-					if ( strncmp(szName, szPrevFontResName, 127) != 0 )
+					if ( strncmp(szName, szPrevFontResName, 128) != 0 )
 					{
 						//len = strnlen(szName, 128);
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
@@ -2921,65 +2924,48 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 0);
 						if ( nRes >= 0 ) // TROVATO
 						{
-							//if ( !bContentAlreadyProcessed )
-							//{
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
-								wprintf(L"\tVado a fare il parsing dell'oggetto FONT %d 0 R e torno subito.\n", nTemp);
-								//if ( 18 == nTemp )
-								//{
-								//	PrintThisObject(pParams, 19, 0, 0, NULL);
-								//	PrintThisObject(pParams, 645, 0, 0, NULL);
-								//}
-								#endif
-					
-								bContentAlreadyProcessed = 1;
-								if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
-								{
-									snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
-									myShowErrorMessage(pParams, pParams->szError, 1);
-									//wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 2 : impossibile aggiornare bContentAlreadyProcessed\n"); 
-									retValue = 0;
-									goto uscita;
-								}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+							wprintf(L"\tVado a fare il parsing dell'oggetto FONT %d 0 R e torno subito.\n", nTemp);
+							#endif
+												
+							pParams->bStreamState = 0;
+							pParams->bStringIsDecoded = 0;
+							pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = pParams->blockCurPos;	
+								
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+							wprintf(L"\tOggetto FONT %d 0 R NON trovato nella HashTable. È NECESSARIO EFFETTUARE IL PARSING DELL'OGGETTO.\n", nTemp);
+							#endif
+							if ( !ParseFontObject(pParams, nTemp) )
+							{
+								snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseFontObject.\n"); 
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
 							
-								// **********************************************************************
-								//scopePush(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef));
-							
-								pParams->bStreamState = 0;
-								pParams->bStringIsDecoded = 0;
-								pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = pParams->blockCurPos;	
-																	
-								if ( !ParseFontObject(pParams, nTemp) )
-								{
-									snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseFontObject.\n"); 
-									myShowErrorMessage(pParams, pParams->szError, 1);
-									//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseFontObject.\n"); 
+								snprintf(pParams->szError, 8192, "\n***** ECCO L'OGGETTO ERRATO:\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
 								
-									snprintf(pParams->szError, 8192, "\n***** ECCO L'OGGETTO ERRATO:\n");
-									myShowErrorMessage(pParams, pParams->szError, 1);
-									//fwprintf(pParams->fpErrors, L"\n***** ECCO L'OGGETTO ERRATO:\n");
+								PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
 								
-									PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
-								
-									snprintf(pParams->szError, 8192, "\n***** FINE OGGETTO ERRATO:\n");
-									myShowErrorMessage(pParams, pParams->szError, 1);
-									//fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
-									retValue = 0;
-									goto uscita;
-								}
+								snprintf(pParams->szError, 8192, "\n***** FINE OGGETTO ERRATO:\n");
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								//fwprintf(pParams->fpErrors, L"\n***** FINE OGGETTO ERRATO\n");
+								retValue = 0;
+								goto uscita;
+							}
 														
-								pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
-								pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
-								pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
+							pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
+							pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
+							pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
 								
-								strncpy(szPrevFontResName, szName, len);
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
-								wprintf(L"\nEHI 2: szName = '%s' -> szPrevFontResName = '%s'\n", szName, szPrevFontResName);
-								#endif
-								//szName[0] = '\0';
-							
-								goto qui_dopo_push;
-								// **********************************************************************
+							strncpy(szPrevFontResName, szName, len);
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+							wprintf(L"\nEHI 2: szName = '%s' -> szPrevFontResName = '%s'\n", szName, szPrevFontResName);
+							#endif
+							//szName[0] = '\0';
+							goto qui_dopo_push;
+								
+							// **********************************************************************
 						}
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
 						else
@@ -4070,15 +4056,9 @@ int ParseObject(Params *pParams, int objNum)
 			}
 		}
 
-		#if defined(MYPDFSEARCH_USE_TST)
 		if ( NULL != pParams->myTST.pRoot )
 			tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);			
 		tstInit(&(pParams->myTST));
-		#else
-		if ( NULL != pParams->myHT.pHashTable )
-			genhtFree(&(pParams->myHT));
-		genhtInit(&(pParams->myHT), 0, GenWideStringHashFunc, GenWideStringCompareFunc);
-		#endif
 				
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ParseObject_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintPageNum)
 		wprintf(L"\nPAGINA %d ------------------------------------------------------------------------------------------------------------------\n", nInt);
@@ -4105,27 +4085,15 @@ int ParseObject(Params *pParams, int objNum)
 	
 		
 		#if defined(MYDEBUG_PRINT_ALL) || ( defined(MYDEBUG_PRINT_TST) && defined(MYPDFSEARCH_USE_TST) )
-			wprintf(L"\nTERNARY SEARCH TREE (Page %d) -> TRAVERSE START\n", nInt);
-			count = tstTraverseRecursive(pParams->myTST.pRoot, OnTraverseTST, 0);
-			//count = tstTraverseDescRecursive(pParams->myTST.pRoot, OnTraverseTST, 0);
-			wprintf(L"\nTERNARY SEARCH TREE (Page %d) -> TRAVERSE END\n", nInt);
-			wprintf(L"TERNARY SEARCH TREE (Page %d) -> TRAVERSE COUNT = %u\n", nInt, count);
+		wprintf(L"\nTERNARY SEARCH TREE (Page %d) -> TRAVERSE START\n", nInt);
+		count = tstTraverseRecursive(pParams->myTST.pRoot, OnTraverseTST, 0);
+		//count = tstTraverseDescRecursive(pParams->myTST.pRoot, OnTraverseTST, 0);
+		wprintf(L"\nTERNARY SEARCH TREE (Page %d) -> TRAVERSE END\n", nInt);
+		wprintf(L"TERNARY SEARCH TREE (Page %d) -> TRAVERSE COUNT = %u\n", nInt, count);
 		#endif
 		
 		for ( idxWord = 0; idxWord < pParams->countWordsToSearch; idxWord++ )
 		{
-			/*
-			#if defined(MYPDFSEARCH_USE_TST)
-			if ( NULL != pParams->myTST.pRoot )
-			{
-				tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);
-			}
-			#else
-			genhtFree(&(pParams->myHT));
-			#endif
-			*/	
-			
-			#if defined(MYPDFSEARCH_USE_TST)
 			res = tstSearchRecursive(pParams->myTST.pRoot, pParams->pWordsToSearchArray[idxWord], NULL, NULL);						
 			if ( res )
 			{				
@@ -4142,32 +4110,7 @@ int ParseObject(Params *pParams, int objNum)
 			//{
 			//	wprintf(L"\nKey '%ls' NOT found\n", pParams->pWordsToSearchArray[idxWord]);
 			//}
-			#else
-			res = genhtFind(&(pParams->myHT), pParams->pWordsToSearchArray[idxWord], wcslen(pParams->pWordsToSearchArray[idxWord]) * sizeof(wchar_t) + sizeof(wchar_t), NULL, 0);
-			if ( res >= 0 )
-			{				
-				if ( pParams->szOutputFile[0] != '\0' )
-				{
-					fwprintf(pParams->fpOutput, L"\tKey '%ls' found on page %d\n", pParams->pWordsToSearchArray[idxWord], nInt);
-				}
-				else
-				{
-					wprintf(L"\tKey '%ls' found on page %d\n", pParams->pWordsToSearchArray[idxWord], nInt);
-				}
-			}
-			//else
-			//{
-			//	wprintf(L"\nKey '%ls' NOT found\n", pParams->pWordsToSearchArray[idxWord]);
-			//}
-			#endif
 		}
-		
-		#if defined(MYPDFSEARCH_USE_TST)
-		if ( NULL != pParams->myTST.pRoot )
-			tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);			
-		#else
-		genhtFree(&(pParams->myHT));
-		#endif
 	}
 	
 uscita:
@@ -4205,13 +4148,6 @@ uscita:
 	
 	myobjreflist_Free(&(pParams->myXObjRefList));
 	myobjreflist_Free(&(pParams->myFontsRefList));
-		
-	#if defined(MYPDFSEARCH_USE_TST)
-	if ( NULL != pParams->myTST.pRoot )
-		tstFreeRecursive(&(pParams->myTST), pParams->myTST.pRoot);			
-	#else
-	genhtFree(&(pParams->myHT));
-	#endif
 		
 	return retValue;
 }
@@ -5659,8 +5595,8 @@ int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream
 				#endif				
 				for ( int j = 0; j < lastInteger; j++ )
 				{
-					pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = 0;
-					pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = 0;
+					pParams->pCodeSpaceRangeArray[j].nFrom = 0;
+					pParams->pCodeSpaceRangeArray[j].nTo = 0;
 				}
 				pParams->nCurrentFontCodeSpacesNum = lastInteger;
 				idxCodeSpace = 0;
@@ -6379,8 +6315,8 @@ int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedS
 				#endif
 				for ( int j = 0; j < lastInteger; j++ )
 				{
-					pParams->pCodeSpaceRangeArray[idxCodeSpace].nFrom = 0;
-					pParams->pCodeSpaceRangeArray[idxCodeSpace].nTo = 0;
+					pParams->pCodeSpaceRangeArray[j].nFrom = 0;
+					pParams->pCodeSpaceRangeArray[j].nTo = 0;
 				}
 				pParams->nCurrentFontCodeSpacesNum = lastInteger;
 				idxCodeSpace = 0;
@@ -10128,6 +10064,16 @@ int contentfontobj(Params *pParams)
 	int k;
 	char szFontType[128];
 	
+	MyPredefinedCMapDef myData1;
+	MyPredefinedCMapDef myData2;
+	MyPredefinedCMapDef *pmyData1;
+	MyPredefinedCMapDef *pmyData2;
+	uint32_t myData1Size = 0;
+	uint32_t myData2Size = 0;
+	
+	pmyData1 = &myData1;
+	pmyData2 = &myData2;
+		
 	pParams->bEncodigArrayAlreadyInit = 0;
 	pParams->bCurrentFontHasDirectEncodingArray = 0;
 	pParams->nCurrentEncodingObj = 0;
@@ -10136,6 +10082,8 @@ int contentfontobj(Params *pParams)
 	
 	pParams->nCurrentUseCMapRef = 0;
 	pParams->szUseCMap[0] = '\0';
+	
+	pParams->nCurrentFontCodeSpacesNum = 0;
 	
 	for ( k = 0; k < 256; k++ )
 		pParams->paCustomizedFont_CharSet[k] = 0;
@@ -10152,7 +10100,7 @@ int contentfontobj(Params *pParams)
 		return 0;
 	}
 	pParams->nCurrentParsingObj = pParams->myToken.vInt;
-				
+					
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
 	#endif
@@ -10187,7 +10135,7 @@ int contentfontobj(Params *pParams)
 	
 	pParams->bHasCodeSpaceTwoByte = 0;
 	pParams->bHasCodeSpaceOneByte = 1;
-	
+		
 	switch ( pParams->nCurrentFontSubtype )
 	{
 		case FONT_SUBTYPE_Type0:
@@ -10275,19 +10223,14 @@ int contentfontobj(Params *pParams)
 					
 					pParams->bHasCodeSpaceOneByte = 0;
 					pParams->bHasCodeSpaceTwoByte = 1;
-					
+															
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 					wprintf(L"\t***** USECMAP PREDEFINITO 0 -> '%s'. OK! *****\n\n", pParams->szUseCMap);
 					#endif
 					return 1;
 				}				
 				else
-				{
-					MyPredefinedCMapDef myData1;
-					MyPredefinedCMapDef myData2;
-					uint32_t myData1Size;
-					uint32_t myData2Size;
-					
+				{					
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 					wprintf(L"\t***** USECMAP PREDEFINITO 1 -> '%s' *****\n\n", pParams->szUseCMap);
 					#endif
@@ -10302,14 +10245,17 @@ int contentfontobj(Params *pParams)
 					myData2.pszDecodedStream = NULL;
 					myData2.DecodedStreamSize = 0;
 					
-					if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), &myData1, &myData1Size ) >= 0 )
+					pmyData1 = &myData1;
+					pmyData2 = &myData2;
+					
+					if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), (void**)&pmyData1, &myData1Size ) >= 0 )
 					{
 						pParams->bEncodigArrayAlreadyInit = 0;
 						pParams->bStreamType = STREAM_TYPE_CMAP;
 						
 						if ( '\0' != myData1.szUseCMap[0] )
 						{
-							if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), &myData2, &myData2Size ) >= 0 )
+							if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), (void**)&pmyData2, &myData2Size ) >= 0 )
 							{
 								if ( !ParseCMapStream(pParams, 1000000, myData2.pszDecodedStream, myData2.DecodedStreamSize ) )
 									return 0;
@@ -10340,7 +10286,7 @@ int contentfontobj(Params *pParams)
 			if ( !ParseCMapObject(pParams, pParams->nCurrentEncodingObj) )
 				return 0;
 			
-			pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+			pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);			
 		}
 		else   // QUI GESTIONE CMAP PREDEFINITO
 		{
@@ -10353,7 +10299,7 @@ int contentfontobj(Params *pParams)
 				
 				pParams->bHasCodeSpaceOneByte = 0;
 				pParams->bHasCodeSpaceTwoByte = 1;
-
+				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP USECMAP PREDEFINITO -> '%s'. OK! *****\n\n", pParams->szTemp);
 				#endif
@@ -10361,11 +10307,6 @@ int contentfontobj(Params *pParams)
 			}			
 			else
 			{
-				MyPredefinedCMapDef myData1;
-				MyPredefinedCMapDef myData2;
-				uint32_t myData1Size;
-				uint32_t myData2Size;
-
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP PREDEFINITO 2 -> '%s' *****\n\n", pParams->szTemp);
 				#endif
@@ -10380,14 +10321,14 @@ int contentfontobj(Params *pParams)
 				myData2.pszDecodedStream = NULL;
 				myData2.DecodedStreamSize = 0;
 					
-				if ( genhtFind(&(pParams->myCMapHT), pParams->szTemp, sizeof(pParams->szTemp), &myData1, &myData1Size ) >= 0 )
+				if ( genhtFind(&(pParams->myCMapHT), pParams->szTemp, sizeof(pParams->szTemp), (void**)&pmyData1, &myData1Size ) >= 0 )
 				{
 					pParams->bEncodigArrayAlreadyInit = 0;
 					pParams->bStreamType = STREAM_TYPE_CMAP;
 						
 					if ( '\0' != myData1.szUseCMap[0] )
 					{
-						if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), &myData2, &myData2Size ) >= 0 )
+						if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), (void**)&pmyData2, &myData2Size ) >= 0 )
 						{
 							if ( !ParseCMapStream(pParams, 1000000, myData2.pszDecodedStream, myData2.DecodedStreamSize ) )
 								return 0;
@@ -10410,7 +10351,7 @@ int contentfontobj(Params *pParams)
 				{
 					wprintf(L"\t***** PREDEFINED CMAP 1 -> '%s', NOT FOUND!!! *****\n\n", pParams->szTemp);
 				}
-				#endif
+				#endif				
 			}
 		}
 		
@@ -10469,7 +10410,7 @@ int contentfontobj(Params *pParams)
 				
 				pParams->bHasCodeSpaceOneByte = 0;
 				pParams->bHasCodeSpaceTwoByte = 1;
-				
+								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP TOUNICODE PREDEFINITO -> '%s'. OK! *****\n\n", pParams->szUseCMap);
 				#endif
@@ -10477,11 +10418,6 @@ int contentfontobj(Params *pParams)
 			}
 			else
 			{
-				MyPredefinedCMapDef myData1;
-				MyPredefinedCMapDef myData2;
-				uint32_t myData1Size;
-				uint32_t myData2Size;
-					
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 				wprintf(L"\t***** USECMAP TOUNICODE PREDEFINITO -> '%s' *****\n\n", pParams->szUseCMap);
 				#endif
@@ -10496,14 +10432,14 @@ int contentfontobj(Params *pParams)
 				myData2.pszDecodedStream = NULL;
 				myData2.DecodedStreamSize = 0;
 					
-				if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), &myData1, &myData1Size ) >= 0 )
+				if ( genhtFind(&(pParams->myCMapHT), pParams->szUseCMap, sizeof(pParams->szUseCMap), (void**)&pmyData1, &myData1Size ) >= 0 )
 				{
 					pParams->bEncodigArrayAlreadyInit = 0;
 					pParams->bStreamType = STREAM_TYPE_CMAP;
 						
 					if ( '\0' != myData1.szUseCMap[0] )
 					{
-						if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), &myData2, &myData2Size ) >= 0 )
+						if ( genhtFind(&(pParams->myCMapHT), myData1.szUseCMap, sizeof(myData1.szUseCMap), (void**)&pmyData2, &myData2Size ) >= 0 )
 						{
 							if ( !ParseCMapStream(pParams, 1000000, myData2.pszDecodedStream, myData2.DecodedStreamSize ) )
 								return 0;
@@ -10534,7 +10470,7 @@ int contentfontobj(Params *pParams)
 		if ( !ParseCMapObject(pParams, pParams->nToUnicodeStreamObjRef) )
 			return 0;
 			
-		pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+		pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);		
 	}	
 	else if ( pParams->nCurrentEncodingObj > 0 )
 	{
@@ -10543,7 +10479,7 @@ int contentfontobj(Params *pParams)
 		#endif
 				
 		if ( !ParseEncodingObject(pParams, pParams->nCurrentEncodingObj) )
-			return 0;
+			return 0;			
 	}
 	else if ( pParams->bCurrentFontHasDirectEncodingArray )
 	{
@@ -10600,7 +10536,7 @@ int contentfontobj(Params *pParams)
 			#endif			
 		}
 
-		pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);
+		pParams->pCurrentEncodingArray = &(pParams->paCustomizedFont_CharSet[0]);		
 	}
 	else
 	{
@@ -10640,7 +10576,7 @@ int contentfontobj(Params *pParams)
 			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ)
 			wprintf(L"\t***** FONT 'PDF STANDARD'. OK! *****\n\n");
 			#endif
-		}
+		}		
 	}
 			
 	return 1;

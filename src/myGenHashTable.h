@@ -59,7 +59,7 @@ BEGIN_C_DECLS
 int  genhtInit(GenHashTable_t* p, uint32_t genhtSize, pfnGenHashFunc HashFunc, pfnGenCompareFunc CompareFunc);
 int  genhtSetHashFunc(GenHashTable_t* p, pfnGenHashFunc HashFunc);
 int  genhtSetCompareFunc(GenHashTable_t* p, pfnGenCompareFunc CompareFunc);
-int  genhtFind(GenHashTable_t* p, const void* pKey, uint32_t keysize, void* pData, uint32_t* datasize);
+int  genhtFind(GenHashTable_t* p, const void* pKey, uint32_t keysize, void** pData, uint32_t* datasize);
 int  genhtUpdateData(GenHashTable_t* p, const void* pKey, uint32_t keysize, const void* pData, uint32_t datasize);
 int  genhtDeleteKey(GenHashTable_t* p, const void* pKey, uint32_t keysize);
 int  genhtInsert(GenHashTable_t* p, const void* pKey, uint32_t keysize, const void* pData, uint32_t datasize);

@@ -50,6 +50,9 @@ typedef enum tagPreParseStates
 	S_PP18
 } PreParseStates;
 
+int getFontDataHT(Params *pParams, uint32_t objNum);
+int insertFontDataHT(Params *pParams, uint32_t objNum);
+
 unsigned char * getDecodedStream(Params *pParams, unsigned long int *pDecodedStreamSize, MyContent_t *pContent);
 
 int OnTraverseTST(const wchar_t* key, void* data, uint32_t dataSize);

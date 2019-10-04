@@ -45,7 +45,7 @@ typedef struct _tdata
 typedef struct tnode
 {
 	wchar_t splitchar;
-	tdata_t *pData;
+	//tdata_t *pData;
 	struct tnode* lokid;
 	struct tnode* eqkid;
 	struct tnode* hikid;

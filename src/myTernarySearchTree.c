@@ -34,6 +34,7 @@ void tstInit(TernarySearchTree_t* pTree)
 
 tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uint32_t dataSize, wchar_t* pReserved)
 {
+	/*
 	int keylen = 0;
 	
 	wchar_t c;
@@ -65,6 +66,7 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 			pReserved[k] = s[k];
 		}
 	}
+	*/
 	
 	if ( NULL == p )
 	{
@@ -75,7 +77,7 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 		}
 		p->splitchar = *s;
 		p->lokid = p->eqkid = p->hikid = NULL;
-		p->pData = NULL;
+		//p->pData = NULL;
 	}
 	
 	if ( *s < p->splitchar )
@@ -84,8 +86,14 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 	}
 	else if ( *s == p->splitchar )
 	{
+		//p->eqkid = tstInsertRecursive(p->eqkid, s, pData, dataSize, pReserved);
+		
+		if ( 0 != *s ) 
+			p->eqkid = tstInsertRecursive(p->eqkid, ++s, pData, dataSize, pReserved);
+		
+		/*
 		if ( 0 == *s ) 
-		{			
+		{		
 			p->pData = (tdata_t*)malloc(sizeof(tdata_t));
 			if ( NULL == p->pData )
 			{
@@ -102,7 +110,7 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 					c = pReserved[keylen];
 				}				
 			}
-				
+			
 			p->pData->key = (wchar_t*)malloc(sizeof(wchar_t) * keylen + sizeof(wchar_t));
 			if ( NULL == p->pData->key )
 			{
@@ -113,7 +121,7 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 			for ( k = 0; k <= keylen; k++ )
 			{
 				p->pData->key[k] = pReserved[k];
-			}			
+			}
 					
 			free(pReserved);
 			pReserved = NULL;
@@ -144,7 +152,8 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 		else
 		{
 			p->eqkid = tstInsertRecursive(p->eqkid, ++s, pData, dataSize, pReserved);
-		}			
+		}
+		*/			
 	}
 	else
 	{
@@ -155,6 +164,44 @@ tnode_t* tstInsertRecursive(tnode_t* p, const wchar_t *s, const void* pData, uin
 }
 
 void tstFreeRecursive(TernarySearchTree_t* pTree, tnode_t* p)
+{   
+	if (p)
+	{
+		tstFreeRecursive(pTree, p->lokid);
+		
+		if (p->splitchar)
+		{			
+			tstFreeRecursive(pTree, p->eqkid);						
+		}
+		
+		tstFreeRecursive(pTree, p->hikid);				
+		
+		/*
+		if ( NULL != p->pData )
+		{
+			if ( NULL != p->pData->key )
+			{
+				free(p->pData->key);
+				p->pData->key = NULL;
+			}
+			if ( NULL != p->pData->data )
+			{
+				free(p->pData->data);
+				p->pData->data = NULL;
+			}
+			free(p->pData);
+			p->pData = NULL;
+		}
+		*/
+			
+		free(p);
+    }
+    
+	pTree->pRoot = NULL;	
+}
+
+/*
+void tstFreeRecursive_OLD(TernarySearchTree_t* pTree, tnode_t* p)
 {   
 	if (p)
 	{
@@ -188,6 +235,7 @@ void tstFreeRecursive(TernarySearchTree_t* pTree, tnode_t* p)
     
 	pTree->pRoot = NULL;	
 }
+*/
 
 uint32_t tstTraverseRecursive(tnode_t* p, pfnOnTraverseTst OnTraverse, uint32_t count)
 {   	

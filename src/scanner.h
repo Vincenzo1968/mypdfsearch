@@ -370,7 +370,7 @@ typedef struct tagParams
 	
 	GenHashTable_t myCMapHT;
 	
-	GenHashTable_t myHT;
+	//GenHashTable_t myHT;
 	TernarySearchTree_t myTST;
 	
 	int idxCurrentWordChar;
@@ -398,6 +398,9 @@ typedef struct tagParams
 	wchar_t *pArrayUnicode;
 	
 	wchar_t *pCurrentEncodingArray;
+	
+	//GenHashTable_t myHT_EncodingArray;
+	//unsigned char * pEncodingData;
 	
 	// ------------------- ENCODING FINE ----------------------------
 		

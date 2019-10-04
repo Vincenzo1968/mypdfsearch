@@ -499,7 +499,7 @@ void PrintHelpCommandLine()
 void PrintVersionInfo()
 {
 	//wprintf(L"\n   mypdfsearch version 1.3.5\n");	
-	wprintf(L"\n   mypdfsearch version 1.9.0\n");
+	wprintf(L"\n   mypdfsearch version 1.9.1\n");
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -1501,6 +1501,8 @@ gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURC
 
 ------------------------------------------------------------------------------------------------------------------------------------
  
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1
+ 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=3 --topage=3
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
@@ -1609,14 +1611,12 @@ int main(int argc, char **argv)
 		
 	int len;
 	
+	#if defined(MYPDFSEARCH_SHOW_TIME)
 	myTimes mt_start;
 	myTimes mt_end;
 	
-	
-	
 	getTimes(&mt_start);
-	
-	
+	#endif
 	
 	myParams.countWordsToSearch = 0;
 	myParams.pWordsToSearchArray = NULL;
@@ -1839,7 +1839,7 @@ uscita:
 	if ( NULL != myParams.fpErrors )
 		fclose(myParams.fpErrors);
 
-
+	#if defined(MYPDFSEARCH_SHOW_TIME)
 	if ( !(myParams.bOptVersionOrHelp) )
 	{
 		getTimes(&mt_end);
@@ -1852,6 +1852,9 @@ uscita:
 			(mt_end.userTime - mt_start.userTime),
 			(mt_end.systemTime - mt_start.systemTime));
 	}
+	#else
+	wprintf(L"\n\n");
+	#endif
 						
 	return retValue;
 }

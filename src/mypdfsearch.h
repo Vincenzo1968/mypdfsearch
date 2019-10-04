@@ -62,6 +62,7 @@ typedef struct tagFilesList
 
 
 /*
+MYPDFSEARCH_SHOW_TIME
 MYPDFSEARCH_USE_TST 
 
 MYDEBUG_PRINT_ALL
@@ -181,11 +182,8 @@ https://vlcfreecode.netsons.org/wp-admin/
 /*
 ./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
  
-Tempo impiegato(in secondi): 
-Elapsed time (in seconds): 
-Real Time  : 76.27000
-User Time  : 69.45000
-System Time: 1.43000
+------------------------------------------------------------------------------------------------------------------------------------
+CON TERNARY SEARCH TREE:
 
 Tempo impiegato(in secondi): 
 Elapsed time (in seconds): 
@@ -198,16 +196,93 @@ Elapsed time (in seconds):
 Real Time  : 66.23000
 User Time  : 65.05000
 System Time: 1.17000
+-------------------------------------------------------------------------------------------------------------------------------------
+CON HASHTABLE:
+ 
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 66.21000
+User Time  : 65.63000
+System Time: 0.57000
 
+------------------------------------------------------------------------------------------------------------------------------------
 
-./mypdfsearch --path="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --words='代表取締役'
+time pdfgrep -i --with-filename -r -c 'Virginia|Orbán|branco' ../Files/gccFiles/Giornali
 
+real	1m53,326s
+user	1m50,926s
+sys	0m2,388s
+
+real	1m52,931s
+user	1m50,654s
+sys	0m2,276s
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+time ./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+
+real	1m5,918s
+user	1m5,325s
+sys	0m0,592s
+
+real	1m6,061s
+user	1m5,247s
+sys	0m0,604s
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+time mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+
+real	1m7,200s
+user	1m5,827s
+sys	0m1,368s
+
+real	1m6,436s
+user	1m5,191s
+sys	0m1,243s
+
+-------------------------------------------------------------------------------------------------------------------------------------
 
 ./mypdfsearch --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf" --frompage=34 --topage=34
 ./mypdfsearch --words="sound" --path="../Files/JapaneseGrammarGuide.pdf"
 ./mypdfsearch --extracttextfrom="../Files/JapaneseGrammarGuide.pdf" --frompage=1 --topage=5
 
+-------------------------------------------------------------------------------------------------------
 
+./mypdfsearch --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf"
+
+CON TERNARY SEARCH TREE:
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 3.75000
+User Time  : 3.59000
+System Time: 0.15000
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 3.76000
+User Time  : 3.55000
+System Time: 0.20000
+
+-------------------------------------------------------------------------------------------------------
+
+CON HASHTABLE:
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 1.22000
+User Time  : 1.15000
+System Time: 0.06000
+
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 1.22000
+User Time  : 1.14000
+System Time: 0.08000
+
+-------------------------------------------------------------------------------------------------------
 
 ./mypdfsearch --words="Virginia sound Orbán" --path="../Files/Prova"
 ./mypdfsearch --words="Virginia sound Orbán" --path="../Files/Prova" --nosubdirs
@@ -270,3 +345,104 @@ System Time: 1.17000
 ./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile="AAA_OUTPUT_10.txt" > AAA_10.txt
 */
 
+
+
+// ***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
+
+/*
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
+
+------------------------------------------------------------------------------------------------------------------------------------
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_00bis.txt ./mypdfsearchdebug --path="../Files/gccFiles/Giornali/A2018/Q20180102/corriere_della_sera_-_02_gennaio_2018.pdf" --words="Virginia Orbán branco"
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_01.txt ./mypdfsearchdebug --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_02.txt ./mypdfsearchdebug --extracttextfrom="../Files/File02/Il Fatto Quotidiano - 9 aprile 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_03.txt ./mypdfsearchdebug --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_04.txt ./mypdfsearchdebug --extracttextfrom="../Files/File04/Il Manifesto - 9 aprile 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_05.txt ./mypdfsearchdebug --extracttextfrom="../Files/File05/Il Sole 24 Ore - 9 aprile 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_06.txt ./mypdfsearchdebug --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=3 --topage=3
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_07.txt ./mypdfsearchdebug --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_08.txt ./mypdfsearchdebug --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_09.txt ./mypdfsearchdebug --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_10.txt ./mypdfsearchdebug --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_11.txt ./mypdfsearchdebug --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_12.txt ./mypdfsearchdebug  --extracttextfrom="../Files/gccFiles/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_13.txt ./mypdfsearchdebug --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf" --frompage=34 --topage=34
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_14.txt ./mypdfsearchdebug --words="sound" --path="../Files/JapaneseGrammarGuide.pdf"
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_15.txt ./mypdfsearchdebug --extracttextfrom="../Files/JapaneseGrammarGuide.pdf" --frompage=1 --topage=5
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_16.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_17.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_18.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/SoloGiapponese/VerticalWriting.pdf" --frompage=2 --topage=2
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_19.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan01.pdf" --frompage=5 --topage=5
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_20.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_21.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan04.pdf" --frompage=6 --topage=6
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_22.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan05.pdf" --frompage=5 --topage=5
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_23.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan06.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_24.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan07.pdf" --frompage=21 --topage=21
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_25.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan08.pdf" --frompage=24 --topage=24
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_26.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan09.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_27.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan11.pdf" --frompage=10 --topage=10
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_28.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan12.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_29.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan13.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_30.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_31.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1 
+
+
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind_32.txt ./mypdfsearchdebug --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+*/
+
+/*
+------------------------------------------------------------------------------------------------------------------------------------
+ 
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+ 
+./mypdfsearch --path="../Files/gccFiles/Giornali/A2018/Q20180102/corriere_della_sera_-_02_gennaio_2018.pdf" --words="Virginia Orbán branco"
+
+./mypdfsearch --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File02/Il Fatto Quotidiano - 9 aprile 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File04/Il Manifesto - 9 aprile 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File05/Il Sole 24 Ore - 9 aprile 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File06/Il Sole 24 Ore Gli Speciali - Università - I nuovi test - 9 aprile 2019.pdf" --frompage=3 --topage=3
+./mypdfsearch --extracttextfrom="../Files/File07/Il Sole 24 Ore Inserto - 9 aprile 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1
+
+./mypdfsearch --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17
+ 
+./mypdfsearch  --extracttextfrom="../Files/gccFiles/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
+
+./mypdfsearch --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf" --frompage=34 --topage=34
+./mypdfsearch --words="sound" --path="../Files/JapaneseGrammarGuide.pdf"
+./mypdfsearch --extracttextfrom="../Files/JapaneseGrammarGuide.pdf" --frompage=1 --topage=5
+ 
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/ohome.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/VerticalWriting.pdf" --frompage=2 --topage=2
+
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan01.pdf" --frompage=5 --topage=5
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan03.pdf" --frompage=9 --topage=9
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan04.pdf" --frompage=6 --topage=6
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan05.pdf" --frompage=5 --topage=5
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan06.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan07.pdf" --frompage=21 --topage=21
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan08.pdf" --frompage=24 --topage=24
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan09.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan11.pdf" --frompage=10 --topage=10
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan12.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan13.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1 
+
+
+
+./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+*/
