@@ -20,8 +20,6 @@
    along with mypdfsearch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/PDF32000_2008.pdf
-
 #ifndef __MYPDFSEARCH__
 #define __MYPDFSEARCH__
 
@@ -65,7 +63,7 @@ typedef struct tagFilesList
 
 /*
 MYPDFSEARCH_SHOW_TIME
-MYDEBUG_PRINT_COUNT_CONTENT_TYPE
+MYPDFSEARCH_USE_TST 
 
 MYDEBUG_PRINT_ALL
 MYDEBUG_PRINT_ON_MATCH
@@ -211,33 +209,37 @@ System Time: 0.57000
 
 time pdfgrep -i --with-filename -r -c 'Virginia|Orbán|branco' ../Files/gccFiles/Giornali
 
-real	1m53,395s
-user	1m50,817s
-sys	0m2,461s
+real	1m53,326s
+user	1m50,926s
+sys	0m2,388s
 
-real	1m53,354s
-user	1m51,021s
-sys	0m2,332s
+real	1m52,931s
+user	1m50,654s
+sys	0m2,276s
 
-real	1m53,009s
-user	1m50,873s
-sys	0m2,136s
+-------------------------------------------------------------------------------------------------------------------------------------
+
+time ./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+
+real	1m5,918s
+user	1m5,325s
+sys	0m0,592s
+
+real	1m6,061s
+user	1m5,247s
+sys	0m0,604s
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
 time mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
 
-real	0m30,753s
-user	0m26,948s
-sys	0m1,182s
+real	1m7,200s
+user	1m5,827s
+sys	0m1,368s
 
-real	0m27,283s
-user	0m26,335s
-sys	0m0,948s
- 
-real	0m27,420s
-user	0m26,473s
-sys	0m0,944s
+real	1m6,436s
+user	1m5,191s
+sys	0m1,243s
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -246,9 +248,39 @@ sys	0m0,944s
 ./mypdfsearch --extracttextfrom="../Files/JapaneseGrammarGuide.pdf" --frompage=1 --topage=5
 
 -------------------------------------------------------------------------------------------------------
- 
-time ./mypdfsearch --path="/home/vincenzo/MyJob/Progetti/Files/FileProblematici" --words="Virginia Orbán branco"
 
+./mypdfsearch --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf"
+
+CON TERNARY SEARCH TREE:
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 3.75000
+User Time  : 3.59000
+System Time: 0.15000
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 3.76000
+User Time  : 3.55000
+System Time: 0.20000
+
+-------------------------------------------------------------------------------------------------------
+
+CON HASHTABLE:
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 1.22000
+User Time  : 1.15000
+System Time: 0.06000
+
+
+Tempo impiegato(in secondi): 
+Elapsed time (in seconds): 
+Real Time  : 1.22000
+User Time  : 1.14000
+System Time: 0.08000
 
 -------------------------------------------------------------------------------------------------------
 

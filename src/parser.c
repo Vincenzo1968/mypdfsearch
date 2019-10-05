@@ -1440,9 +1440,6 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	{
 		pParams->isEncrypted = 0;
 		
-		pParams->nCountImageContent = 0;
-		pParams->nCountNotImageContent = 0;
-		
 		pParams->pReadNextChar = ReadNextChar;
 		
 		tstInit(&(pParams->myTST));
@@ -1684,13 +1681,6 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			retValue = 0;
 			goto successivo;
 		}
-		
-		//pParams->nCountImageContent = 0;
-		//pParams->nCountNotImageContent = 0;
-		
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_COUNT_CONTENT_TYPE)
-		wprintf(L"\n\nTotal number of Image Contents = %u;\nTotal number of content other than Image = %u\n\n", pParams->nCountImageContent, pParams->nCountNotImageContent);
-		#endif
 				
 successivo:
 
@@ -2865,19 +2855,11 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							}							
 							
 							if ( !(pParams->bXObjIsImage) )
-							{								
-								pParams->nCountNotImageContent++;
-								
+							{
 								PushXObjDecodedContent(pParams, nPageNumber, nTemp);
 							}
 							else
-							{
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
-								wprintf(L"\tManageDecodedContent: L'oggetto %d 0 R è un'immagine. Esco.\n\n", nTemp);
-								#endif
-									
-								pParams->nCountImageContent++;
-															
+							{								
 								pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
 								pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
 								pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
@@ -4022,11 +4004,6 @@ int ParseObject(Params *pParams, int objNum)
 	for ( nInt = nFromPage; nInt <= nToPage; nInt++ )
 	{		
 		pParams->nCurrentPageNum = nInt;
-		
-		//wprintf(L"\n\nTotal number of Image Contents = %u;\nTotal number of content other than Image = %u\n\n", pParams->nCountImageContent, pParams->nCountNotImageContent);
-		
-		if ( pParams->nCountImageContent > 34 && 0 == pParams->nCountNotImageContent )
-			goto uscita;
 							
 		//pParams->pCurrentEncodingArray = &(pParams->aUtf8CharSet[0]);
 		pParams->pCurrentEncodingArray = &(pParams->aSTD_CharSet[0]);
@@ -9492,10 +9469,6 @@ int contentxobj(Params *pParams)
 
 	if ( pParams->bXObjIsImage )
 	{
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
-		wprintf(L"contentxobj -> L'oggetto %d è un'immagine. Esco.\n\n", pParams->nCurrentParsingObj);
-		#endif
-	
 		mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));
 		mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
 		pParams->myDataDecodeParams.numFilter = 0;
@@ -9863,10 +9836,6 @@ int xobjcontentkeyvalue(Params *pParams)
 				//if ( strncmp(pParams->myToken.vString, "Image", 128) == 0 )
 				if ( 'I' == pParams->myToken.vString[0] )
 				{
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
-					wprintf(L"xobjcontentkeyvalue -> L'oggetto %d è un'immagine. Esco.\n\n", pParams->nCurrentParsingObj);
-					#endif
-					
 					pParams->bXObjIsImage = 1;
 					return 1;
 				}
