@@ -20,6 +20,12 @@
    along with mypdfsearch.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// https://www.adobe.com/content/dam/acom/en/devnet/pdf/pdfs/PDF32000_2008.pdf
+
+// http://www.eprg.org/pdfcorner/text2pdf/
+
+
+
 #ifndef __MYPDFSEARCH__
 #define __MYPDFSEARCH__
 
@@ -63,7 +69,7 @@ typedef struct tagFilesList
 
 /*
 MYPDFSEARCH_SHOW_TIME
-MYPDFSEARCH_USE_TST 
+MYDEBUG_PRINT_COUNT_CONTENT_TYPE
 
 MYDEBUG_PRINT_ALL
 MYDEBUG_PRINT_ON_MATCH
@@ -209,37 +215,50 @@ System Time: 0.57000
 
 time pdfgrep -i --with-filename -r -c 'Virginia|Orbán|branco' ../Files/gccFiles/Giornali
 
-real	1m53,326s
-user	1m50,926s
-sys	0m2,388s
+real	1m53,395s
+user	1m50,817s
+sys	0m2,461s
 
-real	1m52,931s
-user	1m50,654s
-sys	0m2,276s
+real	1m53,354s
+user	1m51,021s
+sys	0m2,332s
+
+real	1m53,009s
+user	1m50,873s
+sys	0m2,136s
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
 time ./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
 
-real	1m5,918s
-user	1m5,325s
-sys	0m0,592s
+time mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
 
-real	1m6,061s
-user	1m5,247s
-sys	0m0,604s
+real	0m55,380s
+user	0m49,691s
+sys	0m1,365s
+
+real	0m50,096s
+user	0m48,573s
+sys	0m1,219s
+
+real	0m49,773s
+user	0m48,472s
+sys	0m1,300s
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
-time mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+OLD (version 1.9.3):
+real	1m13,360s
+user	1m7,520s
+sys	0m1,470s
 
-real	1m7,200s
-user	1m5,827s
-sys	0m1,368s
+real	1m8,006s
+user	1m6,876s
+sys	0m1,128s
 
-real	1m6,436s
-user	1m5,191s
-sys	0m1,243s
+real	1m7,952s
+user	1m6,782s
+sys	0m1,164s
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -248,39 +267,9 @@ sys	0m1,243s
 ./mypdfsearch --extracttextfrom="../Files/JapaneseGrammarGuide.pdf" --frompage=1 --topage=5
 
 -------------------------------------------------------------------------------------------------------
+ 
+time ./mypdfsearch --path="/home/vincenzo/MyJob/Progetti/Files/FileProblematici" --words="Virginia Orbán branco"
 
-./mypdfsearch --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf"
-
-CON TERNARY SEARCH TREE:
-
-Tempo impiegato(in secondi): 
-Elapsed time (in seconds): 
-Real Time  : 3.75000
-User Time  : 3.59000
-System Time: 0.15000
-
-Tempo impiegato(in secondi): 
-Elapsed time (in seconds): 
-Real Time  : 3.76000
-User Time  : 3.55000
-System Time: 0.20000
-
--------------------------------------------------------------------------------------------------------
-
-CON HASHTABLE:
-
-Tempo impiegato(in secondi): 
-Elapsed time (in seconds): 
-Real Time  : 1.22000
-User Time  : 1.15000
-System Time: 0.06000
-
-
-Tempo impiegato(in secondi): 
-Elapsed time (in seconds): 
-Real Time  : 1.22000
-User Time  : 1.14000
-System Time: 0.08000
 
 -------------------------------------------------------------------------------------------------------
 
@@ -402,6 +391,8 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 ------------------------------------------------------------------------------------------------------------------------------------
  
 gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+ 
+./mypdfsearch --path="../Files/FileProblematici/prob01.pdf" --words="Virginia Orbán branco"
  
 ./mypdfsearch --path="../Files/gccFiles/Giornali/A2018/Q20180102/corriere_della_sera_-_02_gennaio_2018.pdf" --words="Virginia Orbán branco"
 

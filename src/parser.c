@@ -495,7 +495,7 @@ int myPrintLastBlock(Params *pParams)
 	return retValue;
 }
 
-int getObjsOffsets(Params *pParams, char *pszFileName)
+int getObjsOffsets_OLD(Params *pParams, char *pszFileName)
 {
 	int retValue = 1;
 	FILE *fp = NULL;
@@ -1227,6 +1227,865 @@ uscita:
 	return retValue;
 }
 
+int getObjsOffsets(Params *pParams, char *pszFileName)
+{
+	int retValue = 1;
+	FILE *fp = NULL;
+	size_t bytesRead = 0;
+	uint32_t curPos = 0;
+	unsigned char myBlock[BLOCK_SIZE];
+	unsigned char myPrevBlock[BLOCK_SIZE];
+		
+	unsigned char c;
+	unsigned char lexeme[128];
+	
+	unsigned char NumberLexeme[128];
+	int idxNumberLexeme = 0;
+	int lenNumberLexeme = 0;
+	
+	char key[256];
+	uint32_t keyLength;
+	GenHashTable_t myHT;
+	PdfIndirectObject myHT_Data;
+	PdfIndirectObject *pmyHT_Data;
+	uint32_t myHT_DataSize = 0;
+	int retKeyFind;
+	
+	int bUpdateStreamOffset = 1;
+	
+	uint32_t k = 0;
+	
+	uint32_t Number = 0;
+	uint32_t Generation = 0;
+	uint32_t Offset = 0;
+	uint32_t ObjOffset = 0;
+	
+	uint32_t countObjs = 0;
+	uint32_t maxObjNum = 0;
+	uint32_t maxObjGenNum = 0;
+	
+	myHT_Data.Type = OBJ_TYPE_RESERVED;
+	myHT_Data.Number = 0;
+	myHT_Data.Generation = 0;
+	myHT_Data.Offset = 0;
+	myHT_Data.StreamOffset = 0;
+	myHT_Data.StreamLength = 0;
+	myHT_Data.numObjParent = -1;
+	myHT_Data.genObjParent = 0;
+		
+	NumberLexeme[0] = '\0';
+		
+	int bStreamState = 0;
+	int bSubtypeState = 0;
+	int bCurrentSubtypeIsImage = 0;
+	int cDelim;
+	char keyImageObj[256];
+	uint32_t keyImageObjLength;
+	
+	PreParseStates state = S_PP0;
+	
+	fp = fopen(pszFileName, "rb");
+	if ( fp == NULL )
+	{
+		snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: fopen failed for file '%s'.\n", pszFileName);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		retValue = 0;
+		goto uscita;
+	}
+	
+	if ( !genhtInit(&myHT, GENHT_SIZE, GenStringHashFunc, GenStringCompareFunc) )
+	{
+		snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: genhtInit failed for file '%s'.\n", pszFileName);
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		retValue = 0;
+		goto uscita;
+	}
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
+	wprintf(L"\n");
+	#endif
+	
+	for ( int i = 0; i < BLOCK_SIZE; i++ )
+		myBlock[i] = myPrevBlock[i] = '\0';
+		
+	while ( (bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp)) )
+	{
+		curPos = 0;
+		
+		while ( curPos < bytesRead )
+		{
+			c = myBlock[curPos];
+			
+			if ( k >= 128 )
+			{
+				k = 0;
+				state = S_PP0;
+			}
+			
+			switch ( state )
+			{
+				case S_PP0:
+					k = 0;
+					
+					if ( !bStreamState && ('%' == c) )
+					{
+						curPos++;
+						Offset++;
+						if ( curPos >= bytesRead )
+						{
+							bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp);
+							if ( bytesRead <= 0 )
+								goto calcoli;
+							curPos = 0;
+						}
+						c = myBlock[curPos];
+						while ( '\n' != c  && '\r' != c )
+						{
+							curPos++;
+							Offset++;
+							if ( curPos >= bytesRead )
+							{
+								bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp);
+								if ( bytesRead <= 0 )
+									goto calcoli;
+								curPos = 0;
+							}
+							c = myBlock[curPos];
+						}
+						if ( '\r' == c )
+						{
+							curPos++;
+							Offset++;
+							if ( curPos >= bytesRead )
+							{
+								bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp);
+								if ( bytesRead <= 0 )
+									goto calcoli;
+								curPos = 0;
+							}
+							c = myBlock[curPos];
+							
+							if ( c >= '1' && c <= '9' )
+							{
+								idxNumberLexeme = 0;
+								lexeme[k++] = c;
+								NumberLexeme[idxNumberLexeme++] = c;
+								
+								ObjOffset = Offset;
+								state = S_PP1;
+							}
+						}
+					}
+					else if ( !bStreamState && (c >= '1' && c <= '9') )
+					{
+						idxNumberLexeme = 0;
+						lexeme[k++] = c;
+						NumberLexeme[idxNumberLexeme++] = c;
+						
+						ObjOffset = Offset;
+						state = S_PP1;
+					}
+					else if ( !bStreamState && '/' == c )
+					{
+						if ( !bSubtypeState )
+						{
+							//wprintf(L"OK, sono in S_PP0; TROVATO '/'; vado in state S_PP19\n");
+							state = S_PP19;
+						}
+						else
+						{
+							//wprintf(L"OK, sono in S_PP0; TROVATO '/'; vado in state S_PP27\n");
+							state = S_PP27;
+						}
+					}
+					else if ( !bStreamState && 's' == c )
+					{
+						state = S_PP7;
+					}
+					else if ( bStreamState && 'e' == c )
+					{
+						state = S_PP13;
+					}
+					break;
+				case S_PP1:
+					if ( c >= '0' && c <= '9' )
+					{
+						lexeme[k++] = c;
+						NumberLexeme[idxNumberLexeme++] = c;
+					}
+					else if ( IsDelimiterChar(c) )
+					{
+						lexeme[k] = '\0';
+						k = 0;
+						
+						NumberLexeme[idxNumberLexeme] = '\0';
+						lenNumberLexeme = idxNumberLexeme;
+						idxNumberLexeme = 0;
+						
+						Number = atoi((char*)lexeme);
+						state = S_PP2;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP2:
+					if ( c >= '0' && c <= '9' )
+					{
+						lexeme[k++] = c;
+					}
+					else if ( k > 0 && IsDelimiterChar(c) )
+					{
+						lexeme[k] = '\0';
+						k = 0;
+												
+						Generation = atoi((char*)lexeme);
+						state = S_PP3;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP3:
+					if ( 'o' == c )
+					{
+						state = S_PP4;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP4:
+					if ( 'b' == c )
+					{
+						state = S_PP5;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP5:
+					if ( 'j' == c )
+					{
+						state = S_PP6;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP6:
+					if ( IsDelimiterChar(c) )
+					{
+						int y;
+						
+						myHT_Data.Number = Number;
+						myHT_Data.Generation = Generation;
+						
+						countObjs++;
+						
+						if ( maxObjNum < Number )
+							maxObjNum = Number;
+						if ( maxObjGenNum < Generation )
+							maxObjGenNum = Generation;
+							
+						keyLength = 0;
+						key[keyLength++] = 'b';
+						key[keyLength++] = 'k';
+						for ( y = 0; y < lenNumberLexeme; y++ )
+							key[keyLength++] = NumberLexeme[y];
+						key[keyLength++] = 'e';
+						key[keyLength++] = 'k';
+						key[keyLength++] = '\0';   // INCREMENTIAMO keyLength ANCHE QUI, PERCHÉ MEMORIZZIAMO ANCHE IL CARATTERE NULL, TERMINATORE DELLA STRINGA, SULLA HASHTABLE.
+												
+						pmyHT_Data = &myHT_Data;
+						myHT_DataSize = 0;
+						retKeyFind = genhtFind(&myHT, key, keyLength, (void**)&pmyHT_Data, &myHT_DataSize);
+						if ( retKeyFind >= 0 )
+						{
+							if ( myHT_Data.Generation < Generation )
+							{
+								myHT_Data.Generation = Generation;
+								
+								myHT_Data.Type         = OBJ_TYPE_UNKNOWN; // Per il momento
+								myHT_Data.StreamOffset = 0;
+								myHT_Data.StreamLength = 0;
+								myHT_Data.numObjParent = -1;
+								myHT_Data.genObjParent = 0;
+							
+								if ( genhtUpdateData(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
+								{
+									snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: OBJECT(Number: %d, Generation: %d) genhtUpdateData failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									retValue = 0;
+									goto uscita;
+								}
+								
+								bUpdateStreamOffset = 1;
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
+								wprintf(L"OBJECT(Number: %lu, Generation: %lu) FOUND AT OFFSET %lu; UPDATE IT INTO HASHTABLE(key -> '%s')\n", myHT_Data.Number, myHT_Data.Generation, myHT_Data.Offset, key);
+								#endif
+							}
+							else
+							{
+								bUpdateStreamOffset = 0;
+							}
+						}
+						else
+						{
+							myHT_Data.Offset = ObjOffset;
+							
+							myHT_Data.Type         = OBJ_TYPE_UNKNOWN; // Per il momento
+							myHT_Data.StreamOffset = 0;
+							myHT_Data.StreamLength = 0;
+							myHT_Data.numObjParent = -1;
+							myHT_Data.genObjParent = 0;
+			
+							if ( genhtInsert(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
+							{
+								snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: OBJECT(Number: %d, Generation: %d) genhtInsert failed for key '%s'.\n\n", myHT_Data.Number, myHT_Data.Generation, key);
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								retValue = 0;
+								goto uscita;
+							}
+														
+							bUpdateStreamOffset = 1;
+							
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
+							wprintf(L"OBJECT(Number: %lu, Generation: %lu) FOUND AT OFFSET %lu; INSERT IT INTO HASHTABLE(key -> '%s')\n", myHT_Data.Number, myHT_Data.Generation, myHT_Data.Offset, key);
+							#endif
+						}
+					}
+					state = S_PP0;
+					break;
+				case S_PP7:
+					if ( 't' == c )
+					{
+						state = S_PP8;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP8:
+					if ( 'r' == c )
+					{
+						state = S_PP9;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP9:
+					if ( 'e' == c )
+					{
+						state = S_PP10;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP10:
+					if ( 'a' == c )
+					{
+						state = S_PP11;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP11:
+					if ( 'm' == c )
+					{
+						state = S_PP12;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP12:
+					if ( IsDelimiterChar(c) )
+					{
+						if ( !bStreamState ) // stream
+						{
+							myHT_Data.StreamOffset = Offset + 1;
+							bStreamState = 1;
+							
+							if ( '\r' == c )
+							{
+								curPos++;
+								Offset++;
+								if ( curPos >= bytesRead )
+								{
+									bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp);
+									if ( bytesRead <= 0 )
+										goto uscita;
+									curPos = 0;
+								}
+								c = myBlock[curPos];
+								
+								if ( '\n' == c )
+								{
+									myHT_Data.StreamOffset++;
+								}
+							}
+							/*
+							else if ( '\n' == c )
+							{
+								curPos++;
+								Offset++;
+								if ( curPos >= bytesRead )
+								{
+									bytesRead = fread(myBlock, 1, BLOCK_SIZE, fp);
+									if ( bytesRead <= 0 )
+										goto uscita;
+									curPos = 0;
+								}
+								c = myBlock[curPos];
+								
+								myHT_Data.StreamOffset++;
+							}
+							*/
+						}
+						else // endstream
+						{
+							int nTemp;
+							
+							if ( bCurrentSubtypeIsImage )
+							{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN) || defined(MYDEBUG_PRINT_ON_getObjsOffsets3_FN)
+								wprintf(L"\nENDSTREAM -> OBJECT[number %lu, generation %lu] IS IMAGE.\n", myHT_Data.Number, myHT_Data.Generation);
+								#endif
+								
+								snprintf(keyImageObj, 256, "k%u", myHT_Data.Number);
+								keyImageObjLength = strnlen(keyImageObj, 256);
+								genhtInsert(&(pParams->myHT_ImageObjs), keyImageObj, keyImageObjLength, NULL, 0);
+								
+								bCurrentSubtypeIsImage = 0;
+							}
+							
+							myHT_Data.StreamLength = (Offset - myHT_Data.StreamOffset) - 9;
+							bStreamState = 0;
+														
+							nTemp = curPos - (9 + 2);
+							if ( nTemp >= 0 )
+							{								
+								char c1, c2;
+								
+								c1 = myBlock[nTemp];
+								c2 = myBlock[nTemp + 1];
+								if ( '\r' == c1 )
+									myHT_Data.StreamLength -= 2;
+								else if ( '\n' == c2 )
+									myHT_Data.StreamLength--;									
+							}
+							else if ( -1 == nTemp )
+							{
+								char c1, c2;
+								
+								c1 = myPrevBlock[BLOCK_SIZE - 1];
+								c2 = myBlock[0];
+								if ( '\r' == c1 )
+									myHT_Data.StreamLength -= 2;
+								else if ( '\n' == c2 )
+									myHT_Data.StreamLength--;
+							}
+							else
+							{
+								char c1, c2;
+								
+								c1 = myPrevBlock[BLOCK_SIZE + nTemp];
+								nTemp++;
+								c2 = myPrevBlock[BLOCK_SIZE + (nTemp + 1)];
+								if ( '\r' == c1 )
+									myHT_Data.StreamLength -= 2;
+								else if ( '\n' == c2 )
+									myHT_Data.StreamLength--;									
+							}
+														
+							if ( bUpdateStreamOffset )
+							{
+								if ( genhtUpdateData(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
+								{
+									snprintf(pParams->szError, 8192, "ERROR getObjsOffsets: OBJECT(Number: %d, Generation: %d) genhtUpdateData failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									retValue = 0;
+									goto uscita;
+								}
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN) || defined(MYDEBUG_PRINT_ON_getObjsOffsets2_FN)
+								wprintf(L"\tENDSTREAM -> STREAM OF OBJECT[number %lu, generation %lu] FOUND AT OFFSET %lu; (stream length = %lu)\n", myHT_Data.Number, myHT_Data.Generation, myHT_Data.StreamOffset, myHT_Data.StreamLength);
+								wprintf(L"\t\tKEY1[%s](length = %lu)\n",  key, keyLength);
+								#endif
+							}
+						}						
+					}
+					state = S_PP0;
+					break;
+				case S_PP13:
+					if ( 'n' == c )
+					{
+						state = S_PP14;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP14:
+					if ( 'd' == c )
+					{
+						state = S_PP15;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP15:
+					if ( 's' == c )
+					{
+						state = S_PP7;
+					}
+					else if ( 'o' == c )
+					{
+						state = S_PP16;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP16:
+					if ( 'b' == c )
+					{
+						state = S_PP17;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP17:
+					if ( 'j' == c )
+					{
+						state = S_PP18;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP18:
+					if ( IsDelimiterChar(c) )
+					{
+						if ( bCurrentSubtypeIsImage )
+						{
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN) || defined(MYDEBUG_PRINT_ON_getObjsOffsets3_FN)
+							wprintf(L"\nENDOBJ -> OBJECT[number %lu, generation %lu] IS IMAGE.\n", myHT_Data.Number, myHT_Data.Generation);
+							#endif
+							
+							snprintf(keyImageObj, 256, "k%u", myHT_Data.Number);
+							keyImageObjLength = strnlen(keyImageObj, 256);
+							genhtInsert(&(pParams->myHT_ImageObjs), keyImageObj, keyImageObjLength, NULL, 0);
+							
+							bCurrentSubtypeIsImage = 0;
+						}
+						
+						if ( bStreamState )
+						{
+							int nTemp;
+							
+							myHT_Data.StreamLength = (Offset - myHT_Data.StreamOffset) - 6;
+							bStreamState = 0;
+														
+							nTemp = curPos - (6 + 2);
+							if ( nTemp >= 0 )
+							{
+								char c1, c2;
+								c1 = myBlock[nTemp];
+								c2 = myBlock[nTemp + 1];
+								if ( '\r' == c1 )
+									myHT_Data.StreamLength -= 2;
+								else if ( '\n' == c2 )
+									myHT_Data.StreamLength--;
+							}
+							else if ( -1 == nTemp )
+							{
+								char c1, c2;
+								c1 = myBlock[BLOCK_SIZE - 1];
+								c2 = myBlock[0];
+								if ( '\r' == c1 )
+									myHT_Data.StreamLength -= 2;
+								else if ( '\n' == c2 )
+									myHT_Data.StreamLength--;
+							}
+							else
+							{
+								char c1, c2;
+								c1 = myBlock[BLOCK_SIZE + nTemp];
+								nTemp++;
+								c2 = myBlock[BLOCK_SIZE + nTemp];
+								if ( '\r' == c1 )
+									myHT_Data.StreamLength -= 2;
+								else if ( '\n' == c2 )
+									myHT_Data.StreamLength--;
+							}
+							
+							if ( bUpdateStreamOffset )
+							{
+								if ( genhtUpdateData(&myHT, key, keyLength, &myHT_Data, sizeof(myHT_Data)) < 0 )
+								{
+									snprintf(pParams->szError, 8192, "ERROR getObjsOffsets OBJECT(Number: %d, Generation: %d): genhtUpdateData failed for key '%s'.\n", myHT_Data.Number, myHT_Data.Generation, key);
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									retValue = 0;
+									goto uscita;
+								}
+								
+								snprintf(pParams->szError, 8192, "\nWARNING OBJECT(Number: %d, Generation: %d): STREAM NOT CLOSED BY 'endstream', but 'endobj' keyword.\n", myHT_Data.Number, myHT_Data.Generation);
+								myShowErrorMessage(pParams, pParams->szError, 1);
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN) || defined(MYDEBUG_PRINT_ON_getObjsOffsets2_FN)
+								wprintf(L"\nWARNING OBJECT(Number: %lu, Generation: %lu): STREAM NOT CLOSED BY 'endstream', but 'endobj' keyword.\n", myHT_Data.Number, myHT_Data.Generation);
+								wprintf(L"\tENDOBJ -> STREAM OF OBJECT[number %lu, generation %lu] FOUND AT OFFSET %lu; (stream length = %lu)\n", myHT_Data.Number, myHT_Data.Generation, myHT_Data.StreamOffset, myHT_Data.StreamLength);
+								wprintf(L"\t\tKEY1[%s](length = %lu)\n",  key, keyLength);
+								#endif
+							}
+						}
+					}
+					state = S_PP0;
+					break;
+				case S_PP19:
+					if ( 'S' == c )
+					{
+						//wprintf(L"OK, sono in S_PP19; TROVATO 'S'; vado in state S_PP20\n");
+						state = S_PP20;
+					}
+					else
+						state = S_PP0;
+					break;
+				case S_PP20:
+					if ( 'u' == c )
+						state = S_PP21;
+					else
+						state = S_PP0;
+					break;
+				case S_PP21:
+					if ( 'b' == c )
+						state = S_PP22;
+					else
+						state = S_PP0;
+					break;
+				case S_PP22:
+					if ( 't' == c )
+						state = S_PP23;
+					else
+						state = S_PP0;
+					break;
+				case S_PP23:
+					if ( 'y' == c )
+						state = S_PP24;
+					else
+						state = S_PP0;
+					break;
+				case S_PP24:
+					if ( 'p' == c )
+						state = S_PP25;
+					else
+						state = S_PP0;
+					break;
+				case S_PP25:
+					if ( 'e' == c )
+						state = S_PP26;
+					else
+						state = S_PP0;
+					break;
+				case S_PP26:
+					cDelim = IsDelimiterChar(c);
+					if ( cDelim == DELIM_SPACECHAR )
+					{
+						bSubtypeState = 1;
+						state = S_PP0;
+					}
+					else if ( cDelim == '/' )
+					{
+						//wprintf(L"OK, sono in S_PP27; TROVATO '/'; vado in state S_PP27\n");
+						state = S_PP27;
+					}
+					else
+					{
+						state = S_PP0;
+					}
+					break;
+				case S_PP27:
+					if ( 'I' == c )
+						state = S_PP28;
+					else
+						state = S_PP0;
+					break;
+				case S_PP28:
+					if ( 'm' == c )
+						state = S_PP29;
+					else
+						state = S_PP0;
+					break;
+				case S_PP29:
+					if ( 'a' == c )
+						state = S_PP30;
+					else
+						state = S_PP0;
+					break;
+				case S_PP30:
+					if ( 'g' == c )
+						state = S_PP31;
+					else
+						state = S_PP0;
+					break;
+				case S_PP31:
+					if ( 'e' == c )
+						state = S_PP32;
+					else
+						state = S_PP0;
+					break;
+				case S_PP32:
+					if ( IsDelimiterChar(c) )
+					{
+						bSubtypeState = 0;
+						bCurrentSubtypeIsImage = 1;
+					}
+					state = S_PP0;
+					break;
+				default:
+					break;
+			}
+			
+			curPos++;
+			Offset++;
+		}
+		
+		memcpy(myPrevBlock, myBlock, bytesRead);	
+	}
+	
+	calcoli:
+		
+	if ( maxObjNum > countObjs )
+		pParams->nObjsTableSizeFromPrescanFile = maxObjNum + 1;
+	else
+		pParams->nObjsTableSizeFromPrescanFile = countObjs + 1;
+		
+	pParams->myObjsTable = (PdfObjsTableItem **)malloc(sizeof(PdfObjsTableItem*) * pParams->nObjsTableSizeFromPrescanFile);
+	if ( !(pParams->myObjsTable) )
+	{
+		snprintf(pParams->szError, 8192, "ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERROR genhtUpdateData: memoria insufficiente per la tabella degli oggetti.\n\n");
+		retValue = 0;
+		goto uscita;
+	}
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
+	wprintf(L"\n\n***** START OBJECTS TABLE *****\n");
+	#endif
+	
+	for ( k = 0; k < pParams->nObjsTableSizeFromPrescanFile; k++ )
+	{
+		pParams->myObjsTable[k] = (PdfObjsTableItem *)malloc(sizeof(PdfObjsTableItem));
+		if ( !(pParams->myObjsTable) )
+		{
+			snprintf(pParams->szError, 8192, "ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			//wprintf(L"ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
+			//fwprintf(pParams->fpErrors, L"ERROR genhtUpdateData: memoria insufficiente per allocare l'oggetto numero %d sulla tabella degli oggetti.\n\n", k);
+			retValue = 0;
+			goto uscita;
+		}
+		
+		sprintf(key, "bk%uek", k);
+		pmyHT_Data = &myHT_Data;
+		myHT_DataSize = 0;
+		retKeyFind = genhtFind(&myHT, key, strnlen(key, 256), (void**)&pmyHT_Data, &myHT_DataSize);
+		if ( retKeyFind >= 0 )
+		{
+			pParams->myObjsTable[k]->Obj.Type         = OBJ_TYPE_UNKNOWN; // Per il momento
+			pParams->myObjsTable[k]->Obj.Number       = myHT_Data.Number;
+			pParams->myObjsTable[k]->Obj.Generation   = myHT_Data.Generation;
+			pParams->myObjsTable[k]->Obj.Offset       = myHT_Data.Offset;
+			pParams->myObjsTable[k]->Obj.StreamOffset = myHT_Data.StreamOffset;
+			pParams->myObjsTable[k]->Obj.StreamLength = myHT_Data.StreamLength;
+			pParams->myObjsTable[k]->Obj.pszDecodedStream = NULL;
+			pParams->myObjsTable[k]->Obj.numObjParent = -1;
+			pParams->myObjsTable[k]->Obj.genObjParent = 0;
+			pParams->myObjsTable[k]->Obj.pTreeNode = NULL;
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
+			wprintf(L"\tINSERT(1) INTO OBJSTABLE[%d]: objNum = %lu, objGen = %lu, objOffset = %lu, objStreamOffset = %lu, objStreamLength = %lu\n",
+					k,
+			        pParams->myObjsTable[k]->Obj.Number,
+			        pParams->myObjsTable[k]->Obj.Generation,
+			        pParams->myObjsTable[k]->Obj.Offset,
+			        pParams->myObjsTable[k]->Obj.StreamOffset,
+			        pParams->myObjsTable[k]->Obj.StreamLength);
+			#endif
+		}
+		else
+		{
+			pParams->myObjsTable[k]->Obj.Type         = OBJ_TYPE_UNKNOWN;
+			pParams->myObjsTable[k]->Obj.Number       = 0;
+			pParams->myObjsTable[k]->Obj.Generation   = 0;
+			pParams->myObjsTable[k]->Obj.Offset       = 0;
+			pParams->myObjsTable[k]->Obj.StreamOffset = 0;
+			pParams->myObjsTable[k]->Obj.StreamLength = 0;
+			pParams->myObjsTable[k]->Obj.pszDecodedStream = NULL;
+			pParams->myObjsTable[k]->Obj.numObjParent = -1;
+			pParams->myObjsTable[k]->Obj.genObjParent = 0;
+			pParams->myObjsTable[k]->Obj.pTreeNode = NULL;
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
+			wprintf(L"\tINSERT(2) INTO OBJSTABLE[%d]: objNum = %lu, objGen = %lu, objOffset = %lu, objStreamOffset = %lu, objStreamLength = %lu\n",
+					k,
+			        pParams->myObjsTable[k]->Obj.Number,
+			        pParams->myObjsTable[k]->Obj.Generation,
+			        pParams->myObjsTable[k]->Obj.Offset,
+			        pParams->myObjsTable[k]->Obj.StreamOffset,
+			        pParams->myObjsTable[k]->Obj.StreamLength);
+			#endif
+			        
+		}
+		myobjreflist_Init(&(pParams->myObjsTable[k]->myXObjRefList));
+		myobjreflist_Init(&(pParams->myObjsTable[k]->myFontsRefList));
+		myintqueuelist_Init(&(pParams->myObjsTable[k]->queueContentsObjRefs));
+	}
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_getObjsOffsets_FN)
+	wprintf(L"\n***** END OBJECTS TABLE *****\n");	
+	wprintf(L"\n\tFOUND %lu OBJECTS.\n\t\tMAXIMUM OBJ NUMBER IS: %lu.\n\t\tMAXIMUM OBJ GENERATION NUMBER IS: %lu\n", countObjs, maxObjNum, maxObjGenNum);
+	wprintf(L"\n\n");
+	#endif	
+		
+uscita:
+
+	if ( NULL != fp )
+	{
+		fclose(fp);
+		fp = NULL;
+	}
+	
+	genhtFree(&myHT);
+	
+	return retValue;
+}
+
 int Parse(Params *pParams, FilesList* myFilesList)
 {
 	int retValue = 1;
@@ -1440,7 +2299,19 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	{
 		pParams->isEncrypted = 0;
 		
+		pParams->bPdfHasText = 0;
+		//pParams->nCountImageContent = 0;
+		//pParams->nCountNotImageContent = 0;
+		
 		pParams->pReadNextChar = ReadNextChar;
+		
+		if ( !genhtInit(&pParams->myHT_ImageObjs, GENHT_SIZE, GenStringHashFunc, GenStringCompareFunc) )
+		{
+			snprintf(pParams->szError, 8192, "ERROR Parse 4 bis: genhtInit failed for pParams->myHT_ImageObjs. File '%s'.\n", pParams->szFileName);
+			myShowErrorMessage(pParams, pParams->szError, 1);
+			retValue = 0;
+			goto successivo;
+		}
 		
 		tstInit(&(pParams->myTST));
 						
@@ -1682,6 +2553,10 @@ int Parse(Params *pParams, FilesList* myFilesList)
 			goto successivo;
 		}
 				
+		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_COUNT_CONTENT_TYPE)
+		//wprintf(L"\n\nTotal number of Image Contents = %u;\nTotal number of content other than Image = %u\n\n", pParams->nCountImageContent, pParams->nCountNotImageContent);
+		//#endif
+				
 successivo:
 
 //**********************************************************************************************************************************
@@ -1720,6 +2595,8 @@ successivo:
 			free(pParams->pPagesArray);
 			pParams->pPagesArray = NULL;
 		}
+		
+		genhtFree(&(pParams->myHT_ImageObjs));
 			
 		if ( NULL != pParams->myTST.pRoot )
 		{
@@ -1854,6 +2731,8 @@ uscita:
 	}
 		
 	htFree(&(pParams->myCharSetHashTable));
+	
+	genhtFree(&(pParams->myHT_ImageObjs));
 		
 	if ( NULL != pParams->myTST.pRoot )
 	{
@@ -2373,7 +3252,11 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 	//char szPrevFontResName[512];
 	char szName[128];
 	char szPrevFontResName[128];
-
+	
+	char keyImageObj[256];
+	uint32_t keyImageObjLength;
+	void *pData = NULL;
+	int nFindImageObj;
 	
 	unsigned long int nBlockSize = BLOCK_SIZE;
 	unsigned long int x;
@@ -2513,6 +3396,8 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			
 			if ( T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type )
 			{
+				pParams->bPdfHasText = 1;
+				
 				len = strnlen(pParams->myToken.vString, MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
 				memcpy(pszString, (unsigned char*)pParams->myToken.vString, len + 1);
 											
@@ -2806,70 +3691,93 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					{
 						if ( !bContentAlreadyProcessed )
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
-							wprintf(L"\tVado a fare il parsing dell'oggetto %d 0 R e torno subito.\n", nTemp);
-							#endif
+							snprintf(keyImageObj, 256, "k%u", nTemp);
+							keyImageObjLength = strnlen(keyImageObj, 256);
+							pData = NULL;
+							nDataSize = 0;
+							nFindImageObj = genhtFind(&(pParams->myHT_ImageObjs), keyImageObj, keyImageObjLength, &pData, &nDataSize);
+
+							if ( nFindImageObj < 0 )
+							{
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
+								wprintf(L"\tVado a fare il parsing dell'oggetto %d 0 R e torno subito.\n", nTemp);
+								#endif
 					
-							bContentAlreadyProcessed = 1;
-							//if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 1) )
-							if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
-							{
-								snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
-								retValue = 0;
-								goto uscita;
-							}
+								bContentAlreadyProcessed = 1;
+								//if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 1) )
+								if ( !scopeUpdateValue(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef), szName, len + sizeof(char), (void*)&nTemp, nDataSize, bContentAlreadyProcessed, 1, 0) )
+								{
+									snprintf(pParams->szError, 8192, "\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"\nERRORE ManageDecodedContent scopeUpdateValue 1 : impossibile aggiornare bContentAlreadyProcessed\n"); 
+									retValue = 0;
+									goto uscita;
+								}
 							
-							// **********************************************************************
-							scopePush(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef));
-							scopePush(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef));
+								// **********************************************************************
+								scopePush(&(pParams->pPagesArray[nPageNumber].myScopeHT_XObjRef));
+								scopePush(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef));
 							
-							pParams->bStreamState = 0;
-							pParams->bStringIsDecoded = 0;
-							pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = pParams->blockCurPos;	
+								pParams->bStreamState = 0;
+								pParams->bStringIsDecoded = 0;
+								pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = pParams->blockCurPos;	
 							
-							mydictionaryqueuelist_Init(&(pParams->CurrentContent.decodeParms), 1, 1);
-							mystringqueuelist_Init(&(pParams->CurrentContent.queueFilters));
+								mydictionaryqueuelist_Init(&(pParams->CurrentContent.decodeParms), 1, 1);
+								mystringqueuelist_Init(&(pParams->CurrentContent.queueFilters));
 										
-							if ( !ParseStreamXObject(pParams, nTemp) )
-							{
-								snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseStreamXObject.\n");
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//wprintf(L"ERRORE ManageDecodedContent ParseStreamXObject.\n");
-								//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseStreamXObject.\n");
+								if ( !ParseStreamXObject(pParams, nTemp) )
+								{
+									snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent ParseStreamXObject.\n");
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"ERRORE ManageDecodedContent ParseStreamXObject.\n");
+									//fwprintf(pParams->fpErrors, L"ERRORE ManageDecodedContent ParseStreamXObject.\n");
 								
-								snprintf(pParams->szError, 8192, "\n***** ECCO LO SCHIFO:\n");
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//wprintf(L"\n***** ECCO LO SCHIFO:\n");
-								//fwprintf(pParams->fpErrors, L"\n***** ECCO LO SCHIFO:\n");
-								PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
+									snprintf(pParams->szError, 8192, "\n***** ECCO LO SCHIFO:\n");
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"\n***** ECCO LO SCHIFO:\n");
+									//fwprintf(pParams->fpErrors, L"\n***** ECCO LO SCHIFO:\n");
+									PrintThisObject(pParams, nTemp, 0, 0, pParams->fpErrors);
 								
-								snprintf(pParams->szError, 8192, "\n***** FINE DELLO SCHIFO:\n");
-								myShowErrorMessage(pParams, pParams->szError, 1);
-								//wprintf(L"\n***** FINE DELLO SCHIFO\n"); 
-								//fwprintf(pParams->fpErrors, L"\n***** FINE DELLO SCHIFO\n"); 
+									snprintf(pParams->szError, 8192, "\n***** FINE DELLO SCHIFO:\n");
+									myShowErrorMessage(pParams, pParams->szError, 1);
+									//wprintf(L"\n***** FINE DELLO SCHIFO\n"); 
+									//fwprintf(pParams->fpErrors, L"\n***** FINE DELLO SCHIFO\n"); 
 								
-								retValue = 0;
-								goto uscita;
-							}							
+									retValue = 0;
+									goto uscita;
+								}							
 							
-							if ( !(pParams->bXObjIsImage) )
-							{
-								PushXObjDecodedContent(pParams, nPageNumber, nTemp);
+								if ( !(pParams->bXObjIsImage) )
+								{								
+								//	pParams->nCountNotImageContent++;
+								
+									PushXObjDecodedContent(pParams, nPageNumber, nTemp);
+								}
+								else
+								{
+								//	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
+								//	wprintf(L"\tManageDecodedContent: L'oggetto %d 0 R è un'immagine. Esco.\n\n", nTemp);
+								//	#endif
+									
+								//	pParams->nCountImageContent++;
+															
+									pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
+									pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
+									pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
+								}
+							
+								mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));
+								mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
+								pParams->myDataDecodeParams.numFilter = 0;
+							
+								goto qui_dopo_push;
 							}
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
 							else
-							{								
-								pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
-								pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
-								pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
+							{
+								wprintf(L"\tManageDecodedContent: L'oggetto %d 0 R è un'immagine. Esco. CIAO CIAO\n\n", nTemp);
 							}
-							
-							mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));
-							mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
-							pParams->myDataDecodeParams.numFilter = 0;
-							
-							goto qui_dopo_push;
+							#endif
 							// **********************************************************************
 						}
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
@@ -3586,6 +4494,9 @@ int ParseObject(Params *pParams, int objNum)
 	
 	int nFromPage;
 	int nToPage;
+	int nMiddlePage;
+	int nCountPagesToParse;
+	int nCountHalfPages;
 	
 	int idxWord;
 	
@@ -3987,6 +4898,8 @@ int ParseObject(Params *pParams, int objNum)
 	}
 
 
+	
+	nMiddlePage = 0;
 								
 	if ( pParams->fromPage <= 0 )
 		nFromPage = 1;
@@ -4000,10 +4913,37 @@ int ParseObject(Params *pParams, int objNum)
 		
 	if ( nToPage > pParams->nCountPageFound )
 		nToPage = pParams->nCountPageFound;
-						
+		
+	nCountPagesToParse = nToPage - nFromPage;
+	if ( nToPage == pParams->nCountPageFound )
+		nMiddlePage = (nCountPagesToParse / 2) + 1;
+		
+	nCountHalfPages = pParams->nCountPageFound / 2;
+				
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_COUNT_CONTENT_TYPE)
+	wprintf(L"\n");
+	#endif		
 	for ( nInt = nFromPage; nInt <= nToPage; nInt++ )
 	{		
 		pParams->nCurrentPageNum = nInt;
+		
+		//wprintf(L"\n\nTotal number of Image Contents = %u;\nTotal number of content other than Image = %u\n\n", pParams->nCountImageContent, pParams->nCountNotImageContent);
+		
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_COUNT_CONTENT_TYPE)
+		wprintf(L"ParseObject: pParams->nCurrentPageNum = %d; nMiddlePage = %d\n", pParams->nCurrentPageNum, nMiddlePage);
+		#endif
+			
+		if ( !(pParams->bPdfHasText) && (nCountPagesToParse > nCountHalfPages) && (nInt > nMiddlePage) )
+		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN) || defined(MYDEBUG_PRINT_COUNT_CONTENT_TYPE)
+			wprintf(L"\n\nParseObject: The first %d pages in the range %d-%d do not contain text. Stop parsing file.\n\n", ((nToPage - nFromPage) / 2) + 1, nFromPage, nToPage);
+			#endif
+
+			goto uscita;
+		}
+			
+		//if ( pParams->nCountImageContent > 34 && 0 == pParams->nCountNotImageContent )
+		//	goto uscita;
 							
 		//pParams->pCurrentEncodingArray = &(pParams->aUtf8CharSet[0]);
 		pParams->pCurrentEncodingArray = &(pParams->aSTD_CharSet[0]);
@@ -9469,6 +10409,10 @@ int contentxobj(Params *pParams)
 
 	if ( pParams->bXObjIsImage )
 	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+		wprintf(L"contentxobj -> L'oggetto %d è un'immagine. Esco.\n\n", pParams->nCurrentParsingObj);
+		#endif
+	
 		mystringqueuelist_Free(&(pParams->CurrentContent.queueFilters));
 		mydictionaryqueuelist_Free(&(pParams->CurrentContent.decodeParms));
 		pParams->myDataDecodeParams.numFilter = 0;
@@ -9836,6 +10780,10 @@ int xobjcontentkeyvalue(Params *pParams)
 				//if ( strncmp(pParams->myToken.vString, "Image", 128) == 0 )
 				if ( 'I' == pParams->myToken.vString[0] )
 				{
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_STREAMXOBJ)
+					wprintf(L"xobjcontentkeyvalue -> L'oggetto %d è un'immagine. Esco.\n\n", pParams->nCurrentParsingObj);
+					#endif
+					
 					pParams->bXObjIsImage = 1;
 					return 1;
 				}

@@ -277,6 +277,12 @@ typedef struct tagParams
 	
 	char szError[8192];
 	
+	GenHashTable_t myHT_ImageObjs;
+	
+	uint32_t bPdfHasText;
+	//uint32_t nCountImageContent;
+	//uint32_t nCountNotImageContent;
+	
 	uint32_t currentFileOffset;
 	uint32_t lastTokenOffset;
 	

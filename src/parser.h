@@ -47,7 +47,21 @@ typedef enum tagPreParseStates
 	S_PP15,
 	S_PP16,
 	S_PP17,
-	S_PP18
+	S_PP18,
+	S_PP19,
+	S_PP20,
+	S_PP21,
+	S_PP22,
+	S_PP23,
+	S_PP24,
+	S_PP25,
+	S_PP26,
+	S_PP27,
+	S_PP28,
+	S_PP29,
+	S_PP30,
+	S_PP31,
+	S_PP32
 } PreParseStates;
 
 int getFontDataHT(Params *pParams, uint32_t objNum);
