@@ -150,7 +150,23 @@ typedef enum tagTokenType
 	/* 54 */ T_CONTENT_OP_endnotdefchar,
 	/* 55 */ T_CONTENT_OP_usecmap,
 	/* 55 */ T_LEFT_CURLY_BRACKET,   // '{'
-	/* 55 */ T_RIGHT_CURLY_BRACKET   // '}'
+	/* 55 */ T_RIGHT_CURLY_BRACKET,   // '}'
+	/* 56 */ T_CONTENT_OP_cm,
+	/* 57 */ T_CONTENT_OP_q,
+	/* 58 */ T_CONTENT_OP_Q,
+	/* 59 */ T_CONTENT_OP_MP,
+	/* 60 */ T_CONTENT_OP_DP,
+	/* 61 */ T_CONTENT_OP_BMC,
+	/* 62 */ T_CONTENT_OP_BDC,
+	/* 63 */ T_CONTENT_OP_EMC,
+	/* 64 */ T_CONTENT_OP_w,
+	/* 65 */ T_CONTENT_OP_J,
+	/* 66 */ T_CONTENT_OP_j,
+	/* 67 */ T_CONTENT_OP_M,
+	/* 68 */ T_CONTENT_OP_d,
+	/* 69 */ T_CONTENT_OP_ri,
+	/* 70 */ T_CONTENT_OP_i,
+	/* 71 */ T_CONTENT_OP_gs
 }TokenTypeEnum;
 
 

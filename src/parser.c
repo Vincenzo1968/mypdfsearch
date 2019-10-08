@@ -400,6 +400,54 @@ void PrintToken(Token *pToken, char cCarattereIniziale, char cCarattereFinale, i
 		case T_VOID_STRING:
 			wprintf(L"T_VOID_STRING");
 			break;
+		case T_CONTENT_OP_cm:
+			wprintf(L"T_CONTENT_OP_cm = 'cm'");
+			break;
+		case T_CONTENT_OP_q:
+			wprintf(L"T_CONTENT_OP_q = 'q'");
+			break;
+		case T_CONTENT_OP_Q:
+			wprintf(L"T_CONTENT_OP_Q = 'Q'");
+			break;
+		case T_CONTENT_OP_MP:
+			wprintf(L"T_CONTENT_OP_MP = 'MP'");
+			break;
+		case T_CONTENT_OP_DP:
+			wprintf(L"T_CONTENT_OP_DP = 'DP'");
+			break;
+		case T_CONTENT_OP_BMC:
+			wprintf(L"T_CONTENT_OP_BMC = 'BMC'");
+			break;
+		case T_CONTENT_OP_BDC:
+			wprintf(L"T_CONTENT_OP_BDC = 'BDC'");
+			break;
+		case T_CONTENT_OP_EMC:
+			wprintf(L"T_CONTENT_OP_EMV = 'EMC'");
+			break;
+		case T_CONTENT_OP_w:
+			wprintf(L"T_CONTENT_OP_w = 'w'");
+			break;
+		case T_CONTENT_OP_J:
+			wprintf(L"T_CONTENT_OP_J = 'J'");
+			break;
+		case T_CONTENT_OP_j:
+			wprintf(L"T_CONTENT_OP_j = 'j'");
+			break;
+		case T_CONTENT_OP_M:
+			wprintf(L"T_CONTENT_OP_M = 'M'");
+			break;
+		case T_CONTENT_OP_d:
+			wprintf(L"T_CONTENT_OP_d = 'd'");
+			break;
+		case T_CONTENT_OP_ri:
+			wprintf(L"T_CONTENT_OP_ri = 'ri'");
+			break;
+		case T_CONTENT_OP_i:
+			wprintf(L"T_CONTENT_OP_i = 'i'");
+			break;
+		case T_CONTENT_OP_gs:
+			wprintf(L"T_CONTENT_OP_gs = 'gs'");
+			break;
 		default:
 			wprintf(L"TOKEN n° -> %d", pToken->Type);
 			break;
@@ -3390,8 +3438,9 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			
 		while ( T_EOF != pParams->myToken.Type )
 		{					
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS)
-			PrintToken(&(pParams->myToken), '\t', '\0', 1);
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
+			//PrintToken(&(pParams->myToken), '\t', '\0', 1);
+			PrintToken(&(pParams->myToken), '\0', '\0', 1);
 			#endif
 			
 			if ( T_STRING_LITERAL == pParams->myToken.Type || T_STRING_HEXADECIMAL == pParams->myToken.Type )
@@ -3401,9 +3450,9 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				len = strnlen(pParams->myToken.vString, MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
 				memcpy(pszString, (unsigned char*)pParams->myToken.vString, len + 1);
 											
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings)
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 				//wprintf(L"\tSTRINGA: (%s) <-> UTF-8: (%ls)\n", pszString, (wchar_t*)(pParams->pUtf8String));
-				wprintf(L"STRING -> <%ls>", (wchar_t*)(pParams->pUtf8String));
+				wprintf(L"\tSTRING -> <%ls>\n\n", (wchar_t*)(pParams->pUtf8String));
 				#endif
 				
 				
@@ -3545,7 +3594,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					else
 						wprintf(L"%ls", (wchar_t*)(pParams->pUtf8String));
 				}
-			}						
+			}				
 			else if ( T_INT_LITERAL == pParams->myToken.Type )
 			{
 				bLastNumberIsReal = 0;
@@ -3616,9 +3665,33 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			{
 				bArrayState = 0;
 			}
+			else if ( (T_CONTENT_OP_Td == pParams->myToken.Type) || (T_CONTENT_OP_TD == pParams->myToken.Type) )
+			{
+				double dY;
+				
+				if ( bLastNumberIsReal )
+					dY = dLastNumber;
+				else
+					dY = (double)iLastNumber;
+					
+				if ( dY != 0.0 )
+				{		
+					if ( '\0' != pParams->szWordsToSearch[0] )
+					{
+						InsertWordIntoTst(pParams);
+					}
+					else
+					{
+						if ( pParams->szOutputFile[0] != '\0' )
+							fwprintf(pParams->fpOutput, L"\n");
+						else
+							wprintf(L"\n");
+					}
+				}
+			}
 			else if (
-						(T_CONTENT_OP_Td == pParams->myToken.Type) ||
-						(T_CONTENT_OP_TD == pParams->myToken.Type) ||
+						//(T_CONTENT_OP_Td == pParams->myToken.Type) ||
+						//(T_CONTENT_OP_TD == pParams->myToken.Type) ||
 						(T_CONTENT_OP_Tm == pParams->myToken.Type) ||
 						(T_CONTENT_OP_TASTERISCO == pParams->myToken.Type) ||
 						(T_CONTENT_OP_SINGLEQUOTE == pParams->myToken.Type) ||
@@ -3637,19 +3710,19 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				}
 				#endif
 				
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS)
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 				wprintf(L"\n\tVADO A CAPO ");
 				switch ( pParams->myToken.Type )
 				{
 					case T_CONTENT_OP_Tm:
 						wprintf(L"CON L'OPERATORE Tm\n\n");
 						break;					
-					case T_CONTENT_OP_Td:
-						wprintf(L"CON L'OPERATORE Td\n\n");
-						break;
-					case T_CONTENT_OP_TD:
-						wprintf(L"CON L'OPERATORE TD\n\n");
-						break;
+					//case T_CONTENT_OP_Td:
+					//	wprintf(L"CON L'OPERATORE Td\n\n");
+					//	break;
+					//case T_CONTENT_OP_TD:
+					//	wprintf(L"CON L'OPERATORE TD\n\n");
+					//	break;
 					case T_CONTENT_OP_TASTERISCO:
 						wprintf(L"CON L'OPERATORE T*\n\n");
 						break;
@@ -3663,7 +3736,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						break;
 				}
 				#endif		
-								
+						
 				if ( '\0' != pParams->szWordsToSearch[0] )
 				{
 					InsertWordIntoTst(pParams);
@@ -3681,7 +3754,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 				if ( '\0' != szName[0] )
 				{
 					len = strnlen(szName, 128);
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 					wprintf(L"TROVATO 'Do' command: vado a prendere la Resource %s\n", szName);
 					#endif
 									
@@ -3699,7 +3772,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 
 							if ( nFindImageObj < 0 )
 							{
-								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 								wprintf(L"\tVado a fare il parsing dell'oggetto %d 0 R e torno subito.\n", nTemp);
 								#endif
 					
@@ -3772,7 +3845,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							
 								goto qui_dopo_push;
 							}
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 							else
 							{
 								wprintf(L"\tManageDecodedContent: L'oggetto %d 0 R è un'immagine. Esco. CIAO CIAO\n\n", nTemp);
@@ -3780,14 +3853,14 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							#endif
 							// **********************************************************************
 						}
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						else
 						{
 							wprintf(L"\tOggetto %d 0 R già processato.\n", nTemp);
 						}
 						#endif
 					}
-					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected)
+					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 					else
 					{
 						wprintf(L"\tRISORSA XOBJ '%s' NON TROVATA!!!.\n", szName);
@@ -3824,7 +3897,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 					if ( strncmp(szName, szPrevFontResName, 128) != 0 )
 					{
 						//len = strnlen(szName, 128);
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						//wprintf(L"\nEHI 1: szName = '%s' -> szPrevFontResName = '%s'\n", szName, szPrevFontResName);
 						wprintf(L"\nTROVATO 'Tf FONT SELECTOR' command: vado a prendere la Resource %s\n", szName);
 						#endif
@@ -3832,7 +3905,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 						nRes = scopeFind(&(pParams->pPagesArray[nPageNumber].myScopeHT_FontsRef), szName, len + sizeof(char), (void*)&nTemp, &nDataSize, &bContentAlreadyProcessed, 0);
 						if ( nRes >= 0 ) // TROVATO
 						{
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 							wprintf(L"\tVado a fare il parsing dell'oggetto FONT %d 0 R e torno subito.\n", nTemp);
 							#endif
 												
@@ -3840,7 +3913,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 							pParams->bStringIsDecoded = 0;
 							pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos = pParams->blockCurPos;	
 								
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 							wprintf(L"\tOggetto FONT %d 0 R NON trovato nella HashTable. È NECESSARIO EFFETTUARE IL PARSING DELL'OGGETTO.\n", nTemp);
 							#endif
 							if ( !ParseFontObject(pParams, nTemp) )
@@ -3875,7 +3948,7 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 								
 							// **********************************************************************
 						}
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected)
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						else
 						{
 							wprintf(L"\tRISORSA FONT '%s' NON TROVATA!!!.\n", szName);
@@ -3909,7 +3982,22 @@ int ManageDecodedContent(Params *pParams, int nPageNumber)
 			{
 				// IGNORIAMO L'OPERATORE BI(Begin Image) FINO ALLA FINE DELLO STREAM
 				goto libera;
-			}			
+			}
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
+			else if ( T_STRING == pParams->myToken.Type )
+			{				
+				wprintf(L"\tT_STRING -> <%ls>\n\n", (wchar_t*)(pParams->pUtf8String));
+			}	
+			else if ( T_CONTENT_OP_cm == pParams->myToken.Type )
+			{
+				wprintf(L"\n");
+			}
+			else if ( T_CONTENT_OP_gs == pParams->myToken.Type )
+			{
+				wprintf(L"\n");
+			}
+			#endif
+	
 							
 			GetNextToken(pParams);
 						

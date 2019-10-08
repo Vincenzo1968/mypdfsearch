@@ -3656,6 +3656,150 @@ void GetNextToken(Params *pParams)
 						
 						return;
 					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "cm", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_cm;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_cm -> 'cm'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "q", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_q;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_q -> 'q'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Q", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_Q;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_Q -> 'Q'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "MP", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_MP;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_MP -> 'MP'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "DP", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_DP;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_DP -> 'DP'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "BMC", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_BMC;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_BMC -> 'BMC'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "BDC", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_BDC;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_BDC -> 'BDC'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "EMC", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_EMC;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_EMC -> 'EMC'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "w", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_w;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_w -> 'w'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "J", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_J;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_J -> 'J'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "j", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_j;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_j -> 'j'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "M", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_M;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_M -> 'M'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "d", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_d;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_d -> 'd'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "ri", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_ri;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_ri -> 'ri'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "i", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_i;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_i -> 'i'\n");
+						#endif
+						
+						return;
+					}
+					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "gs", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					{
+						pParams->myToken.Type = T_CONTENT_OP_gs;
+						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
+						wprintf(L"GetNextTOken: T_CONTENT_OP_gs -> 'gs'\n");
+						#endif
+						
+						return;
+					}
 					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "BI", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
 					{
 						pParams->myToken.Type = T_CONTENT_OP_BI;
