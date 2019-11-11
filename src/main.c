@@ -488,6 +488,8 @@ void PrintHelpCommandLine()
 	wprintf(L"\n");
 	wprintf(L"'-n, --nosubdirs' (optional)         Specifies that the search should be performed only in the specified directory and not in its subdirectories\n");
 	wprintf(L"\n");
+	wprintf(L"'-s, --sortglyphsbyrow' (optional)   Select the text based on the row order of the glyphs. If this option is not specified, the text is selected based on the order of appearance.\n");
+	wprintf(L"\n");
 	wprintf(L"'-w, --words' (optional)             Specifies words to search\n");
 	wprintf(L"   Arguments for option '-w, --words': exactly 1(string) containing one on more words to search, separated by space character\n");
 	wprintf(L"\n");
@@ -499,7 +501,7 @@ void PrintHelpCommandLine()
 void PrintVersionInfo()
 {
 	//wprintf(L"\n   mypdfsearch version 1.3.5\n");	
-	wprintf(L"\n   mypdfsearch version 1.9.5\n");
+	wprintf(L"\n   mypdfsearch version 2.0.0\n");
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 
@@ -1028,6 +1030,11 @@ int myParseOption(Params *pParams, char *pszOption)
 			pParams->bNoSubDirs = 1;
 			goto uscita;
 		}
+		else if ( c == L's' )
+		{
+			pParams->nSortGlyphs = SORT_GLYPHS_BY_ROW;
+			goto uscita;
+		}
 				
 		goto readvalue;
 	}	
@@ -1087,6 +1094,11 @@ int myParseOption(Params *pParams, char *pszOption)
 			pParams->bNoSubDirs = 1;
 			goto uscita;
 		}
+		else if ( wcsncmp(szName, L"sortglyphsbyrow", MAX_LEN_STR) == 0 )
+		{
+			pParams->nSortGlyphs = SORT_GLYPHS_BY_ROW;
+			goto uscita;
+		}
 		else if ( wcsncmp(szName, L"extracttextfrom", MAX_LEN_STR) == 0 )
 		{
 			goto readvalue;
@@ -1107,7 +1119,12 @@ int myParseOption(Params *pParams, char *pszOption)
 		{
 			pParams->bNoSubDirs = 1;
 			goto uscita;
-		}	
+		}
+		else if ( wcsncmp(szName, L"sortglyphsbyrow", MAX_LEN_STR) == 0 )
+		{
+			pParams->nSortGlyphs = SORT_GLYPHS_BY_ROW;
+			goto uscita;
+		}
 		else if ( wcsncmp(szName, L"version", MAX_LEN_STR) == 0 )
 		{
 			pParams->bOptVersionOrHelp = 1;
@@ -1457,7 +1474,7 @@ IMPORTANTE, ATTENZIONE!!! compilare su Windows con MINGW64, richiede di specific
 /*
 MINGW:
  
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv -lm
 
 vanno bene entrambe le modalità: e con slash, e con backslash:
 mypdfsearch --path="C:\AAA_ProgrammiLibrerie\myPdfSearch\Files\Prova" --words="Virginia campidoglio Orbán"
@@ -1469,7 +1486,7 @@ MSYS2:
 
 cd /c/AAA_ProgrammiLibrerie/myPdfSearch
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -liconv -lm
 
 
 C:\AAA_ProgrammiLibrerie\myPdfSearch\Files
@@ -1572,8 +1589,8 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c  myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c mydictionaryqueuelist.c myobjrefqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
  
  
 ./mypdfsearch --extracttextfrom="/home/vincenzo/progetti/Files/Giapponesi/SoloGiapponese/H21 monodukuri report.pdf" --frompage=1 --topage=1
@@ -1590,7 +1607,7 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 mytime.c myTree.c myGenHashTa
 --------------------------------------------------------------------------------------------------------------------------------------
  
 Per generare le dipendenze per il Makefile, usare -MM:
-gcc -MM -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lm -lz
+gcc -MM -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myScopeHashTable.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -lm -lz
  
 gcc -MM -D_GNU_SOURCE *.c -lm -lz
 */
@@ -1614,10 +1631,10 @@ int main(int argc, char **argv)
 	#if defined(MYPDFSEARCH_SHOW_TIME)
 	myTimes mt_start;
 	myTimes mt_end;
-	
+		
 	getTimes(&mt_start);
 	#endif
-	
+		
 	myParams.countWordsToSearch = 0;
 	myParams.pWordsToSearchArray = NULL;
 	
@@ -1627,6 +1644,7 @@ int main(int argc, char **argv)
 	myParams.fromPage = 0;
 	myParams.toPage = 0;
 	myParams.bNoSubDirs = 0;
+	myParams.nSortGlyphs = SORT_GLYPHS_BY_APPEARANCE;
 	myParams.szOutputFile[0] = '\0';
 	//myParams.szWordsToSearch[0] = '\0';	
 	myParams.countWordsToSearch = 0;

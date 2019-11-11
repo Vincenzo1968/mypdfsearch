@@ -278,14 +278,14 @@ void PrintTokenTrailer(Token *pToken, char cCarattereIniziale, char cCarattereFi
 		case T_CONTENT_RQUOTE:   // ">"
 			wprintf(L"T_CONTENT_RQUOTE = '>'");
 			break;
-		case T_CONTENT_Do_COMMAND:
-			wprintf(L"T_CONTENT_Do_COMMAND = 'Do'");
+		case T_CONTENT_OP_Do:
+			wprintf(L"T_CONTENT_OP_Do = 'Do'");
 			break;
-		case T_CONTENT_KW_BT:
-			wprintf(L"T_CONTENT_KW_BT = 'BT -> Begin Text'");
+		case T_CONTENT_OP_BT:
+			wprintf(L"T_CONTENT_OP_BT = 'BT -> Begin Text'");
 			break;
-		case T_CONTENT_KW_ET:
-			wprintf(L"T_CONTENT_KW_ET = 'ET -> End Text'");
+		case T_CONTENT_OP_ET:
+			wprintf(L"T_CONTENT_OP_ET = 'ET -> End Text'");
 			break;
 		case T_CONTENT_OP_TD:
 			wprintf(L"T_CONTENT_OP_TD = 'TD'");
@@ -296,8 +296,8 @@ void PrintTokenTrailer(Token *pToken, char cCarattereIniziale, char cCarattereFi
 		case T_CONTENT_OP_Tm:
 			wprintf(L"T_CONTENT_OP_Tm = 'Tm'");
 			break;
-		case T_CONTENT_OP_TASTERISCO:
-			wprintf(L"T_CONTENT_OP_TASTERISCO = 'T*'");
+		case T_CONTENT_OP_TSTAR:
+			wprintf(L"T_CONTENT_OP_TSTAR = 'T*'");
 			break;
 		case T_CONTENT_OP_TJ:
 			wprintf(L"T_CONTENT_OP_TJ = 'TJ'");
@@ -1316,6 +1316,14 @@ ciclo2:
 			while ( c != '\0' && c != ']' )
 			{
 				c = szInput[index++];
+				if ( '>' == c )
+				{
+					if ( '>' == szInput[index] )
+					{
+						index--;
+						break;
+					}
+				}
 			}
 			
 			if ( c == '\0' )
@@ -1390,7 +1398,7 @@ ciclo4:
 		return 0;
 	}
 
-	if ( !bRootYes )
+	if ( 0 == pParams->myPdfTrailer.Root.Number && !bRootYes )
 	{
 		//snprintf(pParams->szError, 8192, "Errore ReadTrailerBody: manca la voce 'Root' nel trailer\n");
 		//myShowErrorMessage(pParams, pParams->szError, 0);
@@ -1620,11 +1628,11 @@ int ReadLastTrailer(Params *pParams, unsigned char *szInput)
 	c = szInput[index++];
 	if ( c != 'r' )
 		return 0;
-			
+					
 	c = szInput[index];
 	if ( (c != '\n' && c != '\r' && c != '\t' && c != ' ' && c != '\f' && c != '\b' && c != '<') )
 		return 0;
-						
+								
 	strncpy((char*)pParams->myBlock, (char*)&(szInput[index]), BLOCK_SIZE);
 	pParams->blockCurPos = 0;
 	pParams->blockLen = strnlen((char*)pParams->myBlock, 4096);
@@ -1638,7 +1646,6 @@ int ReadLastTrailer(Params *pParams, unsigned char *szInput)
 	//wprintf(L"\n************************************* BLOCCO FINE *****************************************\n");	
 	
 	GetNextToken(pParams);
-	
 	
 	//if ( !trailerbody(pParams) )
 	if ( !ReadTrailerBody(pParams, szInput, index) )
@@ -1747,7 +1754,14 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 			pParams->myObjsTable[numInit]->Obj.pTreeNode = NULL;
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myXObjRefList));
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myFontsRefList));
+			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myGsRefList));
 			myintqueuelist_Init(&(pParams->myObjsTable[numInit]->queueContentsObjRefs));
+			//pParams->myObjsTable[numInit]->dFontSpaceWidth = -1.0;	
+			pParams->myObjsTable[numInit]->pGlyphsWidths = NULL;
+			pParams->myObjsTable[numInit]->pszDirectFontResourceString = NULL;
+			pParams->myObjsTable[numInit]->lenDirectFontResourceString = 0;
+			pParams->myObjsTable[numInit]->pszDirectGsResourceString = NULL;
+			pParams->myObjsTable[numInit]->lenDirectGsResourceString = 0;
 		}
 		else
 		{
@@ -1785,6 +1799,13 @@ int ReadSubSectionBody(Params *pParams, unsigned char *szInput, int fromNum, int
 			pParams->myObjsTable[numInit]->Obj.pTreeNode = NULL;
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myXObjRefList));
 			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myFontsRefList));
+			myobjreflist_Init(&(pParams->myObjsTable[numInit]->myGsRefList));
+			//pParams->myObjsTable[numInit]->dFontSpaceWidth = -1.0;
+			pParams->myObjsTable[numInit]->pGlyphsWidths = NULL;
+			pParams->myObjsTable[numInit]->pszDirectFontResourceString = NULL;
+			pParams->myObjsTable[numInit]->lenDirectFontResourceString = 0;
+			pParams->myObjsTable[numInit]->pszDirectGsResourceString = NULL;
+			pParams->myObjsTable[numInit]->lenDirectGsResourceString = 0;
 		}
 						
 		c = szInput[(*index)++];
@@ -1849,9 +1870,44 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput)
 	
 	if ( (c != '\n' && c != '\r' && c != '\t' && c != ' ' && c != '\f' && c != '\b') )
 	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+		wprintf(L"ReadObjsTable: ACCIDENTACCIO!!! DOPO 'xref' NON HO TROVATO UN CARATTERE SPAZIO SEPARATORE MA QUESTO: <%c>\n", c);
+		#endif
+		
 		retValue = 0;
 		goto uscita;		
 	}
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+	else
+	{
+		wprintf(L"\nReadObjsTable: BENISSIMO!!! DOPO 'xref' HO TROVATO UN CARATTERE SPAZIO SEPARATORE:\n");
+		switch ( c )
+		{
+			case '\n':
+				wprintf(L"\\n");
+				break;
+			case '\r':
+				wprintf(L"\\r");
+				break;
+			case '\t':
+				wprintf(L"\\t");
+				break;
+			case ' ':
+				wprintf(L"SPAZIO");
+				break;
+			case '\f':
+				wprintf(L"\\f");
+				break;
+			case '\b':
+				wprintf(L"\\b");
+				break;
+			default:
+				wprintf(L"CARATTERE SEPARATORE SCONOSCIUTO!");
+				break;
+		}
+		wprintf(L"\n");
+	}
+	#endif
 			
 	while ( 1 )
 	{		
@@ -1869,6 +1925,10 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput)
 				
 		if ( c < '0' || c > '9' )
 		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+			wprintf(L"ReadObjsTable: 1 ACCIDENTACCIO!!! DOPO 'xref' NON HO TROVATO IL CARATTERE CHE CERCAVO MA QUESTO: <%c>\n", c);
+			#endif
+			
 			retValue = 0;
 			goto uscita;
 		}
@@ -1885,6 +1945,10 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput)
 		
 		if ( c != ' ' )
 		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+			wprintf(L"ReadObjsTable: 2 ACCIDENTACCIO!!! DOPO 'xref' NON HO TROVATO IL CARATTERE CHE CERCAVO MA QUESTO: <%c>\n", c);
+			#endif
+			
 			retValue = 0;
 			goto uscita;		
 		}		
@@ -1899,6 +1963,10 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput)
 		
 		if ( c < '0' || c > '9' )
 		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+			wprintf(L"ReadObjsTable: 3 ACCIDENTACCIO!!! DOPO 'xref' NON HO TROVATO IL CARATTERE CHE CERCAVO MA QUESTO: <%c>\n", c);
+			#endif
+			
 			retValue = 0;
 			goto uscita;
 		}		
@@ -1918,9 +1986,18 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput)
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
 		wprintf(L"ReadObjsTable: numObjs = %d\n", numObjs);
 		#endif
+		
+		while ( ( c == '\t' || c == ' ' || c == '\f' || c == '\b') )
+		{
+			c = szInput[index++];
+		}
 								
 		if ( c != '\r' && c != '\n' )
 		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+			wprintf(L"ReadObjsTable: 4 ACCIDENTACCIO!!! DOPO 'xref' NON HO TROVATO IL CARATTERE CHE CERCAVO MA QUESTO: <%c>\n", c);
+			#endif
+			
 			retValue = 0;
 			goto uscita;
 		}
@@ -1935,6 +2012,10 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput)
 								
 		if ( !ReadSubSectionBody(pParams, szInput, fromNum, numObjs, &index) )
 		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+			wprintf(L"ReadObjsTable: 5 ACCIDENTACCIO!!! DOPO 'xref' NON HO TROVATO IL CARATTERE CHE CERCAVO MA QUESTO: <%c>\n", c);
+			#endif
+			
 			retValue = 0;
 			goto uscita;			
 		}		
@@ -1942,6 +2023,10 @@ int ReadObjsTable(Params *pParams, unsigned char *szInput)
 	
 	if ( c != 't' )
 	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+		wprintf(L"ReadObjsTable: 6 ACCIDENTACCIO!!! DOPO 'xref' NON HO TROVATO IL CARATTERE CHE CERCAVO MA QUESTO: <%c>\n", c);
+		#endif
+			
 		retValue = 0;
 		goto uscita;
 	}
@@ -2249,25 +2334,35 @@ int ReadTrailer(Params *pParams)
 	bytereads = fread(szInput, 1, dimInput, pParams->fp);
 	*(szInput + bytereads) = '\0';
 	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)	
+	wprintf(L"bytereads = %d\n\n", bytereads);
+	#endif
+	
 	//wprintf(L"file: '%s'\n\n%s\n\n", pParams->szFileName, szInput); 		
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)	
 	//wprintf(L"byteOffsetXRef = %d\ndimInput = %d\nszInput: <%s>\n\n", byteOffsetXRef, dimInput, szInput);
 	if ( NULL != pParams->fpOutput )
 	{
-		wprintf(L"\n\nReadTrailer: bytes read for szTemp -> %d\n", bytereads);
-		wprintf(L"ECCO IL BLOCCO ALL'OFFSET %d -> <", byteOffsetXRef);
-
-		fwprintf(pParams->fpOutput, L"\n\nReadTrailer: bytes read for szTemp -> %d\n", bytereads);
+		fwprintf(pParams->fpOutput, L"\n\nReadTrailer: bytes read for szInput -> %d\n", bytereads);
 		fwprintf(pParams->fpOutput, L"ECCO IL BLOCCO ALL'OFFSET %d -> <", byteOffsetXRef);
 	}
+	else
+	{
+		wprintf(L"\n\nReadTrailer: bytes read for szInput -> %d\n", bytereads);
+		wprintf(L"ECCO IL BLOCCO ALL'OFFSET %d -> <", byteOffsetXRef);
+	}
+	
 	for ( int i = 0; i < bytereads; i++ )
 	{
-		if ( (szInput[i] >= 32 || szInput[i] == '\n') && ( szInput[i] < 128 ) && (szInput[i] != 127 && szInput[i] != 129 && szInput[i] != 141 && szInput[i] != 143 && szInput[i] != 144 && szInput[i] != 157) )
+		if ( (szInput[i] >= 32 || szInput[i] == '\n' ) && ( szInput[i] < 128 ) && (szInput[i] != 127 && szInput[i] != 129 && szInput[i] != 141 && szInput[i] != 143 && szInput[i] != 144 && szInput[i] != 157) )
 		{
 			if ( NULL != pParams->fpOutput ) 
 			{
-				wprintf(L"%c", szInput[i]);
 				fwprintf(pParams->fpOutput, L"%c", szInput[i]);
+			}
+			else
+			{
+				wprintf(L"%c", szInput[i]);
 			}
 		}
 		else
@@ -2276,16 +2371,22 @@ int ReadTrailer(Params *pParams)
 			{
 				if ( szInput[i] < 32 )
 				{
-					wprintf(L"\n@<%u>@\n", szInput[i]);
-					//fwprintf(pParams->fpOutput, L"\n@<%u>@\n", szInput[i]);
+					fwprintf(pParams->fpOutput, L"\n@<%X>@\n", szInput[i]);
+				}
+				else
+				{
+					wprintf(L"\n@<%X>@\n", szInput[i]);
 				}
 			}
 		}
 	}
 	if ( NULL != pParams->fpOutput )
 	{
-		wprintf(L">\n\n");
 		fwprintf(pParams->fpOutput, L">\n\n");
+	}
+	else
+	{
+		wprintf(L">\n\n");
 	}
 	#endif
 		
@@ -2296,12 +2397,19 @@ int ReadTrailer(Params *pParams)
 	retReadLastTrailer = ReadLastTrailer(pParams, szInput);
 	if ( !retReadLastTrailer )
 	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+		wprintf(L"ReadTrailer: ACCIDENTACCIO! ERRORE IN ReadLastTrailer!\n");
+		#endif
+		
 		free(szInput);
 		szInput = NULL;
 		return 0;
 	}
 	else if ( 2 == retReadLastTrailer )
 	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+		wprintf(L"ReadTrailer: EHI! ritorno retReadLastTrailer = 2.\n");
+		#endif
 		
 		free(szInput);
 		szInput = NULL;
@@ -2315,6 +2423,10 @@ int ReadTrailer(Params *pParams)
 		
 	if ( !ReadObjsTable(pParams, szInput) )
 	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ReadTrailer_FN)
+		wprintf(L"ReadTrailer: ACCIDENTACCIO! ERRORE IN ReadObjsTable!\n");
+		#endif
+
 		free(szInput);
 		szInput = NULL;
 		return 0;
@@ -2388,7 +2500,7 @@ unsigned char GetHexChar(unsigned char c1, unsigned char c2)
 {
 	unsigned char c = '\0';
 	
-	wprintf(L"c1 = '%c <> c2 = '%c'\n", c1, c2);
+	//wprintf(L"c1 = '%c' <> c2 = '%c'\n", c1, c2);
 	
 	switch ( c1 )
 	{
@@ -3146,6 +3258,23 @@ unsigned char ReadNextChar(Params *pParams)
 		return ' ';
 	}
 }
+
+void SetStringToken(Params *pParams, int k)
+{
+	pParams->myToken.Type = T_STRING;
+	//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
+	//if (  pParams->myToken.vString != NULL )
+	//	strcpy(pParams->myToken.vString, pParams->lexeme);
+	pParams->myToken.vString = pParams->lexeme;
+								
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)						
+	wprintf(L"GetNextToken: T_STRING -> '%s'\n", pParams->myToken.vString);
+	#endif	
+						
+	pParams->lastTokenOffset = pParams->currentFileOffset - (k + 1);
+	
+	pParams->bCurrTokenIsOperator = 0;
+}
 				
 void GetNextToken(Params *pParams)
 {
@@ -3168,6 +3297,8 @@ void GetNextToken(Params *pParams)
 	//	free(pParams->myToken.vString);
 	//	pParams->myToken.vString = NULL;
 	//}
+	
+	pParams->bCurrTokenIsOperator = 0;
 	
 	if ( pParams->blockCurPos > pParams->blockLen )
 	{
@@ -3203,6 +3334,8 @@ void GetNextToken(Params *pParams)
 				pParams->bReadingStringState = 0;
 				
 				pParams->lexemeTemp[0] = '\0';
+				
+				pParams->bCurrTokenIsOperator = 0;
 				
 				if ( c == '%' )
 				{
@@ -3531,299 +3664,622 @@ void GetNextToken(Params *pParams)
 						
 						return;
 					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Do", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
+					else if ( (k <= 3) && (pParams->bStringIsDecoded && pParams->bStreamState) )
 					{
-						pParams->myToken.Type = T_CONTENT_Do_COMMAND;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_Do_COMMAND -> 'Do'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "BT", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_KW_BT;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_KW_BT -> 'BT -> Begin Text'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "ET", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_KW_ET;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_KW_ET -> 'ET -> End Text'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Tc", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_Tc;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_Tc -> 'Tc'\n");
-						#endif
-						
-						return;
+						switch ( k )
+						{
+							case 3:
+								switch ( pParams->lexeme[0] )
+								{
+									case 'S':
+										if ( 'C' == pParams->lexeme[1] && 'N' == pParams->lexeme[2] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_SCN;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 's':
+										if ( 'c' == pParams->lexeme[1] && 'n' == pParams->lexeme[2] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_scn;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'B':
+										if ( 'M' == pParams->lexeme[1] && 'C' == pParams->lexeme[2] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_BMC;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'D' == pParams->lexeme[1] && 'C' == pParams->lexeme[2] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_BDC;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'E':
+										if ( 'M' == pParams->lexeme[1] && 'C' == pParams->lexeme[2] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_EMC;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									default:
+										SetStringToken(pParams, k);
+										return;
+										break;
+								}
+								break;
+							case 2:
+								switch ( pParams->lexeme[0] )
+								{
+									case 'B':
+										if ( 'T' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_BT;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( '*' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_BSTAR;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'I' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_BI;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'X' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_BX;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'b':
+										if ( '*' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_bSTAR;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'C':
+										if ( 'S' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_CS;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'c':
+										if ( 'm' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_cm;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 's' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_cs;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'D':
+										if ( 'o' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Do;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'P' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_DP;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'd':
+										if ( '0' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_d0;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( '1' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_d1;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'E':
+										if ( 'I' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_EI;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'T' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_ET;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'X' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_EX;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'f':
+										if ( '*' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_fSTAR;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'g':
+										if ( 's' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_gs;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'I':
+										if ( 'D' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_ID;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'M':
+										if ( 'D' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_MP;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'R':
+										if ( 'D' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_RG;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'r':
+										if ( 'e' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_re;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'g' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_rg;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'i' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_ri;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 'S':
+										if ( 'C' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_SC;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									case 's':
+										if ( 'c' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_sc;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'h' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_sh;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									// INIZIO T
+									case 'T':
+										if ( 'f' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Tf;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'c' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Tc;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'w' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Tw;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'z' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Tz;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'L' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_TL;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'r' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Tr;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 's' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Ts;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'D' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_TD;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'd' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Td;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'm' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Tm;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( '*' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_TSTAR;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'J' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_TJ;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else if ( 'j' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_Tj;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+									// FINE T	
+									case 'W':
+										if ( '*' == pParams->lexeme[1] )
+										{
+											pParams->myToken.Type = T_CONTENT_OP_WSTAR;
+											pParams->bCurrTokenIsOperator = 1;
+											return;
+										}
+										else
+										{
+											SetStringToken(pParams, k);
+											return;
+										}
+										break;
+
+									default:
+										SetStringToken(pParams, k);
+										return;
+										break;
+								}
+								break;
+							case 1:
+								switch ( pParams->lexeme[0] )
+								{
+									case 'B':
+										pParams->myToken.Type = T_CONTENT_OP_B;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'b':
+										pParams->myToken.Type = T_CONTENT_OP_b;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'c':
+										pParams->myToken.Type = T_CONTENT_OP_c;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'd':
+										pParams->myToken.Type = T_CONTENT_OP_d;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'F':
+										pParams->myToken.Type = T_CONTENT_OP_F;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'f':
+										pParams->myToken.Type = T_CONTENT_OP_f;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'G':
+										pParams->myToken.Type = T_CONTENT_OP_G;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'g':
+										pParams->myToken.Type = T_CONTENT_OP_g;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'h':
+										pParams->myToken.Type = T_CONTENT_OP_h;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'i':
+										pParams->myToken.Type = T_CONTENT_OP_i;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'J':
+										pParams->myToken.Type = T_CONTENT_OP_J;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'j':
+										pParams->myToken.Type = T_CONTENT_OP_j;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'K':
+										pParams->myToken.Type = T_CONTENT_OP_K;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'k':
+										pParams->myToken.Type = T_CONTENT_OP_k;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'l':
+										pParams->myToken.Type = T_CONTENT_OP_l;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'M':
+										pParams->myToken.Type = T_CONTENT_OP_M;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'm':
+										pParams->myToken.Type = T_CONTENT_OP_m;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'n':
+										pParams->myToken.Type = T_CONTENT_OP_n;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'Q':
+										pParams->myToken.Type = T_CONTENT_OP_Q;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'q':
+										pParams->myToken.Type = T_CONTENT_OP_q;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'S':
+										pParams->myToken.Type = T_CONTENT_OP_S;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 's':
+										pParams->myToken.Type = T_CONTENT_OP_s;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'v':
+										pParams->myToken.Type = T_CONTENT_OP_v;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'W':
+										pParams->myToken.Type = T_CONTENT_OP_W;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case 'w':
+										pParams->myToken.Type = T_CONTENT_OP_w;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case '\'':
+										pParams->myToken.Type = T_CONTENT_OP_SINGLEQUOTE;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									case '"':
+										pParams->myToken.Type = T_CONTENT_OP_DOUBLEQUOTE;
+										pParams->bCurrTokenIsOperator = 1;
+										return;
+										break;
+									default:
+										SetStringToken(pParams, k);
+										return;
+										break;
+								}
+								break;
+							case 0:
+								pParams->myToken.Type = T_VOID_STRING;
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)						
+								wprintf(L"GetNextToken: T__VOID_STRING\n");
+								#endif	
+							
+								pParams->lastTokenOffset = pParams->currentFileOffset;
+							
+								c = pParams->pReadNextChar(pParams);
+								if ( T_EOF == pParams->myToken.Type )
+									return;
+								while ( !IsDelimiterChar(c) )
+								{
+									c = pParams->pReadNextChar(pParams);
+									if ( T_EOF == pParams->myToken.Type )
+										return;
+								}
+								return;
+								break;
+							default:
+								SetStringToken(pParams, k);
+								return;
+								break;
+						}
 					}					
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Tw", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_Tw;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_Tw -> 'Tw'\n");
-						#endif
-						return;
-					}					
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "TD", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_TD;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_TD -> 'TD'\n");
-						#endif
-						
-						return;	
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Td", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_Td;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_Td -> 'Td'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Tm", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_Tm;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_Tm -> 'Tm'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "T*", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_TASTERISCO;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_TASTERISCO -> 'T*'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Tj", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_Tj;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_Tj -> 'Tj'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "TJ", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_TJ;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_TJ -> 'TJ'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "\"", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_DOUBLEQUOTE;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_DOUBLEQUOTE -> \"\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "'", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_SINGLEQUOTE;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_SINGLEQUOTE -> '\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Tf", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_Tf;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_Tf -> FONT SELECTOR -> 'Tf'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "cm", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_cm;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_cm -> 'cm'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "q", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_q;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_q -> 'q'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "Q", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_Q;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_Q -> 'Q'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "MP", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_MP;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_MP -> 'MP'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "DP", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_DP;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_DP -> 'DP'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "BMC", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_BMC;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_BMC -> 'BMC'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "BDC", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_BDC;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_BDC -> 'BDC'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "EMC", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_EMC;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_EMC -> 'EMC'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "w", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_w;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_w -> 'w'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "J", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_J;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_J -> 'J'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "j", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_j;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_j -> 'j'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "M", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_M;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_M -> 'M'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "d", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_d;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_d -> 'd'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "ri", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_ri;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_ri -> 'ri'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "i", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_i;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_i -> 'i'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "gs", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_gs;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_gs -> 'gs'\n");
-						#endif
-						
-						return;
-					}
-					else if ( (pParams->bStringIsDecoded && pParams->bStreamState) && strncmp(pParams->lexeme, "BI", MAX_STRING_LENTGTH_IN_CONTENT_STREAM) == 0 )
-					{
-						pParams->myToken.Type = T_CONTENT_OP_BI;
-						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)	
-						wprintf(L"GetNextTOken: T_CONTENT_OP_BI -> BEGIN IMAGE -> 'BI'\n");
-						#endif
-						
-						return;
-					}
 					else
 					{						
 						if ( k > 0 )
 						{
-							pParams->myToken.Type = T_STRING;
-							//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
-							//if (  pParams->myToken.vString != NULL )
-							//	strcpy(pParams->myToken.vString, pParams->lexeme);
-							pParams->myToken.vString = pParams->lexeme;
-								
-							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_GetNextToken_FN)						
-							wprintf(L"GetNextToken: T_STRING -> '%s'\n", pParams->myToken.vString);
-							#endif	
-							
-							pParams->lastTokenOffset = pParams->currentFileOffset - (k + 1);
+							SetStringToken(pParams, k);
 						}
 						else
 						{
@@ -3962,7 +4418,7 @@ void GetNextToken(Params *pParams)
 				}
 				break;
 			case S5:
-				if ( (c >= '0' && c >= '9') || (c >= 'A' && c <= 'F') || (c >= 'f' && c <= 'f') )
+				if ( (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'f' && c <= 'f') )
 				{
 					c2 = c;
 					pParams->lexeme[k++] = GetHexChar(c1, c2);
@@ -3985,9 +4441,15 @@ void GetNextToken(Params *pParams)
 					{
 						if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 						{
+							//pParams->pEncodingString[k] = c;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
+							
+							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_ENCODING_SCANNER)
+							wprintf(L"c = '%lc', Value = %d; pParams->pCurrentEncodingArray[c] = '%lc', Value = %d; pParams->pUtf8String[%d] = '%lc'\n",
+									c, c, pParams->pCurrentEncodingArray[c], pParams->pCurrentEncodingArray[c], k, pParams->pUtf8String[k]);
+							#endif
 						}
-						
+												
 						pParams->lexeme[k++] = c;
 					}
 					
@@ -4032,6 +4494,7 @@ void GetNextToken(Params *pParams)
 							
 							if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 							{
+								//pParams->pEncodingString[k] = L'\0';
 								pParams->pUtf8String[k] = L'\0';								
 							}
 							else
@@ -4100,7 +4563,8 @@ void GetNextToken(Params *pParams)
 										}
 										
 										if ( 0xFFFD != pParams->myCID )
-										{
+										{													
+											//pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4109,6 +4573,7 @@ void GetNextToken(Params *pParams)
 										}
 										else
 										{
+											//pParams->pEncodingString[w] = 0xFFFD;
 											pParams->pUtf8String[w] = 0xFFFD;
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4171,6 +4636,7 @@ void GetNextToken(Params *pParams)
 										}
 										else // CID ONE BYTE TROVATO NEL CODE SPACE RANGE
 										{
+											//pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4230,6 +4696,7 @@ void GetNextToken(Params *pParams)
 										
 										if ( 0xFFFD != pParams->myCID )
 										{
+											//pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4238,6 +4705,7 @@ void GetNextToken(Params *pParams)
 										}
 										else
 										{
+											//pParams->pEncodingString[w] = 0xFFFD;
 											pParams->pUtf8String[w] = 0xFFFD;
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4298,6 +4766,7 @@ void GetNextToken(Params *pParams)
 										
 										if ( 0xFFFD != pParams->myCID )
 										{
+											//pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4306,6 +4775,7 @@ void GetNextToken(Params *pParams)
 										}
 										else
 										{
+											//pParams->pEncodingString[w] = 0xFFFD;
 											pParams->pUtf8String[w] = 0xFFFD;
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4317,6 +4787,7 @@ void GetNextToken(Params *pParams)
 									}									
 								}
 								
+								//pParams->pEncodingString[w] = L'\0';
 								pParams->pUtf8String[w] = L'\0';
 							}
 							
@@ -4356,56 +4827,80 @@ void GetNextToken(Params *pParams)
 				if ( c == 'n' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L'\n';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\n'];
+					}
 					pParams->lexeme[k++] = '\n';
 					state = S6;
 				}
 				else if ( c == 'r' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L'\r';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\r'];
+					}
 					pParams->lexeme[k++] = '\r';
 					state = S6;
 				}
 				else if ( c == 't' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L'\t';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\t'];
+					}
 					pParams->lexeme[k++] = '\t';
 					state = S6;
 				}
 				else if ( c == 'b' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L'\b';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\b'];
+					}
 					pParams->lexeme[k++] = '\b';
 					state = S6;
 				}
 				else if ( c == 'f' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L'\f';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\f'];
+					}
 					pParams->lexeme[k++] = '\f';
 					state = S6;
 				}
 				else if ( c == '(' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L'(';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'('];
+					}
 					pParams->lexeme[k++] = '(';
 					state = S6;
 				}
 				else if ( c == ')' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L')';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L')'];
+					}
 					pParams->lexeme[k++] = ')';
 					state = S6;
 				}
 				else if ( c == '\\' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = L'\\';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\\'];
+					}
 					pParams->lexeme[k++] = '\\';
 					state = S6;
 				}
@@ -4432,7 +4927,10 @@ void GetNextToken(Params *pParams)
 				if ( c != '\n' )
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+					{
+						//pParams->pEncodingString[k] = c;
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
+					}
 					pParams->lexeme[k++] = c;
 				}
 				state = S6;
@@ -4466,12 +4964,14 @@ void GetNextToken(Params *pParams)
 						if ( 0 != cOctal )
 						{
 							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+							{
+								//pParams->pEncodingString[k] = cOctal;
 								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							}
 							pParams->lexeme[k++] = cOctal;
 						}
 						else if ( 0 == cOctal && pParams->nCurrentFontSubtype == FONT_SUBTYPE_Type0 )
 						{
-							//pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
 						state = S6;
@@ -4502,12 +5002,14 @@ void GetNextToken(Params *pParams)
 						if ( 0 != cOctal )
 						{
 							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+							{
+								//pParams->pEncodingString[k] = cOctal;
 								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							}
 							pParams->lexeme[k++] = cOctal;
 						}
 						else if ( 0 == cOctal && pParams->nCurrentFontSubtype == FONT_SUBTYPE_Type0 )
 						{
-							//pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}					
 						state = S6;
@@ -4536,12 +5038,14 @@ void GetNextToken(Params *pParams)
 						if ( 0 != cOctal )
 						{
 							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
+							{
+								//pParams->pEncodingString[k] = cOctal;
 								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
+							}
 							pParams->lexeme[k++] = cOctal;
 						}
 						else if ( 0 == cOctal && pParams->nCurrentFontSubtype == FONT_SUBTYPE_Type0 )
 						{
-							//pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}						
 						state = S6;
@@ -4710,7 +5214,10 @@ void GetNextToken(Params *pParams)
 						else if ( 0 != cHexadecimal )
 						{
 							if ( FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )
+							{
+								//pParams->pEncodingString[z] = cHexadecimal;
 								pParams->pUtf8String[z] = pParams->pCurrentEncodingArray[cHexadecimal];
+							}
 							z++;
 						}
 							
@@ -4718,8 +5225,11 @@ void GetNextToken(Params *pParams)
 					}
 					pParams->lexemeTemp[z] = '\0';
 								
-					if ( FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )		
+					if ( FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )
+					{	
+						//pParams->pEncodingString[z] = L'\0';
 						pParams->pUtf8String[z] = L'\0';
+					}
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_STRING_HEXADECIMAL;					
 					//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
@@ -4742,6 +5252,7 @@ void GetNextToken(Params *pParams)
 				}
 				else
 				{					
+					//pParams->pEncodingString[0] = L'\0';
 					pParams->pUtf8String[0] = L'\0';
 					
 					pParams->myToken.Type = T_ERROR;
@@ -4859,28 +5370,10 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 				wprintf(L"\tCID %u(hex: %X) TROVATO NEL CODE SPACE RANGE. YAHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO!!!\n", pParams->myCID, pParams->myCID);
 			}
 			#endif
-				
-			/*									
-			if ( 0xFFFD == pParams->myCID )
-			{
-				pParams->pUtf8String[w] = 0xFFFD;
-								
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"\tATTENZIONE, CID %u(hex: %X) NON TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
-				#endif
-			}
-			else
-			{
-				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
-									
-				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
-				wprintf(L"\tOK, CID %u(hex: %X) TROVATO NEL CODE SPACE RANGE TWO BYTES-> pParams->pUtf8String[%d] = '%lc' -> (hex: <%4X>)\n", pParams->myCID, pParams->myCID, w, pParams->pUtf8String[w], pParams->pUtf8String[w]);
-				#endif
-			}
-			*/
-			
+						
 			if ( 0xFFFD != pParams->myCID )
 			{
+				//pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 									
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4889,6 +5382,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else
 			{
+				//pParams->pEncodingString[w] = 0xFFFD;
 				pParams->pUtf8String[w] = 0xFFFD;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4948,6 +5442,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else // CID ONE BYTE TROVATO NEL CODE SPACE RANGE
 			{
+				//pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5003,6 +5498,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 											
 			if ( 0xFFFD != pParams->myCID )
 			{
+				//pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 									
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5011,6 +5507,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else
 			{
+				//pParams->pEncodingString[w] = 0xFFFD;
 				pParams->pUtf8String[w] = 0xFFFD;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5067,6 +5564,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 										
 			if ( 0xFFFD != pParams->myCID )
 			{
+				//pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 									
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5075,6 +5573,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else
 			{
+				//pParams->pEncodingString[w] = 0xFFFD;
 				pParams->pUtf8String[w] = 0xFFFD;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5086,6 +5585,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 		}									
 	}
 								
+	//pParams->pEncodingString[w] = L'\0';
 	pParams->pUtf8String[w] = L'\0';
 	
 	return retVal;
@@ -5833,6 +6333,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				{
 					if ( '\0' != c )
 					{
+						//pParams->pEncodingString[k] = c;
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
 						pParams->lexeme[k++] = c;
 					}
@@ -5844,6 +6345,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						if ( pParams->nStackStringOpenParen <= 0 )
 						{
 							pParams->lexeme[--k] = '\0';
+							//pParams->pEncodingString[k] = L'\0';
 							pParams->pUtf8String[k] = L'\0';
 							pParams->myToken.Type = T_STRING_LITERAL;
 							//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
@@ -5875,48 +6377,56 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 			case S7:
 				if ( c == 'n' )
 				{
+					//pParams->pEncodingString[k] = L'\n';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\n'];
 					pParams->lexeme[k++] = '\n';
 					state = S6;
 				}
 				else if ( c == 'r' )
 				{
+					//pParams->pEncodingString[k] = L'\r';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\r'];
 					pParams->lexeme[k++] = '\r';
 					state = S6;
 				}
 				else if ( c == 't' )
 				{
+					//pParams->pEncodingString[k] = L'\t';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\t'];
 					pParams->lexeme[k++] = '\t';
 					state = S6;
 				}
 				else if ( c == 'b' )
 				{
+					//pParams->pEncodingString[k] = L'\b';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\b'];
 					pParams->lexeme[k++] = '\b';
 					state = S6;
 				}
 				else if ( c == 'f' )
 				{
+					//pParams->pEncodingString[k] = L'\f';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\f'];
 					pParams->lexeme[k++] = '\f';
 					state = S6;
 				}
 				else if ( c == '(' )
 				{
+					//pParams->pEncodingString[k] = L'(';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'('];
 					pParams->lexeme[k++] = '(';
 					state = S6;
 				}
 				else if ( c == ')' )
 				{
+					//pParams->pEncodingString[k] = L')';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L')'];
 					pParams->lexeme[k++] = ')';
 					state = S6;
 				}
 				else if ( c == '\\' )
 				{
+					//pParams->pEncodingString[k] = L'\\';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\\'];
 					pParams->lexeme[k++] = '\\';
 					state = S6;
@@ -5943,6 +6453,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 			case S8:
 				if ( c != '\n' )
 				{
+					//pParams->pEncodingString[k] = c;
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
 					pParams->lexeme[k++] = c;
 				}
@@ -5976,6 +6487,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
+							//pParams->pEncodingString[k] = cOctal;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
@@ -6006,6 +6518,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
+							//pParams->pEncodingString[k] = cOctal;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
@@ -6034,6 +6547,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
+							//pParams->pEncodingString[k] = cOctal;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
@@ -6193,11 +6707,16 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						}
 						
 						if ( 0 != cHexadecimal )
-							pParams->pUtf8String[z++] = pParams->pCurrentEncodingArray[cHexadecimal];
+						{
+							//pParams->pEncodingString[z] = cHexadecimal;
+							pParams->pUtf8String[z] = pParams->pCurrentEncodingArray[cHexadecimal];
+							z++;
+						}
 												
 						y += 2;
 					}
 					
+					//pParams->pEncodingString[z] = L'\0';
 					pParams->pUtf8String[z] = L'\0';
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_STRING_HEXADECIMAL;					
@@ -6213,6 +6732,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				}
 				else
 				{
+					//pParams->pEncodingString[0] = L'\0';
 					pParams->pUtf8String[0] = L'\0';
 					
 					pParams->myToken.Type = T_ERROR;

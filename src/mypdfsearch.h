@@ -68,9 +68,19 @@ typedef struct tagFilesList
 
 
 /*
+MYDEBUG_PRINT_SINGLE_CHAR_ENCODING
+MYDEBUG_PRINT_SINGLE_CHAR_COORD
+
+MYDEBUG_PRINT_ON_SHOW_COORDINATE_STRING
+MYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR
+MYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR
+MYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR
+MYDEBUG_PRINT_ON_CTM_OPERATOR
+
 MYPDFSEARCH_SHOW_TIME
 MYDEBUG_PRINT_COUNT_CONTENT_TYPE
 MYDEBUG_PRINT_DECODED_CONTENT_TOKENS
+MYDEBUG_PRINT_DECODED_CONTENT_NUMSTACK
 
 MYDEBUG_PRINT_ALL
 MYDEBUG_PRINT_ON_MATCH
@@ -84,9 +94,10 @@ MYDEBUG_PRINT_ON_PARSE_CMAP_STREAM
 MYDEBUG_PRINT_ON_PARSE_PAGETREEOBJ
 MYDEBUG_PRINT_ON_PARSE_LENGTHOBJ
 MYDEBUG_PRINT_ON_PARSE_INTEGEROBJ
-MYDEBUG_PRINT_ON_PARSE_XOBJDICTOBJ
 MYDEBUG_PRINT_ON_PARSE_RESOURCESDICT
+MYDEBUG_PRINT_ON_PARSE_FONTDESCRIPTOROBJ
 MYDEBUG_PRINT_ON_PARSE_FONTOBJ
+MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS
 MYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ
 MYDEBUG_PRINT_ON_PARSE_COT
 
@@ -108,6 +119,7 @@ MYDEBUG_PRINT_ON_ParseStmObj_FN
 MYDEBUG_PRINT_ON_ManageContent_FN
 MYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected
 MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected
+MYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
 MYDEBUG_PRINT_ON_ManageContent_PrintPageNum
 MYDEBUG_PRINT_ON_ManageContent_PrintContent
 MYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR
@@ -122,31 +134,9 @@ MYDEBUG_PRINT_ON_ParseLengthObject_FN
 
 
 /*
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_getObjsOffsets_FN
- 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ParseTrailerXRefStreamObject_FN -DMYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ 
-
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_STMOBJ -DMYDEBUG_PRINT_ON_ParseStmObj_FN
- 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_STMOBJ -DMYDEBUG_PRINT_ON_ParseStmObj_FN -DMYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
- 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_PARSE_XREF_STREAMOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
- 
- 
- 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN -DMYDEBUG_PRINT_ON_PARSE_STREAMOBJ -DMYDEBUG_PRINT_ON_PARSE_STREAMXOBJ -DMYDEBUG_PRINT_ON_ManageDecodeParams_FN
-
-
-
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ManageContent_PrintContent -DMYDEBUG_PRINT_ON_ManageContent_PrintContent_HEXCODECHAR
-
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ -DMYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM -DMYDEBUG_PRINT_ON_PARSE_CMAP_STREAM
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ
-
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_ReadHeader_FN -DMYDEBUG_PRINT_ON_ReadTrailer_FN
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_getObjsOffsets_FN 
 */
 
 
@@ -182,6 +172,8 @@ https://vlcfreecode.netsons.org/wp-admin/
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan13.pdf" --frompage=1 --topage=1
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1
+
+./mypdfsearch --path="../Files/gccFiles/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --words="Virginia Orbán branco"
 
 ------------------------------------------------------------------------------------------------------------------------------------
 */
@@ -340,10 +332,34 @@ time ./mypdfsearch --path="/home/vincenzo/MyJob/Progetti/Files/FileProblematici"
 // ***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
 
 /*
-gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
 
 ------------------------------------------------------------------------------------------------------------------------------------
  
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path='../Files/gccFiles/Giornali/A2018/Q20180104/la Repubblica 4 Gennaio 2018.pdf' --words="Virginia Orbán branco"
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="../Files/gccFiles/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --words="Virginia Orbán branco"
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File10/aandy01.pdf" --frompage=1 --topage=1
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File10/aandy02.pdf" --frompage=1 --topage=1
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom='../Files/Nuovi/Q20191012/La Repubblica - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File03/Il Giornale - 8 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile=AAA_OUT_ILGIORNALE_FONTS.txt > AAA_ILGIORNALE_FONTS.txt
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1 > AAA_FONTS_LIBERO.txt
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1
+ 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/chapter6/kerning.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/chapter6/rise.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/chapter6/spacing.pdf" --frompage=1 --topage=1
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/chapter6/textmodes.pdf" --frompage=1 --topage=1 
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/chapter6/texttransforms.pdf" --frompage=1 --topage=1
+
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_00bis.txt ./mypdfsearchdebug --path="../Files/gccFiles/Giornali/A2018/Q20180102/corriere_della_sera_-_02_gennaio_2018.pdf" --words="Virginia Orbán branco"
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=../../Valgrind/AAA_outputValgrind_01.txt ./mypdfsearchdebug --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1
@@ -389,13 +405,55 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 */
 
 /*
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191016/Corriere della Sera - 16 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191016/Il Fatto Quotidiano - 16 ottobre 2019.pdf' --frompage=1 --topage=1
+
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/Corriere della Sera - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/Il Fatto Quotidiano - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/Il Giornale - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/Il Manifesto - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/Il Sole 24 Ore - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/Il Sole 24 Ore La Guida Rapida - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/La Repubblica - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/La Stampa - 14 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191014/Libero - 14 ottobre 2019.pdf' --frompage=1 --topage=1 
+
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/Corriere della Sera - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/Il Fatto Quotidiano - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/Il Giornale - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/Il Manifesto - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/Il Sole 24 Ore - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/La Repubblica - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/La Stampa - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191013/Libero - 13 ottobre 2019.pdf' --frompage=1 --topage=1
+ 
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/Corriere della Sera - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/Il Fatto Quotidiano - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/Il Giornale - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/Il Manifesto 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/Il Sole 24 Ore - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/Il Sole 24 Ore Plus - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/La Repubblica - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/La Stampa - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom='../Files/Nuovi/Q20191012/Libero - 12 ottobre 2019.pdf' --frompage=1 --topage=1
+
 ------------------------------------------------------------------------------------------------------------------------------------
  
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
  
 ./mypdfsearch --path="../Files/FileProblematici/prob01.pdf" --words="Virginia Orbán branco"
  
 ./mypdfsearch --path="../Files/gccFiles/Giornali/A2018/Q20180102/corriere_della_sera_-_02_gennaio_2018.pdf" --words="Virginia Orbán branco"
+
+
+
+./mypdfsearch --extracttextfrom="../Files/chapter6/mykerning.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/chapter6/myrise.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/chapter6/myspacing.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/chapter6/mytextmodes.pdf" --frompage=1 --topage=1 
+./mypdfsearch --extracttextfrom="../Files/chapter6/mytexttransforms.pdf" --frompage=1 --topage=1
+
+
 
 ./mypdfsearch --extracttextfrom="../Files/File01/Corriere della Sera - 20 luglio 2019.pdf" --frompage=1 --topage=1
 ./mypdfsearch --extracttextfrom="../Files/File02/Il Fatto Quotidiano - 9 aprile 2019.pdf" --frompage=1 --topage=1
@@ -407,13 +465,32 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 ./mypdfsearch --extracttextfrom="../Files/File08/La Repubblica - 9 aprile 2019.pdf" --frompage=1 --topage=1
 ./mypdfsearch --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1
 ./mypdfsearch --extracttextfrom="../Files/File10/Libero - 8 aprile 2019.pdf" --frompage=1 --topage=1
+ 
+
+./mypdfsearch --extracttextfrom="../Files/File10/aandy01.pdf" --frompage=1 --topage=1
+./mypdfsearch --extracttextfrom="../Files/File10/aandy02.pdf" --frompage=1 --topage=1
+ 
+./mypdfsearch --extracttextfrom="../Files/aandy/mylibero.pdf" --frompage=1 --topage=1
+
+
+
+./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+ 
+
+
+-DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD2 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected
+
+-DMYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected
+-DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected
+-DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
+-DMAKE_PDFTK_SRC
 
 ./mypdfsearch --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17
  
 ./mypdfsearch  --extracttextfrom="../Files/gccFiles/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --frompage=254 --topage=254
 
 ./mypdfsearch --words="sound アリス" --path="../Files/JapaneseGrammarGuide.pdf" --frompage=34 --topage=34
-./mypdfsearch --words="sound" --path="../Files/JapaneseGrammarGuide.pdf"
+./mypdfsearch --words="sound  アリス" --path="../Files/JapaneseGrammarGuide.pdf"
 ./mypdfsearch --extracttextfrom="../Files/JapaneseGrammarGuide.pdf" --frompage=1 --topage=5
  
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/SoloGiapponese/kk190531a.pdf" --frompage=1 --topage=1
@@ -433,8 +510,5 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan13.pdf" --frompage=1 --topage=1
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1 
-
-
-
-./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japaneseVerticalPagina97.pdf" --frompage=97 --topage=97
 */

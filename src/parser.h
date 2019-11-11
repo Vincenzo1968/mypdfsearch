@@ -64,8 +64,85 @@ typedef enum tagPreParseStates
 	S_PP32
 } PreParseStates;
 
+/*
+PDF32000 Pag. 118:
+
+• Translations shall be specified as [ 1 0 0 1 t x t y ], where t x and t y shall be the distances to translate the
+  origin of the coordinate system in the horizontal and vertical dimensions, respectively.
+
+• Scaling shall be obtained by [ s x 0 0 s y 0 0 ]. This scales the coordinates so that 1 unit in the horizontal
+  and vertical dimensions of the new coordinate system is the same size as s x and s y units, respectively, in
+  the previous coordinate system.
+
+• Rotations shall be produced by [ cos q sin q -sin q cos q 0 0 ], which has the effect of rotating the
+  coordinate system axes by an angle q counter clockwise.
+
+• Skew shall be specified by [ 1 tan a tan b 1 0 0 ], which skews the x axis by an angle a and the y axis by an angle b.
+ 
+-------------------------------------------------------------------------------------------------------------------------
+
+The cm operator takes six arguments, representing a matrix to be composed with the
+CTM. Here are the basic transforms:
+
+• Translation by (dx, dy) is specified by 1, 0, 0, 1, dx, dy
+• Scaling by (sx, sy) about (0, 0) is specified by sx, 0, 0, sy, 0, 0
+• Rotating counterclockwise by x radians about (0, 0) is specified by cos x, sin x, -sin x, cos x, 0, 0
+*/
+
+/*
+typedef struct tagTransMatrix
+{
+	double a; // Scaling sx
+	double b; // Rotating counterclockwise by x radians about (b, 0)
+	double c; // Rotating counterclockwise by x radians about (0, c)
+	double d; // Scaling sy
+	double e; // Translation dx
+	double f; // Translation dy
+} TransMatrix;
+
+typedef struct tagGlyphsWidths
+{
+	int FirstChar;
+	int LastChar;
+	int WidthsArraySize;
+	double *pWidths;
+	double MissingWidth;
+	double dFontSpaceWidth;
+} GlyphsWidths;
+
+typedef struct tagTextState
+{
+	double Tc;
+	double Tw;
+	double Th;
+	double Tl;
+	double Tfs;
+	double Trise;
+} TextState;
+*/
+
+int VlRbtCompareFuncRow(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
+int VlRbtCompareFuncOrd(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
+int VlRbtOnTraverseFunc(void* pCurrNode);
+int VlRbtOnTraverseFuncNew(void* pCurrNode);
+
+void MultiplyTransMatrix(TransMatrix *pA, TransMatrix *pB, TransMatrix *pRes);
+
 int getFontDataHT(Params *pParams, uint32_t objNum);
 int insertFontDataHT(Params *pParams, uint32_t objNum);
+
+void setPredefFontsWidthsArray(Params *pParams);
+void set_Helvetica(Params *pParams);
+void set_Helvetica_Bold(Params *pParams);
+void set_Helvetica_BoldOblique(Params *pParams);
+void set_Helvetica_Oblique(Params *pParams);
+void set_Symbol(Params *pParams);
+void set_Times_Bold(Params *pParams);
+void set_Times_BoldItalic(Params *pParams);
+void set_Times_Italic(Params *pParams);
+void set_Times_Roman(Params *pParams);
+void set_ZapfDingbats(Params *pParams);
+
 
 unsigned char * getDecodedStream(Params *pParams, unsigned long int *pDecodedStreamSize, MyContent_t *pContent);
 
@@ -80,8 +157,16 @@ void MakeDifferencesArrayCodes(Params *pParams);
 void MakeMacExpertArrayCodes(Params *pParams);
 
 int myPrintLastBlock(Params *pParams);
+
 void PrintToken(Token *pToken, char cCarattereIniziale, char cCarattereFinale, int bPrintACapo);
+
 int PrintThisObject(Params *pParams, int objNum, int bDecodeStream, int nPageNumber, FILE* fpErrors);
+
+int PrintThisObjectFontFile(Params *pParams, int objNum, FILE* fpOutput);
+
+void PrintFileProva_Libero(Params *pParams, const char *pszFileName);
+void PrintFileProva_LaStampa(Params *pParams, const char *pszFileName);
+void PrintFileProva_IlGiornale(Params *pParams, const char *pszFileName);
 
 int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName);
 
@@ -97,15 +182,22 @@ int ParseStreamXObject(Params *pParams, int objNum);
 int ParseCMapStream(Params *pParams, int objNum, unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize);
 int ParseToUnicodeStream(Params *pParams, int objNum, unsigned char *pszDecodedStream, unsigned long int DecodedStreamSize);
 int ParseCMapObject(Params *pParams, int objNum);
+int ParseGsObject(Params *pParams, int objNum);
+int ParseFontWidthsArray(Params *pParams, int objNum);
+int ParseFontDescriptorObject(Params *pParams, int objNum);
 int ParseFontObject(Params *pParams, int objNum);
+int ParseCIDFontObject(Params *pParams, int objNum);
 int ParseEncodingObject(Params *pParams, int objNum);
 int ParseDictionaryObject(Params *pParams, int objNum);
 int ParseLengthObject(Params *pParams, int objNum);
 int ParseIntegerObject(Params *pParams, int objNum);
 
 int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber);
-int ManageDecodedContent(Params *pParams, int nPageNumber);
+double getCurrCharWidth(Params *pParams, wchar_t c);
+int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszString, size_t lenString);
+int ManageDecodedContentText(Params *pParams, int nPageNumber);
 int ManageContent(Params *pParams, int nPageNumber);
+int ManageExtractedText(Params *pParams, int bPrint, int bSearch);
 
 int getObjsOffsets(Params *pParams, char *pszFileName); // preparse file
 
@@ -177,6 +269,19 @@ int xobjcontentkeyvalue(Params *pParams);
 int xobjcontentkeyarray(Params *pParams);
 int xobjcontentkeydict(Params *pParams);
 
+int gsobj(Params *pParams);
+int gsobjbody(Params *pParams);
+
+int widthsarrayobj(Params *pParams);
+int widthsarrayobjbody(Params *pParams);
+
+int fontdescriptorobj(Params *pParams);
+int fontdescriptorobjbody(Params *pParams);
+int fontdescriptorobjbodydictitems(Params *pParams);
+int fontdescriptorobjkeyvalue(Params *pParams);
+int fontdescriptorobjkeyarray(Params *pParams);
+int fontdescriptorobjkeydict(Params *pParams);
+
 int contentfontobj(Params *pParams);
 int contentfontobjbody(Params *pParams);
 int fontobjstreamdictitems(Params *pParams);
@@ -184,6 +289,13 @@ int fontobjcontentkeyvalue(Params *pParams);
 int fontdirectencodingobjarray(Params *pParams);
 int fontobjcontentkeyarray(Params *pParams);
 int fontobjcontentkeydict(Params *pParams);
+
+int cidfontobj(Params *pParams);
+int cidfontobjbody(Params *pParams);
+int cidfontobjdictitems(Params *pParams);
+int cidfontobjkeyvalue(Params *pParams);
+int cidfontobjkeyarray(Params *pParams);
+int cidfontobjkeydict(Params *pParams);
 
 int encodingobj(Params *pParams);
 int encodingobjbody(Params *pParams);

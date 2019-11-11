@@ -100,14 +100,14 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_mypdfsearch_OBJECTS = main.$(OBJEXT) mytime.$(OBJEXT) \
-	myTree.$(OBJEXT) myGenHashTable.$(OBJEXT) \
-	myInitPredefCMapHT.$(OBJEXT) myinitarray.$(OBJEXT) \
-	myoctal.$(OBJEXT) myTernarySearchTree.$(OBJEXT) \
-	myScopeHashTable.$(OBJEXT) myobjrefqueuelist.$(OBJEXT) \
-	mydictionaryqueuelist.$(OBJEXT) mystringqueuelist.$(OBJEXT) \
-	mycontentqueuelist.$(OBJEXT) mynumstacklist.$(OBJEXT) \
-	myintqueuelist.$(OBJEXT) mydecode.$(OBJEXT) scanner.$(OBJEXT) \
-	parser.$(OBJEXT)
+	vlRedBlackTrees.$(OBJEXT) myTree.$(OBJEXT) \
+	myGenHashTable.$(OBJEXT) myInitPredefCMapHT.$(OBJEXT) \
+	myinitarray.$(OBJEXT) myoctal.$(OBJEXT) \
+	myTernarySearchTree.$(OBJEXT) myScopeHashTable.$(OBJEXT) \
+	myobjrefqueuelist.$(OBJEXT) mydictionaryqueuelist.$(OBJEXT) \
+	mystringqueuelist.$(OBJEXT) mycontentqueuelist.$(OBJEXT) \
+	mynumstacklist.$(OBJEXT) myintqueuelist.$(OBJEXT) \
+	mydecode.$(OBJEXT) scanner.$(OBJEXT) parser.$(OBJEXT)
 mypdfsearch_OBJECTS = $(am_mypdfsearch_OBJECTS)
 mypdfsearch_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -257,7 +257,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-mypdfsearch_SOURCES = main.c mytime.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c mytime.h myTree.h myGenHashTable.h myInitPredefCMapHT.h mycontentqueuelist.h mydecode.h mydictionaryqueuelist.h myintqueuelist.h mynumstacklist.h myobjrefqueuelist.h myoctal.h mypdfsearch.h myScopeHashTable.h mystringqueuelist.h myTernarySearchTree.h parser.h scanner.h
+mypdfsearch_SOURCES = main.c mytime.c vlRedBlackTrees.c myTree.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c mytime.h vlRedBlackTrees.h myTree.h myGenHashTable.h myInitPredefCMapHT.h mycontentqueuelist.h mydecode.h mydictionaryqueuelist.h myintqueuelist.h mynumstacklist.h myobjrefqueuelist.h myoctal.h mypdfsearch.h myScopeHashTable.h mystringqueuelist.h myTernarySearchTree.h parser.h scanner.h
 
 #mypdfsearch_CFLAGS = -Wall -W -pedantic -O3 -Wno-overlength-strings
 #mypdfsearch_LDFLAGS = -lz -lm
@@ -369,6 +369,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mytime.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scanner.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vlRedBlackTrees.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

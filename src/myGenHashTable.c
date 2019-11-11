@@ -498,7 +498,7 @@ int GenStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2
 	UNUSED(keysize1);
 	UNUSED(keysize2);
 	
-	//wprintf(L"GenStringCompareFunc -> KEY1[%s](length = %lu) <> KEY2[%s](length = %lu)\n", pKey1, keysize1, pKey2, keysize2);
+	//wprintf(L"GenStringCompareFunc -> KEY1[%s](keysize1 = %lu) <> KEY2[%s](keysize2 = %lu)\n", pKey1, keysize1, pKey2, keysize2);
 	
 	return strncmp((char*)pKey1, (char*)pKey2, BLOCK_SIZE - 1);
 }
@@ -521,7 +521,7 @@ int GenWideStringCompareFunc(const void* pKey1, uint32_t keysize1, const void* p
 	UNUSED(keysize1);
 	UNUSED(keysize2);
 	
-	//wprintf(L"GenWideStringCompareFunc -> KEY1[%ls](length = %u) <> KEY2[%ls](length = %u)\n", (wchar_t*)pKey1, keysize1, (wchar_t*)pKey2, keysize2);
+	//wprintf(L"GenWideStringCompareFunc -> KEY1[%ls](keysize1 = %u) <> KEY2[%ls](keysize2 = %u)\n", (wchar_t*)pKey1, keysize1, (wchar_t*)pKey2, keysize2);
 	
 	return wcsncmp((wchar_t*)pKey1, (wchar_t*)pKey2, BLOCK_SIZE - 1);
 }
