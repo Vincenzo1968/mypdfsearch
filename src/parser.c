@@ -3084,8 +3084,8 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 	wprintf(L"[%lc](row = %f; col = %f; ord = %d); width = [%f Scaled %f]; nextXCoord = %f\n", pMyData->c, pMyKey->row, pMyKey->col, pMyKey->ord, pMyData->width, pMyData->widthScaled, pMyKey->col + pMyData->widthScaled);
-	wprintf(L"\tFontSpaceWidth = [%f Scaled %f]\n", pMyData->currFontSpaceWidth, pMyData->width, pMyData->currFontSpaceWidthScaled);
-	wprintf(L"\txDiff = %f; pMyData->prevCol = %f; FontSize = %f\n", xDiff, prevCol, pMyData->currFontSize);
+	wprintf(L"\tFontSpaceWidth = [%f Scaled %f]; FontSize = %f\n", pMyData->currFontSpaceWidth, pMyData->currFontSpaceWidthScaled, pMyData->currFontSize);
+	wprintf(L"\txDiff = %f; pMyKey->col = %f; prevXCoordNext = %f\n", xDiff, pMyKey->col, prevXCoordNext);
 	#endif
 		
 	if ( xDiff > pMyData->currFontSpaceWidth && pMyData->c != L' ' && prevChar != L' ' )
@@ -3122,6 +3122,7 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	return 1;
 }
 
+/*
 int VlRbtOnTraverseFuncNew(void* pCurrNode)
 {
 	double xDiff;
@@ -3138,7 +3139,9 @@ int VlRbtOnTraverseFuncNew(void* pCurrNode)
 	double prevXCoordNext;
 	//double prevYCoordNext;	
 
-	//wchar_t nextChar;
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+	wchar_t nextChar;
+	#endif
 	double nextRow;
 	double nextCol;
 	//double nextOrd;
@@ -3159,10 +3162,14 @@ int VlRbtOnTraverseFuncNew(void* pCurrNode)
 	vlrbtData_t *pMyDataPredecessor = NULL;
 	
 	vlrbtKey_t *pMyKeySuccessor = NULL;
-	//vlrbtData_t *pMyDataSuccessor = NULL;
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+	vlrbtData_t *pMyDataSuccessor = NULL;
+	#endif
 		
 	vlrbtTreePredecessor(pCurrNode, &pPredecessor);
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 	vlrbtTreeSuccessor(pCurrNode, &pSuccessor);
+	#endif
 		
 	if ( NULL != pPredecessor )
 	{
@@ -3195,7 +3202,9 @@ int VlRbtOnTraverseFuncNew(void* pCurrNode)
 		pMyKeySuccessor = (vlrbtKey_t*)pSuccessor->pKey;
 		//pMyDataSuccessor = (vlrbtData_t*)pSuccessor->pData;
 
-		//nextChar = pMyDataSuccessor->c;
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		nextChar = pMyDataSuccessor->c;
+		#endif
 		nextRow = pMyKeySuccessor->row;
 		nextCol = pMyKeySuccessor->col;
 		//nextOrd = pMyKeySuccessor->ord;
@@ -3206,7 +3215,9 @@ int VlRbtOnTraverseFuncNew(void* pCurrNode)
 	}
 	else
 	{
-		//nextChar = L'§';
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		nextChar = L'§';
+		#endif
 		nextRow = 0;
 		nextCol = 0;
 		//nextOrd = 0;
@@ -3293,6 +3304,7 @@ int VlRbtOnTraverseFuncNew(void* pCurrNode)
 	
 	return 1;
 }
+*/
 
 double getCurrCharWidth(Params *pParams, wchar_t c)
 {
@@ -3335,11 +3347,11 @@ double getCurrCharWidth(Params *pParams, wchar_t c)
 	if ( dblCurrCharWidth <= 0.0 )
 	{
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD2)
-		wprintf(L"ATTENZIONE: Current Char Width = %f; NON Lo imposto a pParams->pCurrFontGlyphsWidths->MissingWidth(%f)/1000.0 = %f\n", dblCurrCharWidth, pParams->pCurrFontGlyphsWidths->MissingWidth, pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0);
+		wprintf(L"ATTENZIONE: Current Char Width = %f; Lo imposto a pParams->pCurrFontGlyphsWidths->MissingWidth(%f)/1000.0 = %f\n", dblCurrCharWidth, pParams->pCurrFontGlyphsWidths->MissingWidth, pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0);
 		wprintf(L"\tIn alternativa potrei NON impostarlo a pParams->pCurrFontGlyphsWidths->DW(%f)/1000.0 = %f\n", pParams->pCurrFontGlyphsWidths->DW, pParams->pCurrFontGlyphsWidths->DW/1000.0);
 		#endif
 			
-		//dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0;
+		dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0;
 	}
 	
 	return dblCurrCharWidth;
@@ -3654,8 +3666,8 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		MultiplyTransMatrix(&tempTextMatrixA, &tempTextMatrixB, &(pParams->dsTextMatrix));	
 		
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD2)
-		wprintf(L"c = '%lc', XCoord = %f; YCoord = %f; CharWidth = %f; Tx = %f, xCoordNext = %f; xDiff = %f; FontSpaceWidthScaled = %f\n",
-				c, xCoordCurrent, yCoordCurrent, dblCurrCharWidth, Tx, xCoordNext, xDiff, pParams->dCurrFontSpaceWidthScaled);
+		wprintf(L"c = '%lc', XCoord = %f; YCoord = %f; CharWidth = %f; Tx = %f, xCoordNext = %f; FontSpaceWidthScaled = %f\n",
+				c, xCoordCurrent, yCoordCurrent, dblCurrCharWidth, Tx, xCoordNext, pParams->dCurrFontSpaceWidthScaled);
 		wprintf(L"\tdCurrFontSpaceWidth = [%f Scaled: %f]; dCurrFontMinWidth = [%f Scaled : %f]; dCurrFontMaxWidth = [%f Scaled : %f];\n",
 				pParams->dCurrFontSpaceWidth,
 				pParams->dCurrFontSpaceWidthScaled,

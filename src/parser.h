@@ -124,7 +124,7 @@ typedef struct tagTextState
 int VlRbtCompareFuncRow(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
 int VlRbtCompareFuncOrd(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
 int VlRbtOnTraverseFunc(void* pCurrNode);
-int VlRbtOnTraverseFuncNew(void* pCurrNode);
+//int VlRbtOnTraverseFuncNew(void* pCurrNode);
 
 void MultiplyTransMatrix(TransMatrix *pA, TransMatrix *pB, TransMatrix *pRes);
 
