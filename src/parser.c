@@ -2918,6 +2918,54 @@ void MultiplyTransMatrix(TransMatrix *pA, TransMatrix *pB, TransMatrix *pRes)
 	pRes->f = (pA->e * pB->b) + (pA->f * pB->d) + pB->f;
 }
 
+int VlRbtCompareFuncCol(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2)
+{
+	UNUSED(keysize1);
+	UNUSED(keysize2);
+	
+	vlrbtKey_t *pMyKey1 = (vlrbtKey_t*)pKey1;
+	vlrbtKey_t *pMyKey2 = (vlrbtKey_t*)pKey2;
+		
+	if ( pMyKey1->col < pMyKey2->col )
+	{
+		return -1;
+	}
+	else if ( pMyKey1->col > pMyKey2->col )
+	{
+		return 1;
+	}
+	else // pMyKey1->col == pMyKey2->col; CONFRONTIAMO LE RIGHE.
+	{
+		if ( pMyKey1->row > pMyKey2->row )
+		{
+			//return 1;
+			return -1;   // Perché le righe vanno dal basso in alto
+		}
+		else if ( pMyKey1->row < pMyKey2->row )
+		{
+			//return -1;
+			return 1;    // Perché le righe vanno dal basso in alto
+		}
+		else // pMyKey1->row == pMyKey2->row; CONFRONTIAMO L'ordine di lettura.
+		{
+			if ( pMyKey1->ord > pMyKey2->ord )
+			{
+				return 1;
+			}
+			else if ( pMyKey1->ord < pMyKey2->ord )
+			{
+				return -1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+	}
+}
+
+// https://scfbm.biomedcentral.com/articles/10.1186/1751-0473-7-7
+
 int VlRbtCompareFuncRow(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2)
 {
 	UNUSED(keysize1);
@@ -3006,120 +3054,6 @@ int VlRbtCompareFuncOrd(const void* pKey1, uint32_t keysize1, const void* pKey2,
 			}
 		}
 	}
-}
-
-int VlRbtOnTraverseFunc(void* pCurrNode)
-{
-	double xDiff;
-	
-	//double xCoordNext = 0.0;
-	//double yCoordNext = 0.0;
-	
-	wchar_t prevChar;
-	double prevRow;
-	double prevXCoordNext;
-	
-	vlrbtTreeNode *pPredecessor;
-	
-	vlrbtTreeNode *pMyCurrNode = (vlrbtTreeNode*)pCurrNode;
-	
-	vlrbtKey_t *pMyKey = (vlrbtKey_t*)pMyCurrNode->pKey;
-	vlrbtData_t *pMyData = (vlrbtData_t*)pMyCurrNode->pData;
-	
-	vlrbtKey_t *pMyKeyPredecessor = NULL;
-	vlrbtData_t *pMyDataPredecessor = NULL;
-	
-	vlrbtTreePredecessor(pCurrNode, &pPredecessor);
-		
-	if ( NULL != pPredecessor )
-	{
-		pMyKeyPredecessor = (vlrbtKey_t*)pPredecessor->pKey;
-		pMyDataPredecessor = (vlrbtData_t*)pPredecessor->pData;
-
-		prevChar = pMyDataPredecessor->c;
-		prevRow = pMyKeyPredecessor->row;
-		//prevCol = pMyKeyPredecessor->col;
-		//prevOrd = pMyKeyPredecessor->ord;
-		//prevWidth = pMyDataPredecessor->width;
-		//prevWidthScaled = pMyDataPredecessor->widthScaled;
-		prevXCoordNext = pMyDataPredecessor->xCoordNext;
-		//prevYCoordNext = pMyDataPredecessor->yCoordNext;
-	}
-	else
-	{
-		prevChar = L' ';
-		prevRow = 0;
-		//prevCol = 0;
-		//prevOrd = 0;
-		//prevWidth = 0;
-		//prevWidthScaled = 0;
-		prevXCoordNext = 0;
-		//prevYCoordNext = 0;
-	}
-					
-	if ( pMyKey->row == prevRow )
-	{
-		//xDiff = pMyKey->col - (pMyData->prevCol + pMyData->prevWidthScaled);
-		xDiff = pMyKey->col - prevXCoordNext;
-	}
-	else
-	{
-		if ( prevRow > 0.0 )
-		{
-			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
-			wprintf(L"VADO A CAPO: pMyKey->row = %f; pMyData->prevRow = %f\n", pMyKey->row, prevRow);
-			#endif
-		
-			//if ( NULL != pMyData->fpOutput )	
-			//	fwprintf(pMyData->fpOutput, L"\n");
-			//else
-			//	wprintf(L"\n");
-				
-			pMyData->pParams->pText[pMyData->pParams->TextLength] = L'\n';
-			pMyData->pParams->TextLength++;
-		}
-		
-		xDiff = 0.0;
-	}
-	
-	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
-	wprintf(L"[%lc](row = %f; col = %f; ord = %d); width = [%f Scaled %f]; nextXCoord = %f\n", pMyData->c, pMyKey->row, pMyKey->col, pMyKey->ord, pMyData->width, pMyData->widthScaled, pMyKey->col + pMyData->widthScaled);
-	wprintf(L"\tFontSpaceWidth = [%f Scaled %f]; FontSize = %f\n", pMyData->currFontSpaceWidth, pMyData->currFontSpaceWidthScaled, pMyData->currFontSize);
-	wprintf(L"\txDiff = %f; pMyKey->col = %f; prevXCoordNext = %f\n", xDiff, pMyKey->col, prevXCoordNext);
-	#endif
-		
-	if ( xDiff > pMyData->currFontSpaceWidth && pMyData->c != L' ' && prevChar != L' ' )
-	//if ( xDiff > pMyData->CurrFontSpaceWidthScaled && pMyData->c != L' ' && prevChar != L' ' )
-	{	
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
-		wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dCurrFontSpaceWidth(%f)\n", pMyData->c, xDiff, pMyData->currFontSpaceWidth);
-		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dFontSpaceWidthScaled(%f)\n", pMyData->c, xDiff, pMyData->currFontSpaceWidthScaled);
-		#endif
-							
-		//if ( NULL != pMyData->fpOutput )
-		//	fwprintf(pMyData->fpOutput, L" ");
-		//else
-		//	wprintf(L" ");
-			
-		pMyData->pParams->pText[pMyData->pParams->TextLength] = L' ';
-		pMyData->pParams->TextLength++;
-	}
-									
-	//if ( NULL != pMyData->fpOutput )	
-	//	fwprintf(pMyData->fpOutput, L"%lc", pMyData->c);
-	//else
-	//	wprintf(L"%lc", pMyData->c);
-		
-	pMyData->pParams->pText[pMyData->pParams->TextLength] = pMyData->c;
-	pMyData->pParams->TextLength++;
-		
-	//pMyData->prevChar = pMyData->c;
-	//pMyData->prevRow = pMyKey->row;
-	//pMyData->prevCol = pMyKey->col;
-	//pMyData->prevWidth = pMyData->width;
-	//pMyData->prevWidthScaled = pMyData->widthScaled;
-	
-	return 1;
 }
 
 /*
@@ -3306,6 +3240,166 @@ int VlRbtOnTraverseFuncNew(void* pCurrNode)
 }
 */
 
+int VlRbtOnTraverseFunc(void* pCurrNode)
+{
+	double xDiff;
+	
+	double dFontSpaceWidth;
+	//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+	double dFontSpaceWidthScaled;
+	double dFontSpaceWidthPrevScaled;
+	//#endif
+	double dFontSpaceWidthCurr;
+	double dFontSpaceWidthPrev;
+	
+	
+	//double xCoordNext = 0.0;
+	//double yCoordNext = 0.0;
+	
+	wchar_t prevChar;
+	double prevRow;
+	double prevXCoordNext;
+	
+	vlrbtTreeNode *pPredecessor;
+	
+	vlrbtTreeNode *pMyCurrNode = (vlrbtTreeNode*)pCurrNode;
+	
+	vlrbtKey_t *pMyKey = (vlrbtKey_t*)pMyCurrNode->pKey;
+	vlrbtData_t *pMyData = (vlrbtData_t*)pMyCurrNode->pData;
+	
+	vlrbtKey_t *pMyKeyPredecessor = NULL;
+	vlrbtData_t *pMyDataPredecessor = NULL;
+	
+	vlrbtTreePredecessor(pCurrNode, &pPredecessor);
+		
+	if ( NULL != pPredecessor )
+	{
+		pMyKeyPredecessor = (vlrbtKey_t*)pPredecessor->pKey;
+		pMyDataPredecessor = (vlrbtData_t*)pPredecessor->pData;
+
+		prevChar = pMyDataPredecessor->c;
+		prevRow = pMyKeyPredecessor->row;
+		//prevCol = pMyKeyPredecessor->col;
+		//prevOrd = pMyKeyPredecessor->ord;
+		//prevWidth = pMyDataPredecessor->width;
+		//prevWidthScaled = pMyDataPredecessor->widthScaled;
+		prevXCoordNext = pMyDataPredecessor->xCoordNext;
+		//prevYCoordNext = pMyDataPredecessor->yCoordNext;
+		dFontSpaceWidthPrev = pMyDataPredecessor->currFontSpaceWidth;
+		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		dFontSpaceWidthPrevScaled = pMyDataPredecessor->currFontSpaceWidthScaled;
+		//#endif
+	}
+	else
+	{
+		prevChar = L' ';
+		prevRow = 0;
+		//prevCol = 0;
+		//prevOrd = 0;
+		//prevWidth = 0;
+		//prevWidthScaled = 0;
+		prevXCoordNext = 0;
+		//prevYCoordNext = 0;
+		dFontSpaceWidthPrev = pMyData->currFontSpaceWidth;
+		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		dFontSpaceWidthPrevScaled = pMyData->currFontSpaceWidthScaled;
+		//#endif
+	}
+	
+	dFontSpaceWidthCurr = pMyData->currFontSpaceWidth;
+	
+	if ( dFontSpaceWidthCurr != dFontSpaceWidthPrev )
+	{
+		dFontSpaceWidth = (dFontSpaceWidthCurr + dFontSpaceWidthPrev) * 0.5;
+		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		dFontSpaceWidthScaled = (pMyData->currFontSpaceWidthScaled + dFontSpaceWidthPrevScaled) * 0.5; 
+		//#endif
+	}
+	else
+	{
+		dFontSpaceWidth = dFontSpaceWidthCurr;
+		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		dFontSpaceWidthScaled = pMyData->currFontSpaceWidthScaled;
+		//#endif
+	}
+	
+	//dFontSpaceWidth = dFontSpaceWidthCurr;
+	
+	//if ( 1.0 != pMyData->currFontSize )
+	if ( (1.0 != pMyData->currFontSize) && (FONT_SUBTYPE_Type0 != pMyData->nCurrentFontSubtype) )
+		dFontSpaceWidth = dFontSpaceWidthScaled;
+					
+	if ( pMyKey->row == prevRow )
+	{
+		//xDiff = pMyKey->col - (pMyData->prevCol + pMyData->prevWidthScaled);
+		xDiff = pMyKey->col - prevXCoordNext;
+	}
+	else
+	{
+		if ( prevRow > 0.0 )
+		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+			wprintf(L"VADO A CAPO: pMyKey->row = %f; pMyData->prevRow = %f\n", pMyKey->row, prevRow);
+			#endif
+		
+			//if ( NULL != pMyData->fpOutput )	
+			//	fwprintf(pMyData->fpOutput, L"\n");
+			//else
+			//	wprintf(L"\n");
+				
+			pMyData->pParams->pText[pMyData->pParams->TextLength] = L'\n';
+			pMyData->pParams->TextLength++;
+		}
+		
+		xDiff = 0.0;
+	}
+	
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+	wprintf(L"[%lc](row = %f; col = %f; ord = %d); width = [%f Scaled %f]; nextXCoord = %f\n", pMyData->c, pMyKey->row, pMyKey->col, pMyKey->ord, pMyData->width, pMyData->widthScaled, pMyKey->col + pMyData->widthScaled);
+	wprintf(L"\tdFontSpaceWidth = [%f; Scaled = %f]; currFontSpaceWidth = %f; prevFontSpaceWidth = %f; FontSize = %f\n", dFontSpaceWidth, dFontSpaceWidthScaled, dFontSpaceWidthCurr, dFontSpaceWidthPrev, pMyData->currFontSize);
+	wprintf(L"\txDiff = %f; pMyKey->col = %f; prevXCoordNext = %f\n", xDiff, pMyKey->col, prevXCoordNext);
+	#endif
+		
+	if ( xDiff > dFontSpaceWidth && pMyData->c != L' ' && prevChar != L' ' )
+	//if ( xDiff > dFontSpaceWidthScaled && pMyData->c != L' ' && prevChar != L' ' )
+	//if ( xDiff > pMyData->currFontSpaceWidth && pMyData->c != L' ' && prevChar != L' ' )
+	//if ( xDiff > pMyData->currFontSpaceWidthScaled && pMyData->c != L' ' && prevChar != L' ' )
+	//if ( xDiff > (pMyData->currFontSize/2.0) && pMyData->c != L' ' && prevChar != L' ' )
+	{	
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dFontSpaceWidth(%f)\n", pMyData->c, xDiff, dFontSpaceWidth);
+		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dFontSpaceWidthScaled(%f)\n", pMyData->c, xDiff, dFontSpaceWidthScaled);
+		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dCurrFontSpaceWidth(%f)\n", pMyData->c, xDiff, pMyData->currFontSpaceWidth);
+		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dFontSpaceWidthScaled(%f)\n", pMyData->c, xDiff, pMyData->currFontSpaceWidthScaled);
+		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= pMyData->currFontSize(%f) pMyData->currFontSize()/2.0 = %f\n", pMyData->c, xDiff, pMyData->currFontSize, pMyData->currFontSize/2.0);
+		#endif
+							
+		//if ( NULL != pMyData->fpOutput )
+		//	fwprintf(pMyData->fpOutput, L" ");
+		//else
+		//	wprintf(L" ");
+			
+		pMyData->pParams->pText[pMyData->pParams->TextLength] = L' ';
+		pMyData->pParams->TextLength++;
+	}
+									
+	//if ( NULL != pMyData->fpOutput )	
+	//	fwprintf(pMyData->fpOutput, L"%lc", pMyData->c);
+	//else
+	//	wprintf(L"%lc", pMyData->c);
+		
+	pMyData->pParams->pText[pMyData->pParams->TextLength] = pMyData->c;
+	pMyData->pParams->TextLength++;
+		
+	//pMyData->prevChar = pMyData->c;
+	//pMyData->prevRow = pMyKey->row;
+	//pMyData->prevCol = pMyKey->col;
+	//pMyData->prevWidth = pMyData->width;
+	//pMyData->prevWidthScaled = pMyData->widthScaled;
+	
+	return 1;
+}
+
 double getCurrCharWidth(Params *pParams, wchar_t c)
 {
 	double dblCurrCharWidth = -1.0;
@@ -3316,11 +3410,11 @@ double getCurrCharWidth(Params *pParams, wchar_t c)
 		//	dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar]/1000.0;
 		if ( c >= pParams->pCurrFontGlyphsWidths->FirstChar && c <= pParams->pCurrFontGlyphsWidths->LastChar )
 		{
-			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[c - pParams->pCurrFontGlyphsWidths->FirstChar]/1000.0;
+			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[c - pParams->pCurrFontGlyphsWidths->FirstChar];
 		}
 		else
 		{
-			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0;
+			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
 		}
 	}
 	else
@@ -3331,27 +3425,27 @@ double getCurrCharWidth(Params *pParams, wchar_t c)
 			//	dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar]/1000.0;
 			if ( c >= pParams->pCurrFontGlyphsWidths->FirstChar && c <= pParams->pCurrFontGlyphsWidths->LastChar )
 			{
-				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[c - pParams->pCurrFontGlyphsWidths->FirstChar]/1000.0;
+				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[c - pParams->pCurrFontGlyphsWidths->FirstChar];
 			}
 			else
 			{
-				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0;
+				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
 			}
 		}
 		else
 		{
-			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->DW/1000.0;
+			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->DW;
 		}
 	}
 	
 	if ( dblCurrCharWidth <= 0.0 )
 	{
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD2)
-		wprintf(L"ATTENZIONE: Current Char Width = %f; Lo imposto a pParams->pCurrFontGlyphsWidths->MissingWidth(%f)/1000.0 = %f\n", dblCurrCharWidth, pParams->pCurrFontGlyphsWidths->MissingWidth, pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0);
-		wprintf(L"\tIn alternativa potrei NON impostarlo a pParams->pCurrFontGlyphsWidths->DW(%f)/1000.0 = %f\n", pParams->pCurrFontGlyphsWidths->DW, pParams->pCurrFontGlyphsWidths->DW/1000.0);
+		wprintf(L"ATTENZIONE: Current Char Width = %f; Lo imposto a pParams->pCurrFontGlyphsWidths->MissingWidth(%f) = %f\n", dblCurrCharWidth, pParams->pCurrFontGlyphsWidths->MissingWidth, pParams->pCurrFontGlyphsWidths->MissingWidth);
+		wprintf(L"\tIn alternativa potrei NON impostarlo a pParams->pCurrFontGlyphsWidths->DW(%f) = %f\n", pParams->pCurrFontGlyphsWidths->DW, pParams->pCurrFontGlyphsWidths->DW);
 		#endif
 			
-		dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth/1000.0;
+		dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
 	}
 	
 	return dblCurrCharWidth;
@@ -3371,14 +3465,14 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 	TransMatrix tempTextMatrixA;
 	TransMatrix tempTextMatrixB;
 	
+	TransMatrix UserSpaceMatrix;
+	
 	//wchar_t cEncoding;
 	wchar_t c;
 	double dblCurrCharWidth;
 	
 	size_t i = 0;
-	
-	
-	
+		
 	//vlrbtKey_t myRedBlackTreeKey;
 	//vlrbtData_t myRedBlackTreeData;
 	
@@ -3406,7 +3500,7 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 				pParams->pCurrFontGlyphsWidths->WidthsArraySize,
 				pParams->pCurrFontGlyphsWidths->MissingWidth,
 				pParams->pCurrFontGlyphsWidths->DW,
-				pParams->pCurrFontGlyphsWidths->dFontSpaceWidth/1000.0,
+				pParams->pCurrFontGlyphsWidths->dFontSpaceWidth,
 				pParams->dCurrFontSpaceWidth,
 				pParams->pCurrFontGlyphsWidths->WritingMode);
 	}
@@ -3457,37 +3551,21 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 																							
 			
 			
-			if ( L' ' != pParams->cLastChar )
+			if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
 			{
-				if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
-				{
-					Ty = 0.0;
-					Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc) * pParams->dsTextState.Th;
-				}
-				else
-				{
-					Tx = 0.0;
-					Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc;
-				}
+				Ty = 0.0;
+				Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+					
+				//if ( L' ' == pParams->cLastChar )
+				//	pParams->dCurrFontSpaceWidth = Tx;
 			}
 			else
 			{
-				if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
-				{
-					Ty = 0;
-					Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-					pParams->dCurrFontSpaceWidth = Tx;
-					//pParams->dCurrFontSpaceWidthScaled = Tx;
-				}
-				else
-				{
-					Tx = 0;
-					Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tw;
-					pParams->dCurrFontSpaceWidth = Ty;
-					//pParams->dCurrFontSpaceWidthScaled = Ty;
-				}
-				
-				//pParams->dCurrFontSpaceWidth = dblCurrCharWidth;
+				Tx = 0.0;
+				Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
+					
+				//if ( L' ' == pParams->cLastChar )
+				//	pParams->dCurrFontSpaceWidth = Ty;
 			}
 			
 			
@@ -3527,6 +3605,8 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		tempTextMatrixA.e = 0;
 		tempTextMatrixA.f = pParams->dsTextState.Trise;
 					
+		MultiplyTransMatrix(&tempTextMatrixA, &(pParams->dsTextMatrix), &UserSpaceMatrix);
+		
 		MultiplyTransMatrix(&tempTextMatrixA, &(pParams->dsTextMatrix), &tempTextMatrixB);
 		MultiplyTransMatrix(&tempTextMatrixB, &(pParams->dCTM_Stack[pParams->nCTM_StackTop]), &(pParams->dsRenderingMatrix));
 	
@@ -3541,7 +3621,9 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		#endif
 	
 		xCoordCurrent = pParams->dsRenderingMatrix.e;
-		yCoordCurrent = pParams->dsRenderingMatrix.f;
+		yCoordCurrent = pParams->dsRenderingMatrix.f;		
+		//xCoordCurrent = UserSpaceMatrix.e;
+		//yCoordCurrent = UserSpaceMatrix.f;
 						
 		dblCurrCharWidth = -1.0;
 			
@@ -3553,81 +3635,67 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 				i, c, c, cEncoding, cEncoding, dblCurrCharWidth);
 		#endif
 												
-		pParams->dCurrFontSpaceWidth += pParams->dsTextState.Tw;
-				
-		if ( L' ' != c )
+		//pParams->dCurrFontSpaceWidth += pParams->dsTextState.Tw;
+		
+
+		// https://stackoverflow.com/questions/57988812/exploring-horizontal-parsing-tj-in-pdfdetail-understanding-of-tx-formula
+
+		if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
 		{
-			if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
-			{
-				Ty = 0.0;
-				//Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc) * pParams->dsTextState.Th;
-				Tx = (dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc) * pParams->dsTextState.Th;
-			}
-			else
-			{
-				Tx = 0.0;
-				//Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc;
-				Ty = dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc;
-			}
+			Ty = 0.0;
+			Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+					
+			//if ( L' ' == c )
+			//	pParams->dCurrFontSpaceWidth = Tx;
 		}
 		else
 		{
-			if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
-			{
-				Ty = 0;
-				//Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-				Tx = (dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-				pParams->dCurrFontSpaceWidth = Tx;
-				//pParams->dCurrFontSpaceWidthScaled = Tx;
-			}
-			else
-			{
-				Tx = 0;
-				//Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tw;
-				Ty = dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tw;
-				pParams->dCurrFontSpaceWidth = Ty;
-				//pParams->dCurrFontSpaceWidthScaled = Tx;
-			}
-			
-			//pParams->dCurrFontSpaceWidth = dblCurrCharWidth;
+			Tx = 0.0;
+			Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
+					
+			//if ( L' ' == c )
+			//	pParams->dCurrFontSpaceWidth = Ty;
 		}
 		
 		
-		
-												
+											
 		if ( pParams->dCurrFontSpaceWidth < 0.0 )
 			pParams->dCurrFontSpaceWidth = 0.0;
 
 
 				
-		//pParams->dCurrFontMinWidthScaled = pParams->dCurrFontMinWidth * pParams->dsRenderingMatrix.a;
+		//pParams->dCurrFontAvgWidthScaled = pParams->dCurrFontAvgWidth * pParams->dsRenderingMatrix.a;
 		//pParams->dCurrFontMaxWidthScaled = pParams->dCurrFontMaxWidth * pParams->dsRenderingMatrix.a;
 		//pParams->dCurrFontSpaceWidthScaled = pParams->dCurrFontSpaceWidth * pParams->dsRenderingMatrix.a;
 		if ( pParams->dsTextState.Tfs != 1.0 )
 		{
-			pParams->dCurrFontMinWidthScaled = (pParams->dCurrFontMinWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-			pParams->dCurrFontMaxWidthScaled = (pParams->dCurrFontMaxWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-			//if ( pParams->dCurrFontSpaceWidthScaled <= 0.0 )
-				pParams->dCurrFontSpaceWidthScaled = (pParams->dCurrFontSpaceWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-			//pParams->dCurrFontSpaceWidthScaled *= 0.1;
+			pParams->dCurrFontAvgWidthScaled = (pParams->dCurrFontAvgWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			pParams->dCurrFontMaxWidthScaled = (pParams->dCurrFontMaxWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			pParams->dCurrFontSpaceWidthScaled = (pParams->dCurrFontSpaceWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
 			//pParams->dCurrFontSpaceWidthScaled *= (pParams->dsTextState.Tfs/((pParams->dCurrFontSpaceWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th));
 			//pParams->dCurrFontSpaceWidthScaled *= (pParams->dsTextState.Tfs/pParams->dsRenderingMatrix.a);
 			
 			xCoordNext = pParams->dsRenderingMatrix.e + Tx;
 			yCoordNext = pParams->dsRenderingMatrix.f + Ty;
+			//xCoordNext = UserSpaceMatrix.e + Tx;
+			//yCoordNext = UserSpaceMatrix.f + Ty;	
+			
+			//pParams->dCurrFontSpaceWidth = pParams->dCurrFontSpaceWidthScaled;
 		}
 		else
 		{	
-			pParams->dCurrFontMinWidthScaled = pParams->dCurrFontMinWidth * pParams->dsRenderingMatrix.a;
+			pParams->dCurrFontAvgWidthScaled = pParams->dCurrFontAvgWidth * pParams->dsRenderingMatrix.a;
 			pParams->dCurrFontMaxWidthScaled = pParams->dCurrFontMaxWidth * pParams->dsRenderingMatrix.a;
-			//if ( pParams->dCurrFontSpaceWidthScaled <= 0.0 )
-				pParams->dCurrFontSpaceWidthScaled = pParams->dCurrFontSpaceWidth * pParams->dsRenderingMatrix.a;
-			//pParams->dCurrFontSpaceWidthScaled *= 0.1;
-			pParams->dCurrFontSpaceWidthScaled *= (pParams->dsTextState.Tfs/pParams->dsRenderingMatrix.a);
-
+			pParams->dCurrFontSpaceWidthScaled = pParams->dCurrFontSpaceWidth * pParams->dsRenderingMatrix.a;
+			
 			xCoordNext = pParams->dsRenderingMatrix.e + (Tx * pParams->dsRenderingMatrix.a);
 			yCoordNext = pParams->dsRenderingMatrix.f + (Ty * pParams->dsRenderingMatrix.a);
+			//xCoordNext = UserSpaceMatrix.e + (Tx * UserSpaceMatrix.a);
+			//yCoordNext = UserSpaceMatrix.f + (Ty * UserSpaceMatrix.a);				
 		}
+		
+		//xCoordNext = UserSpaceMatrix.e + Tx;
+		//yCoordNext = UserSpaceMatrix.f + Ty;
 		
 		
 						
@@ -3648,7 +3716,7 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		#endif
 							
 		pParams->xCoordPrev = pParams->dsRenderingMatrix.e;
-				
+						
 		tempTextMatrixA.a = 1;
 		tempTextMatrixA.b = 0;
 		tempTextMatrixA.c = 0;
@@ -3668,17 +3736,22 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD2)
 		wprintf(L"c = '%lc', XCoord = %f; YCoord = %f; CharWidth = %f; Tx = %f, xCoordNext = %f; FontSpaceWidthScaled = %f\n",
 				c, xCoordCurrent, yCoordCurrent, dblCurrCharWidth, Tx, xCoordNext, pParams->dCurrFontSpaceWidthScaled);
-		wprintf(L"\tdCurrFontSpaceWidth = [%f Scaled: %f]; dCurrFontMinWidth = [%f Scaled : %f]; dCurrFontMaxWidth = [%f Scaled : %f];\n",
+		wprintf(L"\tdCurrFontSpaceWidth = [%f Scaled: %f]; dCurrFontAvgWidth = [%f Scaled : %f]; dCurrFontMaxWidth = [%f Scaled : %f];\n",
 				pParams->dCurrFontSpaceWidth,
 				pParams->dCurrFontSpaceWidthScaled,
-				pParams->dCurrFontMinWidth,
-				pParams->dCurrFontMinWidthScaled,
+				pParams->dCurrFontAvgWidth,
+				pParams->dCurrFontAvgWidthScaled,
 				pParams->dCurrFontMaxWidth,
 				pParams->dCurrFontMaxWidthScaled);
+		wprintf(L"\tUserSpaceMatrix -> a = %f; b = %f; c = %f; d = %f; e = %f; f = %f;\n",
+				UserSpaceMatrix.a,
+				UserSpaceMatrix.b,
+				UserSpaceMatrix.c,
+				UserSpaceMatrix.d,
+				UserSpaceMatrix.e,
+				UserSpaceMatrix.f);
 		#endif
-		
-		
-	
+			
 		pParams->myRedBlackTreeKey.row = yCoordCurrent;
 		pParams->myRedBlackTreeKey.col = xCoordCurrent;
 		pParams->myRedBlackTreeKey.ord++;
@@ -3691,6 +3764,8 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		pParams->myRedBlackTreeData.widthScaled = Tx;
 		pParams->myRedBlackTreeData.xCoordNext = xCoordNext;
 		pParams->myRedBlackTreeData.yCoordNext = yCoordNext;
+		pParams->myRedBlackTreeData.nCurrentFontSubtype = pParams->nCurrentFontSubtype;
+		pParams->myRedBlackTreeData.nCurrentCIDFontSubtype = pParams->nCurrentCIDFontSubtype;
 		
 		vlrbtInsertNode(&(pParams->myRedBlackTree), &(pParams->myRedBlackTreeKey), sizeof(pParams->myRedBlackTreeKey), &(pParams->myRedBlackTreeData), sizeof(pParams->myRedBlackTreeData));
 		
@@ -3702,9 +3777,8 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		//pParams->myRedBlackTreeData.prevXCoordNext = xCoordNext;
 		//pParams->myRedBlackTreeData.prevYCoordNext = yCoordNext;		
 		
-		
-		
 		pParams->xCoordNextPrev = xCoordNext;
+		pParams->yCoordNextPrev = yCoordNext;
 		
 		pParams->Tj = 0.0;
 		
@@ -3794,6 +3868,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 		
 	pParams->cLastChar = L' ';
 	pParams->xCoordPrev = pParams->xCoordNextPrev = 0.0;
+	pParams->yCoordNextPrev = 0.0;
 	
 	pParams->nCTM_StackTop = 0;
 	pParams->dCTM_Stack[pParams->nCTM_StackTop].a = 1;
@@ -4131,8 +4206,6 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 					tmA.b = 0;
 					tmA.c = 0;
 					tmA.d = 1;
-					//tmA.e = dX/1000.0;
-					//tmA.f = dY/1000.0;
 					tmA.e = dX;
 					tmA.f = dY;
 				
@@ -4230,15 +4303,12 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 					dX = dNumbersStack[nNumsStackTop];
 					nNumsStackTop--;
 					
-					//pParams->dsTextState.Tl = -dY/1000.0;
 					pParams->dsTextState.Tl = -dY;
 									
 					tmA.a = 1;
 					tmA.b = 0;
 					tmA.c = 0;
 					tmA.d = 1;
-					//tmA.e = dX/1000.0;
-					//tmA.f = dY/1000.0;
 					tmA.e = dX;
 					tmA.f = dY;
 
@@ -4408,7 +4478,6 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						tmA.c = 0;
 						tmA.d = 1;
 						tmA.e = 0;
-						//tmA.f = dY/1000.0;
 						tmA.f = dY;
 				
 						tmB.a = pParams->dsLineMatrix.a;
@@ -4622,7 +4691,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 								
 								break;
 							case TJSTACK_ITEMTYPE_NUMBER:
-								pParams->Tj = TJStack[k].dNum/1000.0;
+								pParams->Tj = TJStack[k].dNum * 0.001;
 								
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR)
 								wprintf(L"\n\tDEQUEUE NUMBER TJStack[%d].dNum = '%f'\n", k, TJStack[k].dNum);
@@ -5166,10 +5235,11 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 							}
 							
 							pParams->pCurrFontGlyphsWidths = pParams->myObjsTable[nTemp]->pGlyphsWidths;
-							pParams->dCurrFontSpaceWidth = pParams->pCurrFontGlyphsWidths->dFontSpaceWidth/1000.0;
+							//pParams->dCurrFontSpaceWidth = pParams->pCurrFontGlyphsWidths->dFontSpaceWidth/1000.0;
+							pParams->dCurrFontSpaceWidth = pParams->pCurrFontGlyphsWidths->dFontSpaceWidth;
 														
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
-							wprintf(L"\tFONT %d 0 R -> dCurrFontSpaceWidth -> %f; FontSize = %f\n\n", nTemp, pParams->dCurrFontSpaceWidth, pParams->dsTextState.Tfs);
+							wprintf(L"\tFONT %d 0 R -> dCurrFontSpaceWidth -> %f; FontSize = %f\n", nTemp, pParams->dCurrFontSpaceWidth, pParams->dsTextState.Tfs);
 							wprintf(L"\tTextState      -> Tc = %f; Tw = %f; Th = %f; Tl = %f; Tfs = %f; Trise = %f\n",
 									pParams->dsTextState.Tc,
 									pParams->dsTextState.Tw,
@@ -5177,8 +5247,17 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 									pParams->dsTextState.Tl,
 									pParams->dsTextState.Tfs,
 									pParams->dsTextState.Trise);
+									
+							wprintf(L"\tFirstChar = %d; LastChar = %d; WidthsArraySize = %d; MissingWidth = %f; AvgWidth = %f; MaxWidth = %f; DW = %f\n\n",
+									pParams->pCurrFontGlyphsWidths->FirstChar,
+									pParams->pCurrFontGlyphsWidths->LastChar,
+									pParams->pCurrFontGlyphsWidths->WidthsArraySize,
+									pParams->pCurrFontGlyphsWidths->MissingWidth,
+									pParams->pCurrFontGlyphsWidths->AvgWidth,
+									pParams->pCurrFontGlyphsWidths->MaxWidth,
+									pParams->pCurrFontGlyphsWidths->DW);
 							#endif
-														
+																					
 							pParams->bStreamState = pParams->myStreamsStack[pParams->nStreamsStackTop].bStreamState;
 							pParams->bStringIsDecoded = pParams->myStreamsStack[pParams->nStreamsStackTop].bStringIsDecoded;
 							pParams->blockCurPos = pParams->myStreamsStack[pParams->nStreamsStackTop].blockCurPos;
@@ -5289,10 +5368,11 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 								//	nCurrFontObjRef = pParams->nCurrentGsObjFontObjNum;
 							
 								pParams->pCurrFontGlyphsWidths = pParams->myObjsTable[nTemp]->pGlyphsWidths;
-								pParams->dCurrFontSpaceWidth = pParams->myObjsTable[nTemp]->pGlyphsWidths->dFontSpaceWidth/1000.0;
+								//pParams->dCurrFontSpaceWidth = pParams->myObjsTable[nTemp]->pGlyphsWidths->dFontSpaceWidth/1000.0;
+								pParams->dCurrFontSpaceWidth = pParams->myObjsTable[nTemp]->pGlyphsWidths->dFontSpaceWidth;
 																
 								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
-								wprintf(L"\tFONT %d 0 R -> dCurrFontSpaceWidth -> %f; FontSize = %f\n\n", nTemp, pParams->dCurrFontSpaceWidth, pParams->dsTextState.Tfs);
+								wprintf(L"\tFONT %d 0 R -> dCurrFontSpaceWidth -> %f; FontSize = %f\n", nTemp, pParams->dCurrFontSpaceWidth, pParams->dsTextState.Tfs);
 								wprintf(L"\tTextState      -> Tc = %f; Tw = %f; Th = %f; Tl = %f; Tfs = %f; Trise = %f\n",
 										pParams->dsTextState.Tc,
 										pParams->dsTextState.Tw,
@@ -5300,6 +5380,14 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 										pParams->dsTextState.Tl,
 										pParams->dsTextState.Tfs,
 										pParams->dsTextState.Trise);
+								wprintf(L"\tFirstChar = %d; LastChar = %d; WidthsArraySize = %d; MissingWidth = %f; AvgWidth = %f; MaxWidth = %f; DW = %f\n\n",
+										pParams->pCurrFontGlyphsWidths->FirstChar,
+										pParams->pCurrFontGlyphsWidths->LastChar,
+										pParams->pCurrFontGlyphsWidths->WidthsArraySize,
+										pParams->pCurrFontGlyphsWidths->MissingWidth,
+										pParams->pCurrFontGlyphsWidths->AvgWidth,
+										pParams->pCurrFontGlyphsWidths->MaxWidth,
+										pParams->pCurrFontGlyphsWidths->DW);
 								#endif
 							}
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_FN) || defined(MYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
@@ -5960,6 +6048,8 @@ int ManageContent(Params *pParams, int nPageNumber)
 		vlrbtSetCompareFunc(&(pParams->myRedBlackTree), VlRbtCompareFuncRow);
 	else
 		vlrbtSetCompareFunc(&(pParams->myRedBlackTree), VlRbtCompareFuncOrd);
+		
+	//vlrbtSetCompareFunc(&(pParams->myRedBlackTree), VlRbtCompareFuncCol);
 	
 	vlrbtSetOnTraverseFunc(&(pParams->myRedBlackTree), VlRbtOnTraverseFunc);
 	//vlrbtSetOnTraverseFunc(&(pParams->myRedBlackTree), VlRbtOnTraverseFuncNew);
@@ -15745,11 +15835,8 @@ int widthsarrayobjbody(Params *pParams)
 							{
 								case T_INT_LITERAL:
 								{
-									dblWidth = (double)pParams->myToken.vInt;
-													
-									if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-										pParams->dCurrFontMinWidth = dblWidth;
-					
+									dblWidth = (double)pParams->myToken.vInt * 0.001;
+																		
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
 					
@@ -15761,11 +15848,8 @@ int widthsarrayobjbody(Params *pParams)
 								break;
 								case T_REAL_LITERAL:
 								{
-									dblWidth = pParams->myToken.vDouble;
-									
-									if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-										pParams->dCurrFontMinWidth = dblWidth;
-					
+									dblWidth = pParams->myToken.vDouble * 0.001;
+														
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
 										
@@ -15810,11 +15894,8 @@ int widthsarrayobjbody(Params *pParams)
 						{
 							case T_INT_LITERAL:
 							{
-								dblWidth = (double)pParams->myToken.vInt;
-								
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = (double)pParams->myToken.vInt * 0.001;
+													
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 										
@@ -15826,11 +15907,8 @@ int widthsarrayobjbody(Params *pParams)
 							break;
 							case T_REAL_LITERAL:
 							{
-								dblWidth = pParams->myToken.vDouble;
-								
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = pParams->myToken.vDouble * 0.001;
+													
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 										
@@ -15903,11 +15981,8 @@ int widthsarrayobjbody(Params *pParams)
 							{
 								case T_INT_LITERAL:
 								{
-									dblWidth = (double)pParams->myToken.vInt;
-											
-									if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-										pParams->dCurrFontMinWidth = dblWidth;
-					
+									dblWidth = (double)pParams->myToken.vInt * 0.001;
+																
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
 									
@@ -15920,11 +15995,8 @@ int widthsarrayobjbody(Params *pParams)
 								break;
 								case T_REAL_LITERAL:
 								{
-									dblWidth = pParams->myToken.vDouble;
-									
-									if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-										pParams->dCurrFontMinWidth = dblWidth;
-					
+									dblWidth = pParams->myToken.vDouble * 0.001;
+														
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
 									
@@ -15992,11 +16064,8 @@ int widthsarrayobjbody(Params *pParams)
 						{
 							case T_INT_LITERAL:
 							{
-								dblWidth = (double)pParams->myToken.vInt;
-							
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = (double)pParams->myToken.vInt * 0.001;
+												
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 								
@@ -16037,11 +16106,8 @@ int widthsarrayobjbody(Params *pParams)
 							break;
 							case T_REAL_LITERAL:
 							{
-								dblWidth = pParams->myToken.vDouble;
-							
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = pParams->myToken.vDouble * 0.001;
+												
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 								
@@ -16136,13 +16202,13 @@ int widthsarrayobjbody(Params *pParams)
 			
 			if ( T_INT_LITERAL == pParams->myToken.Type )
 			{
-				dblWidth = (double)pParams->myToken.vInt;
+				dblWidth = (double)pParams->myToken.vInt * 0.001;
 				//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.w1 = dblWidth;	
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = dblWidth;	
 			}
 			else if ( T_REAL_LITERAL == pParams->myToken.Type )
 			{
-				dblWidth = pParams->myToken.vDouble;
+				dblWidth = pParams->myToken.vDouble * 0.001;
 				//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.w1 = dblWidth;
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = dblWidth;
 			}
@@ -16165,7 +16231,7 @@ int widthsarrayobjbody(Params *pParams)
 		{
 			case T_INT_LITERAL:
 			{
-				double dblWidth = (double)pParams->myToken.vInt;
+				double dblWidth = (double)pParams->myToken.vInt * 0.001;
 				
 				if ( x >= pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize )
 				{
@@ -16178,10 +16244,7 @@ int widthsarrayobjbody(Params *pParams)
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
 				wprintf(L"\twidthsarrayobjbody -> pParams->myObjsTable[%d]->pGlyphsWidths->pWidths[x] = %d\n", pParams->nCurrentParsingFontObjNum, x, pParams->myToken.vInt);
 				#endif
-				
-				if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-					pParams->dCurrFontMinWidth = dblWidth;
-					
+									
 				if ( pParams->dCurrFontMaxWidth < dblWidth )
 					pParams->dCurrFontMaxWidth = dblWidth;
 				
@@ -16191,6 +16254,8 @@ int widthsarrayobjbody(Params *pParams)
 			break;
 			case T_REAL_LITERAL:
 			{
+				double dblWidth = pParams->myToken.vDouble * 0.001;
+				
 				if ( x >= pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize )
 				{
 					snprintf(pParams->szError, 8192, "ERRORE widthsarrayobjbody: index %d out of range.\n", x);
@@ -16200,16 +16265,13 @@ int widthsarrayobjbody(Params *pParams)
 				}
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
-				wprintf(L"\twidthsarrayobjbody -> pParams->myObjsTable[%d]->pGlyphsWidths->pWidths[x] = %f\n", pParams->nCurrentParsingFontObjNum, x, pParams->myToken.vDouble);
+				wprintf(L"\twidthsarrayobjbody -> pParams->myObjsTable[%d]->pGlyphsWidths->pWidths[x] = %f\n", pParams->nCurrentParsingFontObjNum, x, dblWidth);
 				#endif
+									
+				if ( pParams->dCurrFontMaxWidth < dblWidth )
+					pParams->dCurrFontMaxWidth = dblWidth;
 				
-				if ( pParams->myToken.vDouble > 0.0 && pParams->dCurrFontMinWidth > pParams->myToken.vDouble )
-					pParams->dCurrFontMinWidth = pParams->myToken.vDouble;
-					
-				if ( pParams->dCurrFontMaxWidth < pParams->myToken.vDouble )
-					pParams->dCurrFontMaxWidth = pParams->myToken.vDouble;
-				
-				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[x] = pParams->myToken.vDouble;
+				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[x] = dblWidth;
 				x++;
 			}
 			break;
@@ -16268,6 +16330,8 @@ int fontdescriptorobj(Params *pParams)
 	//pParams->myObjsTable[pParams->nCurrentParsingObj]->dFontSpaceWidth = -1.0;
 	
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = 0.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = 0.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = 0.0;
 					
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTDESCRIPTOROBJ)
 	PrintToken(&(pParams->myToken), ' ', ' ', 1);
@@ -16389,7 +16453,15 @@ int fontdescriptorobjkeyvalue(Params *pParams)
 			{
 				if ( strncmp(pParams->szCurrKeyName, "MissingWidth", 1024) == 0 )
 				{
-					pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = (double)n1;	
+					pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = (double)n1 * 0.001;	
+				}
+				else if ( strncmp(pParams->szCurrKeyName, "AvgWidth", 1024) == 0 )
+				{
+					pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = (double)n1 * 0.001;
+				}
+				else if ( strncmp(pParams->szCurrKeyName, "MaxWidth", 1024) == 0 )
+				{
+					pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = (double)n1 * 0.001;
 				}
 			}
 			
@@ -16400,7 +16472,15 @@ int fontdescriptorobjkeyvalue(Params *pParams)
 			#endif
 			if ( strncmp(pParams->szCurrKeyName, "MissingWidth", 1024) == 0 )
 			{
-				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = pParams->myToken.vDouble;
+				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = pParams->myToken.vDouble * 0.001;
+			}
+			else if ( strncmp(pParams->szCurrKeyName, "AvgWidth", 1024) == 0 )
+			{
+				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = pParams->myToken.vDouble * 0.001;
+			}
+			else if ( strncmp(pParams->szCurrKeyName, "MaxWidth", 1024) == 0 )
+			{
+				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = pParams->myToken.vDouble * 0.001;
 			}
 			
 			GetNextToken(pParams);
@@ -16519,7 +16599,12 @@ int contentfontobj(Params *pParams)
 	uint32_t myData1Size = 0;
 	uint32_t myData2Size = 0;
 	
+	double dblCumWidths;
+	int nCountWidthsNonZero;
+	
 	// pParams->myObjsTable[x]->pGlyphsWidths->pWidths
+	
+	pParams->nCurrentFontSubtype = FONT_SUBTYPE_Unknown;
 	
 	pmyData1 = &myData1;
 	pmyData2 = &myData2;
@@ -16545,7 +16630,7 @@ int contentfontobj(Params *pParams)
 	
 	pParams->dCurrFontSpaceWidth = 0.0;
 	pParams->dCurrFontSpaceWidthScaled = 0.0;
-	pParams->dCurrFontMinWidth = 1000000000.0;
+	pParams->dCurrFontAvgWidth = 0.0;
 	pParams->dCurrFontMaxWidth = -1.0;
 	
 	pParams->bWisPresent = 0;
@@ -16595,6 +16680,8 @@ int contentfontobj(Params *pParams)
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar = -1;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->LastChar = -1;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = 0.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = 0.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = 0.0;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = -1.0;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WritingMode = WRITING_MODE_HORIZONTAL;
 	
@@ -17173,6 +17260,8 @@ uscita:
 		#endif
 		
 		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = 0.0;
+		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = 0.0;
+		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = 0.0;
 		
 		if ( pParams->nCurrFontDescriptorRef > 0 )
 			ParseFontDescriptorObject(pParams, pParams->nCurrFontDescriptorRef);
@@ -17212,10 +17301,10 @@ uscita:
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
 					wprintf(L"\tcontentfontobj -> STACK POP(nCurrCharIndex = %d) -> pParams->myObjsTable[%d]->pGlyphsWidths->pWidths[%d] = %f\n", nCurrCharIndex, pParams->nCurrentParsingFontObjNum, nCurrCharIndex, pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[nCurrCharIndex]);
 					#endif
-		
-					if ( 32 == nCurrCharIndex )
+					
+					if ( L' ' == pParams->pCurrentEncodingArray[nCurrCharIndex + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar] )
 						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-								
+										
 					nCurrCharIndex--;
 				}
 			}
@@ -17229,10 +17318,7 @@ uscita:
 				while ( nCurrCharIndex >= 0 )
 				{
 					dblWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[nCurrCharIndex];				
-				
-					if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-						pParams->dCurrFontMinWidth = dblWidth;
-				
+								
 					if ( pParams->dCurrFontMaxWidth < dblWidth )
 						pParams->dCurrFontMaxWidth = dblWidth;
 					
@@ -17240,6 +17326,26 @@ uscita:
 				}
 			}
 		}
+		
+		dblCumWidths = 0.0;
+		nCountWidthsNonZero = 0;
+		for ( int k = 0; k < pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize; k++ )
+		{
+			dblCumWidths += (pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k]);
+			
+			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] > 0.0 )
+				nCountWidthsNonZero++;
+		}
+		if ( nCountWidthsNonZero <= 0 )
+			nCountWidthsNonZero = 1;
+		//pParams->dCurrFontAvgWidth = dblCumWidths / pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize;
+		pParams->dCurrFontAvgWidth = dblCumWidths / nCountWidthsNonZero;
+		
+		if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth <= 0.0 )
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = pParams->dCurrFontAvgWidth;
+		
+		if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth <= 0.0 )
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = pParams->dCurrFontMaxWidth;
 	}
 	else
 	{
@@ -17253,12 +17359,12 @@ uscita:
 		pParams->bCurrParsingFontIsCIDFont = 1;
 		
 		if ( WRITING_MODE_HORIZONTAL == pParams->nCurrFontWritingMode )
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = 1000.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = 1.0;
 		else
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = -1000.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = -1.0;
 	
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.v = 880.0;
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.w1 = -1000.0;
+		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.v = 0.880;
+		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.w1 = -1.0;
 		
 		if ( !ParseCIDFontObject(pParams, pParams->nDescendantFontRef) )
 			return 0;
@@ -17267,33 +17373,18 @@ uscita:
 		{
 			if ( !ParseCIDFontObject(pParams, pParams->nDescendantFontRef) )
 				return 0;
-		}
+		}		
 	}
-	
 		
-		
-	//if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth <= 0.0 )
-	//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth  = 250.0;
-	
-	//if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth <= 0.0 )
-	//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
-	
 	if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth <= 0.0 )
 	{
 		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
 		
-		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMaxWidth;
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMinWidth;
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMaxWidth/2.0;
-		
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMinWidth/2.0;
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMinWidth/0.5;
-		
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMaxWidth - pParams->dCurrFontMinWidth;
-		
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = (pParams->dCurrFontMaxWidth + pParams->dCurrFontMinWidth)/2.0;
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = (pParams->dCurrFontMaxWidth - pParams->dCurrFontMinWidth)/2.0;
-		
+		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.0;
+				
+		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontAvgWidth;
+		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMaxWidth;
+				
 		pParams->bCurrFontSpaceWidthIsZero = 1;
 		
 		//if ( pParams->bCurrParsingFontIsCIDFont )
@@ -17303,19 +17394,21 @@ uscita:
 	{
 		pParams->bCurrFontSpaceWidthIsZero = 0;
 	}
-						
+	
+	//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontAvgWidth;
+											
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
-	wprintf(L"\tcontentfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->dCurrFontMinWidth = %f; pParams->dCurrFontMaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f\n\n",
+	wprintf(L"\tcontentfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->AvgWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f\n\n",
 			pParams->nCurrentParsingFontObjNum,
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth,
-			pParams->dCurrFontMinWidth,
+			pParams->nCurrentParsingFontObjNum,
+			pParams->dCurrFontAvgWidth,
+			pParams->nCurrentParsingFontObjNum,
 			pParams->dCurrFontMaxWidth,
 			pParams->nCurrentParsingFontObjNum,
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth);
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth
+			);
 	#endif
-	
-	pParams->dCurrFontMinWidth /= 1000.0;
-	pParams->dCurrFontMaxWidth /= 1000.0;
 	
 	return 1;
 }
@@ -17469,7 +17562,9 @@ int fontobjcontentkeyvalue(Params *pParams)
 				else if ( strncmp(pParams->myToken.vString, "CIDFontType0", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentFontSubtype = FONT_SUBTYPE_CIDFontType0;
 				else if ( strncmp(pParams->myToken.vString, "CIDFontType2", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
-					pParams->nCurrentFontSubtype = FONT_SUBTYPE_CIDFontType2;					
+					pParams->nCurrentFontSubtype = FONT_SUBTYPE_CIDFontType2;
+				else
+					pParams->nCurrentFontSubtype = FONT_SUBTYPE_Unknown;
 			}
 			else if ( strncmp(pParams->szCurrKeyName, "BaseFont", 1024) == 0 )
 			{
@@ -17690,11 +17785,8 @@ int fontobjcontentkeyarray(Params *pParams)
 		{
 			if ( strncmp(pParams->szCurrKeyName, "Widths", 1024) == 0 )
 			{
-				dblWidth = (double)pParams->myToken.vInt;
-				
-				if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-					pParams->dCurrFontMinWidth = dblWidth;
-					
+				dblWidth = (double)pParams->myToken.vInt * 0.001;
+									
 				if ( pParams->dCurrFontMaxWidth < dblWidth )
 					pParams->dCurrFontMaxWidth = dblWidth;
 					
@@ -17709,15 +17801,14 @@ int fontobjcontentkeyarray(Params *pParams)
 		}
 		else
 		{
+			dblWidth = pParams->myToken.vDouble * 0.001;
+			
 			if ( strncmp(pParams->szCurrKeyName, "Widths", 1024) == 0 )
-			{
-				if ( pParams->myToken.vDouble > 0.0 && pParams->dCurrFontMinWidth > pParams->myToken.vDouble )
-					pParams->dCurrFontMinWidth = pParams->myToken.vDouble;
+			{					
+				if ( pParams->dCurrFontMaxWidth < dblWidth )
+					pParams->dCurrFontMaxWidth = dblWidth;
 					
-				if ( pParams->dCurrFontMaxWidth < pParams->myToken.vDouble )
-					pParams->dCurrFontMaxWidth = pParams->myToken.vDouble;
-					
-				mynumstacklist_Push(&(pParams->myCurrFontWidthsStack), pParams->myToken.vDouble);
+				mynumstacklist_Push(&(pParams->myCurrFontWidthsStack), dblWidth);
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
 				wprintf(L"\tcontentfontobj -> STACK PUSH(pParams->myCurrFontWidthsStack.count = %d) -> %f\n", pParams->myCurrFontWidthsStack.count, pParams->myToken.vDouble);
@@ -17831,11 +17922,16 @@ int cidfontobj(Params *pParams)
 	//int k;
 	char szFontType[128];
 	
+	double dblCumWidths;
+	int nCountWidthsNonZero;
+	
 	//int nWidthsArraySize = 0;
 	//double dblWidth = -1.0;
 				
 	//pParams->szTemp[0] = '\0';
 	
+	pParams->nCurrentCIDFontSubtype = FONT_SUBTYPE_Unknown;
+		
 	pParams->bCidFontArrayInsteadDict = 0;
 	
 	pParams->szExtArraySizeCurrKeyName[0] = '\0';
@@ -17849,7 +17945,7 @@ int cidfontobj(Params *pParams)
 		
 	pParams->dCurrFontSpaceWidth = 0.0;
 	pParams->dCurrFontSpaceWidthScaled = 0.0;
-	pParams->dCurrFontMinWidth = 1000000000.0;
+	pParams->dCurrFontAvgWidth = 0.0;
 	pParams->dCurrFontMaxWidth = -1.0;
 		
 	if ( T_INT_LITERAL != pParams->myToken.Type )
@@ -17955,7 +18051,10 @@ int cidfontobj(Params *pParams)
 	wprintf(L"\tpParams->myObjsTable[%d]->pGlyphsWidths->WidthsArraySize = %d\n", pParams->nCurrentParsingFontObjNum, pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize);
 	#endif
 		
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = 0.0;		
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth = 0.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = 0.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = 0.0;
+			
 	if ( pParams->nCurrFontDescriptorRef > 0 )
 		ParseFontDescriptorObject(pParams, pParams->nCurrFontDescriptorRef);
 
@@ -17985,25 +18084,46 @@ int cidfontobj(Params *pParams)
 	
 	//pParams->szExtArraySizeCurrKeyName[0] = '\0';
 	//pParams->szExtArraySizeDW2CurrKeyName[0] = '\0';
-			
+				
+	dblCumWidths = 0.0;
+	nCountWidthsNonZero = 0;
 	if ( pParams->bWisPresent )
 	{			
 		for ( int k = 0; k < pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize; k++ )
 		{
 			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] < 0.0 )
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
+				
+			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] > 0.0 )
+				nCountWidthsNonZero++;
+				
+			dblCumWidths += (pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k]);
 		}
+		//pParams->dCurrFontAvgWidth = dblCumWidths / pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize;
+		if ( nCountWidthsNonZero <= 0 )
+			nCountWidthsNonZero = 1;
+		pParams->dCurrFontAvgWidth = dblCumWidths / nCountWidthsNonZero;
 	}
 	else
 	{
 		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW;
+		
+		pParams->dCurrFontAvgWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW;
 	}
+	
+	if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth <= 0.0 )
+		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = pParams->dCurrFontAvgWidth;
+		
+	if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth <= 0.0 )
+		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = pParams->dCurrFontMaxWidth;
 									
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
-	wprintf(L"\tcidfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->dCurrFontMinWidth = %f; pParams->dCurrFontMaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f\n\n",
+	wprintf(L"\tcidfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->AvgWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f\n\n",
 			pParams->nCurrentParsingFontObjNum,
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth,
-			pParams->dCurrFontMinWidth,
+			pParams->nCurrentParsingFontObjNum,
+			pParams->dCurrFontAvgWidth,
+			pParams->nCurrentParsingFontObjNum,
 			pParams->dCurrFontMaxWidth,
 			pParams->nCurrentParsingFontObjNum,
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth
@@ -18226,7 +18346,7 @@ int cidfontobjkeyvalue(Params *pParams)
 			{
 				if ( strncmp(pParams->szCurrKeyName, "DW", 1024) == 0 )
 				{
-					pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = (double_t)n1;
+					pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = (double)n1 * 0.001;
 				}
 			}
 			
@@ -18248,6 +18368,8 @@ int cidfontobjkeyvalue(Params *pParams)
 					pParams->nCurrentCIDFontSubtype = FONT_SUBTYPE_CIDFontType0;
 				else if ( strncmp(pParams->myToken.vString, "CIDFontType2", strnlen(pParams->myToken.vString, 4096) + 1) == 0 )
 					pParams->nCurrentCIDFontSubtype = FONT_SUBTYPE_CIDFontType2;
+				else
+					pParams->nCurrentCIDFontSubtype = FONT_SUBTYPE_Unknown;
 			}
 			else if ( strncmp(pParams->szCurrKeyName, "BaseFont", 1024) == 0 )
 			{
@@ -18393,11 +18515,8 @@ int cidfontobjkeyarray(Params *pParams)
 						{
 							case T_INT_LITERAL:
 							{
-								dblWidth = (double)pParams->myToken.vInt;
-											
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = (double)pParams->myToken.vInt * 0.001;
+																
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
@@ -18410,11 +18529,8 @@ int cidfontobjkeyarray(Params *pParams)
 							break;
 							case T_REAL_LITERAL:
 							{
-								dblWidth = pParams->myToken.vDouble;
-									
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = pParams->myToken.vDouble * 0.001;
+														
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
@@ -18462,11 +18578,8 @@ int cidfontobjkeyarray(Params *pParams)
 					{
 						case T_INT_LITERAL:
 						{
-							dblWidth = (double)pParams->myToken.vInt;
-							
-							if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-								pParams->dCurrFontMinWidth = dblWidth;
-					
+							dblWidth = (double)pParams->myToken.vInt * 0.001;
+												
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
@@ -18481,11 +18594,8 @@ int cidfontobjkeyarray(Params *pParams)
 						break;
 						case T_REAL_LITERAL:
 						{
-							dblWidth = pParams->myToken.vDouble;
-							
-							if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-								pParams->dCurrFontMinWidth = dblWidth;
-					
+							dblWidth = pParams->myToken.vDouble * 0.001;
+												
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
@@ -18561,11 +18671,8 @@ int cidfontobjkeyarray(Params *pParams)
 						{
 							case T_INT_LITERAL:
 							{
-								dblWidth = (double)pParams->myToken.vInt;
-											
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = (double)pParams->myToken.vInt * 0.001;
+																
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
@@ -18578,11 +18685,8 @@ int cidfontobjkeyarray(Params *pParams)
 							break;
 							case T_REAL_LITERAL:
 							{
-								dblWidth = pParams->myToken.vDouble;
-									
-								if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-									pParams->dCurrFontMinWidth = dblWidth;
-					
+								dblWidth = pParams->myToken.vDouble * 0.001;
+														
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
@@ -18650,11 +18754,8 @@ int cidfontobjkeyarray(Params *pParams)
 					{
 						case T_INT_LITERAL:
 						{
-							dblWidth = (double)pParams->myToken.vInt;
-							
-							if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-								pParams->dCurrFontMinWidth = dblWidth;
-					
+							dblWidth = (double)pParams->myToken.vInt * 0.001;
+												
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
@@ -18695,11 +18796,8 @@ int cidfontobjkeyarray(Params *pParams)
 						break;
 						case T_REAL_LITERAL:
 						{
-							dblWidth = pParams->myToken.vDouble;
-							
-							if ( dblWidth > 0.0 && pParams->dCurrFontMinWidth > dblWidth )
-								pParams->dCurrFontMinWidth = dblWidth;
-					
+							dblWidth = pParams->myToken.vDouble * 0.001;
+												
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
@@ -18794,13 +18892,13 @@ int cidfontobjkeyarray(Params *pParams)
 			
 		if ( T_INT_LITERAL == pParams->myToken.Type )
 		{
-			dblWidth = (double)pParams->myToken.vInt;
+			dblWidth = (double)pParams->myToken.vInt * 0.001;
 			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.w1 = dblWidth;	
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = dblWidth;	
 		}
 		else if ( T_REAL_LITERAL == pParams->myToken.Type )
 		{
-			dblWidth = pParams->myToken.vDouble;
+			dblWidth = pParams->myToken.vDouble * 0.001;
 			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW2.w1 = dblWidth;
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW = dblWidth;
 		}
@@ -21368,1696 +21466,1696 @@ void setPredefFontsWidthsArray(Params *pParams)
 		case BASEFONT_Courier:
 			//for ( k = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar; k <= pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->LastChar; k++ )
 			//{
-			//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 600.0;
+			//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 0.600;
 			//}
-			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 600.0;
+			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.600;
 			//break;
 		case BASEFONT_Courier_Bold:
 			//for ( k = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar; k <= pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->LastChar; k++ )
 			//{
-			//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 600.0;
+			//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 0.600;
 			//}
-			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 600.0;
+			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.600;
 			//break;
 		case BASEFONT_Courier_BoldOblique:
 			//for ( k = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar; k <= pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->LastChar; k++ )
 			//{
-			//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 600.0;
+			//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 0.600;
 			//}
-			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 600.0;
+			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.600;
 			//break;
 		case BASEFONT_Courier_Oblique:
 			for ( k = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar; k <= pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->LastChar; k++ )
 			{
-				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 600.0;
+				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 0.600;
 			}
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 600.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.600;
 			break;
 		case BASEFONT_Helvetica:
 			set_Helvetica(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 278.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
 			break;
 		case BASEFONT_Helvetica_Bold:
 			set_Helvetica_Bold(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 278.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
 			break;
 		case BASEFONT_Helvetica_BoldOblique:
 			set_Helvetica_BoldOblique(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 278.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
 			break;
 		case BASEFONT_Helvetica_Oblique:
 			set_Helvetica_Oblique(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 278.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
 			break;
 		case BASEFONT_Symbol:
 			set_Symbol(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 250.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
 			break;
 		case BASEFONT_Times_Bold:
 			set_Times_Bold(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 250.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
 			break;
 		case BASEFONT_Times_BoldItalic:
 			set_Times_BoldItalic(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 250.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
 			break;
 		case BASEFONT_Times_Italic:
 			set_Times_Italic(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 250.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
 			break;
 		case BASEFONT_Times_Roman:
 			set_Times_Roman(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 250.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
 			break;
 		case BASEFONT_ZapfDingbats:
 			set_ZapfDingbats(pParams);
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 278.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
 			break;
 		default:				
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 250.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
 			break;
 	}
 }
 
 void set_Helvetica(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 278; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 278; // exclam ; B 90 0 187 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 355; // quotedbl ; B 70 463 285 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 556; // numbersign ; B 28 0 529 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 556; // dollar ; B 32 -115 520 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 889; // percent ; B 39 -19 850 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 667; // ampersand ; B 44 -15 645 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 222; // quoteright ; B 53 463 157 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 68 -207 299 733 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B 34 -207 265 733 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 389; // asterisk ; B 39 431 349 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 584; // plus ; B 39 0 545 505 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 278; // comma ; B 87 -147 191 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 44 232 289 322 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 278; // period ; B 87 0 191 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -17 -19 295 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 556; // zero ; B 37 -19 519 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 556; // one ; B 101 0 359 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 556; // two ; B 26 0 507 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 556; // three ; B 34 -19 522 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 556; // four ; B 25 0 523 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 556; // five ; B 32 -19 514 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 556; // six ; B 38 -19 518 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 556; // seven ; B 37 0 523 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 556; // eight ; B 38 -19 517 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 556; // nine ; B 42 -19 514 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 278; // colon ; B 87 0 191 516 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 278; // semicolon ; B 87 -147 191 516 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 584; // less ; B 48 11 536 495 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 584; // equal ; B 39 115 545 390 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 584; // greater ; B 48 11 536 495 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 556; // question ; B 56 0 492 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 1015; // at ; B 147 -19 868 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 667; // A ; B 14 0 654 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 667; // B ; B 74 0 627 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 722; // C ; B 44 -19 681 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B 81 0 674 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 667; // E ; B 86 0 616 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 611; // F ; B 86 0 583 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 778; // G ; B 48 -19 704 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 722; // H ; B 77 0 646 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 278; // I ; B 91 0 188 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 500; // J ; B 17 -19 428 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 667; // K ; B 76 0 663 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 556; // L ; B 76 0 537 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 833; // M ; B 73 0 761 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // N ; B 76 0 646 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 778; // O ; B 39 -19 739 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 667; // P ; B 86 0 622 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 778; // Q ; B 39 -56 739 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 722; // R ; B 88 0 684 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 667; // S ; B 49 -19 620 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 611; // T ; B 14 0 597 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 79 -19 644 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 667; // V ; B 20 0 647 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 944; // W ; B 16 0 928 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 667; // X ; B 19 0 648 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 667; // Y ; B 14 0 653 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 611; // Z ; B 23 0 588 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 278; // bracketleft ; B 63 -196 250 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B -17 -19 295 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 278; // bracketright ; B 28 -196 215 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 469; // asciicircum ; B -14 264 483 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 556; // underscore ; B 0 -125 556 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 222; // quoteleft ; B 65 470 169 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 556; // a ; B 36 -15 530 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 556; // b ; B 58 -15 517 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 500; // c ; B 30 -15 477 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 556; // d ; B 35 -15 499 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 556; // e ; B 40 -15 516 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 278; // f ; B 14 0 262 728 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 556; // g ; B 40 -220 499 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 556; // h ; B 65 0 491 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 222; // i ; B 67 0 155 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 222; // j ; B -16 -210 155 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 500; // k ; B 67 0 501 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 222; // l ; B 67 0 155 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 833; // m ; B 65 0 769 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 556; // n ; B 65 0 491 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 556; // o ; B 35 -14 521 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 556; // p ; B 58 -207 517 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 556; // q ; B 35 -207 494 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 333; // r ; B 77 0 332 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 500; // s ; B 32 -15 464 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 278; // t ; B 14 -7 257 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 556; // u ; B 68 -15 489 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 500; // v ; B 8 0 492 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 722; // w ; B 14 0 709 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 500; // x ; B 11 0 490 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 500; // y ; B 11 -214 489 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 500; // z ; B 31 0 469 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 334; // braceleft ; B 42 -196 292 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 260; // bar ; B 94 -225 167 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 334; // braceright ; B 42 -196 292 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 584; // asciitilde ; B 61 180 523 326 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 333; // exclamdown ; B 118 -195 215 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 556; // cent ; B 51 -115 513 623 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 556; // sterling ; B 33 -16 539 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -166 -19 333 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 556; // yen ; B 3 0 553 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 556; // florin ; B -11 -207 501 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 556; // section ; B 43 -191 512 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 556; // currency ; B 28 99 528 603 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 191; // quotesingle ; B 59 463 132 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 333; // quotedblleft ; B 38 470 307 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 556; // guillemotleft ; B 97 108 459 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 88 108 245 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 88 108 245 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 500; // fi ; B 14 0 434 728 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 500; // fl ; B 14 0 432 728 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 556; // endash ; B 0 240 556 313 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 556; // dagger ; B 43 -159 514 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 556; // daggerdbl ; B 43 -159 514 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 278; // periodcentered ; B 77 190 202 315 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 537; // paragraph ; B 18 -173 497 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 18 202 333 517 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 222; // quotesinglbase ; B 53 -149 157 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 333; // quotedblbase ; B 26 -149 295 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 333; // quotedblright ; B 26 463 295 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 556; // guillemotright ; B 97 108 459 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 115 0 885 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B 7 -19 994 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 611; // questiondown ; B 91 -201 527 525 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B 14 593 211 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 122 593 319 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B 21 593 312 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B -4 606 337 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B 10 627 323 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B 13 595 321 731 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 121 604 212 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B 40 604 293 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 75 572 259 756 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B 45 -225 259 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B 31 593 409 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 73 -225 287 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B 21 593 312 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1000; // emdash ; B 0 240 1000 313 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1000; // AE ; B 8 0 951 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 370; // ordfeminine ; B 24 405 346 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 556; // Lslash ; B -20 0 537 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 778; // Oslash ; B 39 -19 740 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1000; // OE ; B 36 -19 965 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 365; // ordmasculine ; B 25 405 341 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 889; // ae ; B 36 -15 847 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 95 0 183 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 222; // lslash ; B -20 0 242 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 611; // oslash ; B 28 -22 537 545 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 944; // oe ; B 35 -15 902 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 611; // germandbls ; B 67 -15 571 728 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.278; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.278; // exclam ; B 90 0 187 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.355; // quotedbl ; B 70 463 285 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.556; // numbersign ; B 28 0 529 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.556; // dollar ; B 32 -115 520 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.889; // percent ; B 39 -19 850 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.667; // ampersand ; B 44 -15 645 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.222; // quoteright ; B 53 463 157 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 68 -207 299 733 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B 34 -207 265 733 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.389; // asterisk ; B 39 431 349 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.584; // plus ; B 39 0 545 505 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.278; // comma ; B 87 -147 191 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 44 232 289 322 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.278; // period ; B 87 0 191 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -17 -19 295 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.556; // zero ; B 37 -19 519 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.556; // one ; B 101 0 359 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.556; // two ; B 26 0 507 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.556; // three ; B 34 -19 522 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.556; // four ; B 25 0 523 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.556; // five ; B 32 -19 514 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.556; // six ; B 38 -19 518 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.556; // seven ; B 37 0 523 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.556; // eight ; B 38 -19 517 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.556; // nine ; B 42 -19 514 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.278; // colon ; B 87 0 191 516 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.278; // semicolon ; B 87 -147 191 516 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.584; // less ; B 48 11 536 495 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.584; // equal ; B 39 115 545 390 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.584; // greater ; B 48 11 536 495 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.556; // question ; B 56 0 492 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 1.015; // at ; B 147 -19 868 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.667; // A ; B 14 0 654 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.667; // B ; B 74 0 627 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.722; // C ; B 44 -19 681 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B 81 0 674 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.667; // E ; B 86 0 616 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.611; // F ; B 86 0 583 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.778; // G ; B 48 -19 704 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.722; // H ; B 77 0 646 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.278; // I ; B 91 0 188 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.500; // J ; B 17 -19 428 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.667; // K ; B 76 0 663 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.556; // L ; B 76 0 537 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.833; // M ; B 73 0 761 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // N ; B 76 0 646 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.778; // O ; B 39 -19 739 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.667; // P ; B 86 0 622 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.778; // Q ; B 39 -56 739 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.722; // R ; B 88 0 684 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.667; // S ; B 49 -19 620 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.611; // T ; B 14 0 597 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 79 -19 644 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.667; // V ; B 20 0 647 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.944; // W ; B 16 0 928 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.667; // X ; B 19 0 648 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.667; // Y ; B 14 0 653 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.611; // Z ; B 23 0 588 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.278; // bracketleft ; B 63 -196 250 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B -17 -19 295 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.278; // bracketright ; B 28 -196 215 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.469; // asciicircum ; B -14 264 483 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.556; // underscore ; B 0 -125 556 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.222; // quoteleft ; B 65 470 169 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.556; // a ; B 36 -15 530 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.556; // b ; B 58 -15 517 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.500; // c ; B 30 -15 477 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.556; // d ; B 35 -15 499 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.556; // e ; B 40 -15 516 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.278; // f ; B 14 0 262 728 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.556; // g ; B 40 -220 499 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.556; // h ; B 65 0 491 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.222; // i ; B 67 0 155 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.222; // j ; B -16 -210 155 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.500; // k ; B 67 0 501 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.222; // l ; B 67 0 155 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.833; // m ; B 65 0 769 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.556; // n ; B 65 0 491 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.556; // o ; B 35 -14 521 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.556; // p ; B 58 -207 517 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.556; // q ; B 35 -207 494 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.333; // r ; B 77 0 332 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.500; // s ; B 32 -15 464 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.278; // t ; B 14 -7 257 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.556; // u ; B 68 -15 489 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.500; // v ; B 8 0 492 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.722; // w ; B 14 0 709 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.500; // x ; B 11 0 490 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.500; // y ; B 11 -214 489 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.500; // z ; B 31 0 469 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.334; // braceleft ; B 42 -196 292 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.260; // bar ; B 94 -225 167 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.334; // braceright ; B 42 -196 292 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.584; // asciitilde ; B 61 180 523 326 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.333; // exclamdown ; B 118 -195 215 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.556; // cent ; B 51 -115 513 623 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.556; // sterling ; B 33 -16 539 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -166 -19 333 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.556; // yen ; B 3 0 553 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.556; // florin ; B -11 -207 501 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.556; // section ; B 43 -191 512 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.556; // currency ; B 28 99 528 603 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.191; // quotesingle ; B 59 463 132 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.333; // quotedblleft ; B 38 470 307 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.556; // guillemotleft ; B 97 108 459 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 88 108 245 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 88 108 245 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.500; // fi ; B 14 0 434 728 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.500; // fl ; B 14 0 432 728 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.556; // endash ; B 0 240 556 313 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.556; // dagger ; B 43 -159 514 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.556; // daggerdbl ; B 43 -159 514 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.278; // periodcentered ; B 77 190 202 315 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.537; // paragraph ; B 18 -173 497 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 18 202 333 517 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.222; // quotesinglbase ; B 53 -149 157 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.333; // quotedblbase ; B 26 -149 295 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.333; // quotedblright ; B 26 463 295 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.556; // guillemotright ; B 97 108 459 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 115 0 885 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B 7 -19 994 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.611; // questiondown ; B 91 -201 527 525 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B 14 593 211 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 122 593 319 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B 21 593 312 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B -4 606 337 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B 10 627 323 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B 13 595 321 731 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 121 604 212 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B 40 604 293 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 75 572 259 756 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B 45 -225 259 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B 31 593 409 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 73 -225 287 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B 21 593 312 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1.000; // emdash ; B 0 240 1000 313 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1.000; // AE ; B 8 0 951 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.370; // ordfeminine ; B 24 405 346 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.556; // Lslash ; B -20 0 537 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.778; // Oslash ; B 39 -19 740 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1.000; // OE ; B 36 -19 965 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.365; // ordmasculine ; B 25 405 341 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.889; // ae ; B 36 -15 847 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 95 0 183 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.222; // lslash ; B -20 0 242 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.611; // oslash ; B 28 -22 537 545 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.944; // oe ; B 35 -15 902 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.611; // germandbls ; B 67 -15 571 728 ;
 }
 
 void set_Helvetica_Bold(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 278; // N space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 333; // exclam ; B 90 0 244 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 474; // quotedbl ; B 98 447 376 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 556; // numbersign ; B 18 0 538 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 556; // dollar ; B 30 -115 523 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 889; // percent ; B 28 -19 861 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 722; // ampersand ; B 54 -19 701 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 278; // quoteright ; B 69 445 209 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 35 -208 314 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B 19 -208 298 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 389; // asterisk ; B 27 387 362 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 584; // plus ; B 40 0 544 506 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 278; // comma ; B 64 -168 214 146 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 27 215 306 345 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 278; // period ; B 64 0 214 146 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -33 -19 311 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 556; // zero ; B 32 -19 524 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 556; // one ; B 69 0 378 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 556; // two ; B 26 0 511 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 556; // three ; B 27 -19 516 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 556; // four ; B 27 0 526 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 556; // five ; B 27 -19 516 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 556; // six ; B 31 -19 520 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 556; // seven ; B 25 0 528 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 556; // eight ; B 32 -19 524 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 556; // nine ; B 30 -19 522 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 333; // colon ; B 92 0 242 512 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 333; // semicolon ; B 92 -168 242 512 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 584; // less ; B 38 -8 546 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 584; // equal ; B 40 87 544 419 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 584; // greater ; B 38 -8 546 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 611; // question ; B 60 0 556 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 975; // at ; B 118 -19 856 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 722; // A ; B 20 0 702 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 722; // B ; B 76 0 669 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 722; // C ; B 44 -19 684 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B 76 0 685 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 667; // E ; B 76 0 621 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 611; // F ; B 76 0 587 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 778; // G ; B 44 -19 713 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 722; // H ; B 71 0 651 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 278; // I ; B 64 0 214 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 556; // J ; B 22 -18 484 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 722; // K ; B 87 0 722 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 611; // L ; B 76 0 583 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 833; // M ; B 69 0 765 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // N ; B 69 0 654 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 778; // O ; B 44 -19 734 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 667; // P ; B 76 0 627 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 778; // Q ; B 44 -52 737 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 722; // R ; B 76 0 677 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 667; // S ; B 39 -19 629 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 611; // T ; B 14 0 598 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 72 -19 651 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 667; // V ; B 19 0 648 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 944; // W ; B 16 0 929 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 667; // X ; B 14 0 653 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 667; // Y ; B 15 0 653 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 611; // Z ; B 25 0 586 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 333; // bracketleft ; B 63 -196 309 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B -33 -19 311 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 333; // bracketright ; B 24 -196 270 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 584; // asciicircum ; B 62 323 522 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 556; // underscore ; B 0 -125 556 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 278; // quoteleft ; B 69 454 209 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 556; // a ; B 29 -14 527 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 611; // b ; B 61 -14 578 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 556; // c ; B 34 -14 524 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 611; // d ; B 34 -14 551 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 556; // e ; B 23 -14 528 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 333; // f ; B 10 0 318 727 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 611; // g ; B 40 -217 553 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 611; // h ; B 65 0 546 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 278; // i ; B 69 0 209 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 278; // j ; B 3 -214 209 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 556; // k ; B 69 0 562 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 278; // l ; B 69 0 209 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 889; // m ; B 64 0 826 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 611; // n ; B 65 0 546 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 611; // o ; B 34 -14 578 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 611; // p ; B 62 -207 578 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 611; // q ; B 34 -207 552 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 389; // r ; B 64 0 373 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 556; // s ; B 30 -14 519 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 333; // t ; B 10 -6 309 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 611; // u ; B 66 -14 545 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 556; // v ; B 13 0 543 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 778; // w ; B 10 0 769 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 556; // x ; B 15 0 541 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 556; // y ; B 10 -214 539 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 500; // z ; B 20 0 480 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 389; // braceleft ; B 48 -196 365 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 280; // bar ; B 84 -225 196 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 389; // braceright ; B 24 -196 341 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 584; // asciitilde ; B 61 163 523 343 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 333; // exclamdown ; B 90 -186 244 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 556; // cent ; B 34 -118 524 628 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 556; // sterling ; B 28 -16 541 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -170 -19 336 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 556; // yen ; B -9 0 565 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 556; // florin ; B -10 -210 516 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 556; // section ; B 34 -184 522 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 556; // currency ; B -3 76 559 636 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 238; // quotesingle ; B 70 447 168 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 500; // quotedblleft ; B 64 454 436 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 556; // guillemotleft ; B 88 76 468 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 83 76 250 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 83 76 250 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 611; // fi ; B 10 0 542 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 611; // fl ; B 10 0 542 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 556; // endash ; B 0 227 556 333 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 556; // dagger ; B 36 -171 520 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 556; // daggerdbl ; B 36 -171 520 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 278; // periodcentered ; B 58 172 220 334 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 556; // paragraph ; B -8 -191 539 700 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 10 194 340 524 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 278; // quotesinglbase ; B 69 -146 209 127 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 500; // quotedblbase ; B 64 -146 436 127 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 500; // quotedblright ; B 64 445 436 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 556; // guillemotright ; B 88 76 468 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 92 0 908 146 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B -3 -19 1003 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 611; // questiondown ; B 55 -195 551 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B -23 604 225 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 108 604 356 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B -10 604 343 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B -17 610 350 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B -6 604 339 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B -2 604 335 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 104 614 230 729 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B 6 614 327 729 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 59 568 275 776 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B 6 -228 245 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B 9 604 486 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 71 -228 304 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B -10 604 343 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1000; // emdash ; B 0 227 1000 333 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1000; // AE ; B 5 0 954 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 370; // ordfeminine ; B 22 401 347 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 611; // Lslash ; B -20 0 583 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 778; // Oslash ; B 33 -27 744 745 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1000; // OE ; B 37 -19 961 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 365; // ordmasculine ; B 6 401 360 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 889; // ae ; B 29 -14 858 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 69 0 209 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 278; // lslash ; B -18 0 296 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 611; // oslash ; B 22 -29 589 560 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 944; // oe ; B 34 -14 912 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 611; // germandbls ; B 69 -14 579 731 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.278; // N space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.333; // exclam ; B 90 0 244 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.474; // quotedbl ; B 98 447 376 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.556; // numbersign ; B 18 0 538 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.556; // dollar ; B 30 -115 523 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.889; // percent ; B 28 -19 861 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.722; // ampersand ; B 54 -19 701 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.278; // quoteright ; B 69 445 209 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 35 -208 314 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B 19 -208 298 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.389; // asterisk ; B 27 387 362 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.584; // plus ; B 40 0 544 506 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.278; // comma ; B 64 -168 214 146 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 27 215 306 345 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.278; // period ; B 64 0 214 146 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -33 -19 311 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.556; // zero ; B 32 -19 524 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.556; // one ; B 69 0 378 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.556; // two ; B 26 0 511 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.556; // three ; B 27 -19 516 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.556; // four ; B 27 0 526 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.556; // five ; B 27 -19 516 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.556; // six ; B 31 -19 520 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.556; // seven ; B 25 0 528 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.556; // eight ; B 32 -19 524 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.556; // nine ; B 30 -19 522 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.333; // colon ; B 92 0 242 512 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.333; // semicolon ; B 92 -168 242 512 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.584; // less ; B 38 -8 546 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.584; // equal ; B 40 87 544 419 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.584; // greater ; B 38 -8 546 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.611; // question ; B 60 0 556 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.975; // at ; B 118 -19 856 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.722; // A ; B 20 0 702 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.722; // B ; B 76 0 669 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.722; // C ; B 44 -19 684 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B 76 0 685 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.667; // E ; B 76 0 621 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.611; // F ; B 76 0 587 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.778; // G ; B 44 -19 713 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.722; // H ; B 71 0 651 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.278; // I ; B 64 0 214 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.556; // J ; B 22 -18 484 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.722; // K ; B 87 0 722 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.611; // L ; B 76 0 583 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.833; // M ; B 69 0 765 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // N ; B 69 0 654 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.778; // O ; B 44 -19 734 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.667; // P ; B 76 0 627 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.778; // Q ; B 44 -52 737 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.722; // R ; B 76 0 677 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.667; // S ; B 39 -19 629 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.611; // T ; B 14 0 598 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 72 -19 651 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.667; // V ; B 19 0 648 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.944; // W ; B 16 0 929 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.667; // X ; B 14 0 653 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.667; // Y ; B 15 0 653 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.611; // Z ; B 25 0 586 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.333; // bracketleft ; B 63 -196 309 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B -33 -19 311 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.333; // bracketright ; B 24 -196 270 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.584; // asciicircum ; B 62 323 522 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.556; // underscore ; B 0 -125 556 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.278; // quoteleft ; B 69 454 209 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.556; // a ; B 29 -14 527 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.611; // b ; B 61 -14 578 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.556; // c ; B 34 -14 524 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.611; // d ; B 34 -14 551 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.556; // e ; B 23 -14 528 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.333; // f ; B 10 0 318 727 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.611; // g ; B 40 -217 553 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.611; // h ; B 65 0 546 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.278; // i ; B 69 0 209 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.278; // j ; B 3 -214 209 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.556; // k ; B 69 0 562 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.278; // l ; B 69 0 209 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.889; // m ; B 64 0 826 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.611; // n ; B 65 0 546 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.611; // o ; B 34 -14 578 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.611; // p ; B 62 -207 578 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.611; // q ; B 34 -207 552 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.389; // r ; B 64 0 373 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.556; // s ; B 30 -14 519 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.333; // t ; B 10 -6 309 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.611; // u ; B 66 -14 545 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.556; // v ; B 13 0 543 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.778; // w ; B 10 0 769 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.556; // x ; B 15 0 541 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.556; // y ; B 10 -214 539 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.500; // z ; B 20 0 480 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.389; // braceleft ; B 48 -196 365 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.280; // bar ; B 84 -225 196 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.389; // braceright ; B 24 -196 341 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.584; // asciitilde ; B 61 163 523 343 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.333; // exclamdown ; B 90 -186 244 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.556; // cent ; B 34 -118 524 628 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.556; // sterling ; B 28 -16 541 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -170 -19 336 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.556; // yen ; B -9 0 565 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.556; // florin ; B -10 -210 516 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.556; // section ; B 34 -184 522 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.556; // currency ; B -3 76 559 636 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.238; // quotesingle ; B 70 447 168 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.500; // quotedblleft ; B 64 454 436 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.556; // guillemotleft ; B 88 76 468 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 83 76 250 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 83 76 250 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.611; // fi ; B 10 0 542 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.611; // fl ; B 10 0 542 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.556; // endash ; B 0 227 556 333 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.556; // dagger ; B 36 -171 520 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.556; // daggerdbl ; B 36 -171 520 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.278; // periodcentered ; B 58 172 220 334 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.556; // paragraph ; B -8 -191 539 700 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 10 194 340 524 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.278; // quotesinglbase ; B 69 -146 209 127 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.500; // quotedblbase ; B 64 -146 436 127 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.500; // quotedblright ; B 64 445 436 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.556; // guillemotright ; B 88 76 468 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 92 0 908 146 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B -3 -19 1003 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.611; // questiondown ; B 55 -195 551 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B -23 604 225 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 108 604 356 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B -10 604 343 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B -17 610 350 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B -6 604 339 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B -2 604 335 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 104 614 230 729 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B 6 614 327 729 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 59 568 275 776 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B 6 -228 245 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B 9 604 486 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 71 -228 304 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B -10 604 343 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1.000; // emdash ; B 0 227 1000 333 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1.000; // AE ; B 5 0 954 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.370; // ordfeminine ; B 22 401 347 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.611; // Lslash ; B -20 0 583 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.778; // Oslash ; B 33 -27 744 745 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1.000; // OE ; B 37 -19 961 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.365; // ordmasculine ; B 6 401 360 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.889; // ae ; B 29 -14 858 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 69 0 209 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.278; // lslash ; B -18 0 296 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.611; // oslash ; B 22 -29 589 560 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.944; // oe ; B 34 -14 912 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.611; // germandbls ; B 69 -14 579 731 ;
 }
 
 void set_Helvetica_BoldOblique(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 278; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 333; // exclam ; B 94 0 397 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 474; // quotedbl ; B 193 447 529 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 556; // numbersign ; B 60 0 644 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 556; // dollar ; B 67 -115 622 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 889; // percent ; B 136 -19 901 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 722; // ampersand ; B 89 -19 732 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 278; // quoteright ; B 167 445 362 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 76 -208 470 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B -25 -208 369 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 389; // asterisk ; B 146 387 481 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 584; // plus ; B 82 0 610 506 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 278; // comma ; B 28 -168 245 146 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 73 215 379 345 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 278; // period ; B 64 0 245 146 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -37 -19 468 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 556; // zero ; B 86 -19 617 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 556; // one ; B 173 0 529 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 556; // two ; B 26 0 619 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 556; // three ; B 65 -19 608 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 556; // four ; B 60 0 598 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 556; // five ; B 64 -19 636 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 556; // six ; B 85 -19 619 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 556; // seven ; B 125 0 676 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 556; // eight ; B 69 -19 616 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 556; // nine ; B 78 -19 615 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 333; // colon ; B 92 0 351 512 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 333; // semicolon ; B 56 -168 351 512 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 584; // less ; B 82 -8 655 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 584; // equal ; B 58 87 633 419 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 584; // greater ; B 36 -8 609 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 611; // question ; B 165 0 671 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 975; // at ; B 186 -19 954 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 722; // A ; B 20 0 702 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 722; // B ; B 76 0 764 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 722; // pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[; B 107 -19 789 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B 76 0 777 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 667; // E ; B 76 0 757 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 611; // F ; B 76 0 740 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 778; // G ; B 108 -19 817 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 722; // H ; B 71 0 804 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 278; // I ; B 64 0 367 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 556; // J ; B 60 -18 637 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 722; // K ; B 87 0 858 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 611; // L ; B 76 0 611 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 833; // M ; B 69 0 918 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // N ; B 69 0 807 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 778; // O ; B 107 -19 823 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 667; // P ; B 76 0 738 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 778; // Q ; B 107 -52 823 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 722; // R ; B 76 0 778 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 667; // S ; B 81 -19 718 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 611; // T ; B 140 0 751 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 116 -19 804 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 667; // V ; B 172 0 801 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 944; // W ; B 169 0 1082 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 667; // X ; B 14 0 791 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 667; // Y ; B 168 0 806 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 611; // Z ; B 25 0 737 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 333; // bracketleft ; B 21 -196 462 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B 124 -19 307 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 333; // bracketright ; B -18 -196 423 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 584; // asciicircum ; B 131 323 591 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 556; // underscore ; B -27 -125 540 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 278; // quoteleft ; B 165 454 361 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 556; // a ; B 55 -14 583 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 611; // b ; B 61 -14 645 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 556; // c ; B 79 -14 599 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 611; // d ; B 82 -14 704 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 556; // e ; B 70 -14 593 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 333; // f ; B 87 0 469 727 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 611; // g ; B 38 -217 666 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 611; // h ; B 65 0 629 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 278; // i ; B 69 0 363 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 278; // j ; B -42 -214 363 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 556; // k ; B 69 0 670 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 278; // l ; B 69 0 362 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 889; // m ; B 64 0 909 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 611; // n ; B 65 0 629 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 611; // o ; B 82 -14 643 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 611; // p ; B 18 -207 645 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 611; // q ; B 80 -207 665 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 389; // r ; B 64 0 489 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 556; // s ; B 63 -14 584 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 333; // t ; B 100 -6 422 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 611; // u ; B 98 -14 658 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 556; // v ; B 126 0 656 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 778; // w ; B 123 0 882 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 556; // x ; B 15 0 648 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 556; // y ; B 42 -214 652 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 500; // z ; B 20 0 583 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 389; // braceleft ; B 94 -196 518 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 280; // bar ; B 36 -225 361 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 389; // braceright ; B -18 -196 407 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 584; // asciitilde ; B 115 163 577 343 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 333; // exclamdown ; B 50 -186 353 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 556; // cent ; B 79 -118 599 628 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 556; // sterling ; B 50 -16 635 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -174 -19 487 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 556; // yen ; B 60 0 713 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 556; // florin ; B -50 -210 669 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 556; // section ; B 61 -184 598 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 556; // currency ; B 27 76 680 636 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 238; // quotesingle ; B 165 447 321 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 500; // quotedblleft ; B 160 454 588 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 556; // guillemotleft ; B 135 76 571 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 130 76 353 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 99 76 322 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 611; // fi ; B 87 0 696 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 611; // fl ; B 87 0 695 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 556; // endash ; B 48 227 627 333 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 556; // dagger ; B 118 -171 626 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 556; // daggerdbl ; B 46 -171 628 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 278; // periodcentered ; B 110 172 276 334 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 556; // paragraph ; B 98 -191 688 700 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 83 194 420 524 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 278; // quotesinglbase ; B 41 -146 236 127 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 500; // quotedblbase ; B 36 -146 463 127 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 500; // quotedblright ; B 162 445 589 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 556; // guillemotright ; B 104 76 540 484 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 92 0 939 146 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B 76 -19 1038 710 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 611; // questiondown ; B 53 -195 559 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B 136 604 353 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 236 604 515 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B 118 604 471 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B 113 610 507 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B 122 604 483 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B 156 604 494 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 235 614 385 729 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B 137 614 482 729 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 200 568 420 776 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B -37 -228 220 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B 137 604 645 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 41 -228 264 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B 149 604 502 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1000; // emdash ; B 48 227 1071 333 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1000; // AE ; B 5 0 1100 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 370; // ordfeminine ; B 125 401 465 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 611; // Lslash ; B 34 0 611 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 778; // Oslash ; B 35 -27 894 745 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1000; // OE ; B 99 -19 1114 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 365; // ordmasculine ; B 123 401 485 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 889; // ae ; B 56 -14 923 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 69 0 322 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 278; // lslash ; B 40 0 407 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 611; // oslash ; B 22 -29 701 560 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 944; // oe ; B 82 -14 977 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 611; // germandbls ; B 69 -14 657 731 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.278; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.333; // exclam ; B 94 0 397 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.474; // quotedbl ; B 193 447 529 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.556; // numbersign ; B 60 0 644 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.556; // dollar ; B 67 -115 622 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.889; // percent ; B 136 -19 901 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.722; // ampersand ; B 89 -19 732 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.278; // quoteright ; B 167 445 362 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 76 -208 470 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B -25 -208 369 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.389; // asterisk ; B 146 387 481 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.584; // plus ; B 82 0 610 506 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.278; // comma ; B 28 -168 245 146 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 73 215 379 345 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.278; // period ; B 64 0 245 146 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -37 -19 468 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.556; // zero ; B 86 -19 617 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.556; // one ; B 173 0 529 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.556; // two ; B 26 0 619 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.556; // three ; B 65 -19 608 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.556; // four ; B 60 0 598 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.556; // five ; B 64 -19 636 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.556; // six ; B 85 -19 619 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.556; // seven ; B 125 0 676 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.556; // eight ; B 69 -19 616 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.556; // nine ; B 78 -19 615 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.333; // colon ; B 92 0 351 512 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.333; // semicolon ; B 56 -168 351 512 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.584; // less ; B 82 -8 655 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.584; // equal ; B 58 87 633 419 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.584; // greater ; B 36 -8 609 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.611; // question ; B 165 0 671 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.975; // at ; B 186 -19 954 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.722; // A ; B 20 0 702 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.722; // B ; B 76 0 764 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.722; // pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[; B 107 -19 789 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B 76 0 777 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.667; // E ; B 76 0 757 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.611; // F ; B 76 0 740 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.778; // G ; B 108 -19 817 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.722; // H ; B 71 0 804 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.278; // I ; B 64 0 367 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.556; // J ; B 60 -18 637 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.722; // K ; B 87 0 858 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.611; // L ; B 76 0 611 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.833; // M ; B 69 0 918 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // N ; B 69 0 807 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.778; // O ; B 107 -19 823 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.667; // P ; B 76 0 738 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.778; // Q ; B 107 -52 823 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.722; // R ; B 76 0 778 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.667; // S ; B 81 -19 718 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.611; // T ; B 140 0 751 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 116 -19 804 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.667; // V ; B 172 0 801 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.944; // W ; B 169 0 1082 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.667; // X ; B 14 0 791 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.667; // Y ; B 168 0 806 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.611; // Z ; B 25 0 737 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.333; // bracketleft ; B 21 -196 462 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B 124 -19 307 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.333; // bracketright ; B -18 -196 423 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.584; // asciicircum ; B 131 323 591 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.556; // underscore ; B -27 -125 540 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.278; // quoteleft ; B 165 454 361 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.556; // a ; B 55 -14 583 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.611; // b ; B 61 -14 645 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.556; // c ; B 79 -14 599 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.611; // d ; B 82 -14 704 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.556; // e ; B 70 -14 593 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.333; // f ; B 87 0 469 727 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.611; // g ; B 38 -217 666 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.611; // h ; B 65 0 629 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.278; // i ; B 69 0 363 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.278; // j ; B -42 -214 363 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.556; // k ; B 69 0 670 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.278; // l ; B 69 0 362 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.889; // m ; B 64 0 909 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.611; // n ; B 65 0 629 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.611; // o ; B 82 -14 643 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.611; // p ; B 18 -207 645 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.611; // q ; B 80 -207 665 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.389; // r ; B 64 0 489 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.556; // s ; B 63 -14 584 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.333; // t ; B 100 -6 422 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.611; // u ; B 98 -14 658 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.556; // v ; B 126 0 656 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.778; // w ; B 123 0 882 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.556; // x ; B 15 0 648 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.556; // y ; B 42 -214 652 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.500; // z ; B 20 0 583 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.389; // braceleft ; B 94 -196 518 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.280; // bar ; B 36 -225 361 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.389; // braceright ; B -18 -196 407 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.584; // asciitilde ; B 115 163 577 343 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.333; // exclamdown ; B 50 -186 353 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.556; // cent ; B 79 -118 599 628 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.556; // sterling ; B 50 -16 635 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -174 -19 487 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.556; // yen ; B 60 0 713 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.556; // florin ; B -50 -210 669 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.556; // section ; B 61 -184 598 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.556; // currency ; B 27 76 680 636 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.238; // quotesingle ; B 165 447 321 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.500; // quotedblleft ; B 160 454 588 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.556; // guillemotleft ; B 135 76 571 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 130 76 353 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 99 76 322 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.611; // fi ; B 87 0 696 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.611; // fl ; B 87 0 695 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.556; // endash ; B 48 227 627 333 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.556; // dagger ; B 118 -171 626 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.556; // daggerdbl ; B 46 -171 628 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.278; // periodcentered ; B 110 172 276 334 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.556; // paragraph ; B 98 -191 688 700 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 83 194 420 524 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.278; // quotesinglbase ; B 41 -146 236 127 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.500; // quotedblbase ; B 36 -146 463 127 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.500; // quotedblright ; B 162 445 589 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.556; // guillemotright ; B 104 76 540 484 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 92 0 939 146 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B 76 -19 1038 710 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.611; // questiondown ; B 53 -195 559 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B 136 604 353 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 236 604 515 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B 118 604 471 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B 113 610 507 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B 122 604 483 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B 156 604 494 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 235 614 385 729 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B 137 614 482 729 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 200 568 420 776 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B -37 -228 220 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B 137 604 645 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 41 -228 264 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B 149 604 502 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1.000; // emdash ; B 48 227 1071 333 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1.000; // AE ; B 5 0 1100 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.370; // ordfeminine ; B 125 401 465 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.611; // Lslash ; B 34 0 611 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.778; // Oslash ; B 35 -27 894 745 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1.000; // OE ; B 99 -19 1114 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.365; // ordmasculine ; B 123 401 485 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.889; // ae ; B 56 -14 923 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 69 0 322 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.278; // lslash ; B 40 0 407 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.611; // oslash ; B 22 -29 701 560 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.944; // oe ; B 82 -14 977 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.611; // germandbls ; B 69 -14 657 731 ;
 }
 
 void set_Helvetica_Oblique(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 278; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 278; // exclam ; B 90 0 340 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 355; // quotedbl ; B 168 463 438 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 556; // numbersign ; B 73 0 631 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 556; // dollar ; B 69 -115 617 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 889; // percent ; B 147 -19 889 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 667; // ampersand ; B 77 -15 647 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 222; // quoteright ; B 151 463 310 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 108 -207 454 733 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B -9 -207 337 733 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 389; // asterisk ; B 165 431 475 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 584; // plus ; B 85 0 606 505 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 278; // comma ; B 56 -147 214 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 93 232 357 322 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 278; // period ; B 87 0 214 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -21 -19 452 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 556; // zero ; B 93 -19 608 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 556; // one ; B 207 0 508 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 556; // two ; B 26 0 617 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 556; // three ; B 75 -19 610 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 556; // four ; B 61 0 576 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 556; // five ; B 68 -19 621 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 556; // six ; B 91 -19 615 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 556; // seven ; B 137 0 669 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 556; // eight ; B 74 -19 607 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 556; // nine ; B 82 -19 609 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 278; // colon ; B 87 0 301 516 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 278; // semicolon ; B 56 -147 301 516 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 584; // less ; B 94 11 641 495 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 584; // equal ; B 63 115 628 390 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 584; // greater ; B 50 11 597 495 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 556; // question ; B 161 0 610 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 1015; // at ; B 215 -19 965 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 667; // A ; B 14 0 654 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 667; // B ; B 74 0 712 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 722; // C ; B 108 -19 782 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B 81 0 764 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 667; // E ; B 86 0 762 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 611; // F ; B 86 0 736 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 778; // G ; B 111 -19 799 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 722; // H ; B 77 0 799 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 278; // I ; B 91 0 341 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 500; // J ; B 47 -19 581 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 667; // K ; B 76 0 808 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 556; // L ; B 76 0 555 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 833; // M ; B 73 0 914 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // N ; B 76 0 799 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 778; // O ; B 105 -19 826 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 667; // P ; B 86 0 737 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 778; // Q ; B 105 -56 826 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 722; // R ; B 88 0 773 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 667; // S ; B 90 -19 713 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 611; // T ; B 148 0 750 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 123 -19 797 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 667; // V ; B 173 0 800 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 944; // W ; B 169 0 1081 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 667; // X ; B 19 0 790 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 667; // Y ; B 167 0 806 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 611; // Z ; B 23 0 741 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 278; // bracketleft ; B 21 -196 403 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B 140 -19 291 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 278; // bracketright ; B -14 -196 368 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 469; // asciicircum ; B 42 264 539 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 556; // underscore ; B -27 -125 540 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 222; // quoteleft ; B 165 470 323 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 556; // a ; B 61 -15 559 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 556; // b ; B 58 -15 584 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 500; // c ; B 74 -15 553 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 556; // d ; B 84 -15 652 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 556; // e ; B 84 -15 578 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 278; // f ; B 86 0 416 728 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 556; // g ; B 42 -220 610 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 556; // h ; B 65 0 573 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 222; // i ; B 67 0 308 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 222; // j ; B -60 -210 308 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 500; // k ; B 67 0 600 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 222; // l ; B 67 0 308 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 833; // m ; B 65 0 852 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 556; // n ; B 65 0 573 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 556; // o ; B 83 -14 585 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 556; // p ; B 14 -207 584 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 556; // q ; B 84 -207 605 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 333; // r ; B 77 0 446 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 500; // s ; B 63 -15 529 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 278; // t ; B 102 -7 368 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 556; // u ; B 94 -15 600 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 500; // v ; B 119 0 603 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 722; // w ; B 125 0 820 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 500; // x ; B 11 0 594 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 500; // y ; B 15 -214 600 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 500; // z ; B 31 0 571 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 334; // braceleft ; B 92 -196 445 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 260; // bar ; B 46 -225 332 775 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 334; // braceright ; B 0 -196 354 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 584; // asciitilde ; B 111 180 580 326 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 333; // exclamdown ; B 77 -195 326 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 556; // cent ; B 95 -115 584 623 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 556; // sterling ; B 49 -16 634 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -170 -19 482 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 556; // yen ; B 81 0 699 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 556; // florin ; B -52 -207 654 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 556; // section ; B 76 -191 584 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 556; // currency ; B 60 99 646 603 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 191; // quotesingle ; B 157 463 285 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 333; // quotedblleft ; B 138 470 461 725 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 556; // guillemotleft ; B 146 108 554 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 137 108 340 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 111 108 314 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 500; // fi ; B 86 0 587 728 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 500; // fl ; B 86 0 585 728 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 556; // endash ; B 51 240 623 313 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 556; // dagger ; B 135 -159 622 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 556; // daggerdbl ; B 52 -159 623 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 278; // periodcentered ; B 129 190 257 315 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 537; // paragraph ; B 126 -173 650 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 91 202 413 517 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 222; // quotesinglbase ; B 21 -149 180 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 333; // quotedblbase ; B -6 -149 318 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 333; // quotedblright ; B 124 463 448 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 556; // guillemotright ; B 120 108 528 446 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 115 0 908 106 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B 88 -19 1029 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 611; // questiondown ; B 85 -201 534 525 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B 170 593 337 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 248 593 475 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B 147 593 438 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B 125 606 490 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B 143 627 468 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B 167 595 476 731 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 249 604 362 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B 168 604 443 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 214 572 402 756 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B 2 -225 232 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B 157 593 565 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 43 -225 249 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B 177 593 468 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1000; // emdash ; B 51 240 1067 313 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1000; // AE ; B 8 0 1097 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 370; // ordfeminine ; B 127 405 449 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 556; // Lslash ; B 41 0 555 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 778; // Oslash ; B 43 -19 890 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1000; // OE ; B 98 -19 1116 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 365; // ordmasculine ; B 141 405 468 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 889; // ae ; B 61 -15 909 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 95 0 294 523 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 222; // lslash ; B 41 0 347 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 611; // oslash ; B 29 -22 647 545 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 944; // oe ; B 83 -15 964 538 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 611; // germandbls ; B 67 -15 658 728 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.278; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.278; // exclam ; B 90 0 340 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.355; // quotedbl ; B 168 463 438 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.556; // numbersign ; B 73 0 631 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.556; // dollar ; B 69 -115 617 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.889; // percent ; B 147 -19 889 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.667; // ampersand ; B 77 -15 647 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.222; // quoteright ; B 151 463 310 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 108 -207 454 733 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B -9 -207 337 733 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.389; // asterisk ; B 165 431 475 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.584; // plus ; B 85 0 606 505 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.278; // comma ; B 56 -147 214 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 93 232 357 322 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.278; // period ; B 87 0 214 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -21 -19 452 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.556; // zero ; B 93 -19 608 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.556; // one ; B 207 0 508 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.556; // two ; B 26 0 617 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.556; // three ; B 75 -19 610 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.556; // four ; B 61 0 576 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.556; // five ; B 68 -19 621 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.556; // six ; B 91 -19 615 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.556; // seven ; B 137 0 669 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.556; // eight ; B 74 -19 607 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.556; // nine ; B 82 -19 609 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.278; // colon ; B 87 0 301 516 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.278; // semicolon ; B 56 -147 301 516 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.584; // less ; B 94 11 641 495 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.584; // equal ; B 63 115 628 390 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.584; // greater ; B 50 11 597 495 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.556; // question ; B 161 0 610 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 1.015; // at ; B 215 -19 965 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.667; // A ; B 14 0 654 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.667; // B ; B 74 0 712 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.722; // C ; B 108 -19 782 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B 81 0 764 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.667; // E ; B 86 0 762 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.611; // F ; B 86 0 736 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.778; // G ; B 111 -19 799 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.722; // H ; B 77 0 799 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.278; // I ; B 91 0 341 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.500; // J ; B 47 -19 581 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.667; // K ; B 76 0 808 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.556; // L ; B 76 0 555 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.833; // M ; B 73 0 914 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // N ; B 76 0 799 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.778; // O ; B 105 -19 826 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.667; // P ; B 86 0 737 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.778; // Q ; B 105 -56 826 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.722; // R ; B 88 0 773 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.667; // S ; B 90 -19 713 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.611; // T ; B 148 0 750 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 123 -19 797 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.667; // V ; B 173 0 800 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.944; // W ; B 169 0 1081 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.667; // X ; B 19 0 790 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.667; // Y ; B 167 0 806 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.611; // Z ; B 23 0 741 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.278; // bracketleft ; B 21 -196 403 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B 140 -19 291 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.278; // bracketright ; B -14 -196 368 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.469; // asciicircum ; B 42 264 539 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.556; // underscore ; B -27 -125 540 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.222; // quoteleft ; B 165 470 323 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.556; // a ; B 61 -15 559 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.556; // b ; B 58 -15 584 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.500; // c ; B 74 -15 553 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.556; // d ; B 84 -15 652 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.556; // e ; B 84 -15 578 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.278; // f ; B 86 0 416 728 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.556; // g ; B 42 -220 610 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.556; // h ; B 65 0 573 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.222; // i ; B 67 0 308 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.222; // j ; B -60 -210 308 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.500; // k ; B 67 0 600 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.222; // l ; B 67 0 308 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.833; // m ; B 65 0 852 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.556; // n ; B 65 0 573 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.556; // o ; B 83 -14 585 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.556; // p ; B 14 -207 584 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.556; // q ; B 84 -207 605 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.333; // r ; B 77 0 446 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.500; // s ; B 63 -15 529 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.278; // t ; B 102 -7 368 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.556; // u ; B 94 -15 600 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.500; // v ; B 119 0 603 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.722; // w ; B 125 0 820 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.500; // x ; B 11 0 594 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.500; // y ; B 15 -214 600 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.500; // z ; B 31 0 571 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.334; // braceleft ; B 92 -196 445 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.260; // bar ; B 46 -225 332 775 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.334; // braceright ; B 0 -196 354 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.584; // asciitilde ; B 111 180 580 326 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.333; // exclamdown ; B 77 -195 326 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.556; // cent ; B 95 -115 584 623 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.556; // sterling ; B 49 -16 634 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -170 -19 482 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.556; // yen ; B 81 0 699 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.556; // florin ; B -52 -207 654 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.556; // section ; B 76 -191 584 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.556; // currency ; B 60 99 646 603 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.191; // quotesingle ; B 157 463 285 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.333; // quotedblleft ; B 138 470 461 725 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.556; // guillemotleft ; B 146 108 554 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 137 108 340 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 111 108 314 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.500; // fi ; B 86 0 587 728 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.500; // fl ; B 86 0 585 728 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.556; // endash ; B 51 240 623 313 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.556; // dagger ; B 135 -159 622 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.556; // daggerdbl ; B 52 -159 623 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.278; // periodcentered ; B 129 190 257 315 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.537; // paragraph ; B 126 -173 650 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 91 202 413 517 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.222; // quotesinglbase ; B 21 -149 180 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.333; // quotedblbase ; B -6 -149 318 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.333; // quotedblright ; B 124 463 448 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.556; // guillemotright ; B 120 108 528 446 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 115 0 908 106 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B 88 -19 1029 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.611; // questiondown ; B 85 -201 534 525 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B 170 593 337 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 248 593 475 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B 147 593 438 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B 125 606 490 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B 143 627 468 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B 167 595 476 731 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 249 604 362 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B 168 604 443 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 214 572 402 756 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B 2 -225 232 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B 157 593 565 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 43 -225 249 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B 177 593 468 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1.000; // emdash ; B 51 240 1067 313 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1.000; // AE ; B 8 0 1097 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.370; // ordfeminine ; B 127 405 449 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.556; // Lslash ; B 41 0 555 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.778; // Oslash ; B 43 -19 890 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1.000; // OE ; B 98 -19 1116 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.365; // ordmasculine ; B 141 405 468 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.889; // ae ; B 61 -15 909 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 95 0 294 523 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.222; // lslash ; B 41 0 347 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.611; // oslash ; B 29 -22 647 545 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.944; // oe ; B 83 -15 964 538 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.611; // germandbls ; B 67 -15 658 728 ;
 }
 
 void set_Symbol(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 250; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 333; // exclam ; B 128 -17 240 672 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 713; // universal ; B 31 0 681 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 500; // numbersign ; B 20 -16 481 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 549; // existential ; B 25 0 478 707 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 833; // percent ; B 63 -36 771 655 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 778; // ampersand ; B 41 -18 750 661 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 439; // suchthat ; B 48 -17 414 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 53 -191 300 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B 30 -191 277 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 500; // asteriskmath ; B 65 134 427 551 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 549; // plus ; B 10 0 539 533 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 250; // comma ; B 56 -152 194 104 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 549; // minus ; B 11 233 535 288 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 250; // period ; B 69 -17 181 95 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B 0 -18 254 646 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 500; // zero ; B 24 -14 476 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 500; // one ; B 117 0 390 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 500; // two ; B 25 0 475 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 500; // three ; B 43 -14 435 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 500; // four ; B 15 0 469 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 500; // five ; B 32 -14 445 690 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 500; // six ; B 34 -14 468 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 500; // seven ; B 24 -16 448 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 500; // eight ; B 56 -14 445 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 500; // nine ; B 30 -18 459 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 278; // colon ; B 81 -17 193 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 278; // semicolon ; B 83 -152 221 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 549; // less ; B 26 0 523 522 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 549; // equal ; B 11 141 537 390 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 549; // greater ; B 26 0 523 522 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 444; // question ; B 70 -17 412 686 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 549; // congruent ; B 11 0 537 475 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 722; // Alpha ; B 4 0 684 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 667; // Beta ; B 29 0 592 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 722; // Chi ; B -9 0 704 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 612; // Delta ; B 6 0 608 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 611; // Epsilon ; B 32 0 617 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 763; // Phi ; B 26 0 741 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 603; // Gamma ; B 24 0 609 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 722; // Eta ; B 39 0 729 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 333; // Iota ; B 32 0 316 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 631; // theta1 ; B 18 -18 623 689 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 722; // Kappa ; B 35 0 722 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 686; // Lambda ; B 6 0 680 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 889; // Mu ; B 28 0 887 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // Nu ; B 29 -8 720 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 722; // Omicron ; B 41 -17 715 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 768; // Pi ; B 25 0 745 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 741; // Theta ; B 41 -17 715 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 556; // Rho ; B 28 0 563 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 592; // Sigma ; B 5 0 589 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 611; // Tau ; B 33 0 607 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 690; // Upsilon ; B -8 0 694 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 439; // sigma1 ; B 40 -233 436 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 768; // Omega ; B 34 0 736 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 645; // Xi ; B 40 0 599 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 795; // Psi ; B 15 0 781 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 611; // Zeta ; B 44 0 636 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 333; // bracketleft ; B 86 -155 299 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 863; // therefore ; B 163 0 701 487 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 333; // bracketright ; B 33 -155 246 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 658; // perpendicular ; B 15 0 652 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 500; // underscore ; B -2 -125 502 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 500; // radicalex ; B 480 881 1090 917 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 631; // alpha ; B 41 -18 622 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 549; // beta ; B 61 -223 515 741 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 549; // chi ; B 12 -231 522 499 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 494; // delta ; B 40 -19 481 740 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 439; // epsilon ; B 22 -19 427 502 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 521; // phi ; B 28 -224 492 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 411; // gamma ; B 5 -225 484 499 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 603; // eta ; B 0 -202 527 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 329; // iota ; B 0 -17 301 503 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 603; // phi1 ; B 36 -224 587 499 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 549; // kappa ; B 33 0 558 501 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 549; // lambda ; B 24 -17 548 739 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 576; // mu ; B 33 -223 567 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 521; // nu ; B -9 -16 475 507 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 549; // omicron ; B 35 -19 501 499 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 549; // pi ; B 10 -19 530 487 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 521; // theta ; B 43 -17 485 690 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 549; // rho ; B 50 -230 490 499 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 603; // sigma ; B 30 -21 588 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 439; // tau ; B 10 -19 418 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 576; // upsilon ; B 7 -18 535 507 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 713; // omega1 ; B 12 -18 671 583 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 686; // omega ; B 42 -17 684 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 493; // xi ; B 27 -224 469 766 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 686; // psi ; B 12 -228 701 500 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 494; // zeta ; B 60 -225 467 756 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 480; // braceleft ; B 58 -183 397 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 200; // bar ; B 65 -293 135 707 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 480; // braceright ; B 79 -183 418 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 549; // similar ; B 17 203 529 307 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[160] = 750; // Euro ; B 20 -12 714 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 620; // Upsilon1 ; B -2 0 610 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 247; // minute ; B 27 459 228 735 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 549; // lessequal ; B 29 0 526 639 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -180 -12 340 677 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 713; // infinity ; B 26 124 688 404 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 500; // florin ; B 2 -193 494 686 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 753; // club ; B 86 -26 660 533 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 753; // diamond ; B 142 -36 600 550 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 753; // heart ; B 117 -33 631 532 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 753; // spade ; B 113 -36 629 548 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 1042; // arrowboth ; B 24 -15 1024 511 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 987; // arrowleft ; B 32 -15 942 511 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 603; // arrowup ; B 45 0 571 910 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 987; // arrowright ; B 49 -15 959 511 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 603; // arrowdown ; B 45 -22 571 888 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[176] = 400; // degree ; B 50 385 350 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 549; // plusminus ; B 10 0 539 645 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 411; // second ; B 20 459 413 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 549; // greaterequal ; B 29 0 526 639 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 549; // multiply ; B 17 8 533 524 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[181] = 713; // proportional ; B 27 123 639 404 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 494; // partialdiff ; B 26 -20 462 746 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 460; // bullet ; B 50 113 410 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 549; // divide ; B 10 71 536 456 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 549; // notequal ; B 15 -25 540 549 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 549; // equivalence ; B 14 82 538 443 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 549; // approxequal ; B 14 135 527 394 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 111 -17 889 95 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 603; // arrowvertex ; B 280 -120 336 1010 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[190] = 1000; // arrowhorizex ; B -60 220 1050 276 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 658; // carriagereturn ; B 15 -16 602 629 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[192] = 823; // aleph ; B 175 -18 661 658 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 686; // Ifraktur ; B 10 -53 578 740 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 795; // Rfraktur ; B 26 -15 759 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 987; // weierstrass ; B 159 -211 870 573 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 768; // circlemultiply ; B 43 -17 733 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 768; // circleplus ; B 43 -15 733 675 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 823; // emptyset ; B 39 -24 781 719 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 768; // intersection ; B 40 0 732 509 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 768; // union ; B 40 -17 732 492 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[201] = 713; // propersuperset ; B 20 0 673 470 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 713; // reflexsuperset ; B 20 -125 673 470 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 713; // notsubset ; B 36 -70 690 540 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[204] = 713; // propersubset ; B 37 0 690 470 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 713; // reflexsubset ; B 37 -125 690 470 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 713; // element ; B 45 0 505 468 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 713; // notelement ; B 45 -58 505 555 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 768; // angle ; B 26 0 738 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[209] = 713; // gradient ; B 36 -19 681 718 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[210] = 790; // registerserif ; B 50 -17 740 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[211] = 790; // copyrightserif ; B 51 -15 741 675 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[212] = 890; // trademarkserif ; B 18 293 855 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[213] = 823; // product ; B 25 -101 803 751 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[214] = 549; // radical ; B 10 -38 515 917 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[215] = 250; // dotmath ; B 69 210 169 310 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[216] = 713; // logicalnot ; B 15 0 680 288 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[217] = 603; // logicaland ; B 23 0 583 454 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[218] = 603; // logicalor ; B 30 0 578 477 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[219] = 1042; // arrowdblboth ; B 27 -20 1023 510 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[220] = 987; // arrowdblleft ; B 30 -15 939 513 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[221] = 603; // arrowdblup ; B 39 2 567 911 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[222] = 987; // arrowdblright ; B 45 -20 954 508 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[223] = 603; // arrowdbldown ; B 44 -19 572 890 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[224] = 494; // lozenge ; B 18 0 466 745 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 329; // angleleft ; B 25 -198 306 746 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[226] = 790; // registersans ; B 50 -20 740 670 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 790; // copyrightsans ; B 49 -15 739 675 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[228] = 786; // trademarksans ; B 5 293 725 673 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[229] = 713; // summation ; B 14 -108 695 752 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[230] = 384; // parenlefttp ; B 24 -293 436 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[231] = 384; // parenleftex ; B 24 -85 108 925 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 384; // parenleftbt ; B 24 -293 436 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 384; // bracketlefttp ; B 0 -80 349 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 384; // bracketleftex ; B 0 -79 77 925 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 384; // bracketleftbt ; B 0 -80 349 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[236] = 494; // bracelefttp ; B 209 -85 445 925 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[237] = 494; // braceleftmid ; B 20 -85 284 935 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[238] = 494; // braceleftbt ; B 209 -75 445 935 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[239] = 494; // braceex ; B 209 -85 284 935 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 329; // angleright ; B 21 -198 302 746 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[242] = 274; // integral ; B 2 -107 291 916 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[243] = 686; // integraltp ; B 308 -88 675 920 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[244] = 686; // integralex ; B 308 -88 378 975 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 686; // integralbt ; B 11 -87 378 921 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[246] = 384; // parenrighttp ; B 54 -293 466 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[247] = 384; // parenrightex ; B 382 -85 466 925 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 384; // parenrightbt ; B 54 -293 466 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 384; // bracketrighttp ; B 22 -80 371 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 384; // bracketrightex ; B 294 -79 371 925 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 384; // bracketrightbt ; B 22 -80 371 926 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[252] = 494; // bracerighttp ; B 48 -85 284 925 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[253] = 494; // bracerightmid ; B 209 -85 473 935 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[254] = 494; // bracerightbt ; B 48 -75 284 935 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.250; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.333; // exclam ; B 128 -17 240 672 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.713; // universal ; B 31 0 681 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.500; // numbersign ; B 20 -16 481 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.549; // existential ; B 25 0 478 707 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.833; // percent ; B 63 -36 771 655 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.778; // ampersand ; B 41 -18 750 661 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.439; // suchthat ; B 48 -17 414 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 53 -191 300 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B 30 -191 277 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.500; // asteriskmath ; B 65 134 427 551 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.549; // plus ; B 10 0 539 533 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.250; // comma ; B 56 -152 194 104 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.549; // minus ; B 11 233 535 288 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.250; // period ; B 69 -17 181 95 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B 0 -18 254 646 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.500; // zero ; B 24 -14 476 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.500; // one ; B 117 0 390 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.500; // two ; B 25 0 475 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.500; // three ; B 43 -14 435 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.500; // four ; B 15 0 469 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.500; // five ; B 32 -14 445 690 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.500; // six ; B 34 -14 468 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.500; // seven ; B 24 -16 448 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.500; // eight ; B 56 -14 445 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.500; // nine ; B 30 -18 459 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.278; // colon ; B 81 -17 193 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.278; // semicolon ; B 83 -152 221 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.549; // less ; B 26 0 523 522 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.549; // equal ; B 11 141 537 390 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.549; // greater ; B 26 0 523 522 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.444; // question ; B 70 -17 412 686 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.549; // congruent ; B 11 0 537 475 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.722; // Alpha ; B 4 0 684 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.667; // Beta ; B 29 0 592 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.722; // Chi ; B -9 0 704 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.612; // Delta ; B 6 0 608 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.611; // Epsilon ; B 32 0 617 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.763; // Phi ; B 26 0 741 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.603; // Gamma ; B 24 0 609 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.722; // Eta ; B 39 0 729 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.333; // Iota ; B 32 0 316 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.631; // theta1 ; B 18 -18 623 689 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.722; // Kappa ; B 35 0 722 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.686; // Lambda ; B 6 0 680 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.889; // Mu ; B 28 0 887 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // Nu ; B 29 -8 720 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.722; // Omicron ; B 41 -17 715 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.768; // Pi ; B 25 0 745 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.741; // Theta ; B 41 -17 715 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.556; // Rho ; B 28 0 563 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.592; // Sigma ; B 5 0 589 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.611; // Tau ; B 33 0 607 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.690; // Upsilon ; B -8 0 694 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.439; // sigma1 ; B 40 -233 436 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.768; // Omega ; B 34 0 736 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.645; // Xi ; B 40 0 599 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.795; // Psi ; B 15 0 781 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.611; // Zeta ; B 44 0 636 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.333; // bracketleft ; B 86 -155 299 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.863; // therefore ; B 163 0 701 487 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.333; // bracketright ; B 33 -155 246 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.658; // perpendicular ; B 15 0 652 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.500; // underscore ; B -2 -125 502 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.500; // radicalex ; B 480 881 1090 917 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.631; // alpha ; B 41 -18 622 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.549; // beta ; B 61 -223 515 741 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.549; // chi ; B 12 -231 522 499 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.494; // delta ; B 40 -19 481 740 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.439; // epsilon ; B 22 -19 427 502 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.521; // phi ; B 28 -224 492 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.411; // gamma ; B 5 -225 484 499 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.603; // eta ; B 0 -202 527 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.329; // iota ; B 0 -17 301 503 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.603; // phi1 ; B 36 -224 587 499 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.549; // kappa ; B 33 0 558 501 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.549; // lambda ; B 24 -17 548 739 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.576; // mu ; B 33 -223 567 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.521; // nu ; B -9 -16 475 507 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.549; // omicron ; B 35 -19 501 499 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.549; // pi ; B 10 -19 530 487 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.521; // theta ; B 43 -17 485 690 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.549; // rho ; B 50 -230 490 499 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.603; // sigma ; B 30 -21 588 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.439; // tau ; B 10 -19 418 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.576; // upsilon ; B 7 -18 535 507 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.713; // omega1 ; B 12 -18 671 583 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.686; // omega ; B 42 -17 684 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.493; // xi ; B 27 -224 469 766 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.686; // psi ; B 12 -228 701 500 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.494; // zeta ; B 60 -225 467 756 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.480; // braceleft ; B 58 -183 397 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.200; // bar ; B 65 -293 135 707 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.480; // braceright ; B 79 -183 418 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.549; // similar ; B 17 203 529 307 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[160] = 0.750; // Euro ; B 20 -12 714 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.620; // Upsilon1 ; B -2 0 610 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.247; // minute ; B 27 459 228 735 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.549; // lessequal ; B 29 0 526 639 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -180 -12 340 677 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.713; // infinity ; B 26 124 688 404 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.500; // florin ; B 2 -193 494 686 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.753; // club ; B 86 -26 660 533 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.753; // diamond ; B 142 -36 600 550 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.753; // heart ; B 117 -33 631 532 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.753; // spade ; B 113 -36 629 548 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 1.042; // arrowboth ; B 24 -15 1024 511 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.987; // arrowleft ; B 32 -15 942 511 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.603; // arrowup ; B 45 0 571 910 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.987; // arrowright ; B 49 -15 959 511 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.603; // arrowdown ; B 45 -22 571 888 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[176] = 0.400; // degree ; B 50 385 350 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.549; // plusminus ; B 10 0 539 645 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.411; // second ; B 20 459 413 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.549; // greaterequal ; B 29 0 526 639 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.549; // multiply ; B 17 8 533 524 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[181] = 0.713; // proportional ; B 27 123 639 404 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.494; // partialdiff ; B 26 -20 462 746 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.460; // bullet ; B 50 113 410 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.549; // divide ; B 10 71 536 456 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.549; // notequal ; B 15 -25 540 549 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.549; // equivalence ; B 14 82 538 443 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.549; // approxequal ; B 14 135 527 394 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 111 -17 889 95 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 0.603; // arrowvertex ; B 280 -120 336 1010 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[190] = 1.000; // arrowhorizex ; B -60 220 1050 276 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.658; // carriagereturn ; B 15 -16 602 629 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[192] = 0.823; // aleph ; B 175 -18 661 658 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.686; // Ifraktur ; B 10 -53 578 740 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.795; // Rfraktur ; B 26 -15 759 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.987; // weierstrass ; B 159 -211 870 573 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.768; // circlemultiply ; B 43 -17 733 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.768; // circleplus ; B 43 -15 733 675 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.823; // emptyset ; B 39 -24 781 719 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.768; // intersection ; B 40 0 732 509 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.768; // union ; B 40 -17 732 492 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[201] = 0.713; // propersuperset ; B 20 0 673 470 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.713; // reflexsuperset ; B 20 -125 673 470 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.713; // notsubset ; B 36 -70 690 540 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[204] = 0.713; // propersubset ; B 37 0 690 470 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.713; // reflexsubset ; B 37 -125 690 470 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.713; // element ; B 45 0 505 468 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.713; // notelement ; B 45 -58 505 555 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 0.768; // angle ; B 26 0 738 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[209] = 0.713; // gradient ; B 36 -19 681 718 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[210] = 0.790; // registerserif ; B 50 -17 740 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[211] = 0.790; // copyrightserif ; B 51 -15 741 675 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[212] = 0.890; // trademarkserif ; B 18 293 855 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[213] = 0.823; // product ; B 25 -101 803 751 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[214] = 0.549; // radical ; B 10 -38 515 917 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[215] = 0.250; // dotmath ; B 69 210 169 310 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[216] = 0.713; // logicalnot ; B 15 0 680 288 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[217] = 0.603; // logicaland ; B 23 0 583 454 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[218] = 0.603; // logicalor ; B 30 0 578 477 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[219] = 1.042; // arrowdblboth ; B 27 -20 1023 510 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[220] = 0.987; // arrowdblleft ; B 30 -15 939 513 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[221] = 0.603; // arrowdblup ; B 39 2 567 911 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[222] = 0.987; // arrowdblright ; B 45 -20 954 508 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[223] = 0.603; // arrowdbldown ; B 44 -19 572 890 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[224] = 0.494; // lozenge ; B 18 0 466 745 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 0.329; // angleleft ; B 25 -198 306 746 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[226] = 0.790; // registersans ; B 50 -20 740 670 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.790; // copyrightsans ; B 49 -15 739 675 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[228] = 0.786; // trademarksans ; B 5 293 725 673 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[229] = 0.713; // summation ; B 14 -108 695 752 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[230] = 0.384; // parenlefttp ; B 24 -293 436 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[231] = 0.384; // parenleftex ; B 24 -85 108 925 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.384; // parenleftbt ; B 24 -293 436 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.384; // bracketlefttp ; B 0 -80 349 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 0.384; // bracketleftex ; B 0 -79 77 925 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.384; // bracketleftbt ; B 0 -80 349 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[236] = 0.494; // bracelefttp ; B 209 -85 445 925 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[237] = 0.494; // braceleftmid ; B 20 -85 284 935 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[238] = 0.494; // braceleftbt ; B 209 -75 445 935 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[239] = 0.494; // braceex ; B 209 -85 284 935 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.329; // angleright ; B 21 -198 302 746 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[242] = 0.274; // integral ; B 2 -107 291 916 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[243] = 0.686; // integraltp ; B 308 -88 675 920 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[244] = 0.686; // integralex ; B 308 -88 378 975 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.686; // integralbt ; B 11 -87 378 921 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[246] = 0.384; // parenrighttp ; B 54 -293 466 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[247] = 0.384; // parenrightex ; B 382 -85 466 925 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.384; // parenrightbt ; B 54 -293 466 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.384; // bracketrighttp ; B 22 -80 371 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.384; // bracketrightex ; B 294 -79 371 925 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.384; // bracketrightbt ; B 22 -80 371 926 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[252] = 0.494; // bracerighttp ; B 48 -85 284 925 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[253] = 0.494; // bracerightmid ; B 209 -85 473 935 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[254] = 0.494; // bracerightbt ; B 48 -75 284 935 ;
 }
 
 void set_Times_Bold(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 250; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 333; // exclam ; B 81 -13 251 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 555; // quotedbl ; B 83 404 472 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 500; // numbersign ; B 4 0 496 700 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 500; // dollar ; B 29 -99 472 750 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 1000; // percent ; B 124 -14 877 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 833; // ampersand ; B 62 -16 787 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 333; // quoteright ; B 79 356 263 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 46 -168 306 694 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B 27 -168 287 694 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 500; // asterisk ; B 56 255 447 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 570; // plus ; B 33 0 537 506 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 250; // comma ; B 39 -180 223 155 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 44 171 287 287 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 250; // period ; B 41 -13 210 156 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -24 -19 302 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 500; // zero ; B 24 -13 476 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 500; // one ; B 65 0 442 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 500; // two ; B 17 0 478 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 500; // three ; B 16 -14 468 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 500; // four ; B 19 0 475 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 500; // five ; B 22 -8 470 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 500; // six ; B 28 -13 475 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 500; // seven ; B 17 0 477 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 500; // eight ; B 28 -13 472 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 500; // nine ; B 26 -13 473 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 333; // colon ; B 82 -13 251 472 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 333; // semicolon ; B 82 -180 266 472 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 570; // less ; B 31 -8 539 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 570; // equal ; B 33 107 537 399 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 570; // greater ; B 31 -8 539 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 500; // question ; B 57 -13 445 689 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 930; // at ; B 108 -19 822 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 722; // A ; B 9 0 689 690 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 667; // B ; B 16 0 619 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 722; // C ; B 49 -19 687 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B 14 0 690 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 667; // E ; B 16 0 641 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 611; // F ; B 16 0 583 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 778; // G ; B 37 -19 755 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 778; // H ; B 21 0 759 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 389; // I ; B 20 0 370 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 500; // J ; B 3 -96 479 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 778; // K ; B 30 0 769 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 667; // L ; B 19 0 638 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 944; // M ; B 14 0 921 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // N ; B 16 -18 701 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 778; // O ; B 35 -19 743 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 611; // P ; B 16 0 600 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 778; // Q ; B 35 -176 743 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 722; // R ; B 26 0 715 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 556; // S ; B 35 -19 513 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 667; // T ; B 31 0 636 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 16 -19 701 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 722; // V ; B 16 -18 701 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 1000; // W ; B 19 -15 981 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 722; // X ; B 16 0 699 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 722; // Y ; B 15 0 699 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 667; // Z ; B 28 0 634 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 333; // bracketleft ; B 67 -149 301 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B -25 -19 303 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 333; // bracketright ; B 32 -149 266 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 581; // asciicircum ; B 73 311 509 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 500; // underscore ; B 0 -125 500 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 333; // quoteleft ; B 70 356 254 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 500; // a ; B 25 -14 488 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 556; // b ; B 17 -14 521 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 444; // c ; B 25 -14 430 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 556; // d ; B 25 -14 534 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 444; // e ; B 25 -14 426 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 333; // f ; B 14 0 389 691 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 500; // g ; B 28 -206 483 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 556; // h ; B 16 0 534 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 278; // i ; B 16 0 255 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 333; // j ; B -57 -203 263 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 556; // k ; B 22 0 543 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 278; // l ; B 16 0 255 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 833; // m ; B 16 0 814 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 556; // n ; B 21 0 539 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 500; // o ; B 25 -14 476 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 556; // p ; B 19 -205 524 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 556; // q ; B 34 -205 536 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 444; // r ; B 29 0 434 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 389; // s ; B 25 -14 361 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 333; // t ; B 20 -12 332 630 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 556; // u ; B 16 -14 537 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 500; // v ; B 21 -14 485 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 722; // w ; B 23 -14 707 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 500; // x ; B 12 0 484 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 500; // y ; B 16 -205 480 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 444; // z ; B 21 0 420 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 394; // braceleft ; B 22 -175 340 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 220; // bar ; B 66 -218 154 782 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 394; // braceright ; B 54 -175 372 698 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 520; // asciitilde ; B 29 173 491 333 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 333; // exclamdown ; B 82 -203 252 501 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 500; // cent ; B 53 -140 458 588 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 500; // sterling ; B 21 -14 477 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -168 -12 329 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 500; // yen ; B -64 0 547 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 500; // florin ; B 0 -155 498 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 500; // section ; B 57 -132 443 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 500; // currency ; B -26 61 526 613 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 278; // quotesingle ; B 75 404 204 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 500; // quotedblleft ; B 32 356 486 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 500; // guillemotleft ; B 23 36 473 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 51 36 305 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 28 36 282 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 556; // fi ; B 14 0 536 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 556; // fl ; B 14 0 536 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 500; // endash ; B 0 181 500 271 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 500; // dagger ; B 47 -134 453 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 500; // daggerdbl ; B 45 -132 456 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 250; // periodcentered ; B 41 248 210 417 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 540; // paragraph ; B 0 -186 519 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 35 198 315 478 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 333; // quotesinglbase ; B 79 -180 263 155 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 500; // quotedblbase ; B 14 -180 468 155 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 500; // quotedblright ; B 14 356 468 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 500; // guillemotright ; B 27 36 477 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 82 -13 917 156 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B 7 -29 995 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 500; // questiondown ; B 55 -201 443 501 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B 8 528 246 713 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 86 528 324 713 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B -2 528 335 704 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B -16 547 349 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B 1 565 331 637 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B 15 528 318 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 103 536 258 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B -2 537 335 667 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 60 527 273 740 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B 68 -218 294 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B -13 528 425 713 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 90 -193 319 24 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B -2 528 335 704 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1000; // emdash ; B 0 181 1000 271 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1000; // AE ; B 4 0 951 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 300; // ordfeminine ; B -1 397 301 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 667; // Lslash ; B 19 0 638 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 778; // Oslash ; B 35 -74 743 737 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1000; // OE ; B 22 -5 981 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 330; // ordmasculine ; B 18 397 312 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 722; // ae ; B 33 -14 693 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 16 0 255 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 278; // lslash ; B -22 0 303 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 500; // oslash ; B 25 -92 476 549 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 722; // oe ; B 22 -14 696 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 556; // germandbls ; B 19 -12 517 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.250; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.333; // exclam ; B 81 -13 251 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.555; // quotedbl ; B 83 404 472 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.500; // numbersign ; B 4 0 496 700 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.500; // dollar ; B 29 -99 472 750 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 1.000; // percent ; B 124 -14 877 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.833; // ampersand ; B 62 -16 787 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.333; // quoteright ; B 79 356 263 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 46 -168 306 694 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B 27 -168 287 694 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.500; // asterisk ; B 56 255 447 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.570; // plus ; B 33 0 537 506 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.250; // comma ; B 39 -180 223 155 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 44 171 287 287 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.250; // period ; B 41 -13 210 156 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -24 -19 302 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.500; // zero ; B 24 -13 476 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.500; // one ; B 65 0 442 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.500; // two ; B 17 0 478 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.500; // three ; B 16 -14 468 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.500; // four ; B 19 0 475 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.500; // five ; B 22 -8 470 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.500; // six ; B 28 -13 475 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.500; // seven ; B 17 0 477 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.500; // eight ; B 28 -13 472 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.500; // nine ; B 26 -13 473 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.333; // colon ; B 82 -13 251 472 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.333; // semicolon ; B 82 -180 266 472 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.570; // less ; B 31 -8 539 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.570; // equal ; B 33 107 537 399 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.570; // greater ; B 31 -8 539 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.500; // question ; B 57 -13 445 689 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.930; // at ; B 108 -19 822 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.722; // A ; B 9 0 689 690 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.667; // B ; B 16 0 619 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.722; // C ; B 49 -19 687 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B 14 0 690 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.667; // E ; B 16 0 641 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.611; // F ; B 16 0 583 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.778; // G ; B 37 -19 755 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.778; // H ; B 21 0 759 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.389; // I ; B 20 0 370 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.500; // J ; B 3 -96 479 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.778; // K ; B 30 0 769 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.667; // L ; B 19 0 638 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.944; // M ; B 14 0 921 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // N ; B 16 -18 701 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.778; // O ; B 35 -19 743 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.611; // P ; B 16 0 600 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.778; // Q ; B 35 -176 743 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.722; // R ; B 26 0 715 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.556; // S ; B 35 -19 513 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.667; // T ; B 31 0 636 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 16 -19 701 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.722; // V ; B 16 -18 701 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 1.000; // W ; B 19 -15 981 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.722; // X ; B 16 0 699 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.722; // Y ; B 15 0 699 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.667; // Z ; B 28 0 634 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.333; // bracketleft ; B 67 -149 301 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B -25 -19 303 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.333; // bracketright ; B 32 -149 266 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.581; // asciicircum ; B 73 311 509 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.500; // underscore ; B 0 -125 500 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.333; // quoteleft ; B 70 356 254 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.500; // a ; B 25 -14 488 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.556; // b ; B 17 -14 521 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.444; // c ; B 25 -14 430 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.556; // d ; B 25 -14 534 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.444; // e ; B 25 -14 426 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.333; // f ; B 14 0 389 691 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.500; // g ; B 28 -206 483 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.556; // h ; B 16 0 534 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.278; // i ; B 16 0 255 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.333; // j ; B -57 -203 263 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.556; // k ; B 22 0 543 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.278; // l ; B 16 0 255 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.833; // m ; B 16 0 814 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.556; // n ; B 21 0 539 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.500; // o ; B 25 -14 476 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.556; // p ; B 19 -205 524 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.556; // q ; B 34 -205 536 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.444; // r ; B 29 0 434 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.389; // s ; B 25 -14 361 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.333; // t ; B 20 -12 332 630 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.556; // u ; B 16 -14 537 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.500; // v ; B 21 -14 485 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.722; // w ; B 23 -14 707 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.500; // x ; B 12 0 484 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.500; // y ; B 16 -205 480 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.444; // z ; B 21 0 420 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.394; // braceleft ; B 22 -175 340 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.220; // bar ; B 66 -218 154 782 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.394; // braceright ; B 54 -175 372 698 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.520; // asciitilde ; B 29 173 491 333 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.333; // exclamdown ; B 82 -203 252 501 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.500; // cent ; B 53 -140 458 588 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.500; // sterling ; B 21 -14 477 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -168 -12 329 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.500; // yen ; B -64 0 547 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.500; // florin ; B 0 -155 498 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.500; // section ; B 57 -132 443 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.500; // currency ; B -26 61 526 613 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.278; // quotesingle ; B 75 404 204 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.500; // quotedblleft ; B 32 356 486 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.500; // guillemotleft ; B 23 36 473 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 51 36 305 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 28 36 282 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.556; // fi ; B 14 0 536 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.556; // fl ; B 14 0 536 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.500; // endash ; B 0 181 500 271 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.500; // dagger ; B 47 -134 453 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.500; // daggerdbl ; B 45 -132 456 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.250; // periodcentered ; B 41 248 210 417 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.540; // paragraph ; B 0 -186 519 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 35 198 315 478 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.333; // quotesinglbase ; B 79 -180 263 155 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.500; // quotedblbase ; B 14 -180 468 155 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.500; // quotedblright ; B 14 356 468 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.500; // guillemotright ; B 27 36 477 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 82 -13 917 156 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B 7 -29 995 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.500; // questiondown ; B 55 -201 443 501 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B 8 528 246 713 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 86 528 324 713 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B -2 528 335 704 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B -16 547 349 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B 1 565 331 637 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B 15 528 318 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 103 536 258 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B -2 537 335 667 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 60 527 273 740 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B 68 -218 294 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B -13 528 425 713 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 90 -193 319 24 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B -2 528 335 704 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1.000; // emdash ; B 0 181 1000 271 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 1.000; // AE ; B 4 0 951 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.300; // ordfeminine ; B -1 397 301 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.667; // Lslash ; B 19 0 638 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.778; // Oslash ; B 35 -74 743 737 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 1.000; // OE ; B 22 -5 981 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.330; // ordmasculine ; B 18 397 312 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.722; // ae ; B 33 -14 693 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 16 0 255 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.278; // lslash ; B -22 0 303 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.500; // oslash ; B 25 -92 476 549 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.722; // oe ; B 22 -14 696 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.556; // germandbls ; B 19 -12 517 691 ;
 }
 
 void set_Times_BoldItalic(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 250; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 389; // exclam ; B 67 -13 370 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 555; // quotedbl ; B 136 398 536 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 500; // numbersign ; B -33 0 533 700 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 500; // dollar ; B -20 -100 497 733 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 833; // percent ; B 39 -10 793 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 778; // ampersand ; B 5 -19 699 682 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 333; // quoteright ; B 98 369 302 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 28 -179 344 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B -44 -179 271 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 500; // asterisk ; B 65 249 456 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 570; // plus ; B 33 0 537 506 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 250; // comma ; B -60 -182 144 134 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 2 166 271 282 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 250; // period ; B -9 -13 139 135 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -64 -18 342 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 500; // zero ; B 17 -14 477 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 500; // one ; B 5 0 419 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 500; // two ; B -27 0 446 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 500; // three ; B -15 -13 450 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 500; // four ; B -15 0 503 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 500; // five ; B -11 -13 487 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 500; // six ; B 23 -15 509 679 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 500; // seven ; B 52 0 525 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 500; // eight ; B 3 -13 476 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 500; // nine ; B -12 -10 475 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 333; // colon ; B 23 -13 264 459 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 333; // semicolon ; B -25 -183 264 459 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 570; // less ; B 31 -8 539 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 570; // equal ; B 33 107 537 399 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 570; // greater ; B 31 -8 539 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 500; // question ; B 79 -13 470 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 832; // at ; B 63 -18 770 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 667; // A ; B -67 0 593 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 667; // B ; B -24 0 624 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 667; // C ; B 32 -18 677 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B -46 0 685 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 667; // E ; B -27 0 653 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 667; // F ; B -13 0 660 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 722; // G ; B 21 -18 706 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 778; // H ; B -24 0 799 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 389; // I ; B -32 0 406 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 500; // J ; B -46 -99 524 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 667; // K ; B -21 0 702 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 611; // L ; B -22 0 590 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 889; // M ; B -29 -12 917 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // N ; B -27 -15 748 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 722; // O ; B 27 -18 691 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 611; // P ; B -27 0 613 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 722; // Q ; B 27 -208 691 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 667; // R ; B -29 0 623 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 556; // S ; B 2 -18 526 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 611; // T ; B 50 0 650 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 67 -18 744 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 667; // V ; B 65 -18 715 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 889; // W ; B 65 -18 940 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 667; // X ; B -24 0 694 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 611; // Y ; B 73 0 659 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 611; // Z ; B -11 0 590 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 333; // bracketleft ; B -37 -159 362 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B -1 -18 279 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 333; // bracketright ; B -56 -157 343 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 570; // asciicircum ; B 67 304 503 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 500; // underscore ; B 0 -125 500 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 333; // quoteleft ; B 128 369 332 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 500; // a ; B -21 -14 455 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 500; // b ; B -14 -13 444 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 444; // c ; B -5 -13 392 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 500; // d ; B -21 -13 517 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 444; // e ; B 5 -13 398 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 333; // f ; B -169 -205 446 698 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 500; // g ; B -52 -203 478 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 556; // h ; B -13 -9 498 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 278; // i ; B 2 -9 263 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 278; // j ; B -189 -207 279 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 500; // k ; B -23 -8 483 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 278; // l ; B 2 -9 290 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 778; // m ; B -14 -9 722 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 556; // n ; B -6 -9 493 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 500; // o ; B -3 -13 441 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 500; // p ; B -120 -205 446 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 500; // q ; B 1 -205 471 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 389; // r ; B -21 0 389 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 389; // s ; B -19 -13 333 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 278; // t ; B -11 -9 281 594 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 556; // u ; B 15 -9 492 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 444; // v ; B 16 -13 401 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 667; // w ; B 16 -13 614 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 500; // x ; B -46 -13 469 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 444; // y ; B -94 -205 392 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 389; // z ; B -43 -78 368 449 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 348; // braceleft ; B 5 -187 436 686 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 220; // bar ; B 66 -218 154 782 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 348; // braceright ; B -129 -187 302 686 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 570; // asciitilde ; B 54 173 516 333 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 389; // exclamdown ; B 19 -205 322 492 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 500; // cent ; B 42 -143 439 576 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 500; // sterling ; B -32 -12 510 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -169 -14 324 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 500; // yen ; B 33 0 628 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 500; // florin ; B -87 -156 537 707 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 500; // section ; B 36 -143 459 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 500; // currency ; B -26 34 526 586 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 278; // quotesingle ; B 128 398 268 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 500; // quotedblleft ; B 53 369 513 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 500; // guillemotleft ; B 12 32 468 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 32 32 303 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 10 32 281 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 556; // fi ; B -188 -205 514 703 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 556; // fl ; B -186 -205 553 704 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 500; // endash ; B -40 178 477 269 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 500; // dagger ; B 91 -145 494 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 500; // daggerdbl ; B 10 -139 493 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 250; // periodcentered ; B 51 257 199 405 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 500; // paragraph ; B -57 -193 562 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 0 175 350 525 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 333; // quotesinglbase ; B -5 -182 199 134 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 500; // quotedblbase ; B -57 -182 403 134 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 500; // quotedblright ; B 53 369 513 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 500; // guillemotright ; B 12 32 468 415 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 40 -13 852 135 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B 7 -29 996 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 500; // questiondown ; B 30 -205 421 492 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B 85 516 297 697 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 139 516 379 697 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B 40 516 367 690 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B 48 536 407 655 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B 51 553 393 623 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B 71 516 387 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 163 550 298 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B 55 550 402 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 127 516 340 729 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B -80 -218 156 5 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B 69 516 498 697 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 15 -183 244 34 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B 79 516 411 690 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1000; // emdash ; B -40 178 977 269 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 944; // AE ; B -64 0 918 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 266; // ordfeminine ; B 16 399 330 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 611; // Lslash ; B -22 0 590 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 722; // Oslash ; B 27 -125 691 764 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 944; // OE ; B 23 -8 946 677 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 300; // ordmasculine ; B 56 400 347 685 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 722; // ae ; B -5 -13 673 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 2 -9 238 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 278; // lslash ; B -7 -9 307 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 500; // oslash ; B -3 -119 441 560 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 722; // oe ; B 6 -13 674 462 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 500; // germandbls ; B -200 -200 473 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.250; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.389; // exclam ; B 67 -13 370 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.555; // quotedbl ; B 136 398 536 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.500; // numbersign ; B -33 0 533 700 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.500; // dollar ; B -20 -100 497 733 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.833; // percent ; B 39 -10 793 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.778; // ampersand ; B 5 -19 699 682 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.333; // quoteright ; B 98 369 302 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 28 -179 344 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B -44 -179 271 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.500; // asterisk ; B 65 249 456 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.570; // plus ; B 33 0 537 506 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.250; // comma ; B -60 -182 144 134 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 2 166 271 282 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.250; // period ; B -9 -13 139 135 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -64 -18 342 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.500; // zero ; B 17 -14 477 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.500; // one ; B 5 0 419 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.500; // two ; B -27 0 446 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.500; // three ; B -15 -13 450 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.500; // four ; B -15 0 503 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.500; // five ; B -11 -13 487 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.500; // six ; B 23 -15 509 679 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.500; // seven ; B 52 0 525 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.500; // eight ; B 3 -13 476 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.500; // nine ; B -12 -10 475 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.333; // colon ; B 23 -13 264 459 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.333; // semicolon ; B -25 -183 264 459 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.570; // less ; B 31 -8 539 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.570; // equal ; B 33 107 537 399 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.570; // greater ; B 31 -8 539 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.500; // question ; B 79 -13 470 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.832; // at ; B 63 -18 770 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.667; // A ; B -67 0 593 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.667; // B ; B -24 0 624 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.667; // C ; B 32 -18 677 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B -46 0 685 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.667; // E ; B -27 0 653 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.667; // F ; B -13 0 660 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.722; // G ; B 21 -18 706 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.778; // H ; B -24 0 799 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.389; // I ; B -32 0 406 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.500; // J ; B -46 -99 524 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.667; // K ; B -21 0 702 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.611; // L ; B -22 0 590 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.889; // M ; B -29 -12 917 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // N ; B -27 -15 748 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.722; // O ; B 27 -18 691 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.611; // P ; B -27 0 613 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.722; // Q ; B 27 -208 691 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.667; // R ; B -29 0 623 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.556; // S ; B 2 -18 526 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.611; // T ; B 50 0 650 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 67 -18 744 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.667; // V ; B 65 -18 715 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.889; // W ; B 65 -18 940 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.667; // X ; B -24 0 694 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.611; // Y ; B 73 0 659 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.611; // Z ; B -11 0 590 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.333; // bracketleft ; B -37 -159 362 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B -1 -18 279 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.333; // bracketright ; B -56 -157 343 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.570; // asciicircum ; B 67 304 503 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.500; // underscore ; B 0 -125 500 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.333; // quoteleft ; B 128 369 332 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.500; // a ; B -21 -14 455 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.500; // b ; B -14 -13 444 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.444; // c ; B -5 -13 392 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.500; // d ; B -21 -13 517 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.444; // e ; B 5 -13 398 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.333; // f ; B -169 -205 446 698 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.500; // g ; B -52 -203 478 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.556; // h ; B -13 -9 498 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.278; // i ; B 2 -9 263 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.278; // j ; B -189 -207 279 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.500; // k ; B -23 -8 483 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.278; // l ; B 2 -9 290 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.778; // m ; B -14 -9 722 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.556; // n ; B -6 -9 493 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.500; // o ; B -3 -13 441 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.500; // p ; B -120 -205 446 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.500; // q ; B 1 -205 471 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.389; // r ; B -21 0 389 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.389; // s ; B -19 -13 333 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.278; // t ; B -11 -9 281 594 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.556; // u ; B 15 -9 492 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.444; // v ; B 16 -13 401 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.667; // w ; B 16 -13 614 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.500; // x ; B -46 -13 469 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.444; // y ; B -94 -205 392 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.389; // z ; B -43 -78 368 449 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.348; // braceleft ; B 5 -187 436 686 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.220; // bar ; B 66 -218 154 782 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.348; // braceright ; B -129 -187 302 686 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.570; // asciitilde ; B 54 173 516 333 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.389; // exclamdown ; B 19 -205 322 492 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.500; // cent ; B 42 -143 439 576 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.500; // sterling ; B -32 -12 510 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -169 -14 324 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.500; // yen ; B 33 0 628 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.500; // florin ; B -87 -156 537 707 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.500; // section ; B 36 -143 459 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.500; // currency ; B -26 34 526 586 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.278; // quotesingle ; B 128 398 268 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.500; // quotedblleft ; B 53 369 513 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.500; // guillemotleft ; B 12 32 468 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 32 32 303 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 10 32 281 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.556; // fi ; B -188 -205 514 703 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.556; // fl ; B -186 -205 553 704 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.500; // endash ; B -40 178 477 269 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.500; // dagger ; B 91 -145 494 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.500; // daggerdbl ; B 10 -139 493 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.250; // periodcentered ; B 51 257 199 405 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.500; // paragraph ; B -57 -193 562 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 0 175 350 525 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.333; // quotesinglbase ; B -5 -182 199 134 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.500; // quotedblbase ; B -57 -182 403 134 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.500; // quotedblright ; B 53 369 513 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.500; // guillemotright ; B 12 32 468 415 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 40 -13 852 135 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B 7 -29 996 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.500; // questiondown ; B 30 -205 421 492 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B 85 516 297 697 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 139 516 379 697 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B 40 516 367 690 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B 48 536 407 655 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B 51 553 393 623 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B 71 516 387 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 163 550 298 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B 55 550 402 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 127 516 340 729 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B -80 -218 156 5 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B 69 516 498 697 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 15 -183 244 34 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B 79 516 411 690 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1.000; // emdash ; B -40 178 977 269 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 0.944; // AE ; B -64 0 918 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.266; // ordfeminine ; B 16 399 330 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.611; // Lslash ; B -22 0 590 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.722; // Oslash ; B 27 -125 691 764 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 0.944; // OE ; B 23 -8 946 677 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.300; // ordmasculine ; B 56 400 347 685 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.722; // ae ; B -5 -13 673 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 2 -9 238 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.278; // lslash ; B -7 -9 307 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.500; // oslash ; B -3 -119 441 560 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.722; // oe ; B 6 -13 674 462 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.500; // germandbls ; B -200 -200 473 705 ;
 }
 
 void set_Times_Italic(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 250; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 333; // exclam ; B 39 -11 302 667 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 420; // quotedbl ; B 144 421 432 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 500; // numbersign ; B 2 0 540 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 500; // dollar ; B 31 -89 497 731 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 833; // percent ; B 79 -13 790 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 778; // ampersand ; B 76 -18 723 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 333; // quoteright ; B 151 436 290 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 42 -181 315 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B 16 -180 289 669 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 500; // asterisk ; B 128 255 492 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 675; // plus ; B 86 0 590 506 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 250; // comma ; B -4 -129 135 101 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 49 192 282 255 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 250; // period ; B 27 -11 138 100 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -65 -18 386 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 500; // zero ; B 32 -7 497 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 500; // one ; B 49 0 409 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 500; // two ; B 12 0 452 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 500; // three ; B 15 -7 465 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 500; // four ; B 1 0 479 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 500; // five ; B 15 -7 491 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 500; // six ; B 30 -7 521 686 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 500; // seven ; B 75 -8 537 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 500; // eight ; B 30 -7 493 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 500; // nine ; B 23 -17 492 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 333; // colon ; B 50 -11 261 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 333; // semicolon ; B 27 -129 261 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 675; // less ; B 84 -8 592 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 675; // equal ; B 86 120 590 386 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 675; // greater ; B 84 -8 592 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 500; // question ; B 132 -12 472 664 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 920; // at ; B 118 -18 806 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 611; // A ; B -51 0 564 668 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 611; // B ; B -8 0 588 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 667; // C ; B 66 -18 689 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B -8 0 700 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 611; // E ; B -1 0 634 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 611; // F ; B 8 0 645 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 722; // G ; B 52 -18 722 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 722; // H ; B -8 0 767 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 333; // I ; B -8 0 384 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 444; // J ; B -6 -18 491 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 667; // K ; B 7 0 722 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 556; // L ; B -8 0 559 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 833; // M ; B -18 0 873 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 667; // N ; B -20 -15 727 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 722; // O ; B 60 -18 699 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 611; // P ; B 0 0 605 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 722; // Q ; B 59 -182 699 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 611; // R ; B -13 0 588 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 500; // S ; B 17 -18 508 667 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 556; // T ; B 59 0 633 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 102 -18 765 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 611; // V ; B 76 -18 688 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 833; // W ; B 71 -18 906 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 611; // X ; B -29 0 655 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 556; // Y ; B 78 0 633 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 556; // Z ; B -6 0 606 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 389; // bracketleft ; B 21 -153 391 663 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B -41 -18 319 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 389; // bracketright ; B 12 -153 382 663 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 422; // asciicircum ; B 0 301 422 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 500; // underscore ; B 0 -125 500 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 333; // quoteleft ; B 171 436 310 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 500; // a ; B 17 -11 476 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 500; // b ; B 23 -11 473 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 444; // c ; B 30 -11 425 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 500; // d ; B 15 -13 527 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 444; // e ; B 31 -11 412 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 278; // f ; B -147 -207 424 678 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 500; // g ; B 8 -206 472 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 500; // h ; B 19 -9 478 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 278; // i ; B 49 -11 264 654 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 278; // j ; B -124 -207 276 654 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 444; // k ; B 14 -11 461 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 278; // l ; B 41 -11 279 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 722; // m ; B 12 -9 704 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 500; // n ; B 14 -9 474 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 500; // o ; B 27 -11 468 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 500; // p ; B -75 -205 469 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 500; // q ; B 25 -209 483 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 389; // r ; B 45 0 412 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 389; // s ; B 16 -13 366 442 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 278; // t ; B 37 -11 296 546 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 500; // u ; B 42 -11 475 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 444; // v ; B 21 -18 426 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 667; // w ; B 16 -18 648 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 444; // x ; B -27 -11 447 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 444; // y ; B -24 -206 426 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 389; // z ; B -2 -81 380 428 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 400; // braceleft ; B 51 -177 407 687 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 275; // bar ; B 105 -217 171 783 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 400; // braceright ; B -7 -177 349 687 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 541; // asciitilde ; B 40 183 502 323 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 389; // exclamdown ; B 59 -205 322 473 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 500; // cent ; B 77 -143 472 560 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 500; // sterling ; B 10 -6 517 670 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -169 -10 337 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 500; // yen ; B 27 0 603 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 500; // florin ; B 25 -182 507 682 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 500; // section ; B 53 -162 461 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 500; // currency ; B -22 53 522 597 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 214; // quotesingle ; B 132 421 241 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 556; // quotedblleft ; B 166 436 514 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 500; // guillemotleft ; B 53 37 445 403 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 51 37 281 403 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 52 37 282 403 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 500; // fi ; B -141 -207 481 681 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 500; // fl ; B -141 -204 518 682 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 500; // endash ; B -6 197 505 243 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 500; // dagger ; B 101 -159 488 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 500; // daggerdbl ; B 22 -143 491 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 250; // periodcentered ; B 70 199 181 310 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 523; // paragraph ; B 55 -123 616 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 40 191 310 461 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 333; // quotesinglbase ; B 44 -129 183 101 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 556; // quotedblbase ; B 57 -129 405 101 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 556; // quotedblright ; B 151 436 499 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 500; // guillemotright ; B 55 37 447 403 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 889; // ellipsis ; B 57 -11 762 100 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B 25 -19 1010 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 500; // questiondown ; B 28 -205 368 471 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B 121 492 311 664 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 180 494 403 664 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B 91 492 385 661 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B 100 517 427 624 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B 99 532 411 583 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B 117 492 418 650 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 207 548 305 646 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B 107 548 405 646 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 155 492 355 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B -30 -217 182 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B 93 494 486 664 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 20 -169 203 40 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B 121 492 426 661 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 889; // emdash ; B -6 197 894 243 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 889; // AE ; B -27 0 911 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 276; // ordfeminine ; B 42 406 352 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 556; // Lslash ; B -8 0 559 653 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 722; // Oslash ; B 60 -105 699 722 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 944; // OE ; B 49 -8 964 666 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 310; // ordmasculine ; B 67 406 362 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 667; // ae ; B 23 -11 640 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 49 -11 235 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 278; // lslash ; B 41 -11 312 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 500; // oslash ; B 28 -135 469 554 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 667; // oe ; B 20 -12 646 441 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 500; // germandbls ; B -168 -207 493 679 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.250; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.333; // exclam ; B 39 -11 302 667 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.420; // quotedbl ; B 144 421 432 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.500; // numbersign ; B 2 0 540 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.500; // dollar ; B 31 -89 497 731 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.833; // percent ; B 79 -13 790 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.778; // ampersand ; B 76 -18 723 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.333; // quoteright ; B 151 436 290 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 42 -181 315 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B 16 -180 289 669 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.500; // asterisk ; B 128 255 492 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.675; // plus ; B 86 0 590 506 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.250; // comma ; B -4 -129 135 101 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 49 192 282 255 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.250; // period ; B 27 -11 138 100 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -65 -18 386 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.500; // zero ; B 32 -7 497 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.500; // one ; B 49 0 409 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.500; // two ; B 12 0 452 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.500; // three ; B 15 -7 465 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.500; // four ; B 1 0 479 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.500; // five ; B 15 -7 491 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.500; // six ; B 30 -7 521 686 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.500; // seven ; B 75 -8 537 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.500; // eight ; B 30 -7 493 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.500; // nine ; B 23 -17 492 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.333; // colon ; B 50 -11 261 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.333; // semicolon ; B 27 -129 261 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.675; // less ; B 84 -8 592 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.675; // equal ; B 86 120 590 386 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.675; // greater ; B 84 -8 592 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.500; // question ; B 132 -12 472 664 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.920; // at ; B 118 -18 806 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.611; // A ; B -51 0 564 668 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.611; // B ; B -8 0 588 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.667; // C ; B 66 -18 689 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B -8 0 700 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.611; // E ; B -1 0 634 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.611; // F ; B 8 0 645 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.722; // G ; B 52 -18 722 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.722; // H ; B -8 0 767 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.333; // I ; B -8 0 384 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.444; // J ; B -6 -18 491 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.667; // K ; B 7 0 722 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.556; // L ; B -8 0 559 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.833; // M ; B -18 0 873 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.667; // N ; B -20 -15 727 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.722; // O ; B 60 -18 699 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.611; // P ; B 0 0 605 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.722; // Q ; B 59 -182 699 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.611; // R ; B -13 0 588 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.500; // S ; B 17 -18 508 667 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.556; // T ; B 59 0 633 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 102 -18 765 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.611; // V ; B 76 -18 688 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.833; // W ; B 71 -18 906 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.611; // X ; B -29 0 655 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.556; // Y ; B 78 0 633 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.556; // Z ; B -6 0 606 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.389; // bracketleft ; B 21 -153 391 663 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B -41 -18 319 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.389; // bracketright ; B 12 -153 382 663 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.422; // asciicircum ; B 0 301 422 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.500; // underscore ; B 0 -125 500 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.333; // quoteleft ; B 171 436 310 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.500; // a ; B 17 -11 476 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.500; // b ; B 23 -11 473 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.444; // c ; B 30 -11 425 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.500; // d ; B 15 -13 527 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.444; // e ; B 31 -11 412 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.278; // f ; B -147 -207 424 678 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.500; // g ; B 8 -206 472 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.500; // h ; B 19 -9 478 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.278; // i ; B 49 -11 264 654 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.278; // j ; B -124 -207 276 654 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.444; // k ; B 14 -11 461 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.278; // l ; B 41 -11 279 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.722; // m ; B 12 -9 704 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.500; // n ; B 14 -9 474 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.500; // o ; B 27 -11 468 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.500; // p ; B -75 -205 469 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.500; // q ; B 25 -209 483 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.389; // r ; B 45 0 412 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.389; // s ; B 16 -13 366 442 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.278; // t ; B 37 -11 296 546 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.500; // u ; B 42 -11 475 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.444; // v ; B 21 -18 426 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.667; // w ; B 16 -18 648 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.444; // x ; B -27 -11 447 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.444; // y ; B -24 -206 426 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.389; // z ; B -2 -81 380 428 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.400; // braceleft ; B 51 -177 407 687 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.275; // bar ; B 105 -217 171 783 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.400; // braceright ; B -7 -177 349 687 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.541; // asciitilde ; B 40 183 502 323 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.389; // exclamdown ; B 59 -205 322 473 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.500; // cent ; B 77 -143 472 560 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.500; // sterling ; B 10 -6 517 670 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -169 -10 337 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.500; // yen ; B 27 0 603 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.500; // florin ; B 25 -182 507 682 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.500; // section ; B 53 -162 461 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.500; // currency ; B -22 53 522 597 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.214; // quotesingle ; B 132 421 241 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.556; // quotedblleft ; B 166 436 514 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.500; // guillemotleft ; B 53 37 445 403 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 51 37 281 403 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 52 37 282 403 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.500; // fi ; B -141 -207 481 681 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.500; // fl ; B -141 -204 518 682 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.500; // endash ; B -6 197 505 243 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.500; // dagger ; B 101 -159 488 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.500; // daggerdbl ; B 22 -143 491 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.250; // periodcentered ; B 70 199 181 310 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.523; // paragraph ; B 55 -123 616 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 40 191 310 461 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.333; // quotesinglbase ; B 44 -129 183 101 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.556; // quotedblbase ; B 57 -129 405 101 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.556; // quotedblright ; B 151 436 499 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.500; // guillemotright ; B 55 37 447 403 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 0.889; // ellipsis ; B 57 -11 762 100 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B 25 -19 1010 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.500; // questiondown ; B 28 -205 368 471 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B 121 492 311 664 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 180 494 403 664 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B 91 492 385 661 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B 100 517 427 624 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B 99 532 411 583 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B 117 492 418 650 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 207 548 305 646 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B 107 548 405 646 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 155 492 355 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B -30 -217 182 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B 93 494 486 664 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 20 -169 203 40 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B 121 492 426 661 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 0.889; // emdash ; B -6 197 894 243 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 0.889; // AE ; B -27 0 911 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.276; // ordfeminine ; B 42 406 352 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.556; // Lslash ; B -8 0 559 653 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.722; // Oslash ; B 60 -105 699 722 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 0.944; // OE ; B 49 -8 964 666 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.310; // ordmasculine ; B 67 406 362 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.667; // ae ; B 23 -11 640 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 49 -11 235 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.278; // lslash ; B 41 -11 312 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.500; // oslash ; B 28 -135 469 554 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.667; // oe ; B 20 -12 646 441 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.500; // germandbls ; B -168 -207 493 679 ;
 }
 
 void set_Times_Roman(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 250; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 333; // exclam ; B 130 -9 238 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 408; // quotedbl ; B 77 431 331 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 500; // numbersign ; B 5 0 496 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 500; // dollar ; B 44 -87 457 727 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 833; // percent ; B 61 -13 772 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 778; // ampersand ; B 42 -13 750 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 333; // quoteright ; B 79 433 218 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 333; // parenleft ; B 48 -177 304 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 333; // parenright ; B 29 -177 285 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 500; // asterisk ; B 69 265 432 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 564; // plus ; B 30 0 534 506 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 250; // comma ; B 56 -141 195 102 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 333; // hyphen ; B 39 194 285 257 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 250; // period ; B 70 -11 181 100 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 278; // slash ; B -9 -14 287 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 500; // zero ; B 24 -14 476 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 500; // one ; B 111 0 394 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 500; // two ; B 30 0 475 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 500; // three ; B 43 -14 431 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 500; // four ; B 12 0 472 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 500; // five ; B 32 -14 438 688 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 500; // six ; B 34 -14 468 684 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 500; // seven ; B 20 -8 449 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 500; // eight ; B 56 -14 445 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 500; // nine ; B 30 -22 459 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 278; // colon ; B 81 -11 192 459 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 278; // semicolon ; B 80 -141 219 459 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 564; // less ; B 28 -8 536 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 564; // equal ; B 30 120 534 386 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 564; // greater ; B 28 -8 536 514 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 444; // question ; B 68 -8 414 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 921; // at ; B 116 -14 809 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 722; // A ; B 15 0 706 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 667; // B ; B 17 0 593 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 667; // C ; B 28 -14 633 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 722; // D ; B 16 0 685 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 611; // E ; B 12 0 597 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 556; // F ; B 12 0 546 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 722; // G ; B 32 -14 709 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 722; // H ; B 19 0 702 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 333; // I ; B 18 0 315 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 389; // J ; B 10 -14 370 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 722; // K ; B 34 0 723 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 611; // L ; B 12 0 598 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 889; // M ; B 12 0 863 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 722; // N ; B 12 -11 707 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 722; // O ; B 34 -14 688 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 556; // P ; B 16 0 542 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 722; // Q ; B 34 -178 701 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 667; // R ; B 17 0 659 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 556; // S ; B 42 -14 491 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 611; // T ; B 17 0 593 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 722; // U ; B 14 -14 705 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 722; // V ; B 16 -11 697 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 944; // W ; B 5 -11 932 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 722; // X ; B 10 0 704 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 722; // Y ; B 22 0 703 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 611; // Z ; B 9 0 597 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 333; // bracketleft ; B 88 -156 299 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 278; // backslash ; B -9 -14 287 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 333; // bracketright ; B 34 -156 245 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 469; // asciicircum ; B 24 297 446 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 500; // underscore ; B 0 -125 500 -75 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 333; // quoteleft ; B 115 433 254 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 444; // a ; B 37 -10 442 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 500; // b ; B 3 -10 468 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 444; // c ; B 25 -10 412 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 500; // d ; B 27 -10 491 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 444; // e ; B 25 -10 424 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 333; // f ; B 20 0 383 683 ; L i fi ; L l fl ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 500; // g ; B 28 -218 470 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 500; // h ; B 9 0 487 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 278; // i ; B 16 0 253 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 278; // j ; B -70 -218 194 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 500; // k ; B 7 0 505 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 278; // l ; B 19 0 257 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 778; // m ; B 16 0 775 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 500; // n ; B 16 0 485 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 500; // o ; B 29 -10 470 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 500; // p ; B 5 -217 470 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 500; // q ; B 24 -217 488 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 333; // r ; B 5 0 335 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 389; // s ; B 51 -10 348 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 278; // t ; B 13 -10 279 579 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 500; // u ; B 9 -10 479 450 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 500; // v ; B 19 -14 477 450 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 722; // w ; B 21 -14 694 450 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 500; // x ; B 17 0 479 450 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 500; // y ; B 14 -218 475 450 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 444; // z ; B 27 0 418 450 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 480; // braceleft ; B 100 -181 350 680 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 200; // bar ; B 67 -218 133 782 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 480; // braceright ; B 130 -181 380 680 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 541; // asciitilde ; B 40 183 502 323 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 333; // exclamdown ; B 97 -218 205 467 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 500; // cent ; B 53 -138 448 579 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 500; // sterling ; B 12 -8 490 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 167; // fraction ; B -168 -14 331 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 500; // yen ; B -53 0 512 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 500; // florin ; B 7 -189 490 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 500; // section ; B 70 -148 426 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 500; // currency ; B -22 58 522 602 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 180; // quotesingle ; B 48 431 133 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 444; // quotedblleft ; B 43 433 414 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 500; // guillemotleft ; B 42 33 456 416 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 333; // guilsinglleft ; B 63 33 285 416 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 333; // guilsinglright ; B 48 33 270 416 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 556; // fi ; B 31 0 521 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 556; // fl ; B 32 0 521 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 500; // endash ; B 0 201 500 250 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 500; // dagger ; B 59 -149 442 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 500; // daggerdbl ; B 58 -153 442 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 250; // periodcentered ; B 70 199 181 310 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 453; // paragraph ; B -22 -154 450 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 350; // bullet ; B 40 196 310 466 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 333; // quotesinglbase ; B 79 -141 218 102 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 444; // quotedblbase ; B 45 -141 416 102 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 444; // quotedblright ; B 30 433 401 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 500; // guillemotright ; B 44 33 458 416 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1000; // ellipsis ; B 111 -11 888 100 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1000; // perthousand ; B 7 -19 994 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 444; // questiondown ; B 30 -218 376 466 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 333; // grave ; B 19 507 242 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 333; // acute ; B 93 507 317 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 333; // circumflex ; B 11 507 322 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 333; // tilde ; B 1 532 331 638 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 333; // macron ; B 11 547 322 601 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 333; // breve ; B 26 507 307 664 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 333; // dotaccent ; B 118 581 216 681 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 333; // dieresis ; B 18 581 315 681 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 333; // ring ; B 67 512 266 711 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 333; // cedilla ; B 52 -215 261 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 333; // hungarumlaut ; B -3 507 377 678 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 333; // ogonek ; B 62 -165 243 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 333; // caron ; B 11 507 322 674 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1000; // emdash ; B 0 201 1000 250 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 889; // AE ; B 0 0 863 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 276; // ordfeminine ; B 4 394 270 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 611; // Lslash ; B 12 0 598 662 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 722; // Oslash ; B 34 -80 688 734 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 889; // OE ; B 30 -6 885 668 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 310; // ordmasculine ; B 6 394 304 676 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 667; // ae ; B 38 -10 632 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 278; // dotlessi ; B 16 0 253 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 278; // lslash ; B 19 0 259 683 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 500; // oslash ; B 29 -112 470 551 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 722; // oe ; B 30 -10 690 460 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 500; // germandbls ; B 12 -9 468 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.250; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.333; // exclam ; B 130 -9 238 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.408; // quotedbl ; B 77 431 331 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.500; // numbersign ; B 5 0 496 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.500; // dollar ; B 44 -87 457 727 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.833; // percent ; B 61 -13 772 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.778; // ampersand ; B 42 -13 750 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.333; // quoteright ; B 79 433 218 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.333; // parenleft ; B 48 -177 304 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.333; // parenright ; B 29 -177 285 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.500; // asterisk ; B 69 265 432 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.564; // plus ; B 30 0 534 506 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.250; // comma ; B 56 -141 195 102 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.333; // hyphen ; B 39 194 285 257 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.250; // period ; B 70 -11 181 100 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.278; // slash ; B -9 -14 287 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.500; // zero ; B 24 -14 476 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.500; // one ; B 111 0 394 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.500; // two ; B 30 0 475 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.500; // three ; B 43 -14 431 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.500; // four ; B 12 0 472 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.500; // five ; B 32 -14 438 688 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.500; // six ; B 34 -14 468 684 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.500; // seven ; B 20 -8 449 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.500; // eight ; B 56 -14 445 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.500; // nine ; B 30 -22 459 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.278; // colon ; B 81 -11 192 459 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.278; // semicolon ; B 80 -141 219 459 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.564; // less ; B 28 -8 536 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.564; // equal ; B 30 120 534 386 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.564; // greater ; B 28 -8 536 514 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.444; // question ; B 68 -8 414 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.921; // at ; B 116 -14 809 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.722; // A ; B 15 0 706 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.667; // B ; B 17 0 593 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.667; // C ; B 28 -14 633 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.722; // D ; B 16 0 685 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.611; // E ; B 12 0 597 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.556; // F ; B 12 0 546 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.722; // G ; B 32 -14 709 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.722; // H ; B 19 0 702 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.333; // I ; B 18 0 315 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.389; // J ; B 10 -14 370 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.722; // K ; B 34 0 723 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.611; // L ; B 12 0 598 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.889; // M ; B 12 0 863 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.722; // N ; B 12 -11 707 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.722; // O ; B 34 -14 688 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.556; // P ; B 16 0 542 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.722; // Q ; B 34 -178 701 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.667; // R ; B 17 0 659 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.556; // S ; B 42 -14 491 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.611; // T ; B 17 0 593 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.722; // U ; B 14 -14 705 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.722; // V ; B 16 -11 697 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.944; // W ; B 5 -11 932 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.722; // X ; B 10 0 704 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.722; // Y ; B 22 0 703 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.611; // Z ; B 9 0 597 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.333; // bracketleft ; B 88 -156 299 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.278; // backslash ; B -9 -14 287 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.333; // bracketright ; B 34 -156 245 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.469; // asciicircum ; B 24 297 446 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.500; // underscore ; B 0 -125 500 -75 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.333; // quoteleft ; B 115 433 254 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.444; // a ; B 37 -10 442 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.500; // b ; B 3 -10 468 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.444; // c ; B 25 -10 412 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.500; // d ; B 27 -10 491 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.444; // e ; B 25 -10 424 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.333; // f ; B 20 0 383 683 ; L i fi ; L l fl ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.500; // g ; B 28 -218 470 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.500; // h ; B 9 0 487 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.278; // i ; B 16 0 253 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.278; // j ; B -70 -218 194 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.500; // k ; B 7 0 505 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.278; // l ; B 19 0 257 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.778; // m ; B 16 0 775 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.500; // n ; B 16 0 485 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.500; // o ; B 29 -10 470 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.500; // p ; B 5 -217 470 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.500; // q ; B 24 -217 488 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.333; // r ; B 5 0 335 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.389; // s ; B 51 -10 348 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.278; // t ; B 13 -10 279 579 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.500; // u ; B 9 -10 479 450 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.500; // v ; B 19 -14 477 450 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.722; // w ; B 21 -14 694 450 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.500; // x ; B 17 0 479 450 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.500; // y ; B 14 -218 475 450 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.444; // z ; B 27 0 418 450 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.480; // braceleft ; B 100 -181 350 680 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.200; // bar ; B 67 -218 133 782 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.480; // braceright ; B 130 -181 380 680 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.541; // asciitilde ; B 40 183 502 323 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.333; // exclamdown ; B 97 -218 205 467 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.500; // cent ; B 53 -138 448 579 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.500; // sterling ; B 12 -8 490 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.167; // fraction ; B -168 -14 331 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.500; // yen ; B -53 0 512 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.500; // florin ; B 7 -189 490 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.500; // section ; B 70 -148 426 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.500; // currency ; B -22 58 522 602 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.180; // quotesingle ; B 48 431 133 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.444; // quotedblleft ; B 43 433 414 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.500; // guillemotleft ; B 42 33 456 416 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.333; // guilsinglleft ; B 63 33 285 416 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.333; // guilsinglright ; B 48 33 270 416 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.556; // fi ; B 31 0 521 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.556; // fl ; B 32 0 521 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.500; // endash ; B 0 201 500 250 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.500; // dagger ; B 59 -149 442 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.500; // daggerdbl ; B 58 -153 442 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.250; // periodcentered ; B 70 199 181 310 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.453; // paragraph ; B -22 -154 450 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.350; // bullet ; B 40 196 310 466 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.333; // quotesinglbase ; B 79 -141 218 102 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.444; // quotedblbase ; B 45 -141 416 102 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.444; // quotedblright ; B 30 433 401 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.500; // guillemotright ; B 44 33 458 416 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 1.000; // ellipsis ; B 111 -11 888 100 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 1.000; // perthousand ; B 7 -19 994 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.444; // questiondown ; B 30 -218 376 466 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.333; // grave ; B 19 507 242 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.333; // acute ; B 93 507 317 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.333; // circumflex ; B 11 507 322 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.333; // tilde ; B 1 532 331 638 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.333; // macron ; B 11 547 322 601 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.333; // breve ; B 26 507 307 664 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.333; // dotaccent ; B 118 581 216 681 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.333; // dieresis ; B 18 581 315 681 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.333; // ring ; B 67 512 266 711 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.333; // cedilla ; B 52 -215 261 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.333; // hungarumlaut ; B -3 507 377 678 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.333; // ogonek ; B 62 -165 243 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.333; // caron ; B 11 507 322 674 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 1.000; // emdash ; B 0 201 1000 250 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 0.889; // AE ; B 0 0 863 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.276; // ordfeminine ; B 4 394 270 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.611; // Lslash ; B 12 0 598 662 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.722; // Oslash ; B 34 -80 688 734 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 0.889; // OE ; B 30 -6 885 668 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.310; // ordmasculine ; B 6 394 304 676 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.667; // ae ; B 38 -10 632 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.278; // dotlessi ; B 16 0 253 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.278; // lslash ; B 19 0 259 683 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.500; // oslash ; B 29 -112 470 551 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.722; // oe ; B 30 -10 690 460 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.500; // germandbls ; B 12 -9 468 683 ;
 }
 
 void set_ZapfDingbats(Params *pParams)
 {
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 278; // space ; B 0 0 0 0 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 974; // a1 ; B 35 72 939 621 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 961; // a2 ; B 35 81 927 611 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 974; // a202 ; B 35 72 939 621 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 980; // a3 ; B 35 0 945 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 719; // a4 ; B 34 139 685 566 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 789; // a5 ; B 35 -14 755 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 790; // a119 ; B 35 -14 755 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 791; // a118 ; B 35 -13 761 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 690; // a117 ; B 34 138 655 553 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 960; // a11 ; B 35 123 925 568 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 939; // a12 ; B 35 134 904 559 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 549; // a13 ; B 29 -11 516 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 855; // a14 ; B 34 59 820 632 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 911; // a15 ; B 35 50 876 642 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 933; // a16 ; B 35 139 899 550 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 911; // a105 ; B 35 50 876 642 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 945; // a17 ; B 35 139 909 553 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 974; // a18 ; B 35 104 938 587 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 755; // a19 ; B 34 -13 721 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 846; // a20 ; B 36 -14 811 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 762; // a21 ; B 35 0 727 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 761; // a22 ; B 35 0 727 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 571; // a23 ; B -1 -68 571 661 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 677; // a24 ; B 36 -13 642 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 763; // a25 ; B 35 0 728 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 760; // a26 ; B 35 0 726 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 759; // a27 ; B 35 0 725 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 754; // a28 ; B 35 0 720 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 494; // a6 ; B 35 0 460 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 552; // a7 ; B 35 0 517 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 537; // a8 ; B 35 0 503 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 577; // a9 ; B 35 96 542 596 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 692; // a10 ; B 35 -14 657 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 786; // a29 ; B 35 -14 751 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 788; // a30 ; B 35 -14 752 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 788; // a31 ; B 35 -14 753 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 790; // a32 ; B 35 -14 756 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 793; // a33 ; B 35 -13 759 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 794; // a34 ; B 35 -13 759 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 816; // a35 ; B 35 -14 782 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 823; // a36 ; B 35 -14 787 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 789; // a37 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 841; // a38 ; B 35 -14 807 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 823; // a39 ; B 35 -14 789 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 833; // a40 ; B 35 -14 798 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 816; // a41 ; B 35 -13 782 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 831; // a42 ; B 35 -14 796 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 923; // a43 ; B 35 -14 888 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 744; // a44 ; B 35 0 710 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 723; // a45 ; B 35 0 688 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 749; // a46 ; B 35 0 714 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 790; // a47 ; B 34 -14 756 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 792; // a48 ; B 35 -14 758 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 695; // a49 ; B 35 -14 661 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 776; // a50 ; B 35 -6 741 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 768; // a51 ; B 35 -7 734 699 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 792; // a52 ; B 35 -14 757 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 759; // a53 ; B 35 0 725 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 707; // a54 ; B 35 -13 672 704 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 708; // a55 ; B 35 -14 672 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 682; // a56 ; B 35 -14 647 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 701; // a57 ; B 35 -14 666 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 826; // a58 ; B 35 -14 791 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 815; // a59 ; B 35 -14 780 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 789; // a60 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 789; // a61 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 707; // a62 ; B 34 -14 673 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 687; // a63 ; B 36 0 651 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 696; // a64 ; B 35 0 661 691 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 689; // a65 ; B 35 0 655 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 786; // a66 ; B 34 -14 751 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 787; // a67 ; B 35 -14 752 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 713; // a68 ; B 35 -14 678 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 791; // a69 ; B 35 -14 756 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 785; // a70 ; B 36 -14 751 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 791; // a71 ; B 35 -14 757 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 873; // a72 ; B 35 -14 838 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 761; // a73 ; B 35 0 726 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 762; // a74 ; B 35 0 727 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 762; // a203 ; B 35 0 727 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 759; // a75 ; B 35 0 725 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 759; // a204 ; B 35 0 725 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 892; // a76 ; B 35 0 858 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 892; // a77 ; B 35 -14 858 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 788; // a78 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 784; // a79 ; B 35 -14 749 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 438; // a81 ; B 35 -14 403 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 138; // a82 ; B 35 0 104 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 277; // a83 ; B 35 0 242 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 415; // a84 ; B 35 0 380 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 392; // a97 ; B 35 263 357 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 392; // a98 ; B 34 263 357 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 668; // a99 ; B 35 263 633 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 668; // a100 ; B 36 263 634 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[128] = 390; // a89 ; B 35 -14 356 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[129] = 390; // a90 ; B 35 -14 355 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[130] = 317; // a93 ; B 35 0 283 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[131] = 317; // a94 ; B 35 0 283 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[132] = 276; // a91 ; B 35 0 242 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[133] = 276; // a92 ; B 35 0 242 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[134] = 509; // a205 ; B 35 0 475 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[135] = 509; // a85 ; B 35 0 475 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[136] = 410; // a206 ; B 35 0 375 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[137] = 410; // a86 ; B 35 0 375 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[138] = 234; // a87 ; B 35 -14 199 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[139] = 234; // a88 ; B 35 -14 199 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[140] = 334; // a95 ; B 35 0 299 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[141] = 334; // a96 ; B 35 0 299 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 732; // a101 ; B 35 -143 697 806 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 544; // a102 ; B 56 -14 488 706 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 544; // a103 ; B 34 -14 508 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 910; // a104 ; B 35 40 875 651 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 667; // a106 ; B 35 -14 633 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 760; // a107 ; B 35 -14 726 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 760; // a108 ; B 0 121 758 569 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 776; // a112 ; B 35 0 741 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 595; // a111 ; B 34 -14 560 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 694; // a110 ; B 35 -14 659 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 626; // a109 ; B 34 0 591 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 788; // a120 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 788; // a121 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 788; // a122 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 788; // a123 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[176] = 788; // a124 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 788; // a125 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 788; // a126 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 788; // a127 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 788; // a128 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[181] = 788; // a129 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 788; // a130 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 788; // a131 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 788; // a132 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 788; // a133 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 788; // a134 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 788; // a135 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 788; // a136 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 788; // a137 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[190] = 788; // a138 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 788; // a139 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[192] = 788; // a140 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 788; // a141 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 788; // a142 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 788; // a143 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 788; // a144 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 788; // a145 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 788; // a146 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 788; // a147 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 788; // a148 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[201] = 788; // a149 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 788; // a150 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 788; // a151 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[204] = 788; // a152 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 788; // a153 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 788; // a154 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 788; // a155 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 788; // a156 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[209] = 788; // a157 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[210] = 788; // a158 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[211] = 788; // a159 ; B 35 -14 754 705 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[212] = 894; // a160 ; B 35 58 860 634 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[213] = 838; // a161 ; B 35 152 803 540 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[214] = 1016; // a163 ; B 34 152 981 540 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[215] = 458; // a164 ; B 35 -127 422 820 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[216] = 748; // a196 ; B 35 94 698 597 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[217] = 924; // a165 ; B 35 140 890 552 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[218] = 748; // a192 ; B 35 94 698 597 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[219] = 918; // a166 ; B 35 166 884 526 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[220] = 927; // a167 ; B 35 32 892 660 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[221] = 928; // a168 ; B 35 129 891 562 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[222] = 928; // a169 ; B 35 128 893 563 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[223] = 834; // a170 ; B 35 155 799 537 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[224] = 873; // a171 ; B 35 93 838 599 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 828; // a172 ; B 35 104 791 588 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[226] = 924; // a173 ; B 35 98 889 594 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 924; // a162 ; B 35 98 889 594 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[228] = 917; // a174 ; B 35 0 882 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[229] = 930; // a175 ; B 35 84 896 608 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[230] = 931; // a176 ; B 35 84 896 608 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[231] = 463; // a177 ; B 35 -99 429 791 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 883; // a178 ; B 35 71 848 623 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 836; // a179 ; B 35 44 802 648 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 836; // a193 ; B 35 44 802 648 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 867; // a180 ; B 35 101 832 591 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[236] = 867; // a199 ; B 35 101 832 591 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[237] = 696; // a181 ; B 35 44 661 648 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[238] = 696; // a200 ; B 35 44 661 648 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[239] = 874; // a182 ; B 35 77 840 619 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 874; // a201 ; B 35 73 840 615 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[242] = 760; // a183 ; B 35 0 725 692 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[243] = 946; // a184 ; B 35 160 911 533 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[244] = 771; // a197 ; B 34 37 736 655 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 865; // a185 ; B 35 207 830 481 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[246] = 771; // a194 ; B 34 37 736 655 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[247] = 888; // a198 ; B 34 -19 853 712 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 967; // a186 ; B 35 124 932 568 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 888; // a195 ; B 34 -19 853 712 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 831; // a187 ; B 35 113 796 579 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 873; // a188 ; B 36 118 838 578 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[252] = 927; // a189 ; B 35 150 891 542 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[253] = 970; // a190 ; B 35 76 931 616 ;
-	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[254] = 918; // a191 ; B 34 99 884 593 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.278; // space ; B 0 0 0 0 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.974; // a1 ; B 35 72 939 621 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.961; // a2 ; B 35 81 927 611 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[35] = 0.974; // a202 ; B 35 72 939 621 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[36] = 0.980; // a3 ; B 35 0 945 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[37] = 0.719; // a4 ; B 34 139 685 566 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[38] = 0.789; // a5 ; B 35 -14 755 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[39] = 0.790; // a119 ; B 35 -14 755 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[40] = 0.791; // a118 ; B 35 -13 761 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[41] = 0.690; // a117 ; B 34 138 655 553 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[42] = 0.960; // a11 ; B 35 123 925 568 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[43] = 0.939; // a12 ; B 35 134 904 559 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[44] = 0.549; // a13 ; B 29 -11 516 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[45] = 0.855; // a14 ; B 34 59 820 632 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[46] = 0.911; // a15 ; B 35 50 876 642 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[47] = 0.933; // a16 ; B 35 139 899 550 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[48] = 0.911; // a105 ; B 35 50 876 642 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[49] = 0.945; // a17 ; B 35 139 909 553 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[50] = 0.974; // a18 ; B 35 104 938 587 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[51] = 0.755; // a19 ; B 34 -13 721 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[52] = 0.846; // a20 ; B 36 -14 811 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[53] = 0.762; // a21 ; B 35 0 727 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[54] = 0.761; // a22 ; B 35 0 727 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[55] = 0.571; // a23 ; B -1 -68 571 661 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[56] = 0.677; // a24 ; B 36 -13 642 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[57] = 0.763; // a25 ; B 35 0 728 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[58] = 0.760; // a26 ; B 35 0 726 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[59] = 0.759; // a27 ; B 35 0 725 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[60] = 0.754; // a28 ; B 35 0 720 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[61] = 0.494; // a6 ; B 35 0 460 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[62] = 0.552; // a7 ; B 35 0 517 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[63] = 0.537; // a8 ; B 35 0 503 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[64] = 0.577; // a9 ; B 35 96 542 596 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[65] = 0.692; // a10 ; B 35 -14 657 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[66] = 0.786; // a29 ; B 35 -14 751 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[67] = 0.788; // a30 ; B 35 -14 752 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[68] = 0.788; // a31 ; B 35 -14 753 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[69] = 0.790; // a32 ; B 35 -14 756 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[70] = 0.793; // a33 ; B 35 -13 759 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[71] = 0.794; // a34 ; B 35 -13 759 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[72] = 0.816; // a35 ; B 35 -14 782 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[73] = 0.823; // a36 ; B 35 -14 787 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[74] = 0.789; // a37 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[75] = 0.841; // a38 ; B 35 -14 807 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[76] = 0.823; // a39 ; B 35 -14 789 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[77] = 0.833; // a40 ; B 35 -14 798 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[78] = 0.816; // a41 ; B 35 -13 782 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[79] = 0.831; // a42 ; B 35 -14 796 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[80] = 0.923; // a43 ; B 35 -14 888 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[81] = 0.744; // a44 ; B 35 0 710 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[82] = 0.723; // a45 ; B 35 0 688 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[83] = 0.749; // a46 ; B 35 0 714 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[84] = 0.790; // a47 ; B 34 -14 756 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[85] = 0.792; // a48 ; B 35 -14 758 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[86] = 0.695; // a49 ; B 35 -14 661 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[87] = 0.776; // a50 ; B 35 -6 741 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[88] = 0.768; // a51 ; B 35 -7 734 699 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[89] = 0.792; // a52 ; B 35 -14 757 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[90] = 0.759; // a53 ; B 35 0 725 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[91] = 0.707; // a54 ; B 35 -13 672 704 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[92] = 0.708; // a55 ; B 35 -14 672 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[93] = 0.682; // a56 ; B 35 -14 647 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[94] = 0.701; // a57 ; B 35 -14 666 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[95] = 0.826; // a58 ; B 35 -14 791 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[96] = 0.815; // a59 ; B 35 -14 780 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[97] = 0.789; // a60 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[98] = 0.789; // a61 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[99] = 0.707; // a62 ; B 34 -14 673 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[100] = 0.687; // a63 ; B 36 0 651 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[101] = 0.696; // a64 ; B 35 0 661 691 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[102] = 0.689; // a65 ; B 35 0 655 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[103] = 0.786; // a66 ; B 34 -14 751 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[104] = 0.787; // a67 ; B 35 -14 752 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[105] = 0.713; // a68 ; B 35 -14 678 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[106] = 0.791; // a69 ; B 35 -14 756 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[107] = 0.785; // a70 ; B 36 -14 751 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[108] = 0.791; // a71 ; B 35 -14 757 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[109] = 0.873; // a72 ; B 35 -14 838 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[110] = 0.761; // a73 ; B 35 0 726 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[111] = 0.762; // a74 ; B 35 0 727 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[112] = 0.762; // a203 ; B 35 0 727 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[113] = 0.759; // a75 ; B 35 0 725 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[114] = 0.759; // a204 ; B 35 0 725 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[115] = 0.892; // a76 ; B 35 0 858 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[116] = 0.892; // a77 ; B 35 -14 858 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[117] = 0.788; // a78 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[118] = 0.784; // a79 ; B 35 -14 749 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[119] = 0.438; // a81 ; B 35 -14 403 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[120] = 0.138; // a82 ; B 35 0 104 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[121] = 0.277; // a83 ; B 35 0 242 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[122] = 0.415; // a84 ; B 35 0 380 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[123] = 0.392; // a97 ; B 35 263 357 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[124] = 0.392; // a98 ; B 34 263 357 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[125] = 0.668; // a99 ; B 35 263 633 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[126] = 0.668; // a100 ; B 36 263 634 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[128] = 0.390; // a89 ; B 35 -14 356 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[129] = 0.390; // a90 ; B 35 -14 355 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[130] = 0.317; // a93 ; B 35 0 283 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[131] = 0.317; // a94 ; B 35 0 283 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[132] = 0.276; // a91 ; B 35 0 242 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[133] = 0.276; // a92 ; B 35 0 242 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[134] = 0.509; // a205 ; B 35 0 475 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[135] = 0.509; // a85 ; B 35 0 475 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[136] = 0.410; // a206 ; B 35 0 375 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[137] = 0.410; // a86 ; B 35 0 375 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[138] = 0.234; // a87 ; B 35 -14 199 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[139] = 0.234; // a88 ; B 35 -14 199 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[140] = 0.334; // a95 ; B 35 0 299 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[141] = 0.334; // a96 ; B 35 0 299 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[161] = 0.732; // a101 ; B 35 -143 697 806 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[162] = 0.544; // a102 ; B 56 -14 488 706 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[163] = 0.544; // a103 ; B 34 -14 508 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[164] = 0.910; // a104 ; B 35 40 875 651 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[165] = 0.667; // a106 ; B 35 -14 633 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[166] = 0.760; // a107 ; B 35 -14 726 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[167] = 0.760; // a108 ; B 0 121 758 569 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[168] = 0.776; // a112 ; B 35 0 741 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[169] = 0.595; // a111 ; B 34 -14 560 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[170] = 0.694; // a110 ; B 35 -14 659 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[171] = 0.626; // a109 ; B 34 0 591 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[172] = 0.788; // a120 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[173] = 0.788; // a121 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[174] = 0.788; // a122 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[175] = 0.788; // a123 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[176] = 0.788; // a124 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[177] = 0.788; // a125 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[178] = 0.788; // a126 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[179] = 0.788; // a127 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[180] = 0.788; // a128 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[181] = 0.788; // a129 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[182] = 0.788; // a130 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[183] = 0.788; // a131 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[184] = 0.788; // a132 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[185] = 0.788; // a133 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[186] = 0.788; // a134 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[187] = 0.788; // a135 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[188] = 0.788; // a136 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[189] = 0.788; // a137 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[190] = 0.788; // a138 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[191] = 0.788; // a139 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[192] = 0.788; // a140 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[193] = 0.788; // a141 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[194] = 0.788; // a142 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[195] = 0.788; // a143 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[196] = 0.788; // a144 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[197] = 0.788; // a145 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[198] = 0.788; // a146 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[199] = 0.788; // a147 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[200] = 0.788; // a148 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[201] = 0.788; // a149 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[202] = 0.788; // a150 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[203] = 0.788; // a151 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[204] = 0.788; // a152 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[205] = 0.788; // a153 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[206] = 0.788; // a154 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[207] = 0.788; // a155 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[208] = 0.788; // a156 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[209] = 0.788; // a157 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[210] = 0.788; // a158 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[211] = 0.788; // a159 ; B 35 -14 754 705 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[212] = 0.894; // a160 ; B 35 58 860 634 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[213] = 0.838; // a161 ; B 35 152 803 540 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[214] = 1.016; // a163 ; B 34 152 981 540 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[215] = 0.458; // a164 ; B 35 -127 422 820 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[216] = 0.748; // a196 ; B 35 94 698 597 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[217] = 0.924; // a165 ; B 35 140 890 552 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[218] = 0.748; // a192 ; B 35 94 698 597 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[219] = 0.918; // a166 ; B 35 166 884 526 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[220] = 0.927; // a167 ; B 35 32 892 660 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[221] = 0.928; // a168 ; B 35 129 891 562 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[222] = 0.928; // a169 ; B 35 128 893 563 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[223] = 0.834; // a170 ; B 35 155 799 537 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[224] = 0.873; // a171 ; B 35 93 838 599 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[225] = 0.828; // a172 ; B 35 104 791 588 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[226] = 0.924; // a173 ; B 35 98 889 594 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[227] = 0.924; // a162 ; B 35 98 889 594 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[228] = 0.917; // a174 ; B 35 0 882 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[229] = 0.930; // a175 ; B 35 84 896 608 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[230] = 0.931; // a176 ; B 35 84 896 608 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[231] = 0.463; // a177 ; B 35 -99 429 791 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[232] = 0.883; // a178 ; B 35 71 848 623 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[233] = 0.836; // a179 ; B 35 44 802 648 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[234] = 0.836; // a193 ; B 35 44 802 648 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[235] = 0.867; // a180 ; B 35 101 832 591 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[236] = 0.867; // a199 ; B 35 101 832 591 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[237] = 0.696; // a181 ; B 35 44 661 648 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[238] = 0.696; // a200 ; B 35 44 661 648 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[239] = 0.874; // a182 ; B 35 77 840 619 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[241] = 0.874; // a201 ; B 35 73 840 615 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[242] = 0.760; // a183 ; B 35 0 725 692 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[243] = 0.946; // a184 ; B 35 160 911 533 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[244] = 0.771; // a197 ; B 34 37 736 655 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[245] = 0.865; // a185 ; B 35 207 830 481 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[246] = 0.771; // a194 ; B 34 37 736 655 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[247] = 0.888; // a198 ; B 34 -19 853 712 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[248] = 0.967; // a186 ; B 35 124 932 568 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[249] = 0.888; // a195 ; B 34 -19 853 712 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[250] = 0.831; // a187 ; B 35 113 796 579 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[251] = 0.873; // a188 ; B 36 118 838 578 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[252] = 0.927; // a189 ; B 35 150 891 542 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[253] = 0.970; // a190 ; B 35 76 931 616 ;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[254] = 0.918; // a191 ; B 34 99 884 593 ;
 }

@@ -336,6 +336,8 @@ gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURC
 
 ------------------------------------------------------------------------------------------------------------------------------------
  
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan04.pdf" --frompage=6 --topage=6
+ 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path='../Files/gccFiles/Giornali/A2018/Q20180104/la Repubblica 4 Gennaio 2018.pdf' --words="Virginia Orbán branco"
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --path="../Files/gccFiles/Giornali/Manzoni/manzoni_i_promessi_sposi.pdf" --words="Virginia Orbán branco"
@@ -446,6 +448,11 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 ./mypdfsearch --path="../Files/gccFiles/Giornali/A2018/Q20180102/corriere_della_sera_-_02_gennaio_2018.pdf" --words="Virginia Orbán branco"
 
 
+pdftotext -f 1 -l 1 -enc UTF-8 '../Files/File03/Il Giornale - 8 aprile 2019.pdf' AAA_PDFTOTEXT_GIORNALE_01.txt
+pdftotext -f 1 -l 1 -enc UTF-8 -raw '../Files/File03/Il Giornale - 8 aprile 2019.pdf' AAA_PDFTOTEXT_GIORNALE_02.txt
+pdftotext -f 1 -l 1 -enc UTF-8 -layout '../Files/File03/Il Giornale - 8 aprile 2019.pdf' AAA_PDFTOTEXT_GIORNALE_03.txt
+
+
 
 ./mypdfsearch --extracttextfrom="../Files/chapter6/mykerning.pdf" --frompage=1 --topage=1
 ./mypdfsearch --extracttextfrom="../Files/chapter6/myrise.pdf" --frompage=1 --topage=1
@@ -478,9 +485,14 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
  
 
 
--DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD2 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected
--DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD3 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected
+-DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD2 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
+-DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD3 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
 
+-DMYDEBUG_PRINT_SINGLE_CHAR_COORD3 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
+ 
+-DMYDEBUG_PRINT_ON_PARSE_FONTOBJ -DMYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ -DMYDEBUG_PRINT_ON_PARSE_FONTDESCRIPTOROBJ
+
+-DMYDEBUG_PRINT_SINGLE_CHAR_COORD3
 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected
 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected
 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
@@ -512,4 +524,8 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=3
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan15.pdf" --frompage=1 --topage=1 
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japaneseVerticalPagina97.pdf" --frompage=97 --topage=97
+ 
+
+./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=5
+
 */

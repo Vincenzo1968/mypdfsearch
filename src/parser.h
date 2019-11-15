@@ -121,6 +121,7 @@ typedef struct tagTextState
 } TextState;
 */
 
+int VlRbtCompareFuncCol(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
 int VlRbtCompareFuncRow(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
 int VlRbtCompareFuncOrd(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
 int VlRbtOnTraverseFunc(void* pCurrNode);

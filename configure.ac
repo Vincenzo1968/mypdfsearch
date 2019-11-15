@@ -1,6 +1,6 @@
 AC_PREREQ([2.69])
 
-AC_INIT([mypdfsearch], [2.0.1], [vincenzolocicero68@gmail.com])
+AC_INIT([mypdfsearch], [2.1.0], [vincenzolocicero68@gmail.com])
 
 AC_CONFIG_AUX_DIR([build-aux])
 

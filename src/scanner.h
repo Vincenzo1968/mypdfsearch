@@ -335,6 +335,8 @@ typedef struct tagGlyphsWidths
 	int WidthsArraySize;
 	double *pWidths;
 	double MissingWidth;
+	double AvgWidth;
+	double MaxWidth;
 	double dFontSpaceWidth;
 	int WritingMode;
 	double DW;  // Type0 Font only; Default Width.
@@ -439,6 +441,9 @@ typedef struct tag_vlrbtData
 	double currFontSpaceWidthScaled;
 	double currFontSize;
 	
+	int nCurrentFontSubtype;
+	int nCurrentCIDFontSubtype;
+	
 	double xCoordNext;
 	double yCoordNext;
 	
@@ -516,13 +521,14 @@ typedef struct tagParams
 	double Tj;
 	double dCurrFontSpaceWidth;
 	double dCurrFontSpaceWidthScaled;
-	double dCurrFontMinWidth;
+	double dCurrFontAvgWidth;
 	double dCurrFontMaxWidth;
-	double dCurrFontMinWidthScaled;
+	double dCurrFontAvgWidthScaled;
 	double dCurrFontMaxWidthScaled;
 	GlyphsWidths *pCurrFontGlyphsWidths;
 	double xCoordPrev;
 	double xCoordNextPrev;
+	double yCoordNextPrev;
 	TransMatrix dsTextMatrix;
 	TransMatrix dsLineMatrix;
 	TransMatrix dsRenderingMatrix;
