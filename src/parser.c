@@ -3328,6 +3328,11 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	//if ( 1.0 != pMyData->currFontSize )
 	if ( (1.0 != pMyData->currFontSize) && (FONT_SUBTYPE_Type0 != pMyData->nCurrentFontSubtype) )
 		dFontSpaceWidth = dFontSpaceWidthScaled;
+		
+	if ( dFontSpaceWidth <= 0.0 )
+	{
+		dFontSpaceWidth = pMyData->currFontSize * 0.1;
+	}
 					
 	if ( pMyKey->row == prevRow )
 	{
@@ -8263,13 +8268,15 @@ BT\n\
 [(LA) -160.002 (S) 46.0016 (T) 107.001 (A) -23.0017 (M) 10.0 (P)]TJ\n\
 429.67 0 Td\n\
 (A) Tj\n\
+\n\
+\n\
 1 0 0 1 193.495 962.8384 Tm\n\
 (L) Tj\n\
 1 0 0 1 252.724387 962.8384 Tm\n\
 (A) Tj\n\
-1 0 0 1 327.7028 962.8384 Tm\n\
+1 0 0 1 327.702800 962.8384 Tm\n\
 (S) Tj\n\
-1 0 0 1 381.02623 962.8384 Tm\n\
+1 0 0 1 381.026230 962.8384 Tm\n\
 (T) Tj\n\
 1 0 0 1 431.268413 962.8384 Tm\n\
 (A) Tj\n\
@@ -8277,8 +8284,10 @@ BT\n\
 (M) Tj\n\
 1 0 0 1 577.459012 962.8384 Tm\n\
 (P) Tj\n\
-1 0 0 1 623.165 962.8384 Tm\n\
+1 0 0 1 623.165000 962.8384 Tm\n\
 (A) Tj\n\
+\n\
+\n\
 1 0 0 1 193.495 877.2468 Tm\n\
 (LA STAMPA) Tj\n\
 ET\n\
@@ -17393,16 +17402,16 @@ uscita:
 		}		
 	}
 		
-	if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth <= 0.0 )
+	if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth < 0.0 )
 	{
 		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
 		
-		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.0;
+		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.0;
 		
-		if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth > 0.0 )
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
-		else
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontAvgWidth;
+		//if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth > 0.0 )
+		//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
+		//else
+		//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontAvgWidth;
 		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMaxWidth;
 				
 		pParams->bCurrFontSpaceWidthIsZero = 1;
