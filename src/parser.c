@@ -2078,7 +2078,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		goto uscita;
 		#endif
 
-		//PrintThisObject(pParams, 8534, 0, 0, NULL);
+		//PrintThisObject(pParams, 1504, 0, 0, NULL);
 		//goto uscita;
 					
 		if ( !ParseObject(pParams, pParams->myPdfTrailer.Root.Number) )
@@ -3445,7 +3445,21 @@ double getCurrCharWidth(Params *pParams, wchar_t c)
 		wprintf(L"\tIn alternativa potrei NON impostarlo a pParams->pCurrFontGlyphsWidths->DW(%f) = %f\n", pParams->pCurrFontGlyphsWidths->DW, pParams->pCurrFontGlyphsWidths->DW);
 		#endif
 			
-		dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
+		if ( FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )
+		{
+			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
+		}
+		else
+		{
+			if ( pParams->bWisPresent )
+			{
+				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
+			}
+			else
+			{
+				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->DW;
+			}
+		}
 	}
 	
 	return dblCurrCharWidth;
@@ -3643,7 +3657,8 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
 		{
 			Ty = 0.0;
-			Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			//Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			Tx = (dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
 					
 			//if ( L' ' == c )
 			//	pParams->dCurrFontSpaceWidth = Tx;
@@ -3651,8 +3666,9 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		else
 		{
 			Tx = 0.0;
-			Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
-					
+			//Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
+			Ty = dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
+				
 			//if ( L' ' == c )
 			//	pParams->dCurrFontSpaceWidth = Ty;
 		}
@@ -3687,11 +3703,11 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 			pParams->dCurrFontAvgWidthScaled = pParams->dCurrFontAvgWidth * pParams->dsRenderingMatrix.a;
 			pParams->dCurrFontMaxWidthScaled = pParams->dCurrFontMaxWidth * pParams->dsRenderingMatrix.a;
 			pParams->dCurrFontSpaceWidthScaled = pParams->dCurrFontSpaceWidth * pParams->dsRenderingMatrix.a;
-			
+						
 			xCoordNext = pParams->dsRenderingMatrix.e + (Tx * pParams->dsRenderingMatrix.a);
 			yCoordNext = pParams->dsRenderingMatrix.f + (Ty * pParams->dsRenderingMatrix.a);
 			//xCoordNext = UserSpaceMatrix.e + (Tx * UserSpaceMatrix.a);
-			//yCoordNext = UserSpaceMatrix.f + (Ty * UserSpaceMatrix.a);				
+			//yCoordNext = UserSpaceMatrix.f + (Ty * UserSpaceMatrix.a);
 		}
 		
 		//xCoordNext = UserSpaceMatrix.e + Tx;
@@ -8005,7 +8021,7 @@ BT\n\
 9.047 0.000000 0.000000 9.9513 100.321444 1090.625398 Tm\n\
 (I) Tj\n\
 /F2 1 Tf\n\
-9.499 0 0 9.499 46.3389 1080.5775 Tm\n\
+9.499 0 0 9.499 46.3389 1050.5775 Tm\n\
 -0.03 Tc\n\
 [(Tornano)-206.8(Destra)-220.1(e)-206.7(Sinistra?)-215(Lo)-216.6(proclama)]TJ\n\
 0 -1.0477 TD\n\
@@ -8022,88 +8038,76 @@ ET \n\
 BT\n\
 /F2 1 Tf\n\
 9.499000 0.000000 0.000000 9.499000 46.338900 1060.625398 Tm\n\
-(l) Tj\n\
-9.499000 0.000000 0.000000 9.499000 48.609161 1060.625398 Tm\n\
-(a) Tj\n\
-\n\
-9.499000 0.000000 0.000000 9.499000 54.752164 1060.625398 Tm\n\
-(c) Tj\n\
-9.499000 0.000000 0.000000 9.499000 58.903227 1060.625398 Tm\n\
+(T) Tj\n\
+9.499000 0.000000 0.000000 9.499000 51.648841 1060.625398 Tm\n\
 (o) Tj\n\
-9.499000 0.000000 0.000000 9.499000 63.776214 1060.625398 Tm\n\
-(p) Tj\n\
-9.499000 0.000000 0.000000 9.499000 68.886676 1060.625398 Tm\n\
-(e) Tj\n\
-\n\
-9.499000 0.000000 0.000000 9.499000 73.256216 1060.625398 Tm\n\
+9.499000 0.000000 0.000000 9.499000 56.521828 1060.625398 Tm\n\
 (r) Tj\n\
-9.499000 0.000000 0.000000 9.499000 76.476377 1060.625398 Tm\n\
-(t) Tj\n\
-9.499000 0.000000 0.000000 9.499000 79.136097 1060.625398 Tm\n\
-(i) Tj\n\
-9.499000 0.000000 0.000000 9.499000 81.463352 1060.625398 Tm\n\
+9.499000 0.000000 0.000000 9.499000 59.741989 1060.625398 Tm\n\
 (n) Tj\n\
-9.499000 0.000000 0.000000 9.499000 86.716299 1060.625398 Tm\n\
+9.499000 0.000000 0.000000 9.499000 64.994936 1060.625398 Tm\n\
 (a) Tj\n\
-\n\
-9.499000 0.000000 0.000000 9.499000 92.929595 1060.625398 Tm\n\
-(d) Tj\n\
-9.499000 0.000000 0.000000 9.499000 98.040057 1060.625398 Tm\n\
-(e) Tj\n\
-9.499000 0.000000 0.000000 9.499000 102.409597 1060.625398 Tm\n\
-(l) Tj\n\
-9.499000 0.000000 0.000000 9.499000 104.679858 1060.625398 Tm\n\
-(l) Tj\n\
-9.499000 0.000000 0.000000 9.499000 106.950119 1060.625398 Tm\n\
-(') Tj\n\
--0.02 Tc\n\
-/F3 1 Tf\n\
-9.499000 0.000000 0.000000 9.499000 109.123490 1060.625398 Tm\n\
-(E) Tj\n\
-9.499000 0.000000 0.000000 9.499000 114.385936 1060.625398 Tm\n\
-(s) Tj\n\
-9.499000 0.000000 0.000000 9.499000 117.672590 1060.625398 Tm\n\
-(p) Tj\n\
-9.499000 0.000000 0.000000 9.499000 122.716559 1060.625398 Tm\n\
-(r) Tj\n\
-9.499000 0.000000 0.000000 9.499000 126.126700 1060.625398 Tm\n\
-(e) Tj\n\
-9.499000 0.000000 0.000000 9.499000 130.011791 1060.625398 Tm\n\
-(s) Tj\n\
-9.499000 0.000000 0.000000 9.499000 133.298445 1060.625398 Tm\n\
-(s) Tj\n\
-9.499000 0.000000 0.000000 9.499000 136.585099 1060.625398 Tm\n\
+9.499000 0.000000 0.000000 9.499000 69.440468 1060.625398 Tm\n\
+(n) Tj\n\
+9.499000 0.000000 0.000000 9.499000 74.693415 1060.625398 Tm\n\
 (o) Tj\n\
 \n\
-/F2 1 Tf\n\
-3.3905 0.0 TD\n\
--0.03 Tc\n\
-9.499000 0.000000 0.000000 9.499000 141.329850 1060.625398 Tm\n\
-(:) Tj\n\
-9.499000 0.000000 0.000000 9.499000 145.129450 1060.625398 Tm\n\
-(C) Tj\n\
-9.499000 0.000000 0.000000 9.499000 151.066325 1060.625398 Tm\n\
-(h) Tj\n\
-9.499000 0.000000 0.000000 9.499000 156.262278 1060.625398 Tm\n\
-(i) Tj\n\
-\n\
-9.499000 0.000000 0.000000 9.499000 160.342098 1060.625398 Tm\n\
+9.499000 0.000000 0.000000 9.499000 81.530795 1060.625398 Tm\n\
+(D) Tj\n\
+9.499000 0.000000 0.000000 9.499000 90.229979 1060.625398 Tm\n\
+(e) Tj\n\
+9.499000 0.000000 0.000000 9.499000 94.599519 1060.625398 Tm\n\
 (s) Tj\n\
-9.499000 0.000000 0.000000 9.499000 163.961217 1060.625398 Tm\n\
-(i) Tj\n\
-\n\
-9.499000 0.000000 0.000000 9.499000 168.031539 1060.625398 Tm\n\
+9.499000 0.000000 0.000000 9.499000 98.218638 1060.625398 Tm\n\
+(t) Tj\n\
+9.499000 0.000000 0.000000 9.499000 100.878358 1060.625398 Tm\n\
 (r) Tj\n\
-9.499000 0.000000 0.000000 9.499000 171.251700 1060.625398 Tm\n\
+9.499000 0.000000 0.000000 9.499000 104.098519 1060.625398 Tm\n\
+(a) Tj\n\
+\n\
+9.499000 0.000000 0.000000 9.499000 110.634781 1060.625398 Tm\n\
+(e) Tj\n\
+\n\
+9.499000 0.000000 0.000000 9.499000 116.967765 1060.625398 Tm\n\
+(S) Tj\n\
+9.499000 0.000000 0.000000 9.499000 123.509726 1060.625398 Tm\n\
 (i) Tj\n\
-9.499000 0.000000 0.000000 9.499000 173.578955 1060.625398 Tm\n\
-(v) Tj\n\
-9.499000 0.000000 0.000000 9.499000 177.796511 1060.625398 Tm\n\
-(e) Tj\n\
-9.499000 0.000000 0.000000 9.499000 182.166051 1060.625398 Tm\n\
-(d) Tj\n\
-9.499000 0.000000 0.000000 9.499000 187.276513 1060.625398 Tm\n\
-(e) Tj\n\
+9.499000 0.000000 0.000000 9.499000 125.836981 1060.625398 Tm\n\
+(n) Tj\n\
+9.499000 0.000000 0.000000 9.499000 131.089928 1060.625398 Tm\n\
+(i) Tj\n\
+9.499000 0.000000 0.000000 9.499000 133.417183 1060.625398 Tm\n\
+(s) Tj\n\
+9.499000 0.000000 0.000000 9.499000 137.036302 1060.625398 Tm\n\
+(t) Tj\n\
+9.499000 0.000000 0.000000 9.499000 139.696022 1060.625398 Tm\n\
+(r) Tj\n\
+9.499000 0.000000 0.000000 9.499000 142.916183 1060.625398 Tm\n\
+(a) Tj\n\
+9.499000 0.000000 0.000000 9.499000 147.361715 1060.625398 Tm\n\
+(?) Tj\n\
+\n\
+9.499000 0.000000 0.000000 9.499000 153.127608 1060.625398 Tm\n\
+(L) Tj\n\
+9.499000 0.000000 0.000000 9.499000 160.090375 1060.625398 Tm\n\
+(o) Tj\n\
+\n\
+9.499000 0.000000 0.000000 9.499000 167.020845 1060.625398 Tm\n\
+(p) Tj\n\
+9.499000 0.000000 0.000000 9.499000 174.188791 1060.625398 Tm\n\
+(r) Tj\n\
+9.499000 0.000000 0.000000 9.499000 177.408952 1060.625398 Tm\n\
+(o) Tj\n\
+9.499000 0.000000 0.000000 9.499000 182.281939 1060.625398 Tm\n\
+(c) Tj\n\
+9.499000 0.000000 0.000000 9.499000 186.433002 1060.625398 Tm\n\
+(l) Tj\n\
+9.499000 0.000000 0.000000 9.499000 188.703263 1060.625398 Tm\n\
+(a) Tj\n\
+9.499000 0.000000 0.000000 9.499000 193.148795 1060.625398 Tm\n\
+(m) Tj\n\
+9.499000 0.000000 0.000000 9.499000 201.118456 1060.625398 Tm\n\
+(a) Tj\n\
 ET\n\
 \n\
 endstream \n\
@@ -17284,6 +17288,10 @@ uscita:
 		{
 			if ( BASEFONT_NoPredef == pParams->nCurrentBaseFont )
 			{
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
+				wchar_t cTemp;
+				#endif
+				
 				nCurrCharIndex = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->LastChar;
 				nCurrCharIndex -= pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar;
 		
@@ -17300,6 +17308,15 @@ uscita:
 			
 					#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
 					wprintf(L"\tcontentfontobj -> STACK POP(nCurrCharIndex = %d) -> pParams->myObjsTable[%d]->pGlyphsWidths->pWidths[%d] = %f\n", nCurrCharIndex, pParams->nCurrentParsingFontObjNum, nCurrCharIndex, pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[nCurrCharIndex]);
+					cTemp = pParams->pCurrentEncodingArray[nCurrCharIndex + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar];
+					if ( (cTemp >= 32 && cTemp <= 126) || (cTemp >= 128 && cTemp != 129 && cTemp != 141 && cTemp != 143 && cTemp != 144 && cTemp != 157 && cTemp != 160 && cTemp != 173) )
+					{
+						wprintf(L"\tc = '%lc' -> Width = %f\n", cTemp, dblWidth);
+					}
+					else
+					{
+						wprintf(L"\tc = '<%X>' -> Width = %f\n", cTemp, dblWidth);
+					}
 					#endif
 					
 					if ( L' ' == pParams->pCurrentEncodingArray[nCurrCharIndex + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar] )
@@ -17317,7 +17334,7 @@ uscita:
 			
 				while ( nCurrCharIndex >= 0 )
 				{
-					dblWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[nCurrCharIndex];				
+					dblWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[nCurrCharIndex];
 								
 					if ( pParams->dCurrFontMaxWidth < dblWidth )
 						pParams->dCurrFontMaxWidth = dblWidth;
@@ -17381,14 +17398,17 @@ uscita:
 		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
 		
 		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.0;
-				
-		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontAvgWidth;
+		
+		if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth > 0.0 )
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
+		else
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontAvgWidth;
 		//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontMaxWidth;
 				
 		pParams->bCurrFontSpaceWidthIsZero = 1;
 		
-		//if ( pParams->bCurrParsingFontIsCIDFont )
-		//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
+		if ( pParams->bCurrParsingFontIsCIDFont && !(pParams->bWisPresent) )
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->DW;
 	}
 	else
 	{
