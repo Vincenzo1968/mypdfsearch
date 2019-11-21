@@ -168,6 +168,7 @@ int PrintThisObjectFontFile(Params *pParams, int objNum, FILE* fpOutput);
 void PrintFileProva_Libero(Params *pParams, const char *pszFileName);
 void PrintFileProva_LaStampa(Params *pParams, const char *pszFileName);
 void PrintFileProva_IlGiornale(Params *pParams, const char *pszFileName);
+void PrintFileProva_Fatto(Params *pParams, const char *pszFileName);
 
 int LoadFirstBlock(Params *pParams, int objNum, const char *pszFunctionName);
 
@@ -194,8 +195,8 @@ int ParseLengthObject(Params *pParams, int objNum);
 int ParseIntegerObject(Params *pParams, int objNum);
 
 int PushXObjDecodedContent(Params *pParams, int nPageNumber, int nXObjNumber);
-double getCurrCharWidth(Params *pParams, wchar_t c);
-int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszString, size_t lenString);
+double getCurrCharWidth(Params *pParams, wchar_t c, wchar_t cEncoding);
+int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszString, size_t lenString, wchar_t *pszEncodingString);
 int ManageDecodedContentText(Params *pParams, int nPageNumber);
 int ManageContent(Params *pParams, int nPageNumber);
 int ManageExtractedText(Params *pParams, int bPrint, int bSearch);

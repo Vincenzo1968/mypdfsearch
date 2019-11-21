@@ -500,9 +500,8 @@ void PrintHelpCommandLine()
 
 void PrintVersionInfo()
 {
-	//wprintf(L"\n   mypdfsearch version 2.1.0\n");
-	//wprintf(L"\n   mypdfsearch version 2.3.0\n");
-	wprintf(L"\n   mypdfsearch version 2.3.1\n");
+	//wprintf(L"\n   mypdfsearch version 2.3.1\n");
+	wprintf(L"\n   mypdfsearch version 2.5.0\n");
    
 	wprintf(L"\n   Copyright (C) 2019 Vincenzo Lo Cicero\n\n");
 

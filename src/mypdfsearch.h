@@ -335,6 +335,8 @@ time ./mypdfsearch --path="/home/vincenzo/MyJob/Progetti/Files/FileProblematici"
 gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
 
 ------------------------------------------------------------------------------------------------------------------------------------
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile=AAA_OUT_STAMPA.txt > AAA_STAMPA_04.txt
  
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/Giapponesi/Misto/japan04.pdf" --frompage=6 --topage=6
  
@@ -484,6 +486,7 @@ pdftotext -f 1 -l 1 -enc UTF-8 -layout '../Files/File03/Il Giornale - 8 aprile 2
 ./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
  
 
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
 
 -DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD2 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
 -DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD3 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
@@ -532,4 +535,8 @@ pdftotext -f 1 -l 1 -enc UTF-8 -layout '../Files/File03/Il Giornale - 8 aprile 2
 
 ./mypdfsearch --extracttextfrom="../Files/Giapponesi/Misto/japan14.pdf" --frompage=3 --topage=5
 
+https://blog.idrsolutions.com/2013/01/understanding-the-pdf-file-format-overview/
+https://blog.idrsolutions.com/2013/01/understanding-the-pdf-file-format-bugs-gotchas-and-tips/#text
+https://blog.idrsolutions.com/2013/01/understanding-the-pdf-file-format-bugs-gotchas-and-tips/#fonts
+https://blog.idrsolutions.com/2013/09/fonts-articles-index-understanding-all-things-font-related/#tech-art
 */

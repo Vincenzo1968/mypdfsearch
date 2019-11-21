@@ -4441,12 +4441,16 @@ void GetNextToken(Params *pParams)
 					{
 						if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 						{
-							//pParams->pEncodingString[k] = c;
+							pParams->pEncodingString[k] = c;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
 							
 							#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_ENCODING_SCANNER)
-							wprintf(L"c = '%lc', Value = %d; pParams->pCurrentEncodingArray[c] = '%lc', Value = %d; pParams->pUtf8String[%d] = '%lc'\n",
-									c, c, pParams->pCurrentEncodingArray[c], pParams->pCurrentEncodingArray[c], k, pParams->pUtf8String[k]);
+							if ( c != ')' )
+							{
+								wprintf(L"c = '%lc', Value = %d; pParams->pCurrentEncodingArray[c] = '%lc', Value = %d; pParams->pUtf8String[%d] = '%lc'\n",
+										c, c, pParams->pCurrentEncodingArray[c], pParams->pCurrentEncodingArray[c], k, pParams->pUtf8String[k]);
+								wprintf(L"\tpParams->pEncodingString[%d] = %d\n", k, pParams->pEncodingString[k]);
+							}
 							#endif
 						}
 												
@@ -4494,7 +4498,7 @@ void GetNextToken(Params *pParams)
 							
 							if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 							{
-								//pParams->pEncodingString[k] = L'\0';
+								pParams->pEncodingString[k] = L'\0';
 								pParams->pUtf8String[k] = L'\0';								
 							}
 							else
@@ -4564,7 +4568,7 @@ void GetNextToken(Params *pParams)
 										
 										if ( 0xFFFD != pParams->myCID )
 										{													
-											//pParams->pEncodingString[w] = pParams->myCID;
+											pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4573,7 +4577,7 @@ void GetNextToken(Params *pParams)
 										}
 										else
 										{
-											//pParams->pEncodingString[w] = 0xFFFD;
+											pParams->pEncodingString[w] = 0xFFFD;
 											pParams->pUtf8String[w] = 0xFFFD;
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4636,7 +4640,7 @@ void GetNextToken(Params *pParams)
 										}
 										else // CID ONE BYTE TROVATO NEL CODE SPACE RANGE
 										{
-											//pParams->pEncodingString[w] = pParams->myCID;
+											pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4696,7 +4700,7 @@ void GetNextToken(Params *pParams)
 										
 										if ( 0xFFFD != pParams->myCID )
 										{
-											//pParams->pEncodingString[w] = pParams->myCID;
+											pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4705,7 +4709,7 @@ void GetNextToken(Params *pParams)
 										}
 										else
 										{
-											//pParams->pEncodingString[w] = 0xFFFD;
+											pParams->pEncodingString[w] = 0xFFFD;
 											pParams->pUtf8String[w] = 0xFFFD;
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4766,7 +4770,7 @@ void GetNextToken(Params *pParams)
 										
 										if ( 0xFFFD != pParams->myCID )
 										{
-											//pParams->pEncodingString[w] = pParams->myCID;
+											pParams->pEncodingString[w] = pParams->myCID;
 											pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4775,7 +4779,7 @@ void GetNextToken(Params *pParams)
 										}
 										else
 										{
-											//pParams->pEncodingString[w] = 0xFFFD;
+											pParams->pEncodingString[w] = 0xFFFD;
 											pParams->pUtf8String[w] = 0xFFFD;
 											
 											#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -4787,7 +4791,7 @@ void GetNextToken(Params *pParams)
 									}									
 								}
 								
-								//pParams->pEncodingString[w] = L'\0';
+								pParams->pEncodingString[w] = L'\0';
 								pParams->pUtf8String[w] = L'\0';
 							}
 							
@@ -4828,7 +4832,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L'\n';
+						pParams->pEncodingString[k] = L'\n';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\n'];
 					}
 					pParams->lexeme[k++] = '\n';
@@ -4838,7 +4842,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L'\r';
+						pParams->pEncodingString[k] = L'\r';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\r'];
 					}
 					pParams->lexeme[k++] = '\r';
@@ -4848,7 +4852,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L'\t';
+						pParams->pEncodingString[k] = L'\t';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\t'];
 					}
 					pParams->lexeme[k++] = '\t';
@@ -4858,7 +4862,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L'\b';
+						pParams->pEncodingString[k] = L'\b';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\b'];
 					}
 					pParams->lexeme[k++] = '\b';
@@ -4868,7 +4872,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L'\f';
+						pParams->pEncodingString[k] = L'\f';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\f'];
 					}
 					pParams->lexeme[k++] = '\f';
@@ -4878,7 +4882,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L'(';
+						pParams->pEncodingString[k] = L'(';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'('];
 					}
 					pParams->lexeme[k++] = '(';
@@ -4888,7 +4892,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L')';
+						pParams->pEncodingString[k] = L')';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L')'];
 					}
 					pParams->lexeme[k++] = ')';
@@ -4898,7 +4902,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = L'\\';
+						pParams->pEncodingString[k] = L'\\';
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\\'];
 					}
 					pParams->lexeme[k++] = '\\';
@@ -4928,7 +4932,7 @@ void GetNextToken(Params *pParams)
 				{
 					if ( pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 					{
-						//pParams->pEncodingString[k] = c;
+						pParams->pEncodingString[k] = c;
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
 					}
 					pParams->lexeme[k++] = c;
@@ -4965,7 +4969,7 @@ void GetNextToken(Params *pParams)
 						{
 							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 							{
-								//pParams->pEncodingString[k] = cOctal;
+								pParams->pEncodingString[k] = cOctal;
 								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							}
 							pParams->lexeme[k++] = cOctal;
@@ -5003,7 +5007,7 @@ void GetNextToken(Params *pParams)
 						{
 							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 							{
-								//pParams->pEncodingString[k] = cOctal;
+								pParams->pEncodingString[k] = cOctal;
 								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							}
 							pParams->lexeme[k++] = cOctal;
@@ -5039,7 +5043,7 @@ void GetNextToken(Params *pParams)
 						{
 							if (pParams->nCurrentFontSubtype != FONT_SUBTYPE_Type0 )
 							{
-								//pParams->pEncodingString[k] = cOctal;
+								pParams->pEncodingString[k] = cOctal;
 								pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							}
 							pParams->lexeme[k++] = cOctal;
@@ -5215,8 +5219,17 @@ void GetNextToken(Params *pParams)
 						{
 							if ( FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )
 							{
-								//pParams->pEncodingString[z] = cHexadecimal;
+								pParams->pEncodingString[z] = cHexadecimal;
 								pParams->pUtf8String[z] = pParams->pCurrentEncodingArray[cHexadecimal];
+								
+								#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_ENCODING_SCANNER)
+								if ( cHexadecimal != ')' )
+								{
+									wprintf(L"c = '%lc', Value = %d; pParams->pCurrentEncodingArray[c] = '%lc', Value = %d; pParams->pUtf8String[%d] = '%lc'\n",
+											cHexadecimal, cHexadecimal, pParams->pCurrentEncodingArray[cHexadecimal], pParams->pCurrentEncodingArray[cHexadecimal], z, pParams->pUtf8String[z]);
+									wprintf(L"\tpParams->pEncodingString[%d] = %d\n", z, pParams->pEncodingString[z]);
+								}
+								#endif
 							}
 							z++;
 						}
@@ -5227,7 +5240,7 @@ void GetNextToken(Params *pParams)
 								
 					if ( FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )
 					{	
-						//pParams->pEncodingString[z] = L'\0';
+						pParams->pEncodingString[z] = L'\0';
 						pParams->pUtf8String[z] = L'\0';
 					}
 					pParams->lexeme[k] = '\0';
@@ -5252,7 +5265,7 @@ void GetNextToken(Params *pParams)
 				}
 				else
 				{					
-					//pParams->pEncodingString[0] = L'\0';
+					pParams->pEncodingString[0] = L'\0';
 					pParams->pUtf8String[0] = L'\0';
 					
 					pParams->myToken.Type = T_ERROR;
@@ -5373,7 +5386,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 						
 			if ( 0xFFFD != pParams->myCID )
 			{
-				//pParams->pEncodingString[w] = pParams->myCID;
+				pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 									
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5382,7 +5395,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else
 			{
-				//pParams->pEncodingString[w] = 0xFFFD;
+				pParams->pEncodingString[w] = 0xFFFD;
 				pParams->pUtf8String[w] = 0xFFFD;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5442,7 +5455,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else // CID ONE BYTE TROVATO NEL CODE SPACE RANGE
 			{
-				//pParams->pEncodingString[w] = pParams->myCID;
+				pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 				
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5498,7 +5511,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 											
 			if ( 0xFFFD != pParams->myCID )
 			{
-				//pParams->pEncodingString[w] = pParams->myCID;
+				pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 									
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5507,7 +5520,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else
 			{
-				//pParams->pEncodingString[w] = 0xFFFD;
+				pParams->pEncodingString[w] = 0xFFFD;
 				pParams->pUtf8String[w] = 0xFFFD;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5564,7 +5577,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 										
 			if ( 0xFFFD != pParams->myCID )
 			{
-				//pParams->pEncodingString[w] = pParams->myCID;
+				pParams->pEncodingString[w] = pParams->myCID;
 				pParams->pUtf8String[w] = pParams->pCurrentEncodingArray[pParams->myCID];
 									
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5573,7 +5586,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 			}
 			else
 			{
-				//pParams->pEncodingString[w] = 0xFFFD;
+				pParams->pEncodingString[w] = 0xFFFD;
 				pParams->pUtf8String[w] = 0xFFFD;
 								
 				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_ManageContent_PrintStrings_HEXADECIMAL)
@@ -5585,7 +5598,7 @@ int ManageTypeZeroHexString(Params *pParams, int lenCurrLexeme)
 		}									
 	}
 								
-	//pParams->pEncodingString[w] = L'\0';
+	pParams->pEncodingString[w] = L'\0';
 	pParams->pUtf8String[w] = L'\0';
 	
 	return retVal;
@@ -6333,7 +6346,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				{
 					if ( '\0' != c )
 					{
-						//pParams->pEncodingString[k] = c;
+						pParams->pEncodingString[k] = c;
 						pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
 						pParams->lexeme[k++] = c;
 					}
@@ -6345,7 +6358,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						if ( pParams->nStackStringOpenParen <= 0 )
 						{
 							pParams->lexeme[--k] = '\0';
-							//pParams->pEncodingString[k] = L'\0';
+							pParams->pEncodingString[k] = L'\0';
 							pParams->pUtf8String[k] = L'\0';
 							pParams->myToken.Type = T_STRING_LITERAL;
 							//pParams->myToken.vString = (char*)malloc(sizeof(char) * k + sizeof(char));
@@ -6377,56 +6390,56 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 			case S7:
 				if ( c == 'n' )
 				{
-					//pParams->pEncodingString[k] = L'\n';
+					pParams->pEncodingString[k] = L'\n';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\n'];
 					pParams->lexeme[k++] = '\n';
 					state = S6;
 				}
 				else if ( c == 'r' )
 				{
-					//pParams->pEncodingString[k] = L'\r';
+					pParams->pEncodingString[k] = L'\r';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\r'];
 					pParams->lexeme[k++] = '\r';
 					state = S6;
 				}
 				else if ( c == 't' )
 				{
-					//pParams->pEncodingString[k] = L'\t';
+					pParams->pEncodingString[k] = L'\t';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\t'];
 					pParams->lexeme[k++] = '\t';
 					state = S6;
 				}
 				else if ( c == 'b' )
 				{
-					//pParams->pEncodingString[k] = L'\b';
+					pParams->pEncodingString[k] = L'\b';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\b'];
 					pParams->lexeme[k++] = '\b';
 					state = S6;
 				}
 				else if ( c == 'f' )
 				{
-					//pParams->pEncodingString[k] = L'\f';
+					pParams->pEncodingString[k] = L'\f';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\f'];
 					pParams->lexeme[k++] = '\f';
 					state = S6;
 				}
 				else if ( c == '(' )
 				{
-					//pParams->pEncodingString[k] = L'(';
+					pParams->pEncodingString[k] = L'(';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'('];
 					pParams->lexeme[k++] = '(';
 					state = S6;
 				}
 				else if ( c == ')' )
 				{
-					//pParams->pEncodingString[k] = L')';
+					pParams->pEncodingString[k] = L')';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L')'];
 					pParams->lexeme[k++] = ')';
 					state = S6;
 				}
 				else if ( c == '\\' )
 				{
-					//pParams->pEncodingString[k] = L'\\';
+					pParams->pEncodingString[k] = L'\\';
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[L'\\'];
 					pParams->lexeme[k++] = '\\';
 					state = S6;
@@ -6453,7 +6466,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 			case S8:
 				if ( c != '\n' )
 				{
-					//pParams->pEncodingString[k] = c;
+					pParams->pEncodingString[k] = c;
 					pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[c];
 					pParams->lexeme[k++] = c;
 				}
@@ -6487,7 +6500,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
-							//pParams->pEncodingString[k] = cOctal;
+							pParams->pEncodingString[k] = cOctal;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
@@ -6518,7 +6531,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
-							//pParams->pEncodingString[k] = cOctal;
+							pParams->pEncodingString[k] = cOctal;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
@@ -6547,7 +6560,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 					{
 						if ( 0 != cOctal )
 						{
-							//pParams->pEncodingString[k] = cOctal;
+							pParams->pEncodingString[k] = cOctal;
 							pParams->pUtf8String[k] = pParams->pCurrentEncodingArray[cOctal];
 							pParams->lexeme[k++] = cOctal;
 						}
@@ -6708,7 +6721,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						
 						if ( 0 != cHexadecimal )
 						{
-							//pParams->pEncodingString[z] = cHexadecimal;
+							pParams->pEncodingString[z] = cHexadecimal;
 							pParams->pUtf8String[z] = pParams->pCurrentEncodingArray[cHexadecimal];
 							z++;
 						}
@@ -6716,7 +6729,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 						y += 2;
 					}
 					
-					//pParams->pEncodingString[z] = L'\0';
+					pParams->pEncodingString[z] = L'\0';
 					pParams->pUtf8String[z] = L'\0';
 					pParams->lexeme[k] = '\0';
 					pParams->myToken.Type = T_STRING_HEXADECIMAL;					
@@ -6732,7 +6745,7 @@ void GetNextTokenFromToUnicodeStream(Params *pParams)
 				}
 				else
 				{
-					//pParams->pEncodingString[0] = L'\0';
+					pParams->pEncodingString[0] = L'\0';
 					pParams->pUtf8String[0] = L'\0';
 					
 					pParams->myToken.Type = T_ERROR;

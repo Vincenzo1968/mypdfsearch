@@ -338,6 +338,8 @@ typedef struct tagGlyphsWidths
 	double AvgWidth;
 	double MaxWidth;
 	double dFontSpaceWidth;
+	double dFontLmWidth; // m
+	double dFontUmWidth; // M
 	int WritingMode;
 	double DW;  // Type0 Font only; Default Width.
 	//VerticalDataWriting    DW2; // Type0 Font only; Default Width; Vertical writing.
@@ -439,7 +441,25 @@ typedef struct tag_vlrbtData
 	double widthScaled;
 	double currFontSpaceWidth;
 	double currFontSpaceWidthScaled;
-	double currFontSize;
+	//double currFontSize;
+	uint32_t currFontObjRef;
+	
+	double avgWidth;
+	double avgWidthScaled;
+	double maxWidth;
+	double maxWidthScaled;
+	
+	double currFontLmWidth;
+	double currFontLmWidthScaled;
+	double currFontUmWidth;
+	double currFontUmWidthScaled;
+	
+	double Tc;
+	double Tw;
+	double Th;
+	double Tl;
+	double Tfs;
+	double Trise;
 	
 	int nCurrentFontSubtype;
 	int nCurrentCIDFontSubtype;
@@ -516,9 +536,19 @@ typedef struct tagParams
 	
 	int bCurrFontSpaceWidthIsZero;
 	
+	vlrbtTreeNode *pLastNode;
+	double dLastCharFontSize;
+	
 	wchar_t cLastChar;
+	wchar_t cLastCharEncoding;
 	double dLastCharWidth;
 	double Tj;
+	
+	double dCurrFontLmWidth; // m
+	double dCurrFontLmWidthScaled;
+	double dCurrFontUmWidth; // M
+	double dCurrFontUmWidthScaled;
+
 	double dCurrFontSpaceWidth;
 	double dCurrFontSpaceWidthScaled;
 	double dCurrFontAvgWidth;
@@ -669,7 +699,7 @@ typedef struct tagParams
 	
 	HashTable_t myCharSetHashTable;
 		
-	//wchar_t *pEncodingString;
+	wchar_t *pEncodingString;
 	
 	wchar_t *pUtf8String;
 	size_t  lenUtf8String;

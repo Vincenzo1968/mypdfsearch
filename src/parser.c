@@ -1590,7 +1590,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	pParams->bStringIsDecoded = 0;
 	pParams->bStreamType = STREAM_TYPE_GENERIC;
 	
-	//pParams->pEncodingString = NULL;
+	pParams->pEncodingString = NULL;
 	pParams->pUtf8String = NULL;
 	
 	pParams->pwszCurrentWord = NULL;
@@ -1729,16 +1729,16 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		pParams->lexemeTemp[x] = '\0';
 			
 			
-	//pParams->pEncodingString = (wchar_t*)malloc( sizeof(wchar_t) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t) );
-	//if ( !(pParams->pEncodingString) )
-	//{
-	//	snprintf(pParams->szError, 8192, "ERRORE Parse 2: Memoria insufficiente.\n\n");
-	//	myShowErrorMessage(pParams, pParams->szError, 1);
-	//	//wprintf(L"ERRORE Parse 2: Memoria insufficiente.\n\n");
-	//	//fwprintf(pParams->fpErrors, L"ERRORE Parse 2: Memoria insufficiente.\n\n");
-	//	retValue = 0;
-	//	goto uscita;
-	//}
+	pParams->pEncodingString = (wchar_t*)malloc( sizeof(wchar_t) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t) );
+	if ( !(pParams->pEncodingString) )
+	{
+		snprintf(pParams->szError, 8192, "ERRORE Parse 2: Memoria insufficiente.\n\n");
+		myShowErrorMessage(pParams, pParams->szError, 1);
+		//wprintf(L"ERRORE Parse 2: Memoria insufficiente.\n\n");
+		//fwprintf(pParams->fpErrors, L"ERRORE Parse 2: Memoria insufficiente.\n\n");
+		retValue = 0;
+		goto uscita;
+	}
 	pParams->pUtf8String = (wchar_t*)malloc( sizeof(wchar_t) * MAX_STRING_LENTGTH_IN_CONTENT_STREAM + sizeof(wchar_t) );
 	if ( !(pParams->pUtf8String) )
 	{
@@ -1751,7 +1751,7 @@ int Parse(Params *pParams, FilesList* myFilesList)
 	}
 	for ( x = 0; x < MAX_STRING_LENTGTH_IN_CONTENT_STREAM; x++ )
 	{
-		//pParams->pEncodingString[x] = L'\0';
+		pParams->pEncodingString[x] = L'\0';
 		pParams->pUtf8String[x] = L'\0';
 	}
 	
@@ -2077,6 +2077,15 @@ int Parse(Params *pParams, FilesList* myFilesList)
 		//PrintThisObject(pParams, 51, 0, 0, NULL);
 		goto uscita;
 		#endif
+		
+		#if defined(MAKE_PDFTK_FATTO_SRC)
+		PrintFileProva_Fatto(pParams, "../Files/aandy/myfatto/myfatto_src.pdf");
+		//PrintThisObject(pParams, 245, 0, 0, NULL);
+		//PrintThisObject(pParams, 234, 0, 0, NULL);
+		//PrintThisObject(pParams, 246, 0, 0, NULL);
+		//PrintThisObject(pParams, 234, 0, 0, NULL);
+		goto uscita;
+		#endif
 
 		//PrintThisObject(pParams, 1504, 0, 0, NULL);
 		//goto uscita;
@@ -2261,11 +2270,11 @@ uscita:
 		pParams->lexemeTemp = NULL;
 	}	
 	
-	//if ( pParams->pEncodingString != NULL )
-	//{
-	//	free(pParams->pEncodingString);
-	//	pParams->pUtf8String = NULL;
-	//}	
+	if ( pParams->pEncodingString != NULL )
+	{
+		free(pParams->pEncodingString);
+		pParams->pEncodingString = NULL;
+	}	
 	
 	if ( pParams->pUtf8String != NULL )
 	{
@@ -3252,14 +3261,23 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	double dFontSpaceWidthCurr;
 	double dFontSpaceWidthPrev;
 	
+	double TcCurr;
+	double TcPrev;
+	double TwPrev;
+	double ThPrev;
+	
+	uint32_t FontObjRefCurr;
+	uint32_t FontObjRefPrev;
 	
 	//double xCoordNext = 0.0;
 	//double yCoordNext = 0.0;
 	
 	wchar_t prevChar;
 	double prevRow;
+	double prevCol;
+	double prevWidthScaled;
 	double prevXCoordNext;
-	
+		
 	vlrbtTreeNode *pPredecessor;
 	
 	vlrbtTreeNode *pMyCurrNode = (vlrbtTreeNode*)pCurrNode;
@@ -3269,9 +3287,9 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	
 	vlrbtKey_t *pMyKeyPredecessor = NULL;
 	vlrbtData_t *pMyDataPredecessor = NULL;
-	
-	vlrbtTreePredecessor(pCurrNode, &pPredecessor);
 		
+	vlrbtTreePredecessor(pCurrNode, &pPredecessor);
+			
 	if ( NULL != pPredecessor )
 	{
 		pMyKeyPredecessor = (vlrbtKey_t*)pPredecessor->pKey;
@@ -3279,32 +3297,43 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 
 		prevChar = pMyDataPredecessor->c;
 		prevRow = pMyKeyPredecessor->row;
-		//prevCol = pMyKeyPredecessor->col;
+		prevCol = pMyKeyPredecessor->col;
 		//prevOrd = pMyKeyPredecessor->ord;
 		//prevWidth = pMyDataPredecessor->width;
-		//prevWidthScaled = pMyDataPredecessor->widthScaled;
+		prevWidthScaled = pMyDataPredecessor->widthScaled;
 		prevXCoordNext = pMyDataPredecessor->xCoordNext;
 		//prevYCoordNext = pMyDataPredecessor->yCoordNext;
 		dFontSpaceWidthPrev = pMyDataPredecessor->currFontSpaceWidth;
 		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 		dFontSpaceWidthPrevScaled = pMyDataPredecessor->currFontSpaceWidthScaled;
 		//#endif
+		TcPrev = pMyDataPredecessor->Tc;
+		TwPrev = pMyDataPredecessor->Tw;
+		ThPrev = pMyDataPredecessor->Th;
+		FontObjRefPrev = pMyDataPredecessor->currFontObjRef;
 	}
 	else
 	{
-		prevChar = L' ';
+		prevChar = L'\0';
 		prevRow = 0;
-		//prevCol = 0;
+		prevCol = 0;
 		//prevOrd = 0;
 		//prevWidth = 0;
-		//prevWidthScaled = 0;
+		prevWidthScaled = 0;
 		prevXCoordNext = 0;
 		//prevYCoordNext = 0;
 		dFontSpaceWidthPrev = pMyData->currFontSpaceWidth;
 		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 		dFontSpaceWidthPrevScaled = pMyData->currFontSpaceWidthScaled;
 		//#endif
+		TcPrev = 0.0;
+		TwPrev = 0.0;
+		ThPrev = 0.0;
+		FontObjRefPrev = 0;
 	}
+	
+	TcCurr = pMyData->Tc;
+	FontObjRefCurr = pMyData->currFontObjRef;
 	
 	dFontSpaceWidthCurr = pMyData->currFontSpaceWidth;
 	
@@ -3322,22 +3351,27 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 		dFontSpaceWidthScaled = pMyData->currFontSpaceWidthScaled;
 		//#endif
 	}
-	
-	//dFontSpaceWidth = dFontSpaceWidthCurr;
-	
-	//if ( 1.0 != pMyData->currFontSize )
-	if ( (1.0 != pMyData->currFontSize) && (FONT_SUBTYPE_Type0 != pMyData->nCurrentFontSubtype) )
-		dFontSpaceWidth = dFontSpaceWidthScaled;
+		
+	//if ( (1.0 != pMyData->Tfs) && (FONT_SUBTYPE_Type0 != pMyData->nCurrentFontSubtype) )
+	//	dFontSpaceWidth = dFontSpaceWidthScaled;
 		
 	if ( dFontSpaceWidth <= 0.0 )
 	{
-		dFontSpaceWidth = pMyData->currFontSize * 0.1;
+		dFontSpaceWidth = pMyData->Tfs * 0.1;
 	}
 					
 	if ( pMyKey->row == prevRow )
 	{
 		//xDiff = pMyKey->col - (pMyData->prevCol + pMyData->prevWidthScaled);
 		xDiff = pMyKey->col - prevXCoordNext;
+		
+		if ( FontObjRefCurr == FontObjRefPrev )
+		{
+			if ( TcPrev != TcCurr )
+			{
+				xDiff += (TcPrev - TcCurr);
+			}
+		}
 	}
 	else
 	{
@@ -3361,7 +3395,8 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 	wprintf(L"[%lc](row = %f; col = %f; ord = %d); width = [%f Scaled %f]; nextXCoord = %f\n", pMyData->c, pMyKey->row, pMyKey->col, pMyKey->ord, pMyData->width, pMyData->widthScaled, pMyKey->col + pMyData->widthScaled);
-	wprintf(L"\tdFontSpaceWidth = [%f; Scaled = %f]; currFontSpaceWidth = %f; prevFontSpaceWidth = %f; FontSize = %f\n", dFontSpaceWidth, dFontSpaceWidthScaled, dFontSpaceWidthCurr, dFontSpaceWidthPrev, pMyData->currFontSize);
+	wprintf(L"\tdFontSpaceWidth = [%f; Scaled = %f]; currFontSpaceWidth = %f; prevFontSpaceWidth = %f; FontSize = %f\n", dFontSpaceWidth, dFontSpaceWidthScaled, dFontSpaceWidthCurr, dFontSpaceWidthPrev, pMyData->Tfs);
+	wprintf(L"\tAverage Width =[%f Scaled %f]; MaxWidth = [%f Scaled %f]; 'm' Width = [%f Scaled %f]; 'M' Width = [%f Scaled %f]\n", pMyData->avgWidth, pMyData->avgWidthScaled, pMyData->maxWidth, pMyData->maxWidthScaled, pMyData->currFontLmWidth, pMyData->currFontLmWidthScaled, pMyData->currFontUmWidth, pMyData->currFontUmWidthScaled);
 	wprintf(L"\txDiff = %f; pMyKey->col = %f; prevXCoordNext = %f\n", xDiff, pMyKey->col, prevXCoordNext);
 	#endif
 		
@@ -3369,14 +3404,14 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	//if ( xDiff > dFontSpaceWidthScaled && pMyData->c != L' ' && prevChar != L' ' )
 	//if ( xDiff > pMyData->currFontSpaceWidth && pMyData->c != L' ' && prevChar != L' ' )
 	//if ( xDiff > pMyData->currFontSpaceWidthScaled && pMyData->c != L' ' && prevChar != L' ' )
-	//if ( xDiff > (pMyData->currFontSize/2.0) && pMyData->c != L' ' && prevChar != L' ' )
+	//if ( xDiff > (pMyData->Tfs/2.0) && pMyData->c != L' ' && prevChar != L' ' )
 	{	
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 		wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dFontSpaceWidth(%f)\n", pMyData->c, xDiff, dFontSpaceWidth);
 		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dFontSpaceWidthScaled(%f)\n", pMyData->c, xDiff, dFontSpaceWidthScaled);
 		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dCurrFontSpaceWidth(%f)\n", pMyData->c, xDiff, pMyData->currFontSpaceWidth);
 		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= dFontSpaceWidthScaled(%f)\n", pMyData->c, xDiff, pMyData->currFontSpaceWidthScaled);
-		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= pMyData->currFontSize(%f) pMyData->currFontSize()/2.0 = %f\n", pMyData->c, xDiff, pMyData->currFontSize, pMyData->currFontSize/2.0);
+		//wprintf(L"\t***** INSERISCO SPAZIO PRIMA DI STAMPARE IL CARATTERE '%lc' -> xDiff(%f) >= pMyData->Tfs(%f) pMyData->Tfs()/2.0 = %f\n", pMyData->c, xDiff, pMyData->Tfs, pMyData->Tfs/2.0);
 		#endif
 							
 		//if ( NULL != pMyData->fpOutput )
@@ -3393,6 +3428,30 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	//else
 	//	wprintf(L"%lc", pMyData->c);
 		
+	/*
+	//if ( (L' ' == prevChar) && (pMyData->pParams->TextLength > 0) )
+	if ( (pMyData->pParams->TextLength > 0) && L' ' == pMyData->pParams->pText[pMyData->pParams->TextLength - 1] )
+	{
+		xDiff = pMyKey->col - prevCol;
+		
+		if ( xDiff < -TcPrev )
+		{
+			wprintf(L"\npMyKey->col = %f; prevCol = %f; prevWidthScaled = %f; diff = %f\n", pMyKey->col, prevCol, prevWidthScaled, xDiff);
+			
+			pMyData->pParams->TextLength--;
+			
+			wprintf(L"\tSOSTITUISCO CHAR CODE = %d CON CHAR CODE = %d\n", pMyData->pParams->pText[pMyData->pParams->TextLength], pMyData->c);
+
+			for ( int k = 0; k < pMyData->pParams->TextLength; k++ )
+			{
+				wprintf(L"%lc", pMyData->pParams->pText[k]);
+			}
+			wprintf(L"\n\n");
+		}
+	}
+	*/
+	
+	
 	pMyData->pParams->pText[pMyData->pParams->TextLength] = pMyData->c;
 	pMyData->pParams->TextLength++;
 		
@@ -3401,51 +3460,99 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	//pMyData->prevCol = pMyKey->col;
 	//pMyData->prevWidth = pMyData->width;
 	//pMyData->prevWidthScaled = pMyData->widthScaled;
-	
+		
 	return 1;
 }
 
-double getCurrCharWidth(Params *pParams, wchar_t c)
+double getCurrCharWidth(Params *pParams, wchar_t c, wchar_t cEncoding)
 {
 	double dblCurrCharWidth = -1.0;
-	
+			
 	if (FONT_SUBTYPE_Type0 != pParams->nCurrentFontSubtype )
 	{
-		//if ( cEncoding >= pParams->pCurrFontGlyphsWidths->FirstChar && cEncoding <= pParams->pCurrFontGlyphsWidths->LastChar )
-		//	dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar]/1000.0;
-		if ( c >= pParams->pCurrFontGlyphsWidths->FirstChar && c <= pParams->pCurrFontGlyphsWidths->LastChar )
+		if ( cEncoding >= pParams->pCurrFontGlyphsWidths->FirstChar && cEncoding <= pParams->pCurrFontGlyphsWidths->LastChar )
 		{
-			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[c - pParams->pCurrFontGlyphsWidths->FirstChar];
-		}
+			//cEncoding--;
+			//if ( cEncoding < 0 )
+			//	cEncoding = 0;
+			//dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar];
+			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar];
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD4)
+			if ( L'\n' != c )
+				wprintf(L"\ngetCurrCharWidth 01 -> c = '%lc'; width = %f\n", c, dblCurrCharWidth);
+			else
+				wprintf(L"\ngetCurrCharWidth 01 -> c = '\\n'; width = %f\n", dblCurrCharWidth);
+			wprintf(L"\tc = %d; cEncoding = %d; FirstChar = %d; LastChar = %d\n", c, cEncoding, pParams->pCurrFontGlyphsWidths->FirstChar, pParams->pCurrFontGlyphsWidths->LastChar);
+			#endif
+		}	
 		else
 		{
 			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
+			//dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->AvgWidth;
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD4)
+			if ( L'\n' != c )
+				wprintf(L"\ngetCurrCharWidth 02 -> c = '%lc'; width = %f\n", c, dblCurrCharWidth);
+			else
+				wprintf(L"\ngetCurrCharWidth 02 -> c = '\\n'; width = %f\n", dblCurrCharWidth);
+			wprintf(L"\tc = %d; cEncoding = %f; FirstChar = %d; LastChar = %d\n", c, cEncoding, pParams->pCurrFontGlyphsWidths->FirstChar, pParams->pCurrFontGlyphsWidths->LastChar);
+			#endif
 		}
 	}
 	else
 	{
 		if ( pParams->bWisPresent )
 		{
-			//if ( cEncoding >= pParams->pCurrFontGlyphsWidths->FirstChar && cEncoding <= pParams->pCurrFontGlyphsWidths->LastChar )
-			//	dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar]/1000.0;
-			if ( c >= pParams->pCurrFontGlyphsWidths->FirstChar && c <= pParams->pCurrFontGlyphsWidths->LastChar )
+			if ( cEncoding >= pParams->pCurrFontGlyphsWidths->FirstChar && cEncoding < pParams->pCurrFontGlyphsWidths->LastChar )
 			{
-				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[c - pParams->pCurrFontGlyphsWidths->FirstChar];
+				//cEncoding--;
+				//if ( cEncoding < 0 )
+				//	cEncoding = 0;
+
+				//dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar];
+				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->pWidths[cEncoding - pParams->pCurrFontGlyphsWidths->FirstChar];
+				
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD4)
+				if ( L'\n' != c )
+					wprintf(L"\ngetCurrCharWidth 03 -> c = '%lc': width = %f\n", c, dblCurrCharWidth);
+				else
+					wprintf(L"\ngetCurrCharWidth 03 -> c = '\\n'; width = %f\n", dblCurrCharWidth);
+				wprintf(L"\tc = %d; cEncoding = %f; FirstChar = %d; LastChar = %d\n", c, cEncoding, pParams->pCurrFontGlyphsWidths->FirstChar, pParams->pCurrFontGlyphsWidths->LastChar);
+				#endif
 			}
 			else
 			{
 				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->MissingWidth;
+				//dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->AvgWidth;
+				
+				#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD4)
+				if ( L'\n' != c )
+					wprintf(L"\ngetCurrCharWidth 04 -> c = '%lc': width = %f\n", c, dblCurrCharWidth);
+				else
+					wprintf(L"\ngetCurrCharWidth 04 -> c = '\\n'; width = %f\n", dblCurrCharWidth);
+				#endif
+				wprintf(L"\tc = %d; cEncoding = %f; FirstChar = %d; LastChar = %d\n", c, cEncoding, pParams->pCurrFontGlyphsWidths->FirstChar, pParams->pCurrFontGlyphsWidths->LastChar);
 			}
 		}
 		else
 		{
 			dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->DW;
+			//dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->AvgWidth;
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD4)
+			if ( L'\n' != c )
+				wprintf(L"\ngetCurrCharWidth 05 -> c = '%lc': width = %f\n", c, dblCurrCharWidth);
+			else
+				wprintf(L"\ngetCurrCharWidth 05 -> c = '\\n'; width = %f\n", dblCurrCharWidth);
+			wprintf(L"\tc = %d; cEncoding = %f; FirstChar = %d; LastChar = %d\n", c, cEncoding, pParams->pCurrFontGlyphsWidths->FirstChar, pParams->pCurrFontGlyphsWidths->LastChar);
+			#endif
 		}
 	}
 	
-	if ( dblCurrCharWidth <= 0.0 )
+	if ( dblCurrCharWidth < 0.0 )
 	{
-		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD2)
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD2) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD4)
 		wprintf(L"ATTENZIONE: Current Char Width = %f; Lo imposto a pParams->pCurrFontGlyphsWidths->MissingWidth(%f) = %f\n", dblCurrCharWidth, pParams->pCurrFontGlyphsWidths->MissingWidth, pParams->pCurrFontGlyphsWidths->MissingWidth);
 		wprintf(L"\tIn alternativa potrei NON impostarlo a pParams->pCurrFontGlyphsWidths->DW(%f) = %f\n", pParams->pCurrFontGlyphsWidths->DW, pParams->pCurrFontGlyphsWidths->DW);
 		#endif
@@ -3465,12 +3572,21 @@ double getCurrCharWidth(Params *pParams, wchar_t c)
 				dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->DW;
 			}
 		}
+		
+		dblCurrCharWidth = pParams->pCurrFontGlyphsWidths->AvgWidth;
+		
+		//dblCurrCharWidth = 0.699698;
+		
+		//if ( L'–' == c )
+		//	dblCurrCharWidth = 0.725;
+		//if ( dblCurrCharWidth <= 0.0 )
+		//	dblCurrCharWidth = 0.725;
 	}
 	
 	return dblCurrCharWidth;
 }
 
-int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszString, size_t lenString)
+int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszString, size_t lenString, wchar_t *pszEncodingString)
 {									
 	double xCoordNext = 0.0;
 	double yCoordNext = 0.0;
@@ -3486,10 +3602,25 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 	
 	TransMatrix UserSpaceMatrix;
 	
-	//wchar_t cEncoding;
+	wchar_t cEncoding;
 	wchar_t c;
 	double dblCurrCharWidth;
 	
+	double avgWidth;
+	double avgWidthScaled;
+	double maxWidth;
+	double maxWidthScaled;
+	double fontSpaceWidth;
+	double fontSpaceWidthScaled;
+
+	double fontLmWidth;
+	double fontLmWidthScaled;
+	double fontUmWidth;
+	double fontUmWidthScaled;
+	
+	double dFontSize10;
+	
+
 	size_t i = 0;
 		
 	//vlrbtKey_t myRedBlackTreeKey;
@@ -3551,6 +3682,16 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 	#endif
 	
 	pParams->dCurrFontSpaceWidthScaled = 0.0;
+	
+	avgWidth = pParams->pCurrFontGlyphsWidths->AvgWidth;
+	maxWidth = pParams->pCurrFontGlyphsWidths->MaxWidth;
+	fontSpaceWidth = pParams->pCurrFontGlyphsWidths->dFontSpaceWidth;
+	fontLmWidth = pParams->pCurrFontGlyphsWidths->dFontLmWidth;
+	fontUmWidth = pParams->pCurrFontGlyphsWidths->dFontUmWidth;
+	
+	dFontSize10 = pParams->dsTextState.Tfs * 0.1; // 10% del font size
+	if ( fontSpaceWidth < dFontSize10 )
+		fontSpaceWidth = dFontSize10;
 					
 	for ( i = 0; i < lenString; i++ )
 	{
@@ -3558,22 +3699,27 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		c = pszString[i];
 		//wprintf(L"\tc = '%lc'\n");
 						
-		//cEncoding = pParams->pEncodingString[i];
+		cEncoding = pszEncodingString[i];
+		
+		//wprintf(L"c(%lc) = %d; cEncoding = %d\n", c, c, cEncoding);
 		
 		// **************************************************************************************************************************
 		if ( pParams->Tj != 0.0 )
 		{
+			//vlrbtData_t * pData = (vlrbtData_t*)pParams->pLastNode->pData;
+			
 			dblCurrCharWidth = -1.0;
 					
-			//dblCurrCharWidth = getCurrCharWidth(pParams, cEncoding);
-			dblCurrCharWidth = getCurrCharWidth(pParams, pParams->cLastChar);
-																							
-			
+			dblCurrCharWidth = getCurrCharWidth(pParams, pParams->cLastChar, pParams->cLastCharEncoding);
+			//dblCurrCharWidth = getCurrCharWidth(pParams, pParams->cLastChar);
 			
 			if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
 			{
 				Ty = 0.0;
-				Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+				if ( L' ' != pParams->cLastChar )
+					Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc) * pParams->dsTextState.Th;
+				else
+					Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
 					
 				//if ( L' ' == pParams->cLastChar )
 				//	pParams->dCurrFontSpaceWidth = Tx;
@@ -3581,14 +3727,15 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 			else
 			{
 				Tx = 0.0;
-				Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
+				if ( L' ' != pParams->cLastChar )
+					Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc;
+				else
+					Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
 					
 				//if ( L' ' == pParams->cLastChar )
 				//	pParams->dCurrFontSpaceWidth = Ty;
 			}
-			
-			
-			
+						
 			tempTextMatrixA.a = 1;
 			tempTextMatrixA.b = 0;
 			tempTextMatrixA.c = 0;
@@ -3614,6 +3761,26 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 			MultiplyTransMatrix(&tempTextMatrixA, &tempTextMatrixB, &(pParams->dsTextMatrix));
 								
 			//pParams->Tj = 0.0;
+			
+			/*
+			if ( pParams->dLastCharFontSize != 1.0 )
+			{
+				xCoordNext = pParams->dsRenderingMatrix.e + Tx;
+				yCoordNext = pParams->dsRenderingMatrix.f + Ty;
+			}
+			else
+			{	
+				xCoordNext = pParams->dsRenderingMatrix.e + (Tx * pParams->dsRenderingMatrix.a);
+				yCoordNext = pParams->dsRenderingMatrix.f + (Ty * pParams->dsRenderingMatrix.a);
+			}
+			
+			//pData = (vlrbtData_t*)pParams->pLastNode->pData;
+			
+			pData->width = dblCurrCharWidth;
+			pData->widthScaled = Tx;
+			pData->xCoordNext = xCoordNext;
+			pData->yCoordNext = yCoordNext;
+			*/
 		}
 		// **************************************************************************************************************************
 									
@@ -3646,8 +3813,8 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 						
 		dblCurrCharWidth = -1.0;
 			
-		//dblCurrCharWidth = getCurrCharWidth(pParams, cEncoding);
-		dblCurrCharWidth = getCurrCharWidth(pParams, c);
+		dblCurrCharWidth = getCurrCharWidth(pParams, c, cEncoding);
+		//dblCurrCharWidth = getCurrCharWidth(pParams, c);
 																													
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_ENCODING)
 		wprintf(L"i = %d, c = '%lc', Value = %d; cEncoding = '%lc', Value = %d; dblCurrCharWidth = %f\n",
@@ -3662,8 +3829,10 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		if ( WRITING_MODE_HORIZONTAL == pParams->pCurrFontGlyphsWidths->WritingMode )
 		{
 			Ty = 0.0;
-			//Tx = ((dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-			Tx = (dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			if ( L' ' != c )
+				Tx = (dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc) * pParams->dsTextState.Th;
+			else
+				Tx = (dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
 					
 			//if ( L' ' == c )
 			//	pParams->dCurrFontSpaceWidth = Tx;
@@ -3671,8 +3840,10 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		else
 		{
 			Tx = 0.0;
-			//Ty = (dblCurrCharWidth - pParams->Tj) * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
-			Ty = dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
+			if ( L' ' != c )
+				Ty = dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc;
+			else
+				Ty = dblCurrCharWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw;
 				
 			//if ( L' ' == c )
 			//	pParams->dCurrFontSpaceWidth = Ty;
@@ -3690,9 +3861,11 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		//pParams->dCurrFontSpaceWidthScaled = pParams->dCurrFontSpaceWidth * pParams->dsRenderingMatrix.a;
 		if ( pParams->dsTextState.Tfs != 1.0 )
 		{
-			pParams->dCurrFontAvgWidthScaled = (pParams->dCurrFontAvgWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-			pParams->dCurrFontMaxWidthScaled = (pParams->dCurrFontMaxWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
-			pParams->dCurrFontSpaceWidthScaled = (pParams->dCurrFontSpaceWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			avgWidthScaled = (avgWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			maxWidthScaled = (maxWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			fontSpaceWidthScaled = (fontSpaceWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			fontLmWidthScaled = (fontLmWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
+			fontUmWidthScaled = (fontUmWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tc + pParams->dsTextState.Tw) * pParams->dsTextState.Th;
 			//pParams->dCurrFontSpaceWidthScaled *= (pParams->dsTextState.Tfs/((pParams->dCurrFontSpaceWidth * pParams->dsTextState.Tfs + pParams->dsTextState.Tw) * pParams->dsTextState.Th));
 			//pParams->dCurrFontSpaceWidthScaled *= (pParams->dsTextState.Tfs/pParams->dsRenderingMatrix.a);
 			
@@ -3705,9 +3878,11 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		}
 		else
 		{	
-			pParams->dCurrFontAvgWidthScaled = pParams->dCurrFontAvgWidth * pParams->dsRenderingMatrix.a;
-			pParams->dCurrFontMaxWidthScaled = pParams->dCurrFontMaxWidth * pParams->dsRenderingMatrix.a;
-			pParams->dCurrFontSpaceWidthScaled = pParams->dCurrFontSpaceWidth * pParams->dsRenderingMatrix.a;
+			avgWidthScaled = avgWidth * pParams->dsRenderingMatrix.a;
+			maxWidthScaled = maxWidth * pParams->dsRenderingMatrix.a;
+			fontSpaceWidthScaled = fontSpaceWidth * pParams->dsRenderingMatrix.a;
+			fontLmWidthScaled = fontLmWidth * pParams->dsRenderingMatrix.a;
+			fontUmWidthScaled = fontUmWidth * pParams->dsRenderingMatrix.a;
 						
 			xCoordNext = pParams->dsRenderingMatrix.e + (Tx * pParams->dsRenderingMatrix.a);
 			yCoordNext = pParams->dsRenderingMatrix.f + (Ty * pParams->dsRenderingMatrix.a);
@@ -3716,8 +3891,7 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		}
 		
 		//xCoordNext = UserSpaceMatrix.e + Tx;
-		//yCoordNext = UserSpaceMatrix.f + Ty;
-		
+		//yCoordNext = UserSpaceMatrix.f + Ty;		
 		
 						
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD)
@@ -3757,13 +3931,18 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD2)
 		wprintf(L"c = '%lc', XCoord = %f; YCoord = %f; CharWidth = %f; Tx = %f, xCoordNext = %f; FontSpaceWidthScaled = %f\n",
 				c, xCoordCurrent, yCoordCurrent, dblCurrCharWidth, Tx, xCoordNext, pParams->dCurrFontSpaceWidthScaled);
-		wprintf(L"\tdCurrFontSpaceWidth = [%f Scaled: %f]; dCurrFontAvgWidth = [%f Scaled : %f]; dCurrFontMaxWidth = [%f Scaled : %f];\n",
-				pParams->dCurrFontSpaceWidth,
-				pParams->dCurrFontSpaceWidthScaled,
-				pParams->dCurrFontAvgWidth,
-				pParams->dCurrFontAvgWidthScaled,
-				pParams->dCurrFontMaxWidth,
-				pParams->dCurrFontMaxWidthScaled);
+		wprintf(L"\tdCurrFontSpaceWidth = [%f Scaled: %f]; dCurrFontAvgWidth = [%f Scaled : %f]; dCurrFontMaxWidth = [%f Scaled : %f]; 'm' Width = [%f Scaled : %f]; 'M' Width = [%f Scaled : %f]\n",
+				fontSpaceWidth,
+				fontSpaceWidthScaled,
+				avgWidth,
+				avgWidthScaled,
+				maxWidth,
+				maxWidthScaled,
+				fontLmWidth,
+				fontLmWidthScaled,
+				fontUmWidth,
+				fontUmWidthScaled
+				);
 		wprintf(L"\tUserSpaceMatrix -> a = %f; b = %f; c = %f; d = %f; e = %f; f = %f;\n",
 				UserSpaceMatrix.a,
 				UserSpaceMatrix.b,
@@ -3778,9 +3957,9 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		pParams->myRedBlackTreeKey.ord++;
 		
 		pParams->myRedBlackTreeData.c = c;
-		pParams->myRedBlackTreeData.currFontSize = pParams->dsTextState.Tfs;
-		pParams->myRedBlackTreeData.currFontSpaceWidth = pParams->dCurrFontSpaceWidth;
-		pParams->myRedBlackTreeData.currFontSpaceWidthScaled = pParams->dCurrFontSpaceWidthScaled;
+		//pParams->myRedBlackTreeData.currFontSize = pParams->dsTextState.Tfs;
+		pParams->myRedBlackTreeData.currFontSpaceWidth = fontSpaceWidth;
+		pParams->myRedBlackTreeData.currFontSpaceWidthScaled = fontSpaceWidthScaled;
 		pParams->myRedBlackTreeData.width = dblCurrCharWidth;
 		pParams->myRedBlackTreeData.widthScaled = Tx;
 		pParams->myRedBlackTreeData.xCoordNext = xCoordNext;
@@ -3788,7 +3967,28 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		pParams->myRedBlackTreeData.nCurrentFontSubtype = pParams->nCurrentFontSubtype;
 		pParams->myRedBlackTreeData.nCurrentCIDFontSubtype = pParams->nCurrentCIDFontSubtype;
 		
-		vlrbtInsertNode(&(pParams->myRedBlackTree), &(pParams->myRedBlackTreeKey), sizeof(pParams->myRedBlackTreeKey), &(pParams->myRedBlackTreeData), sizeof(pParams->myRedBlackTreeData));
+		pParams->myRedBlackTreeData.avgWidth = avgWidth;
+		pParams->myRedBlackTreeData.avgWidthScaled = avgWidthScaled;
+		
+		pParams->myRedBlackTreeData.maxWidth = maxWidth;
+		pParams->myRedBlackTreeData.maxWidthScaled = maxWidthScaled;
+		
+		pParams->myRedBlackTreeData.currFontLmWidth = fontLmWidth;
+		pParams->myRedBlackTreeData.currFontLmWidthScaled = fontLmWidthScaled;
+		
+		pParams->myRedBlackTreeData.currFontUmWidth = fontUmWidth;
+		pParams->myRedBlackTreeData.currFontUmWidthScaled = fontUmWidthScaled;
+		
+		pParams->myRedBlackTreeData.currFontObjRef = pParams->nCurrentParsingFontObjNum;
+		
+		pParams->myRedBlackTreeData.Tc = pParams->dsTextState.Tc;
+		pParams->myRedBlackTreeData.Tw = pParams->dsTextState.Tw;
+		pParams->myRedBlackTreeData.Th = pParams->dsTextState.Th;
+		pParams->myRedBlackTreeData.Tl = pParams->dsTextState.Tl;
+		pParams->myRedBlackTreeData.Tfs = pParams->dsTextState.Tfs;
+		pParams->myRedBlackTreeData.Trise = pParams->dsTextState.Trise;
+		
+		pParams->pLastNode = vlrbtInsertNode(&(pParams->myRedBlackTree), &(pParams->myRedBlackTreeKey), sizeof(pParams->myRedBlackTreeKey), &(pParams->myRedBlackTreeData), sizeof(pParams->myRedBlackTreeData));
 		
 		//pParams->myRedBlackTreeData.prevChar = c;
 		//pParams->myRedBlackTreeData.prevRow = yCoordCurrent;
@@ -3823,17 +4023,23 @@ int ManageShowTextOperator(Params *pParams, const char *szOpName, wchar_t *pszSt
 		#endif
 	}
 	
+	//pParams->cLastCharEncoding = cEncoding;
+	
 	if ( lenString > 0 )
 	{
 		pParams->cLastChar = pszString[lenString - 1];
+		pParams->cLastCharEncoding = pszEncodingString[lenString - 1];
 	}
 	else
 	{
 		pParams->cLastChar = L' ';
+		pParams->cLastCharEncoding = 0;
 		//wprintf(L"\nlenString = %d\n", lenString);
 	}
 		
 	pParams->dLastCharWidth = Tx;
+	
+	pParams->dLastCharFontSize = pParams->dsTextState.Tfs;
 
 	return 1;
 }
@@ -3888,6 +4094,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 	pParams->nCurrentPageNum = nPageNumber;
 		
 	pParams->cLastChar = L' ';
+	pParams->cLastCharEncoding = 0;
 	pParams->xCoordPrev = pParams->xCoordNextPrev = 0.0;
 	pParams->yCoordNextPrev = 0.0;
 	
@@ -4046,14 +4253,14 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						
 						//len = wcsnlen(pParams->pUtf8String, MAX_STRING_LENTGTH_IN_CONTENT_STREAM);
 						
-						//TJStack[nTJStackTop].pEncodingString = (wchar_t*)malloc(sizeof(wchar_t) * pParams->lenUtf8String + sizeof(wchar_t));
-						//if ( NULL == TJStack[nTJStackTop].pEncodingString )
-						//{
-						//	snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: malloc failed for TJStack[%d].pUtf8String.\n\n", nTJStackTop);
-						//	myShowErrorMessage(pParams, pParams->szError, 1);
-						//	retValue = 0;
-						//	goto uscita;
-						//}
+						TJStack[nTJStackTop].pEncodingString = (wchar_t*)malloc(sizeof(wchar_t) * pParams->lenUtf8String + sizeof(wchar_t));
+						if ( NULL == TJStack[nTJStackTop].pEncodingString )
+						{
+							snprintf(pParams->szError, 8192, "ERRORE ManageDecodedContent: malloc failed for TJStack[%d].pUtf8String.\n\n", nTJStackTop);
+							myShowErrorMessage(pParams, pParams->szError, 1);
+							retValue = 0;
+							goto uscita;
+						}
 						
 						TJStack[nTJStackTop].pUtf8String = (wchar_t*)malloc(sizeof(wchar_t) * pParams->lenUtf8String + sizeof(wchar_t));							
 						if ( NULL == TJStack[nTJStackTop].pUtf8String )
@@ -4066,11 +4273,11 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						
 						for ( i = 0; i < pParams->lenUtf8String; i++ )
 						{
-							//TJStack[nTJStackTop].pEncodingString[i] = pParams->pEncodingString[i];
+							TJStack[nTJStackTop].pEncodingString[i] = pParams->pEncodingString[i];
 							TJStack[nTJStackTop].pUtf8String[i] = pParams->pUtf8String[i];
 						}
 							
-						//TJStack[nTJStackTop].pEncodingString[i] = L'\0';
+						TJStack[nTJStackTop].pEncodingString[i] = L'\0';
 						TJStack[nTJStackTop].pUtf8String[i] = L'\0';
 						TJStack[nTJStackTop].lenUtf8String = pParams->lenUtf8String;
 						//wcsncpy(TJStack[nTJStackTop].pUtf8String, pParams->pUtf8String, pParams->lenUtf8String);
@@ -4249,6 +4456,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 					if ( dY != 0 )
 					{
 						pParams->cLastChar = L' ';
+						pParams->cLastCharEncoding = 0;
 						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						wprintf(L"\n\tVADO A CAPO CON L'OPERATORE 'Td'\n");
@@ -4353,6 +4561,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 					if ( dY != 0 )
 					{
 						pParams->cLastChar = L' ';
+						pParams->cLastCharEncoding = 0;
 						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						wprintf(L"\n\tVADO A CAPO CON L'OPERATORE 'TD'\n");
@@ -4434,6 +4643,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 					if ( pParams->dsTextMatrix.f != dblPrevY )
 					{
 						pParams->cLastChar = L' ';
+						pParams->cLastCharEncoding = 0;
 						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						wprintf(L"\n\tVADO A CAPO CON L'OPERATORE 'Tm'\n");
@@ -4518,6 +4728,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						pParams->dsTextMatrix.f = pParams->dsLineMatrix.f;	
 
 						pParams->cLastChar = L' ';
+						pParams->cLastCharEncoding = 0;
 						
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						wprintf(L"\n\tVADO A CAPO CON L'OPERATORE 'T*'\n");
@@ -4569,7 +4780,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 				break;
 				case T_CONTENT_OP_Tj:
 				{	
-					ManageShowTextOperator(pParams, "Tj", pParams->pUtf8String, pParams->lenUtf8String);
+					ManageShowTextOperator(pParams, "Tj", pParams->pUtf8String, pParams->lenUtf8String, pParams->pEncodingString);
 				}
 				break;
 				case T_CONTENT_OP_SINGLEQUOTE:
@@ -4601,6 +4812,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						MultiplyTransMatrix(&tmA, &tmB, &(pParams->dsTextMatrix));
 					
 						pParams->cLastChar = L' ';
+						pParams->cLastCharEncoding = 0;
 					
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						wprintf(L"\n\tVADO A CAPO CON L'OPERATORE \'\n\n");
@@ -4612,7 +4824,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						#endif	
 					}
 					
-					ManageShowTextOperator(pParams, "'", pParams->pUtf8String, pParams->lenUtf8String);					
+					ManageShowTextOperator(pParams, "'", pParams->pUtf8String, pParams->lenUtf8String, pParams->pEncodingString);					
 				}
 				break;
 				case T_CONTENT_OP_DOUBLEQUOTE:
@@ -4667,6 +4879,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						pParams->dsTextMatrix.f = pParams->dsLineMatrix.f;
 					
 						pParams->cLastChar = L' ';
+						pParams->cLastCharEncoding = 0;
 					
 						#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SPLITTING_WORDS) || defined(MYDEBUG_PRINT_DECODED_CONTENT_TOKENS)
 						wprintf(L"\n\tVADO A CAPO CON L'OPERATORE \"\n\n");
@@ -4678,7 +4891,7 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 						#endif	
 					}
 
-					ManageShowTextOperator(pParams, "\"", pParams->pUtf8String, pParams->lenUtf8String);
+					ManageShowTextOperator(pParams, "\"", pParams->pUtf8String, pParams->lenUtf8String, pParams->pEncodingString);
 				}
 				break;
 				case T_CONTENT_OP_TJ:
@@ -4701,10 +4914,10 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 								wprintf(L"TJStack[%d].pUtf8String = '%ls'\n\n", nTJStackTop, TJStack[k].pUtf8String);
 								#endif 
 								
-								ManageShowTextOperator(pParams, "TJ", TJStack[k].pUtf8String, TJStack[k].lenUtf8String);
+								ManageShowTextOperator(pParams, "TJ", TJStack[k].pUtf8String, TJStack[k].lenUtf8String, TJStack[k].pEncodingString);
 								
-								//free(TJStack[k].pEncodingString);
-								//TJStack[k].pEncodingString = NULL;
+								free(TJStack[k].pEncodingString);
+								TJStack[k].pEncodingString = NULL;
 								free(TJStack[k].pUtf8String);
 								TJStack[k].pUtf8String = NULL;
 																
@@ -5773,8 +5986,8 @@ int ManageDecodedContentText(Params *pParams, int nPageNumber)
 				
 				while ( nTJStackTop >= 0 )
 				{
-					//free(TJStack[nTJStackTop].pEncodingString);
-					//TJStack[nTJStackTop].pEncodingString = NULL;
+					free(TJStack[nTJStackTop].pEncodingString);
+					TJStack[nTJStackTop].pEncodingString = NULL;
 					free(TJStack[nTJStackTop].pUtf8String);
 					TJStack[nTJStackTop].pUtf8String = NULL;
 								
@@ -6045,6 +6258,7 @@ int ManageContent(Params *pParams, int nPageNumber)
 	#endif	
 	
 	pParams->cLastChar = L' ';
+	pParams->cLastCharEncoding = 0;
 		
 	vlrbtInit(&(pParams->myRedBlackTree), VlRbtCompareFuncOrd, VlRbtOnTraverseFunc);
 	
@@ -8320,6 +8534,398 @@ startxref\n\
 	fclose(fp);
 }
 
+void PrintFileProva_Fatto(Params *pParams, const char *pszFileName)
+{
+	FILE *fp;
+	
+	fp = fopen(pszFileName, "wb");
+	if ( fp == NULL )
+	{
+		wprintf(L"\n\nERRORE PrintFileProva: impossibile creara il file specificato per l'output: '%s'.\n\n", pszFileName);
+		return;
+	}	
+	
+	fprintf(fp,
+"%%PDF-1.4\n\
+%%âãÏÓ\n\
+\n\
+1 0 obj \n\
+<<\n\
+/Kids [2 0 R]\n\
+/Type /Pages\n\
+/Count 1\n\
+>>\n\
+endobj \n\
+\n\
+2 0 obj \n\
+<<\n\
+/Resources 3 0 R\n\
+/Contents [4 0 R]\n\
+/Parent 1 0 R\n\
+/Type /Page\n\
+/MediaBox [0 0 864.76 1275.22]\n\
+>>\n\
+endobj \n\
+\n\
+3 0 obj \n\
+<<\n\
+/Font\n\
+<<\n\
+/T1_0 114 0 R\n\
+/T1_1 113 0 R\n\
+/T1_2 112 0 R\n\
+>>\n\
+>>\n\
+endobj \n\
+\n\
+113 0 obj\n\
+<<\n\
+/BaseFont /Whitney_Medium\n\
+/LastChar 255\n\
+/Subtype /Type1\n\
+/FontDescriptor 245 0 R\n\
+/Widths [280 280 280 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 280\n\
+280 280 220 382 454 280 454 280 280 280\n\
+280 280 280 280 280 280 454 908 280 280\n\
+227 227 227 280 409 409 409 499 518 421\n\
+726 799 280 280 323 323 799 227 703 502\n\
+478 697 703 272 370 609 468 900 703 746\n\
+536 746 570 512 600 689 677 1017 636 636\n\
+605 409 536 409 454 454 454 499 533 469\n\
+538 499 311 504 527 243 243 481 243 815\n\
+527 527 538 533 358 442 337 527 473 722\n\
+472 483 452 477 266 477 409 421 280 421\n\
+227 382 409 726 499 518 454 799 512 323\n\
+873 421 605 421 421 227 227 409 409 421\n\
+454 908 454 799 442 323 851 421 452 636\n\
+220 272 481 536 591 607 500 526 454 799\n\
+381 527 572 354 563 454 427 589 500 500\n\
+454 572 536 227 454 500 385 527 500 500\n\
+500 518 688 688 688 688 688 688 881 646\n\
+502 502 502 502 272 272 272 272 725 703\n\
+746 746 746 746 746 500 746 689 689 689\n\
+689 636 536 612 499 499 499 499 499 499\n\
+790 469 499 499 499 499 243 243 243 243\n\
+539 527 527 527 527 527 527 572 527 527\n\
+527 527 527 483 538 483]\n\
+/Encoding 232 0 R\n\
+/Type /Font\n\
+/FirstChar 0\n\
+>>\n\
+endobj\n\
+\n\
+245 0 obj\n\
+<<\n\
+/FontName /FWWMPT+Whitney_Medium\n\
+/StemV 88\n\
+/CharSet (/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/space/florin/circumflex/.notdef/macron/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/.notdef/endash/emdash/.notdef/.notdef/quoteleft/quoteright/quotesinglbase/.notdef/quotedblleft/quotedblright/quotedblbase/dagger/daggerdbl/bullet/ellipsis/perthousand/.notdef/.notdef/guilsinglleft/guilsinglright/trademark/periodcentered/D/E/F/G/H/I/J/K/L/M/N/O/P/Q/R/S/T/U/V/W/X/Y/Z/bracketleft/backslash/bracketright/asciicircum/underscore/grave/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p/q/r/s/t/u/v/w/x/y/z/braceleft/bar/braceright/asciitilde/bullet/.notdef/bullet/quotesinglbase/florin/quotedblbase/ellipsis/dagger/daggerdbl/circumflex/perthousand/Scaron/guilsinglleft/OE/bullet/Zcaron/bullet/bullet/quoteleft/quoteright/quotedblleft/quotedblright/bullet/endash/emdash/tilde/trademark/scaron/guilsinglright/oe/bullet/zcaron/Ydieresis/space/exclamdown/cent/sterling/currency/yen/brokenbar/section/dieresis/copyright/ordfeminine/guillemotleft/logicalnot/hyphen/registered/macron/degree/plusminus/twosuperior/threesuperior/acute/mu/paragraph/periodcentered/cedilla/onesuperior/ordmasculine/guillemotright/onequarter/onehalf/threequarters/questiondown/Agrave/Aacute/Acircumflex/Atilde/Adieresis/Aring/AE/Ccedilla/Egrave/Eacute/Ecircumflex/Edieresis/Igrave/Iacute/Icircumflex/Idieresis/Eth/Ntilde/Ograve/Oacute/Ocircumflex/Otilde/Odieresis/multiply/Oslash/Ugrave/Uacute/Ucircumflex/Udieresis/Yacute/Thorn/germandbls/agrave/aacute/acircumflex/atilde/adieresis/aring/ae/ccedilla/egrave/eacute/ecircumflex/edieresis/igrave/iacute/icircumflex/idieresis/eth/ntilde/ograve/oacute/ocircumflex/otilde/odieresis/divide/oslash/ugrave/uacute/ucircumflex/udieresis/yacute/thorn/ydieresis)\n\
+/Ascent 951\n\
+/FontFile3 1025 0 R\n\
+/Flags 32\n\
+/FontWeight 400\n\
+/FontFamily (Whitney_Medium)\n\
+/XHeight 484\n\
+/FontStretch /Normal\n\
+/Descent -200\n\
+/ItalicAngle 0\n\
+/FontBBox [-79 -200 988 951]\n\
+/Type /FontDescriptor\n\
+/CapHeight 690\n\
+>>\n\
+endobj\n\
+\n\
+232 0 obj\n\
+<<\n\
+/Differences [33 /florin /circumflex /caron /macron /breve /dotaccent /ring /ogonek /ilde\n\
+/hungarumlaut /gravecmb /acutecmb /tildecmb /endash /emdash /afii00208 /dbllowline /quoteleft /quoteright\n\
+/quotesinglbase /quoteleftreversed /quotedblleft /quotedblright /quotedblbase /dagger /daggerdbl /bullet /ellipsis /perthousand\n\
+/minute /second /guilsinglleft /guilsinglright /trademark /periodcentered]\n\
+/Type /Encoding\n\
+/BaseEncoding /WinAnsiEncoding\n\
+>>\n\
+endobj\n\
+\n\
+114 0 obj\n\
+<<\n\
+/BaseFont /Whitney_Bold\n\
+/LastChar 255\n\
+/Subtype /Type1\n\
+/FontDescriptor 246 0 R\n\
+/Widths [280 280 280 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 280\n\
+280 280 209 295 520 673 549 894 662 278\n\
+408 408 438 572 258 354 258 530 634 407\n\
+552 545 610 555 577 541 589 577 267 267\n\
+572 590 572 506 835 702 588 605 705 535\n\
+503 682 707 305 425 650 485 891 705 735\n\
+574 735 615 553 609 688 692 990 661 672\n\
+613 418 530 418 454 454 454 507 541 451\n\
+544 505 341 534 537 262 263 505 262 811\n\
+537 527 544 541 377 464 363 537 507 725\n\
+496 510 467 506 300 506 409 482 209 295\n\
+494 551 609 641 500 569 454 799 401 571\n\
+572 354 563 454 446 610 500 500 454 572\n\
+550 454 500 402 571 500 500 500 506 702\n\
+702 702 702 702 702 906 605 535 535 535\n\
+535 305 305 305 305 740 705 735 735 735\n\
+735 735 500 735 688 688 688 688 672 582\n\
+613 507 507 507 507 507 507 781 451 505\n\
+505 505 505 262 262 262 262 539 537 527\n\
+527 527 527 527 572 527 537 537 537 537\n\
+510 544 510 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 908\n\
+830 280 280 280 280 280 280 280 280 280\n\
+280 280 280 553 464 672]\n\
+/Encoding 234 0 R\n\
+/Type /Font\n\
+/FirstChar 0\n\
+>>\n\
+endobj\n\
+\n\
+246 0 obj\n\
+<<\n\
+/FontName /FTXWUT+Whitney_Bold\n\
+/StemV 152\n\
+/CharSet (/space/zero/one/two/nine/M/a/d/e/i/l/p/r/t/igrave)\n\
+/Ascent 954\n\
+/FontFile3 1026 0 R\n\
+/Flags 32\n\
+/FontWeight 400\n\
+/FontFamily (Whitney_Bold)\n\
+/XHeight 497\n\
+/FontStretch /Normal\n\
+/Descent -200\n\
+/ItalicAngle 0\n\
+/FontBBox [-79 -200 998 954]\n\
+/Type /FontDescriptor\n\
+/CapHeight 690\n\
+>>\n\
+endobj\n\
+\n\
+234 0 obj\n\
+<<\n\
+/Differences [39 /quotesingle 96 /grave 124 /bar 128 /space /exclamdown /cent\n\
+/sterling /currency /yen /brokenbar /section /dieresis /copyright /ordfeminine /guillemotleft /logicalnot\n\
+/hyphen /registered /macron /degree /plusminus /twosuperior /threesuperior /acute /mu /paragraph\n\
+/cedilla /onesuperior /ordmasculine /guillemotright /onequarter /onehalf /threequarters /questiondown /Agrave /Aacute\n\
+/Acircumflex /Atilde /Adieresis /Aring /AE /Ccedilla /Egrave /Eacute /Ecircumflex /Edieresis\n\
+/Igrave /Iacute /Icircumflex /Idieresis /Eth /Ntilde /Ograve /Oacute /Ocircumflex /Otilde\n\
+/Odieresis /multiply /Oslash /Ugrave /Uacute /Ucircumflex /Udieresis /Yacute /Thorn /germandbls\n\
+/agrave /aacute /acircumflex /atilde /adieresis /aring /ae /ccedilla /egrave /eacute\n\
+/ecircumflex /edieresis /igrave /iacute /icircumflex /idieresis /eth /ntilde /ograve /oacute\n\
+/ocircumflex /otilde /odieresis /divide /oslash /ugrave /uacute /ucircumflex /udieresis /yacute\n\
+/thorn /ydieresis /Amacron /amacron /Abreve /abreve /Aogonek /aogonek /Cacute /cacute\n\
+/Ccircumflex /ccircumflex /Cdot /cdot /Ccaron /ccaron /Dcaron /dcaron /OE /oe\n\
+/Racute /racute /Rcedilla /rcedilla /Rcaron /rcaron /Sacute /sacute /Scircumflex /scircumflex\n\
+/scedilla /scedilla /Scaron /scaron /Ydieresis]\n\
+/Type /Encoding\n\
+/BaseEncoding /WinAnsiEncoding\n\
+>>\n\
+endobj\n\
+\n\
+112 0 obj\n\
+<<\n\
+/BaseFont /Whitney_Medium\n\
+/LastChar 255\n\
+/Subtype /Type1\n\
+/FontDescriptor 245 0 R\n\
+/Widths [280 280 280 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 280\n\
+280 280 220 272 409 661 527 900 681 227\n\
+406 406 400 572 227 354 227 536 619 357\n\
+534 514 589 527 564 528 568 564 236 236\n\
+572 590 572 518 836 688 545 646 703 502\n\
+478 697 703 272 370 609 468 900 703 746\n\
+536 746 570 512 600 689 677 1017 636 636\n\
+605 409 536 409 454 454 454 499 533 469\n\
+538 499 311 504 527 243 243 481 243 815\n\
+527 527 538 533 358 442 337 527 473 722\n\
+472 483 452 477 266 477 409 421 220 272\n\
+481 536 591 607 500 526 454 799 381 527\n\
+572 354 563 454 427 589 500 500 454 572\n\
+536 454 500 385 527 500 500 500 518 688\n\
+688 688 688 688 688 881 646 502 502 502\n\
+502 272 272 272 272 725 703 746 746 746\n\
+746 746 500 746 689 689 689 689 636 536\n\
+612 499 499 499 499 499 499 790 469 499\n\
+499 499 499 243 243 243 243 539 527 527\n\
+527 527 527 527 572 527 527 527 527 527\n\
+483 538 483 280 280 280 280 280 280 280\n\
+280 280 280 280 280 280 280 280 280 873\n\
+851 280 280 280 280 280 280 280 280 280\n\
+280 280 280 512 442 636]\n\
+/Encoding 234 0 R\n\
+/Type /Font\n\
+/FirstChar 0\n\
+>>\n\
+endobj\n\
+\n\
+");
+	
+	PrintThisObjectFontFile(pParams, 1025, fp);
+	fprintf(fp, "\n");
+	PrintThisObjectFontFile(pParams, 1026, fp);
+	fprintf(fp, "\n");
+		
+	fprintf(fp,
+"4 0 obj \n\
+<<\n\
+/Length 65\n\
+>>\n\
+stream\r\n\
+BT\n\
+1.0 0.0 0.0 1.0 42.51556 1032.12955 Tm\n\
+/T1_0 9.465 Tf\n\
+0.0 Tc\n\
+1.16638 Tw\n\
+10.46077 Ts\n\
+96 Tz\n\
+0 Tr\n\
+[(Mar) -8.79336 (t) 3.97297 (ed\\313 )] TJ\n\
+3.14445 Tc\n\
+0.0 Tw\n\
+(9) Tj\n\
+0.0 Tc\n\
+1.16638 Tw\n\
+(aprile ) Tj\n\
+-0.05605 Tc\n\
+-1.866 Tw\n\
+(2 01 9 ) Tj\n\
+/T1_1 9.465 Tf\n\
+1.88875 Tc\n\
+0.0 Tw\n\
+(.) Tj\n\
+/T1_2 9.465 Tf\n\
+0.0 Tc\n\
+-0.19344 Tw\n\
+(Anno 11 ) Tj\n\
+/T1_1 9.465 Tf\n\
+1.88875 Tc\n\
+0.0 Tw\n\
+(.) Tj\n\
+/T1_2 9.465 Tf\n\
+0.0 Tc\n\
+-0.19344 Tw\n\
+(n\\220 ) Tj\n\
+571.5199 Tw\n\
+(98 ) Tj\n\
+/T1_0 9.465 Tf\n\
+1.0 0.0 0.0 1.0 42.515560 1022.12955 Tm\n\
+(M) Tj\n\
+1.0 0.0 0.0 1.0 50.611542 1022.12955 Tm\n\
+(a) Tj\n\
+1.0 0.0 0.0 1.0 55.218347 1022.12955 Tm\n\
+(r) Tj\n\
+1.0 0.0 0.0 1.0 58.723820 1022.12955 Tm\n\
+(t) Tj\n\
+1.0 0.0 0.0 1.0 61.986083 1022.12955 Tm\n\
+(e) Tj\n\
+1.0 0.0 0.0 1.0 66.574715 1022.12955 Tm\n\
+(d) Tj\n\
+1.0 0.0 0.0 1.0 71.517717 1022.12955 Tm\n\
+(\\313) Tj\n\
+1.0 0.0 0.0 1.0 74.061909 1022.12955 Tm\n\
+( ) Tj\n\
+1.0 0.0 0.0 1.0 77.080691 1022.12955 Tm\n\
+(9) Tj\n\
+1.0 0.0 0.0 1.0 85.342216 1022.12955 Tm\n\
+(a) Tj\n\
+1.0 0.0 0.0 1.0 89.949021 1022.12955 Tm\n\
+(p) Tj\n\
+1.0 0.0 0.0 1.0 94.892022 1022.12955 Tm\n\
+(r) Tj\n\
+1.0 0.0 0.0 1.0 98.317595 1022.12955 Tm\n\
+(i) Tj\n\
+1.0 0.0 0.0 1.0 100.698232 1022.12955 Tm\n\
+(l) Tj\n\
+1.0 0.0 0.0 1.0 103.078869 1022.12955 Tm\n\
+(e) Tj\n\
+1.0 0.0 0.0 1.0 107.667501 1022.12955 Tm\n\
+( ) Tj\n\
+1.0 0.0 0.0 1.0 110.686283 1022.12955 Tm\n\
+(2) Tj\n\
+1.0 0.0 0.0 1.0 115.648168 1022.12955 Tm\n\
+( ) Tj\n\
+1.0 0.0 0.0 1.0 115.702058 1022.12955 Tm\n\
+(0) Tj\n\
+1.0 0.0 0.0 1.0 121.409027 1022.12955 Tm\n\
+(1) Tj\n\
+1.0 0.0 0.0 1.0 125.053384 1022.12955 Tm\n\
+( ) Tj\n\
+1.0 0.0 0.0 1.0 125.107274 1022.12955 Tm\n\
+(9) Tj\n\
+1.0 0.0 0.0 1.0 130.296318 1022.12955 Tm\n\
+( ) Tj\n\
+/T1_1 9.465 Tf\n\
+1.0 0.0 0.0 1.0 131.996370 1022.12955 Tm\n\
+(.) Tj\n\
+/T1_2 9.465 Tf\n\
+1.0 0.0 0.0 1.0 133.809570 1022.12955 Tm\n\
+(A) Tj\n\
+1.0 0.0 0.0 1.0 140.061013 1022.12955 Tm\n\
+(n) Tj\n\
+1.0 0.0 0.0 1.0 144.849546 1022.12955 Tm\n\
+(n) Tj\n\
+1.0 0.0 0.0 1.0 149.638079 1022.12955 Tm\n\
+(o) Tj\n\
+1.0 0.0 0.0 1.0 154.426612 1022.12955 Tm\n\
+( ) Tj\n\
+1.0 0.0 0.0 1.0 156.239917 1022.12955 Tm\n\
+(1) Tj\n\
+1.0 0.0 0.0 1.0 159.483762 1022.12955 Tm\n\
+(1) Tj\n\
+1.0 0.0 0.0 1.0 162.727607 1022.12955 Tm\n\
+( ) Tj\n\
+/T1_1 9.465 Tf\n\
+1.0 0.0 0.0 1.0 164.540912 1022.12955 Tm\n\
+(.) Tj\n\
+/T1_2 9.465 Tf\n\
+1.0 0.0 0.0 1.0 166.354112 1022.12955 Tm\n\
+(n) Tj\n\
+1.0 0.0 0.0 1.0 171.142645 1022.12955 Tm\n\
+(\\220) Tj\n\
+1.0 0.0 0.0 1.0 177.530384 1022.12955 Tm\n\
+( ) Tj\n\
+1.0 0.0 0.0 1.0 179.343690 1022.12955 Tm\n\
+(9) Tj\n\
+1.0 0.0 0.0 1.0 184.468420 1022.12955 Tm\n\
+(8) Tj\n\
+1.0 0.0 0.0 1.0 189.629495 1022.12955 Tm\n\
+( ) Tj\n\
+ET\
+endstream\n\
+endobj\n\
+5 0 obj\n\
+<<\n\
+/Type /Catalog\n\
+/Pages 1 0 R\n\
+>>\n\
+endobj xref\n\
+0 6\n\
+0000000000 65535 f \n\
+0000000015 00000 n \n\
+0000000074 00000 n \n\
+0000000182 00000 n \n\
+0000000281 00000 n \n\
+0000000399 00000 n \n\
+trailer\n\
+\n\
+<<\n\
+/Root 5 0 R\n\
+/Size 6\n\
+>>\n\
+startxref\n\
+449\n\
+%%%%EOF\n\
+");
+	
+	fclose(fp);
+}
+
 void PrintFileProva_IlGiornale(Params *pParams, const char *pszFileName)
 {
 	FILE *fp;
@@ -8440,13 +9046,34 @@ endobj\n\
 stream\n\
 0.999996 0.000000 0.000000 0.999996 0.000000 0.000000 cm\n\
 BT\n\
-0.0 Tr\n\
+0 Tr\n\
 /C2_0 9.0 Tf\n\
 0.996300 0.000000 0.000000 0.996300 478.024700 1000 Tm\n\
-[(a) -219 (pagina)]TJ\n\
+[(\\000a)-219(\\000p\\000a\\000g\\000i\\000n\\000a)] TJ\n\
 /C2_1 9.0 Tf\n\
 0.996300 0.000000 0.000000 0.996300 512.197790 1000 Tm\n\
-[(18)]TJ\n\
+[(\\0001\\0008)] TJ\n\
+\n\
+/C2_0 9.0 Tf\n\
+0.996300 0.000000 0.000000 0.996300 478.022918 993 Tm\n\
+[(\\000a)] TJ\n\
+0.996300 0.000000 0.000000 0.996300 484.370618 993 Tm\n\
+[(\\000p)] TJ\n\
+0.996300 0.000000 0.000000 0.996300 488.754617 993 Tm\n\
+[(\\000a)] TJ\n\
+0.996300 0.000000 0.000000 0.996300 493.138617 993 Tm\n\
+[(\\000g)] TJ\n\
+0.996300 0.000000 0.000000 0.996300 497.522616 993 Tm\n\
+[(\\000i)] TJ\n\
+0.996300 0.000000 0.000000 0.996300 501.566583 993 Tm\n\
+[(\\000n)] TJ\n\
+0.996300 0.000000 0.000000 0.996300 505.950582 993 Tm\n\
+[(\\000a)] TJ\n\
+/C2_1 9.0 Tf\n\
+0.996300 0.000000 0.000000 0.996300 512.195881 993 Tm\n\
+[(\\0001)] TJ\n\
+0.996300 0.000000 0.000000 0.996300 518.472548 993 Tm\n\
+[(\\0008)] TJ\n\
 ET\n\
 endstream\n\
 endobj\n\
@@ -15852,6 +16479,21 @@ int widthsarrayobjbody(Params *pParams)
 																		
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
+										
+									switch ( n1 )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
 					
 									//wprintf(L"n1 = %d\n", n1);
 									//wprintf(L"\tpParams->myObjsTable[%d]->pGlyphsWidths->pWidths[%d] = %f\n", pParams->nCurrentParsingFontObjNum, n1, dblWidth);
@@ -15865,6 +16507,21 @@ int widthsarrayobjbody(Params *pParams)
 														
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
+										
+									switch ( n1 )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
 										
 									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[n1] = dblWidth;
 									n1++;
@@ -15913,7 +16570,22 @@ int widthsarrayobjbody(Params *pParams)
 									pParams->dCurrFontMaxWidth = dblWidth;
 										
 								for ( int k = n1; k <= n2; k++ )
-								{										
+								{
+									switch ( k )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
+									
 									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 								}
 							}
@@ -15926,7 +16598,22 @@ int widthsarrayobjbody(Params *pParams)
 									pParams->dCurrFontMaxWidth = dblWidth;
 										
 								for ( int k = n1; k <= n2; k++ )
-								{										
+								{	
+									switch ( k )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
+																		
 									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 								}
 							}
@@ -15998,10 +16685,22 @@ int widthsarrayobjbody(Params *pParams)
 																
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
-									
-									if ( 32 == n1 )
-										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-					
+										
+									switch ( n1 )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
+														
 									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[n1] = dblWidth;
 									n1++;
 								}
@@ -16012,10 +16711,22 @@ int widthsarrayobjbody(Params *pParams)
 														
 									if ( pParams->dCurrFontMaxWidth < dblWidth )
 										pParams->dCurrFontMaxWidth = dblWidth;
-									
-									if ( 32 == n1 )
-										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
 										
+									switch ( n1 )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
+																			
 									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[n1] = dblWidth;
 									n1++;
 								}
@@ -16081,12 +16792,24 @@ int widthsarrayobjbody(Params *pParams)
 												
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
-								
-								if ( 32 == n1 )
-									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-										
+																		
 								for ( int k = n1; k <= n2; k++ )
-								{										
+								{
+									switch ( k )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
+															
 									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 								}
 							
@@ -16123,12 +16846,24 @@ int widthsarrayobjbody(Params *pParams)
 												
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
-								
-								if ( 32 == n1 )
-									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-										
+																		
 								for ( int k = n1; k <= n2; k++ )
-								{										
+								{	
+									switch ( k )
+									{
+										case 32:   // space
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+											break;
+										case 109:  // m
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+											break;
+										case 77:   // M
+											pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+											break;
+										default:
+											break;
+									}
+																		
 									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 								}
 							
@@ -16260,6 +16995,21 @@ int widthsarrayobjbody(Params *pParams)
 									
 				if ( pParams->dCurrFontMaxWidth < dblWidth )
 					pParams->dCurrFontMaxWidth = dblWidth;
+					
+				switch ( x )
+				{
+					case 32:   // space
+						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+						break;
+					case 109:  // m
+						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+						break;
+					case 77:   // M
+						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+						break;
+					default:
+						break;
+				}
 				
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[x] = dblWidth;
 				x++;
@@ -16283,6 +17033,21 @@ int widthsarrayobjbody(Params *pParams)
 									
 				if ( pParams->dCurrFontMaxWidth < dblWidth )
 					pParams->dCurrFontMaxWidth = dblWidth;
+					
+				switch ( x )
+				{
+					case 32:   // space
+						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+						break;
+					case 109:  // m
+						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+						break;
+					case 77:   // M
+						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+						break;
+					default:
+						break;
+				}
 				
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[x] = dblWidth;
 				x++;
@@ -16613,7 +17378,7 @@ int contentfontobj(Params *pParams)
 	uint32_t myData2Size = 0;
 	
 	double dblCumWidths;
-	int nCountWidthsNonZero;
+	int nCountWidthsGEZero;
 	
 	// pParams->myObjsTable[x]->pGlyphsWidths->pWidths
 	
@@ -16645,6 +17410,11 @@ int contentfontobj(Params *pParams)
 	pParams->dCurrFontSpaceWidthScaled = 0.0;
 	pParams->dCurrFontAvgWidth = 0.0;
 	pParams->dCurrFontMaxWidth = -1.0;
+	
+	pParams->dCurrFontLmWidth = 0.0;
+	pParams->dCurrFontLmWidthScaled = 0.0;
+	pParams->dCurrFontUmWidth = 0.0;
+	pParams->dCurrFontUmWidthScaled = 0.0;
 	
 	pParams->bWisPresent = 0;
 	//pParams->bW2isPresent = 0;
@@ -16696,6 +17466,8 @@ int contentfontobj(Params *pParams)
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = 0.0;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = 0.0;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = -1.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.0;
+	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.0;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WritingMode = WRITING_MODE_HORIZONTAL;
 	
 	pParams->nCurrFontWritingMode = WRITING_MODE_HORIZONTAL;
@@ -17281,17 +18053,38 @@ uscita:
 		
 		for ( int k = 0; k < pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize; k++ )
 		{
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
+			//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = -1.0;
 		}
 	
 		if ( pParams->nCurrentParsingFontWidthsArrayRef > 0 )
 		{
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
+			wchar_t cTemp;
+			#endif
+				
 			if ( !ParseFontWidthsArray(pParams, pParams->nCurrentParsingFontWidthsArrayRef) )
 			{
 				free(pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths);
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths = NULL;
 				return 0;
 			}
+			
+			#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
+			for ( int k = 0; k < pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize; k++ )
+			{
+				wprintf(L"\tcontentfontobj -> STACK POP(nCurrCharIndex = %d) -> pParams->myObjsTable[%d]->pGlyphsWidths->pWidths[%d] = %f\n", nCurrCharIndex, pParams->nCurrentParsingFontObjNum, nCurrCharIndex, pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[nCurrCharIndex]);
+				cTemp = pParams->pCurrentEncodingArray[k + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar];
+				if ( (cTemp >= 32 && cTemp <= 126) || (cTemp >= 128 && cTemp != 129 && cTemp != 141 && cTemp != 143 && cTemp != 144 && cTemp != 157 && cTemp != 160 && cTemp != 173) )
+				{
+					wprintf(L"\tc = '%lc'(%d) -> Width = %f\n", cTemp, cTemp, dblWidth);
+				}
+				else
+				{
+					wprintf(L"\tc = '<%X>'(%d) -> Width = %f\n", cTemp, cTemp, dblWidth);
+				}
+			}
+			#endif
 		}
 		else
 		{
@@ -17320,16 +18113,31 @@ uscita:
 					cTemp = pParams->pCurrentEncodingArray[nCurrCharIndex + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar];
 					if ( (cTemp >= 32 && cTemp <= 126) || (cTemp >= 128 && cTemp != 129 && cTemp != 141 && cTemp != 143 && cTemp != 144 && cTemp != 157 && cTemp != 160 && cTemp != 173) )
 					{
-						wprintf(L"\tc = '%lc' -> Width = %f\n", cTemp, dblWidth);
+						wprintf(L"\tc = '%lc'(%d) -> Width = %f\n", cTemp, cTemp, dblWidth);
 					}
 					else
 					{
-						wprintf(L"\tc = '<%X>' -> Width = %f\n", cTemp, dblWidth);
+						wprintf(L"\tc = '<%X>'(%d) -> Width = %f\n", cTemp, cTemp, dblWidth);
 					}
 					#endif
 					
-					if ( L' ' == pParams->pCurrentEncodingArray[nCurrCharIndex + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar] )
-						pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+					//if ( L' ' == pParams->pCurrentEncodingArray[nCurrCharIndex + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar] )
+					//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+						
+					switch ( pParams->pCurrentEncodingArray[nCurrCharIndex + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar] )
+					{
+						case L' ':
+							pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+							break;
+						case L'm':
+							pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+							break;
+						case L'M':
+							pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+							break;
+						default:
+							break;
+					}
 										
 					nCurrCharIndex--;
 				}
@@ -17352,20 +18160,24 @@ uscita:
 				}
 			}
 		}
-		
+				
 		dblCumWidths = 0.0;
-		nCountWidthsNonZero = 0;
+		nCountWidthsGEZero = 0;
 		for ( int k = 0; k < pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize; k++ )
-		{
-			dblCumWidths += (pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k]);
-			
-			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] > 0.0 )
-				nCountWidthsNonZero++;
+		{	
+			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] == 0.0 )
+				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
+
+			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] >= 0.0 )
+			{
+				dblCumWidths += (pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k]);
+				nCountWidthsGEZero++;
+			}
 		}
-		if ( nCountWidthsNonZero <= 0 )
-			nCountWidthsNonZero = 1;
+		if ( nCountWidthsGEZero <= 0 )
+			nCountWidthsGEZero = 1;
 		//pParams->dCurrFontAvgWidth = dblCumWidths / pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize;
-		pParams->dCurrFontAvgWidth = dblCumWidths / nCountWidthsNonZero;
+		pParams->dCurrFontAvgWidth = dblCumWidths / nCountWidthsGEZero;
 		
 		if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth <= 0.0 )
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth = pParams->dCurrFontAvgWidth;
@@ -17375,6 +18187,10 @@ uscita:
 	}
 	else
 	{
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
+		wchar_t cTemp;
+		#endif
+				
 		if ( 0 == pParams->nDescendantFontRef )
 		{
 			snprintf(pParams->szError, 8192, "ERROR contentfontobj: pParams->nDescendantFontRef = 0 for Type0 Font.\n");
@@ -17399,7 +18215,25 @@ uscita:
 		{
 			if ( !ParseCIDFontObject(pParams, pParams->nDescendantFontRef) )
 				return 0;
-		}		
+		}	
+		
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
+		for ( int k = 0; k < pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize; k++ )
+		{
+			wprintf(L"\tcontentfontobj -> STACK POP(nCurrCharIndex = %d) -> pParams->myObjsTable[%d]->pGlyphsWidths->pWidths[%d] = %f\n", nCurrCharIndex, pParams->nCurrentParsingFontObjNum, nCurrCharIndex, pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[nCurrCharIndex]);
+			cTemp = pParams->pCurrentEncodingArray[k + pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->FirstChar];
+			if ( (cTemp >= 32 && cTemp <= 126) || (cTemp >= 128 && cTemp != 129 && cTemp != 141 && cTemp != 143 && cTemp != 144 && cTemp != 157 && cTemp != 160 && cTemp != 173) )
+			{
+				wprintf(L"\tc = '%lc'(%d) -> Width = %f\n", cTemp, cTemp, dblWidth);
+			}
+			else
+			{
+				wprintf(L"\tc = '<%X>'(%d) -> Width = %f\n", cTemp, cTemp, dblWidth);
+			}
+			if ( k >= 256 )
+				break;
+		}
+		#endif	
 	}
 		
 	if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth < 0.0 )
@@ -17427,15 +18261,19 @@ uscita:
 	//pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = pParams->dCurrFontAvgWidth;
 											
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
-	wprintf(L"\tcontentfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->AvgWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f\n\n",
+	wprintf(L"\tcontentfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->AvgWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->dFontLmWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->dFontUmWidth = %f;\n\n",
 			pParams->nCurrentParsingFontObjNum,
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth,
 			pParams->nCurrentParsingFontObjNum,
-			pParams->dCurrFontAvgWidth,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth,
 			pParams->nCurrentParsingFontObjNum,
-			pParams->dCurrFontMaxWidth,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth,
 			pParams->nCurrentParsingFontObjNum,
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth,
+			pParams->nCurrentParsingFontObjNum,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth,
+			pParams->nCurrentParsingFontObjNum,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth
 			);
 	#endif
 	
@@ -17952,7 +18790,7 @@ int cidfontobj(Params *pParams)
 	char szFontType[128];
 	
 	double dblCumWidths;
-	int nCountWidthsNonZero;
+	int nCountWidthsGEZero;
 	
 	//int nWidthsArraySize = 0;
 	//double dblWidth = -1.0;
@@ -18115,23 +18953,24 @@ int cidfontobj(Params *pParams)
 	//pParams->szExtArraySizeDW2CurrKeyName[0] = '\0';
 				
 	dblCumWidths = 0.0;
-	nCountWidthsNonZero = 0;
+	nCountWidthsGEZero = 0;
 	if ( pParams->bWisPresent )
 	{			
 		for ( int k = 0; k < pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize; k++ )
 		{
-			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] < 0.0 )
+			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] == 0.0 )
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth;
-				
-			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] > 0.0 )
-				nCountWidthsNonZero++;
-				
-			dblCumWidths += (pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k]);
+							
+			if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] >= 0.0 )
+			{
+				dblCumWidths += (pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k]);
+				nCountWidthsGEZero++;
+			}
 		}
 		//pParams->dCurrFontAvgWidth = dblCumWidths / pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->WidthsArraySize;
-		if ( nCountWidthsNonZero <= 0 )
-			nCountWidthsNonZero = 1;
-		pParams->dCurrFontAvgWidth = dblCumWidths / nCountWidthsNonZero;
+		if ( nCountWidthsGEZero <= 0 )
+			nCountWidthsGEZero = 1;
+		pParams->dCurrFontAvgWidth = dblCumWidths / nCountWidthsGEZero;
 	}
 	else
 	{
@@ -18145,17 +18984,21 @@ int cidfontobj(Params *pParams)
 		
 	if ( pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth <= 0.0 )
 		pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth = pParams->dCurrFontMaxWidth;
-									
+										
 	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ) || defined(MYDEBUG_PRINT_ON_PARSE_FONTOBJ_WIDTHS)
-	wprintf(L"\tcidfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->AvgWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f\n\n",
+	wprintf(L"\tcidfontobj -> pParams->myObjsTable[%d]->pGlyphsWidths->dFontSpaceWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->AvgWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MaxWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->MissingWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->dFontLmWidth = %f; pParams->myObjsTable[%d]->pGlyphsWidths->dFontUmWidth = %f;\n\n",
 			pParams->nCurrentParsingFontObjNum,
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth,
 			pParams->nCurrentParsingFontObjNum,
-			pParams->dCurrFontAvgWidth,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->AvgWidth,
 			pParams->nCurrentParsingFontObjNum,
-			pParams->dCurrFontMaxWidth,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MaxWidth,
 			pParams->nCurrentParsingFontObjNum,
-			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->MissingWidth,
+			pParams->nCurrentParsingFontObjNum,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth,
+			pParams->nCurrentParsingFontObjNum,
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth
 			);
 	#endif
 	
@@ -18549,8 +19392,23 @@ int cidfontobjkeyarray(Params *pParams)
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
-								if ( 32 == n1 )
-									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+								//if ( 32 == n1 )
+								//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+									
+								switch ( n1 )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
 					
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[n1] = dblWidth;
 								n1++;
@@ -18563,8 +19421,23 @@ int cidfontobjkeyarray(Params *pParams)
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
-								if ( 32 == n1 )
-									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+								//if ( 32 == n1 )
+								//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+								
+								switch ( n1 )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
 										
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[n1] = dblWidth;
 								n1++;
@@ -18612,11 +19485,26 @@ int cidfontobjkeyarray(Params *pParams)
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
-							if ( 32 == n1 )
-								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-										
+							//if ( 32 == n1 )
+							//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+																	
 							for ( int k = n1; k <= n2; k++ )
 							{										
+								switch ( k )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
+								
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 							}
 						}
@@ -18628,11 +19516,26 @@ int cidfontobjkeyarray(Params *pParams)
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
-							if ( 32 == n1 )
-								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-										
+							//if ( 32 == n1 )
+							//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+																	
 							for ( int k = n1; k <= n2; k++ )
-							{										
+							{		
+								switch ( k )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
+																
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 							}
 						}
@@ -18705,8 +19608,23 @@ int cidfontobjkeyarray(Params *pParams)
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
-								if ( 32 == n1 )
-									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+								//if ( 32 == n1 )
+								//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+								
+								switch ( n1 )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
 					
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[n1] = dblWidth;
 								n1++;
@@ -18719,8 +19637,23 @@ int cidfontobjkeyarray(Params *pParams)
 								if ( pParams->dCurrFontMaxWidth < dblWidth )
 									pParams->dCurrFontMaxWidth = dblWidth;
 									
-								if ( 32 == n1 )
-									pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+								//if ( 32 == n1 )
+								//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+								
+								switch ( n1 )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
 										
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[n1] = dblWidth;
 								n1++;
@@ -18788,11 +19721,26 @@ int cidfontobjkeyarray(Params *pParams)
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
-							if ( 32 == n1 )
-								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-										
+							//if ( 32 == n1 )
+							//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+																	
 							for ( int k = n1; k <= n2; k++ )
 							{										
+								switch ( k )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
+								
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 							}
 							
@@ -18830,11 +19778,26 @@ int cidfontobjkeyarray(Params *pParams)
 							if ( pParams->dCurrFontMaxWidth < dblWidth )
 								pParams->dCurrFontMaxWidth = dblWidth;
 								
-							if ( 32 == n1 )
-								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
-										
+							//if ( 32 == n1 )
+							//	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+																	
 							for ( int k = n1; k <= n2; k++ )
-							{										
+							{		
+								switch ( k )
+								{
+									case 32:   // space
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = dblWidth;
+										break;
+									case 109:  // m
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = dblWidth;
+										break;
+									case 77:   // M
+										pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = dblWidth;
+										break;
+									default:
+										break;
+								}
+																
 								pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = dblWidth;
 							}
 							
@@ -21519,49 +22482,73 @@ void setPredefFontsWidthsArray(Params *pParams)
 				pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[k] = 0.600;
 			}
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.600;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.600;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.600;
 			break;
 		case BASEFONT_Helvetica:
 			set_Helvetica(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.833;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.833;
 			break;
 		case BASEFONT_Helvetica_Bold:
 			set_Helvetica_Bold(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.889;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.833;
 			break;
 		case BASEFONT_Helvetica_BoldOblique:
 			set_Helvetica_BoldOblique(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.889;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.833;
 			break;
 		case BASEFONT_Helvetica_Oblique:
 			set_Helvetica_Oblique(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.833;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.833;
 			break;
 		case BASEFONT_Symbol:
 			set_Symbol(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.0;
 			break;
 		case BASEFONT_Times_Bold:
 			set_Times_Bold(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.833;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.944;
 			break;
 		case BASEFONT_Times_BoldItalic:
 			set_Times_BoldItalic(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.778;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.889;
 			break;
 		case BASEFONT_Times_Italic:
 			set_Times_Italic(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.722;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.833;
 			break;
 		case BASEFONT_Times_Roman:
 			set_Times_Roman(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.778;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.889;
 			break;
 		case BASEFONT_ZapfDingbats:
 			set_ZapfDingbats(pParams);
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.278;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.0;
 			break;
 		default:				
 			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontSpaceWidth = 0.250;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontLmWidth = 0.0;
+			pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->dFontUmWidth = 0.0;
 			break;
 	}
 }
@@ -22525,7 +23512,7 @@ void set_Times_Bold(Params *pParams)
 }
 
 void set_Times_BoldItalic(Params *pParams)
-{
+{	
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.250; // space ; B 0 0 0 0 ;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.389; // exclam ; B 67 -13 370 684 ;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.555; // quotedbl ; B 136 398 536 685 ;
@@ -22831,7 +23818,7 @@ void set_Times_Italic(Params *pParams)
 }
 
 void set_Times_Roman(Params *pParams)
-{
+{	
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[32] = 0.250; // space ; B 0 0 0 0 ;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[33] = 0.333; // exclam ; B 130 -9 238 676 ;
 	pParams->myObjsTable[pParams->nCurrentParsingFontObjNum]->pGlyphsWidths->pWidths[34] = 0.408; // quotedbl ; B 77 431 331 676 ;
