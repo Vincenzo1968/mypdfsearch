@@ -3,7 +3,7 @@ CC = gcc
 CFLAGS = -Wall -W -pedantic -O3 -Wno-overlength-strings
 #LDFLAGS = -lm -lz -liconv
 LDFLAGS = -lm -lz
-OBJS = main.o mytime.o myTree.o vlencoding.o vlRedBlackTrees.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
+OBJS = main.o mytime.o vlEncoding.o myTree.o vlRedBlackTrees.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
 #EXE = mypdfsearch.exe
 EXE = mypdfsearch
 
