@@ -10,7 +10,7 @@ all: mypdfsearch.exe
 
 mypdfsearch.exe: $(OBJS)
 	$(CC) -o $@ $^ $(LDFLAGS)
-#mypdfsearch.exe: main.o mytime.o myTree.o vlRedBlackTrees.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
+#mypdfsearch.exe: main.o mytime.o myTree.o vlEncoding.o vlRedBlackTrees.o myGenHashTable.o myInitPredefCMapHT.o myinitarray.o myoctal.o myTernarySearchTree.o myScopeHashTable.o myobjrefqueuelist.o mydictionaryqueuelist.o mystringqueuelist.o mycontentqueuelist.o mynumstacklist.o myintqueuelist.o mydecode.o scanner.o parser.o
 #	$(CC) -o $@ $^ $(LDFLAGS)
 
 
@@ -19,6 +19,9 @@ main.o: main.c mypdfsearch.h parser.h scanner.h myobjrefqueuelist.h mynumstackli
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 mytime.o: mytime.c mytime.h
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+vlEncoding.o: vlEncoding.c vlEncoding.h mypdfsearch.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 vlRedBlackTrees.o: vlRedBlackTrees.c vlRedBlackTrees.h mypdfsearch.h

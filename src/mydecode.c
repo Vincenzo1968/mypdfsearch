@@ -24,6 +24,7 @@
 #include "mypdfsearch.h"
 #include "myoctal.h"
 #include "mydecode.h"
+#include "vlEncoding.h"
 
 
 
@@ -299,6 +300,10 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 	char szTemp[1024];
 	int ret = 0;
 	
+	uint32_t ErrorCode;
+	
+	int bFirstDecoding = 1;
+	
 	UNUSED(EncodedStreamSize);
 	
 	if ( NULL != pszDecodedStream )
@@ -332,54 +337,296 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 		memcpy(pszDecodedStream, pszEncodedStream, pContent->LengthFromPdf);
 	}
 	else
-	{
-		*pDecodedStreamSize = ( pContent->LengthFromPdf * sizeof(unsigned char) ) * 55 + sizeof(unsigned char);
-	
-		if ( *pDecodedStreamSize > 409600000 )
-			*pDecodedStreamSize = 409600000;
-		
-		if ( *pDecodedStreamSize < pContent->LengthFromPdf )
-			*pDecodedStreamSize = pContent->LengthFromPdf + (4096 * 89);
-				
-		pszDecodedStream = (unsigned char *)malloc( *pDecodedStreamSize );
-		if ( NULL == pszDecodedStream )
-		{
-			wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
-			fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
-			retValue = NULL;
-			goto uscita;		
-		}
-		for ( unsigned long int i = 0; i < *pDecodedStreamSize; i++ )
-			pszDecodedStream[i] = '\0';
-		
+	{		
 		szTemp[0] = '\0';
 		while ( mystringqueuelist_Dequeue(&(pContent->queueFilters), (char*)szTemp) )
 		{
 			//wprintf(L"\n\nDecodeStream -> ECCOMI -> DECODE FILTER = '%s'\n\n", szTemp);
 			
 			if ( strncmp((char*)szTemp, "FlateDecode", 4096) == 0 )
-			{				
-				ret = myInflate(&(pszDecodedStream), (unsigned long int *)pDecodedStreamSize, pszEncodedStream, pContent->LengthFromPdf);
-				//ret = myInflate(&(pszDecodedStream), (unsigned long int *)pDecodedStreamSize, pszEncodedStream, EncodedStreamSize);
-				if ( Z_OK != ret )
+			{						
+				if ( bFirstDecoding )
 				{
-					zerr(ret, fpErrors);
+					*pDecodedStreamSize = ( pContent->LengthFromPdf * sizeof(unsigned char) ) * 55 + sizeof(unsigned char);
+	
+					if ( *pDecodedStreamSize > 409600000 )
+						*pDecodedStreamSize = 409600000;
+		
+					if ( *pDecodedStreamSize < pContent->LengthFromPdf )
+						*pDecodedStreamSize = pContent->LengthFromPdf + (4096 * 89);
+				
+					pszDecodedStream = (unsigned char *)malloc( *pDecodedStreamSize );
+					if ( NULL == pszDecodedStream )
+					{
+						wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
+						fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStream.\n");
+						retValue = NULL;
+						goto uscita;		
+					}
+					for ( unsigned long int i = 0; i < *pDecodedStreamSize; i++ )
+						pszDecodedStream[i] = '\0';
+
+					ret = myInflate(&(pszDecodedStream), (unsigned long int *)pDecodedStreamSize, pszEncodedStream, pContent->LengthFromPdf);
+					//ret = myInflate(&(pszDecodedStream), (unsigned long int *)pDecodedStreamSize, pszEncodedStream, EncodedStreamSize);
+					if ( Z_OK != ret )
+					{
+						zerr(ret, fpErrors);
 					
-					if ( NULL != fpErrors )
-						fwprintf(fpErrors, L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
-					else
-						wprintf(L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
+						else
+							wprintf(L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
 						
-					retValue = NULL;
-					goto uscita;
+						retValue = NULL;
+						goto uscita;
+					}
+					if ( NULL == pszDecodedStream )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
+						else
+							wprintf(L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
+						goto uscita;
+					}
 				}
-				if ( NULL == pszDecodedStream )
+				else
 				{
-					if ( NULL != fpErrors )
-						fwprintf(fpErrors, L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
-					else
-						wprintf(L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
-					goto uscita;
+					if ( NULL != pszDecodedStreamTemp )
+					{
+						free(pszDecodedStreamTemp);
+						pszDecodedStreamTemp = NULL;
+					}
+					pszDecodedStreamTemp = (unsigned char *)malloc( *pDecodedStreamSize );
+					if ( NULL == pszDecodedStreamTemp )
+					{
+						wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						retValue = NULL;
+						goto uscita;
+					}
+					memcpy(pszDecodedStreamTemp, pszDecodedStream, *pDecodedStreamSize);
+					
+					if ( NULL != pszDecodedStream )
+					{
+						free(pszDecodedStream);
+						pszDecodedStream = NULL;
+					}
+					DecodedStreamSizeTemp = *pDecodedStreamSize; 
+					*pDecodedStreamSize = 0;
+										
+					ret = myInflate(&(pszDecodedStream), (unsigned long int *)pDecodedStreamSize, pszDecodedStreamTemp, DecodedStreamSizeTemp);
+					if ( Z_OK != ret )
+					{
+						zerr(ret, fpErrors);
+					
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
+						else
+							wprintf(L"\n\nDecodeStream -> myInflate failed, ESCO!!!\n\n");
+						
+						retValue = NULL;
+						goto uscita;
+					}
+					if ( NULL == pszDecodedStream )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
+						else
+							wprintf(L"\n\nDecodeStream -> pszDecodedStream NULL, ESCO!!!\n\n");
+						goto uscita;
+					}
+				}
+			}
+			else if ( strncmp((char*)szTemp, "ASCII85Decode", 4096) == 0 )
+			{
+				if ( bFirstDecoding )
+				{
+					pszDecodedStream = ascii85Decode(pszEncodedStream, pContent->LengthFromPdf, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					if ( ASCII85_ERROR_NONE != ErrorCode )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nERRORE ascii85Decode: ErrorCode = %u\n\n", ErrorCode);
+						else
+							wprintf(L"\n\nERRORE ascii85Decode: ErrorCode = %u\n\n", ErrorCode);
+						retValue = NULL;
+						goto uscita;
+					}
+				}
+				else
+				{
+					if ( NULL != pszDecodedStreamTemp )
+					{
+						free(pszDecodedStreamTemp);
+						pszDecodedStreamTemp = NULL;
+					}
+					pszDecodedStreamTemp = (unsigned char *)malloc( *pDecodedStreamSize );
+					if ( NULL == pszDecodedStreamTemp )
+					{
+						wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						retValue = NULL;
+						goto uscita;
+					}
+					memcpy(pszDecodedStreamTemp, pszDecodedStream, *pDecodedStreamSize);
+					
+					if ( NULL != pszDecodedStream )
+					{
+						free(pszDecodedStream);
+						pszDecodedStream = NULL;
+					}
+					DecodedStreamSizeTemp = *pDecodedStreamSize; 
+					*pDecodedStreamSize = 0;
+					
+					pszDecodedStream = ascii85Decode(pszDecodedStreamTemp, DecodedStreamSizeTemp, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					if ( ASCII85_ERROR_NONE != ErrorCode )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nERRORE ascii85Decode: ErrorCode = %u\n\n", ErrorCode);
+						else
+							wprintf(L"\n\nERRORE ascii85Decode: ErrorCode = %u\n\n", ErrorCode);
+						retValue = NULL;
+						goto uscita;
+					}		
+				}
+			}
+			else if ( strncmp((char*)szTemp, "LZWDecode", 4096) == 0 )
+			{
+				if ( 0 == *pDecodedStreamSize )
+				{
+					pszDecodedStream = lzwDecode(pszEncodedStream, pContent->LengthFromPdf, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					if ( LZW_ERROR_NONE != ErrorCode )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nERRORE lzeDecode: ErrorCode = %u\n\n", ErrorCode);
+						else
+							wprintf(L"\n\nERRORE lzwDecode: ErrorCode = %u\n\n", ErrorCode);
+		
+						if ( LZW_ERROR_UNEXPECTED_CODE == ErrorCode )
+						{
+							printf("UNEXPECTED CODE.\n\n");
+							if ( NULL != fpErrors )
+								fwprintf(fpErrors, L"UNEXPECTED CODE.\n\n");
+							else
+								wprintf(L"UNEXPECTED CODE.\n\n");
+								
+							if ( NULL != pszDecodedStream )
+							{
+								while ( *pDecodedStreamSize && (pszDecodedStream[*pDecodedStreamSize] > 127 || pszDecodedStream[*pDecodedStreamSize] < 32) )
+									(*pDecodedStreamSize)--;
+							}
+						}
+						else
+						{
+							retValue = NULL;
+							goto uscita;
+						}
+					}
+				}
+				else
+				{
+					if ( NULL != pszDecodedStreamTemp )
+					{
+						free(pszDecodedStreamTemp);
+						pszDecodedStreamTemp = NULL;
+					}
+					pszDecodedStreamTemp = (unsigned char *)malloc( *pDecodedStreamSize );
+					if ( NULL == pszDecodedStreamTemp )
+					{
+						wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						retValue = NULL;
+						goto uscita;
+					}
+					memcpy(pszDecodedStreamTemp, pszDecodedStream, *pDecodedStreamSize);
+					
+					if ( NULL != pszDecodedStream )
+					{
+						free(pszDecodedStream);
+						pszDecodedStream = NULL;
+					}
+					DecodedStreamSizeTemp = *pDecodedStreamSize; 
+					*pDecodedStreamSize = 0;
+					
+					pszDecodedStream = lzwDecode(pszDecodedStreamTemp, DecodedStreamSizeTemp, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					if ( LZW_ERROR_NONE != ErrorCode )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nERRORE lzeDecode: ErrorCode = %u\n\n", ErrorCode);
+						else
+							wprintf(L"\n\nERRORE lzwDecode: ErrorCode = %u\n\n", ErrorCode);
+		
+						if ( LZW_ERROR_UNEXPECTED_CODE == ErrorCode )
+						{
+							printf("UNEXPECTED CODE.\n\n");
+							if ( NULL != fpErrors )
+								fwprintf(fpErrors, L"UNEXPECTED CODE.\n\n");
+							else
+								wprintf(L"UNEXPECTED CODE.\n\n");
+								
+							if ( NULL != pszDecodedStream )
+							{
+								while ( *pDecodedStreamSize && (pszDecodedStream[*pDecodedStreamSize] > 127 || pszDecodedStream[*pDecodedStreamSize] < 32) )
+									(*pDecodedStreamSize)--;
+							}
+						}
+						else
+						{
+							retValue = NULL;
+							goto uscita;
+						}
+					}	
+				}
+			}
+			else if ( strncmp((char*)szTemp, "ASCIIHexDecode", 4096) == 0 )
+			{
+				if ( 0 == *pDecodedStreamSize )
+				{
+					pszDecodedStream = asciiHexDecode(pszEncodedStream, pContent->LengthFromPdf, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					if ( ASCIIHEX_ERROR_NONE != ErrorCode )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nERRORE asciiHexDecode: ErrorCode = %u\n\n", ErrorCode);
+						else
+							wprintf(L"\n\nERRORE asciiHexDecode: ErrorCode = %u\n\n", ErrorCode);
+						retValue = NULL;
+						goto uscita;
+					}
+				}
+				else
+				{
+					if ( NULL != pszDecodedStreamTemp )
+					{
+						free(pszDecodedStreamTemp);
+						pszDecodedStreamTemp = NULL;
+					}
+					pszDecodedStreamTemp = (unsigned char *)malloc( *pDecodedStreamSize );
+					if ( NULL == pszDecodedStreamTemp )
+					{
+						wprintf(L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						fwprintf(fpErrors, L"ERRORE DecodeStream: impossibile allocare la memoria per pszDecodedStreamTemp.\n");
+						retValue = NULL;
+						goto uscita;
+					}
+					memcpy(pszDecodedStreamTemp, pszDecodedStream, *pDecodedStreamSize);
+					
+					if ( NULL != pszDecodedStream )
+					{
+						free(pszDecodedStream);
+						pszDecodedStream = NULL;
+					}
+					DecodedStreamSizeTemp = *pDecodedStreamSize; 
+					*pDecodedStreamSize = 0;
+					
+					pszDecodedStream = asciiHexDecode(pszDecodedStreamTemp, DecodedStreamSizeTemp, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					if ( ASCIIHEX_ERROR_NONE != ErrorCode )
+					{
+						if ( NULL != fpErrors )
+							fwprintf(fpErrors, L"\n\nERRORE asciiHexDecode: ErrorCode = %u\n\n", ErrorCode);
+						else
+							wprintf(L"\n\nERRORE asciiHexDecode: ErrorCode = %u\n\n", ErrorCode);
+						retValue = NULL;
+						goto uscita;
+					}		
 				}
 			}
 			else
@@ -391,6 +638,8 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 				retValue = 0;
 				goto uscita;
 			}
+			
+			bFirstDecoding = 0;
 
 			if ( pContent->decodeParms.count > 0 )
 			{
@@ -466,6 +715,11 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 					}															
 				}
 			
+				if ( NULL != pszDecodedStreamTemp )
+				{
+					free(pszDecodedStreamTemp);
+					pszDecodedStreamTemp = NULL;
+				}
 				pszDecodedStreamTemp = (unsigned char *)malloc( *pDecodedStreamSize );
 				if ( NULL == pszDecodedStreamTemp )
 				{

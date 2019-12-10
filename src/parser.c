@@ -12777,6 +12777,11 @@ int pagetree(Params *pParams)
 	pParams->szCurrKeyName[0] = '\0';
 	pParams->szCurrResourcesKeyName[0] = '\0';
 	
+	for ( int y = 0; y < MAX_STRLEN; y++ )
+		pParams->szDirectFontResourceName[y] = '\0';
+	for ( int y = 0; y < MAX_STRLEN; y++ )
+		pParams->szDirectGsResourceName[y] = '\0';
+	
 	pParams->nCurrentXObjRef = 0;
 	pParams->nCurrentFontsRef = 0;
 	pParams->nCurrentGsRef = 0;
@@ -12898,7 +12903,7 @@ int pagetree(Params *pParams)
 		}
 		
 		if ( NULL != pParams->pszDirectFontResourceString )
-		{
+		{			
 			pParams->myObjsTable[pParams->nCurrentPageParsingObj]->lenDirectFontResourceString = pParams->lenDirectFontResourceString;
 			pParams->myObjsTable[pParams->nCurrentPageParsingObj]->pszDirectFontResourceString = (unsigned char*)malloc(pParams->lenDirectFontResourceString + sizeof(unsigned char));
 			if ( NULL == pParams->myObjsTable[pParams->nCurrentPageParsingObj]->pszDirectFontResourceString )
@@ -15151,6 +15156,12 @@ int resourcesdictionaryitems(Params *pParams)
 				size_t len;
 				char szNum[256];
 				
+				if ( NULL != pParams->pszDirectFontResourceString )
+				{
+					free(pParams->pszDirectFontResourceString);
+					pParams->pszDirectFontResourceString = NULL;
+				}
+				
 				pParams->bMakeDirectFontResourceString = 1;
 				pParams->pszDirectFontResourceString = (unsigned char*)malloc(sizeof(unsigned char) * pParams->nSizeDirectResourceString);
 				if ( NULL == pParams->pszDirectFontResourceString )
@@ -15172,6 +15183,12 @@ int resourcesdictionaryitems(Params *pParams)
 			{
 				size_t len;
 				char szNum[256];
+				
+				if ( NULL != pParams->pszDirectGsResourceString )
+				{
+					free(pParams->pszDirectGsResourceString);
+					pParams->pszDirectGsResourceString = NULL;
+				}
 				
 				pParams->bMakeDirectGsResourceString = 1;
 				pParams->pszDirectGsResourceString = (unsigned char*)malloc(sizeof(unsigned char) * pParams->nSizeDirectResourceString);

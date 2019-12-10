@@ -134,9 +134,9 @@ MYDEBUG_PRINT_ON_ParseLengthObject_FN
 
 
 /*
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlEncoding.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_getObjsOffsets_FN 
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlEncoding.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm -DMYDEBUG_PRINT_ON_getObjsOffsets_FN 
 */
 
 
@@ -332,9 +332,12 @@ time ./mypdfsearch --path="/home/vincenzo/MyJob/Progetti/Files/FileProblematici"
 // ***********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************
 
 /*
-gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
+gcc -Wall -Wextra -pedantic -Wno-overlength-strings -O0 -g -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlEncoding.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearchdebug -lz -lm
 
 ------------------------------------------------------------------------------------------------------------------------------------
+
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/MyJob/Progetti/Files/Nuovi/prova01new.pdf"
+valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="/home/vincenzo/MyJob/Progetti/Files/Nuovi/prova02new.pdf"
 
 valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=AAA_outputValgrind.txt ./mypdfsearchdebug --extracttextfrom="../Files/File09/La Stampa - 9 aprile 2019.pdf" --frompage=1 --topage=1 --outputfile=AAA_OUT_STAMPA.txt > AAA_STAMPA_04.txt
  
@@ -443,7 +446,7 @@ valgrind --leak-check=full --show-reachable=yes --track-origins=yes --log-file=A
 
 ------------------------------------------------------------------------------------------------------------------------------------
  
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlEncoding.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
  
 ./mypdfsearch --path="../Files/FileProblematici/prob01.pdf" --words="Virginia Orbán branco"
  
@@ -486,7 +489,7 @@ pdftotext -f 1 -l 1 -enc UTF-8 -layout '../Files/File03/Il Giornale - 8 aprile 2
 ./mypdfsearch --path="../Files/gccFiles/Giornali" --words="Virginia Orbán branco"
  
 
-gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
+gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime.c myTree.c vlEncoding.c vlRedBlackTrees.c myGenHashTable.c myInitPredefCMapHT.c myinitarray.c myoctal.c myTernarySearchTree.c myScopeHashTable.c myobjrefqueuelist.c mydictionaryqueuelist.c mystringqueuelist.c mycontentqueuelist.c mynumstacklist.c myintqueuelist.c mydecode.c scanner.c parser.c main.c -o mypdfsearch -lz -lm
 
 -DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD2 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
 -DMYDEBUG_PRINT_ON_SHOW_STRING_OPERATOR -DMYDEBUG_PRINT_ON_POSITIONING_STRING_OPERATOR -DMYDEBUG_PRINT_ON_TEXT_STATE_OPERATOR -DMYDEBUG_PRINT_ON_CTM_OPERATOR -DMYDEBUG_PRINT_SINGLE_CHAR_COORD3 -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
@@ -503,6 +506,8 @@ gcc -Wall -W -pedantic -Wno-overlength-strings -O3 -std=c99 -D_GNU_SOURCE mytime
 
 -DMYDEBUG_PRINT_ON_PARSE_STREAMOBJ -DMYDEBUG_PRINT_ON_PARSE_STREAMXOBJ -DMYDEBUG_PRINT_ON_PARSE_TOUNICODE_STREAM -DMYDEBUG_PRINT_ON_PARSE_CMAP_STREAM -DMYDEBUG_PRINT_ON_PARSE_LENGTHOBJ -DMYDEBUG_PRINT_ON_PARSE_INTEGEROBJ -DMYDEBUG_PRINT_ON_PARSE_RESOURCESDICT -DMYDEBUG_PRINT_ON_PARSE_FONTDESCRIPTOROBJ -DMYDEBUG_PRINT_ON_PARSE_FONTOBJ -DMYDEBUG_PRINT_ON_PARSE_ENCODINGOBJ -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowResourceSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowFontSelected -DMYDEBUG_PRINT_ON_ManageContent_FN_ShowGsSelected
  
+./mypdfsearch --extracttextfrom="/home/vincenzo/MyJob/Progetti/Files/Nuovi/prova01new.pdf"
+./mypdfsearch --extracttextfrom="/home/vincenzo/MyJob/Progetti/Files/Nuovi/prova02new.pdf"
 
 
 ./mypdfsearch --extracttextfrom="../Files/FileProblematico2/corriere_della_sera_-_03_gennaio_2018.pdf" --frompage=17 --topage=17
@@ -539,4 +544,6 @@ https://blog.idrsolutions.com/2013/01/understanding-the-pdf-file-format-overview
 https://blog.idrsolutions.com/2013/01/understanding-the-pdf-file-format-bugs-gotchas-and-tips/#text
 https://blog.idrsolutions.com/2013/01/understanding-the-pdf-file-format-bugs-gotchas-and-tips/#fonts
 https://blog.idrsolutions.com/2013/09/fonts-articles-index-understanding-all-things-font-related/#tech-art
+ 
+https://en.wikipedia.org/wiki/Ascii85
 */
