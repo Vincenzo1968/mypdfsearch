@@ -3254,17 +3254,17 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	double xDiff;
 	
 	double dFontSpaceWidth;
-	//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+	#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 	double dFontSpaceWidthScaled;
 	double dFontSpaceWidthPrevScaled;
-	//#endif
+	#endif
 	double dFontSpaceWidthCurr;
 	double dFontSpaceWidthPrev;
 	
 	double TcCurr;
 	double TcPrev;
-	double TwPrev;
-	double ThPrev;
+	//double TwPrev;
+	//double ThPrev;
 	
 	uint32_t FontObjRefCurr;
 	uint32_t FontObjRefPrev;
@@ -3274,8 +3274,8 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	
 	wchar_t prevChar;
 	double prevRow;
-	double prevCol;
-	double prevWidthScaled;
+	//double prevCol;
+	//double prevWidthScaled;
 	double prevXCoordNext;
 		
 	vlrbtTreeNode *pPredecessor;
@@ -3297,38 +3297,38 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 
 		prevChar = pMyDataPredecessor->c;
 		prevRow = pMyKeyPredecessor->row;
-		prevCol = pMyKeyPredecessor->col;
+		//prevCol = pMyKeyPredecessor->col;
 		//prevOrd = pMyKeyPredecessor->ord;
 		//prevWidth = pMyDataPredecessor->width;
-		prevWidthScaled = pMyDataPredecessor->widthScaled;
+		//prevWidthScaled = pMyDataPredecessor->widthScaled;
 		prevXCoordNext = pMyDataPredecessor->xCoordNext;
 		//prevYCoordNext = pMyDataPredecessor->yCoordNext;
 		dFontSpaceWidthPrev = pMyDataPredecessor->currFontSpaceWidth;
-		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 		dFontSpaceWidthPrevScaled = pMyDataPredecessor->currFontSpaceWidthScaled;
-		//#endif
+		#endif
 		TcPrev = pMyDataPredecessor->Tc;
-		TwPrev = pMyDataPredecessor->Tw;
-		ThPrev = pMyDataPredecessor->Th;
+		//TwPrev = pMyDataPredecessor->Tw;
+		//ThPrev = pMyDataPredecessor->Th;
 		FontObjRefPrev = pMyDataPredecessor->currFontObjRef;
 	}
 	else
 	{
 		prevChar = L'\0';
 		prevRow = 0;
-		prevCol = 0;
+		//prevCol = 0;
 		//prevOrd = 0;
 		//prevWidth = 0;
-		prevWidthScaled = 0;
+		//prevWidthScaled = 0;
 		prevXCoordNext = 0;
 		//prevYCoordNext = 0;
 		dFontSpaceWidthPrev = pMyData->currFontSpaceWidth;
-		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 		dFontSpaceWidthPrevScaled = pMyData->currFontSpaceWidthScaled;
-		//#endif
+		#endif
 		TcPrev = 0.0;
-		TwPrev = 0.0;
-		ThPrev = 0.0;
+		//TwPrev = 0.0;
+		//ThPrev = 0.0;
 		FontObjRefPrev = 0;
 	}
 	
@@ -3340,16 +3340,16 @@ int VlRbtOnTraverseFunc(void* pCurrNode)
 	if ( dFontSpaceWidthCurr != dFontSpaceWidthPrev )
 	{
 		dFontSpaceWidth = (dFontSpaceWidthCurr + dFontSpaceWidthPrev) * 0.5;
-		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 		dFontSpaceWidthScaled = (pMyData->currFontSpaceWidthScaled + dFontSpaceWidthPrevScaled) * 0.5; 
-		//#endif
+		#endif
 	}
 	else
 	{
 		dFontSpaceWidth = dFontSpaceWidthCurr;
-		//#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
+		#if defined(MYDEBUG_PRINT_ALL) || defined(MYDEBUG_PRINT_SINGLE_CHAR_COORD3)
 		dFontSpaceWidthScaled = pMyData->currFontSpaceWidthScaled;
-		//#endif
+		#endif
 	}
 		
 	//if ( (1.0 != pMyData->Tfs) && (FONT_SUBTYPE_Type0 != pMyData->nCurrentFontSubtype) )

@@ -30,10 +30,6 @@
 #include "myGenHashTable.h"
 #include "vlEncoding.h"
 
-int GenStringHashFuncNew(GenHashTable_t* p, const void* pKey, uint32_t keysize);
-int GenStringCompareFuncNew(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
-int GenUint16HashFunc(GenHashTable_t* p, const void* pKey, uint32_t keysize);
-int GenUint16CompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2, uint32_t keysize2);
 
 int GenStringHashFuncNew(GenHashTable_t* p, const void* pKey, uint32_t keysize)
 {
@@ -105,6 +101,9 @@ int GenUint16CompareFunc(const void* pKey1, uint32_t keysize1, const void* pKey2
 	else
 		return 0;		
 }
+
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------
 
 // Use to print the data in binary format
 void PrintInBinary64_Wide(uint64_t n)
@@ -879,12 +878,45 @@ int IsLittleEndian()
 	return (b[0] ? 1 : 0);
 }
 
-int InitEncodeParams(EncodeParams *p, unsigned char *pOut, size_t sizeOutputStream,  uint32_t BitsNum)
+uint32_t GetTableSize(int32_t MaxBits)
 {
-	if ( BitsNum < 9 )
-		BitsNum = 9;
-	else if ( BitsNum > 12 )
-		BitsNum = 12;
+//#define GENHT_SIZE 8191
+//#define GENHT_SIZE 16381
+//#define GENHT_SIZE 32749
+//#define GENHT_SIZE 65521
+
+	switch ( MaxBits )
+	{
+		case 12:
+			return 8191;
+			break;
+		case 13:
+			return 16381;
+			break;
+		case 14:
+			return 32749;
+			break;
+		case 15:
+			return 65521;
+			break;
+		default:
+			return 8191;
+			break;
+	}
+}
+
+int InitEncodeParams(EncodeParams *p, unsigned char *pOut, size_t sizeOutputStream,  uint32_t BitsNum, uint32_t BitsMax)
+{
+	if ( BitsMax < 12 )
+		BitsMax = 12;
+		
+	if ( BitsNum < BITS_MIN )
+		BitsNum = BITS_MIN;
+	else if ( BitsNum > BITS_MAX )
+		BitsNum = BITS_MAX;
+		
+	if ( BitsNum > BitsMax )
+		return 0;
 		
 	p->pOut = pOut;
 	p->sizeOutputStream = sizeOutputStream;
@@ -896,12 +928,18 @@ int InitEncodeParams(EncodeParams *p, unsigned char *pOut, size_t sizeOutputStre
 	return 1;
 }
 
-int InitDecodeParams(DecodeParams *p, unsigned char *pIn, size_t lenInput, uint32_t BitsNum)
+int InitDecodeParams(DecodeParams *p, unsigned char *pIn, size_t lenInput, uint32_t BitsNum, uint32_t BitsMax)
 {
-	if ( BitsNum < 9 )
-		BitsNum = 9;
-	else if ( BitsNum > 12 )
-		BitsNum = 12;
+	if ( BitsMax < 12 )
+		BitsMax = 12;
+		
+	if ( BitsNum < BITS_MIN )
+		BitsNum = BITS_MIN;
+	else if ( BitsNum > BITS_MAX )
+		BitsNum = BITS_MAX;
+		
+	if ( BitsNum > BitsMax )
+		return 0;
 		
 	p->pIn = pIn;
 	p->lenInput = lenInput;
@@ -909,6 +947,200 @@ int InitDecodeParams(DecodeParams *p, unsigned char *pIn, size_t lenInput, uint3
 	p->currBitsNum = BitsNum;
 	p->offsetInputStream = 0;
 	p->BitsWritten = 0;
+		
+	return 1;
+}
+
+int WriteBitsLsbFirst(uint16_t code, EncodeParams *p)
+{
+	int x, k;
+	uint8_t *pCodeOut;
+	
+	int32_t bitsToCurrByte;
+	int32_t bitsToNextByte;
+		
+	uint32_t offOut = p->offsetOutputStream;
+	
+	bitsToCurrByte = 8 - p->BitsWritten;
+	bitsToNextByte = p->currBitsNum - bitsToCurrByte;
+	
+	if ( bitsToCurrByte <= 0 )
+	{
+		if ( bitsToCurrByte < 0 )
+			offOut++;
+		//printf("\n\nATTENZIONE: bitsToCurrByte = %d, bitsToNextByte = %d, p->BitsWritten = %u\n", bitsToCurrByte, bitsToNextByte, p->BitsWritten);
+		bitsToCurrByte = 8;
+		bitsToNextByte = p->currBitsNum - 8;
+		p->BitsWritten = 0;
+		//printf("\tCAMBIO IN : bitsToCurrByte = %d, bitsToNextByte = %d, p->BitsWritten = %u\n\n", bitsToCurrByte, bitsToNextByte, p->BitsWritten);
+	}
+			
+	if ( p->offsetOutputStream >= (p->sizeOutputStream - 1) )
+	{
+		size_t oldSize = p->sizeOutputStream;
+		uint8_t *pTemp = NULL;
+		
+		p->sizeOutputStream *= 2;
+								
+		pTemp = (uint8_t*)realloc(p->pOut, p->sizeOutputStream);
+		if ( NULL == pTemp )
+		{
+			free(p->pOut);
+			p->pOut = NULL;
+			return 0;
+		}
+		p->pOut = pTemp;
+		for ( size_t i = oldSize; i < p->sizeOutputStream; i++ )
+			p->pOut[i] = 0;
+	}
+			
+	pCodeOut = (uint8_t*)(p->pOut + offOut);
+	//if ( 0 == p->offsetOutputStream )
+	//	*pCodeOut = 0;
+		
+	k = 0;
+	x = p->BitsWritten;
+	
+	//printf("WRITE BITS FOR CODE %u -> ", code);
+	//PrintInBinary16(code);
+	//printf("\n\tbitsToCurrByte = %d\n", bitsToCurrByte);
+	//printf("\tbitsToNextByte = %d\n", bitsToNextByte);
+	//printf("\tp->BitsWritten = %u\n", p->BitsWritten);
+	
+	while ( k < (int)p->currBitsNum )
+	{
+		if ( BIT_CHECK(code, k) )
+		{
+			BIT_SET(*pCodeOut, x);
+			
+			//printf("p->pOut[%u][%d] = 1\n", offOut, x);
+		}
+		//else
+		//{
+		//	printf("p->pOut[%u][%d] = 0\n", offOut, x);
+		//}
+		
+		x++;
+		k++;
+		
+		if ( x > 7 )
+		{
+			x = 0;
+						
+			//if ( *pCodeOut > 0xF )
+			//	printf("\tCODE OUT = %X -> ", *pCodeOut);
+			//else
+			//	printf("\tCODE OUT = 0%X -> ", *pCodeOut);
+			//PrintInBinary16(*pCodeOut);
+			//printf("\n");
+					
+			offOut++;
+			pCodeOut = (uint8_t*)(p->pOut + offOut);
+			//*pCodeOut = 0;
+		}
+	}	
+			
+	if ( M_EOD == code )
+	{
+		//printf("FINAL CODE OUT -> %u -> ", *pCodeOut);
+		//PrintInBinary16(*pCodeOut);
+		//printf("\n");
+		
+		if ( 0 == *pCodeOut )
+			offOut--;
+		//if ( 0 == *pCodeOut )
+		//	p->offsetOutputStream--;
+	}
+
+	p->offsetOutputStream = offOut;
+	
+	while ( bitsToNextByte > 8 )
+	{
+		bitsToNextByte -= 8;
+	}
+	p->BitsWritten = bitsToNextByte;	
+		
+	//printf("\n");
+	
+	return 1;	
+}
+
+int ReadBitsLsbFirst(uint16_t *code, DecodeParams *p)
+{
+	int x, k;
+	size_t y;
+	
+	uint8_t *pCodeIn;
+	
+	int32_t bitsToCurrByte;
+	int32_t bitsToNextByte;
+			
+	uint32_t offIn = p->offsetInputStream;
+	
+	*code = 0;
+	
+	bitsToCurrByte = 8 - p->BitsWritten;
+	bitsToNextByte = p->currBitsNum - bitsToCurrByte;	
+	
+	if ( bitsToCurrByte <= 0 )
+	{
+		//printf("\nATTENZIONE: bitsToCurrByte = %d, bitsToNextByte = %d, p->BitsWritten = %u\n", bitsToCurrByte, bitsToNextByte, p->BitsWritten);
+		if ( bitsToCurrByte < 0 )
+			offIn++;
+		//offIn++;
+		bitsToCurrByte = 8;
+		bitsToNextByte = p->currBitsNum - 8;
+		p->BitsWritten = 0;	
+		//printf("\tCAMBIO IN : bitsToCurrByte = %d, bitsToNextByte = %d, p->BitsWritten = %u\n", bitsToCurrByte, bitsToNextByte, p->BitsWritten);
+	}
+				
+	pCodeIn = (uint8_t*)(p->pIn + offIn);
+	
+	//printf("\nREAD BITS FOR CODE %u -> ", *pCodeIn);
+	//PrintInBinary16(*pCodeIn);
+	//printf("\n\tbitsToCurrByte = %d\n", bitsToCurrByte);
+	//printf("\tbitsToNextByte = %d\n", bitsToNextByte);
+	//printf("\tp->BitsWritten = %u\n", p->BitsWritten);
+				
+	k = p->BitsWritten;
+	x = 0;
+	for ( y = 0; y < p->currBitsNum; y++ )
+	{
+		if ( BIT_CHECK(*pCodeIn, k) )
+		{
+			//printf("*pCodeIn[%u][%d] = 1\n", offIn, k);
+			BIT_SET(*code, x);
+		}
+		//else
+		//{
+		//	printf("*pCodeIn[%u][%d] = 0\n", offIn, k);
+		//}
+		
+		x++;
+		k++;
+		
+		if ( k > 7 )
+		{
+			k = 0;									
+			offIn++;
+			pCodeIn = (uint8_t*)(p->pIn + offIn);
+		}
+	}
+			
+	//if ( *code > 0xF )
+	//	printf("\tCODE OUT = %u(%X) -> ", *code, *code);
+	//else
+	//	printf("\tCODE OUT = %u(0%X) -> ", *code, *code);
+	//PrintInBinary16(*code);
+	//printf("\n\n");
+
+	p->offsetInputStream = offIn;
+	
+	while ( bitsToNextByte > 8 )
+	{
+		bitsToNextByte -= 8;
+	}
+	p->BitsWritten = bitsToNextByte;
 		
 	return 1;
 }
@@ -937,9 +1169,11 @@ int WriteBits(uint16_t code, EncodeParams *p)
 		//printf("\tCAMBIO IN : bitsToCurrByte = %d, bitsToNextByte = %d, p->BitsWritten = %u\n\n", bitsToCurrByte, bitsToNextByte, p->BitsWritten);
 	}
 			
-	if ( p->offsetOutputStream >= p->sizeOutputStream )
+	if ( p->offsetOutputStream >= (p->sizeOutputStream - 1) )
 	{
+		size_t oldSize = p->sizeOutputStream;
 		uint8_t *pTemp = NULL;	
+		
 		p->sizeOutputStream *= 2;
 								
 		pTemp = (uint8_t*)realloc(p->pOut, p->sizeOutputStream);
@@ -950,11 +1184,11 @@ int WriteBits(uint16_t code, EncodeParams *p)
 			return 0;
 		}
 		p->pOut = pTemp;
+		for ( size_t i = oldSize; i < p->sizeOutputStream; i++ )
+			p->pOut[i] = 0;
 	}
-		
+			
 	pCodeOut = (uint8_t*)(p->pOut + offOut);
-	if ( 0 == p->offsetOutputStream )
-		*pCodeOut = 0;
 		
 	k = p->currBitsNum - 1;
 	x = 8 - p->BitsWritten - 1;
@@ -994,7 +1228,7 @@ int WriteBits(uint16_t code, EncodeParams *p)
 					
 			offOut++;
 			pCodeOut = (uint8_t*)(p->pOut + offOut);
-			*pCodeOut = 0;
+			//*pCodeOut = 0;
 		}
 	}	
 			
@@ -1006,8 +1240,6 @@ int WriteBits(uint16_t code, EncodeParams *p)
 		
 		if ( 0 == *pCodeOut )
 			offOut--;
-		//if ( 0 == *pCodeOut )
-		//	p->offsetOutputStream--;
 	}
 
 	p->offsetOutputStream = offOut;
@@ -1065,7 +1297,7 @@ int ReadBits(uint16_t *code, DecodeParams *p)
 	//printf("\tp->BitsWritten = %u\n", p->BitsWritten);
 				
 	k = bitsToCurrByte - 1;
-	x = 15;
+	x = 15 - nShift;
 	for ( y = 0; y < p->currBitsNum; y++ )
 	{
 		if ( BIT_CHECK(*pCodeIn, k) )
@@ -1097,7 +1329,7 @@ int ReadBits(uint16_t *code, DecodeParams *p)
 	//printf("\n");
 	//printf("\t*code = *code >> nShift(%d)\n", nShift);
 	
-	*code = *code >> nShift;	
+	//*code = *code >> nShift;	
 	
 	//if ( *code > 0xF )
 	//	printf("\tCODE OUT = %u(%X) -> ", *code, *code);
@@ -1117,13 +1349,15 @@ int ReadBits(uint16_t *code, DecodeParams *p)
 	return 1;
 }
 
-unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode)
+unsigned char * lzwEncode(unsigned char * pStream, size_t len, int32_t BitsOrder, int32_t MaxBits, size_t *pLenOut, uint32_t *pErrorCode)
 {	
 	unsigned char *pRet = NULL;
 	
 	EncodeParams myEncodeParams;
 	
 	GenHashTable_t myHT;
+	
+	int ret;
 		
 	size_t k;
 	
@@ -1141,11 +1375,35 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	uint16_t *pCodeHT = &codeHT;
 	uint32_t dataSize;
 	
+	int32_t MaxCode;
+	
+	uint32_t tableSize = GetTableSize(MaxBits);
+		
+	switch ( MaxBits )
+	{
+		case 12:
+			MaxCode = 4096;
+			break;
+		case 13:
+			MaxCode = 8192;
+			break;
+		case 14:
+			MaxCode = 16384;
+			break;
+		case 15:
+			MaxCode = 32768;
+			break;
+		default:
+			MaxCode = 4096;
+			break;
+	}
+	
 	*pLenOut = 0;
 	
 	*pErrorCode = LZW_ERROR_NONE;
-				
+	
 	sizeBuffer = len * 2;
+					
 	pRet = (unsigned char*)malloc(sizeBuffer);
 	if ( NULL == pRet )
 	{
@@ -1154,6 +1412,14 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	}
 	for ( k = 0; k < sizeBuffer; k++ )
 		pRet[k] = 0;
+		
+	if ( !InitEncodeParams(&myEncodeParams, pRet, sizeBuffer, BITS_MIN, MaxBits) )
+	{
+		*pErrorCode = LZW_ERROR_INIT_ENCODE_PARAMS_FAILED;
+		free(pRet);
+		pRet = NULL;
+		return NULL;
+	}
 	
 	pBuffer = (unsigned char*)malloc(sizeBuffer);
 	if ( NULL == pBuffer )
@@ -1166,10 +1432,8 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	}
 	for ( k = 0; k < sizeBuffer; k++ )
 		pBuffer[k] = '\0';
-
-	InitEncodeParams(&myEncodeParams, pRet, sizeBuffer, 9);
 	
-	if ( !genhtInit(&myHT, 0, GenStringHashFuncNew, GenStringCompareFuncNew) )
+	if ( !genhtInit(&myHT, tableSize, GenStringHashFuncNew, GenStringCompareFuncNew) )
 	{
 		*pErrorCode = LZW_ERROR_TABLE_INIT_FAILED;
 		free(pRet);
@@ -1194,7 +1458,20 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	
 	//printf("\nOUTPUT CLEAR CODE = %u\n", M_CLR);
 		
-	if ( !WriteBits(M_CLR, &myEncodeParams) )
+	switch ( BitsOrder )
+	{
+		case BITS_ORDER_MSB_FIRST:
+			ret = WriteBits(M_CLR, &myEncodeParams);
+			break;
+		case BITS_ORDER_LSB_FIRST:
+			ret = WriteBitsLsbFirst(M_CLR, &myEncodeParams);
+			break;
+		default:
+			ret = WriteBits(M_CLR, &myEncodeParams);
+			break;
+	}
+	
+	if ( !ret )
 	{
 		//printf("ERRORE lzwEncode: WriteBits failed.\n");
 		*pErrorCode = LZW_ERROR_WRITEBITS_FAILED;
@@ -1211,30 +1488,23 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 		
 		if ( offsetBuffer >= sizeBuffer )
 		{
-				uint8_t *pBufferTemp = NULL;	
-				sizeBuffer *= 2;
+			size_t oldSizeBuffer = sizeBuffer;
+			uint8_t *pBufferTemp = NULL;
+			
+			sizeBuffer *= 2;
 				
-				pBufferTemp = (uint8_t*)realloc(pBuffer, sizeBuffer);
-				if ( NULL == pBufferTemp )
-				{
-					//printf("ERRORE lzwEncode : realloc failed.\n");
-					*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
-					free(pRet);
-					pRet = NULL;
-					goto uscita;
-				}
-				pBuffer = pBufferTemp;
-				
-				pBufferTemp = (uint8_t*)realloc(pRet, sizeBuffer);
-				if ( NULL == pBufferTemp )
-				{
-					//printf("ERRORE lzwEncode : realloc failed.\n");
-					*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
-					free(pRet);
-					pRet = NULL;
-					goto uscita;
-				}
-				pRet = pBufferTemp;
+			pBufferTemp = (uint8_t*)realloc(pBuffer, sizeBuffer);
+			if ( NULL == pBufferTemp )
+			{
+				//printf("ERRORE lzwEncode : realloc failed.\n");
+				*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
+				free(pRet);
+				pRet = NULL;
+				goto uscita;
+			}
+			pBuffer = pBufferTemp;
+			for ( size_t i = oldSizeBuffer; i < sizeBuffer; i++ )
+				pBuffer[i] = '\0';				
 		}
 		
 		pBuffer[offsetBuffer] = byte;		
@@ -1281,7 +1551,20 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 			//}
 			//printf("(%s)\n", (char*)pBuffer);
 			
-			if ( !WriteBits(codeHT, &myEncodeParams) )
+			switch ( BitsOrder )
+			{
+				case BITS_ORDER_MSB_FIRST:
+					ret = WriteBits(codeHT, &myEncodeParams);
+					break;
+				case BITS_ORDER_LSB_FIRST:
+					ret = WriteBitsLsbFirst(codeHT, &myEncodeParams);
+					break;
+				default:
+					ret = WriteBits(codeHT, &myEncodeParams);
+					break;
+			}
+	
+			if ( !ret )
 			{
 				//printf("ERRORE lzwEncode: WriteBits failed.\n");
 				*pErrorCode = LZW_ERROR_WRITEBITS_FAILED;
@@ -1332,6 +1615,18 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 					//printf("\nSWITCH TO 12 BITS\n");
 					myEncodeParams.currBitsNum = 12;
 					break;
+				case 4096:
+					//printf("\nSWITCH TO 13 BITS\n");
+					myEncodeParams.currBitsNum = 13;
+					break;
+				case 8192:
+					//printf("\nSWITCH TO 14 BITS\n");
+					myEncodeParams.currBitsNum = 14;
+					break;
+				case 16384:
+					//printf("\nSWITCH TO 15 BITS\n");
+					myEncodeParams.currBitsNum = 15;
+					break;
 				default:
 					break;						
 			}
@@ -1348,12 +1643,25 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 			//}
 			//printf("(%s)\n", (char*)pBuffer);
 				
-			if ( codeOut == 4096 )
+			if ( codeOut == MaxCode )
 			{
 				//printf("\nATTENZIONEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE: codeOut = %u\n", codeOut);
 				//printf("\nOUTPUT CLEAR CODE = %u\n", M_CLR);
 				
-				if ( !WriteBits(M_CLR, &myEncodeParams) )
+				switch ( BitsOrder )
+				{
+					case BITS_ORDER_MSB_FIRST:
+						ret = WriteBits(M_CLR, &myEncodeParams);
+						break;
+					case BITS_ORDER_LSB_FIRST:
+						ret = WriteBitsLsbFirst(M_CLR, &myEncodeParams);
+						break;
+					default:
+						ret = WriteBits(M_CLR, &myEncodeParams);
+						break;
+				}
+			
+				if ( !ret )
 				{
 					//printf("ERRORE lzwEncode: WriteBits failed.\n");
 					*pErrorCode = LZW_ERROR_WRITEBITS_FAILED;
@@ -1364,7 +1672,7 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 				
 				genhtFree(&myHT);
 					
-				if ( !genhtInit(&myHT, 0, GenStringHashFuncNew, GenStringCompareFuncNew) )
+				if ( !genhtInit(&myHT, tableSize, GenStringHashFuncNew, GenStringCompareFuncNew) )
 				{
 					*pErrorCode = LZW_ERROR_TABLE_INIT_FAILED;
 					free(pRet);
@@ -1388,7 +1696,7 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 				}
 				
 				//printf("\tSWITCH TO 9 BITS\n");
-				myEncodeParams.currBitsNum = 9;
+				myEncodeParams.currBitsNum = BITS_MIN;
 									
 				codeOut = M_NEW;
 			}
@@ -1404,7 +1712,20 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 		//}
 		//printf("(%s) NON TROVATA offsetBuffer = %u\n", (char*)pBuffer, offsetBuffer);
 
-		if ( !WriteBits(codeOut, &myEncodeParams) )
+		switch ( BitsOrder )
+		{
+			case BITS_ORDER_MSB_FIRST:
+				ret = WriteBits(codeOut, &myEncodeParams);
+				break;
+			case BITS_ORDER_LSB_FIRST:
+				ret = WriteBitsLsbFirst(codeOut, &myEncodeParams);
+				break;
+			default:
+				ret = WriteBits(codeOut, &myEncodeParams);
+				break;
+		}
+			
+		if ( !ret )
 		{
 			//printf("ERRORE lzwEncode: WriteBits failed.\n");
 			*pErrorCode = LZW_ERROR_WRITEBITS_FAILED;
@@ -1422,7 +1743,20 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 		//}
 		//printf("(%s) TROVATA offsetBuffer = %u\n", (char*)pBuffer, offsetBuffer);
 		
-		if ( !WriteBits(codeHT, &myEncodeParams) )
+		switch ( BitsOrder )
+		{
+			case BITS_ORDER_MSB_FIRST:
+				ret = WriteBits(codeHT, &myEncodeParams);
+				break;
+			case BITS_ORDER_LSB_FIRST:
+				ret = WriteBitsLsbFirst(codeHT, &myEncodeParams);
+				break;
+			default:
+				ret = WriteBits(codeHT, &myEncodeParams);
+				break;
+		}
+		
+		if ( !ret )
 		{
 			//printf("ERRORE lzwEncode: WriteBits failed.\n");
 			*pErrorCode = LZW_ERROR_WRITEBITS_FAILED;
@@ -1434,7 +1768,20 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	
 	//printf("\nOUTPUT END OF DATA CODE = %u\n", M_EOD);
 	
-	if ( !WriteBits(M_EOD, &myEncodeParams) )
+	switch ( BitsOrder )
+	{
+		case BITS_ORDER_MSB_FIRST:
+			ret = WriteBits(M_EOD, &myEncodeParams);
+			break;
+		case BITS_ORDER_LSB_FIRST:
+			ret = WriteBitsLsbFirst(M_EOD, &myEncodeParams);
+			break;
+		default:
+			ret = WriteBits(M_EOD, &myEncodeParams);
+			break;
+	}
+		
+	if ( !ret )
 	{
 		//printf("ERRORE lzwEncode: WriteBits failed.\n");
 		*pErrorCode = LZW_ERROR_WRITEBITS_FAILED;
@@ -1461,9 +1808,11 @@ unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	return pRet;		
 }
 
-unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode)
+unsigned char * lzwDecode(unsigned char * pStream, size_t len, int32_t BitsOrder, int32_t MaxBits, size_t *pLenOut, uint32_t *pErrorCode)
 {	
 	uint32_t k;
+	
+	int ret;
 	
 	uint8_t strTemp[2];
 	uint16_t kTemp;
@@ -1484,6 +1833,7 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	uint8_t *pBuffer = NULL;
 	uint32_t sizeBuffer;
 	uint32_t offsetBuffer = 0;
+	uint32_t sizeOutput;
 	uint32_t offsetOutput = 0;
 		
 	uint8_t *pData = NULL;
@@ -1492,20 +1842,30 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	uint8_t *pData2 = NULL;
 	uint32_t dataSize2;
 	
+	uint32_t tableSize = GetTableSize(MaxBits);
+		
 	*pLenOut = 0;
 	
 	*pErrorCode = LZW_ERROR_NONE;
 	
-	sizeBuffer = len * 2;
-				
-	pRet = (unsigned char*)malloc(sizeBuffer);
+	sizeBuffer = sizeOutput = len * 2;
+					
+	pRet = (unsigned char*)malloc(sizeOutput);
 	if ( NULL == pRet )
 	{
 		*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
 		return NULL;
 	}
-	for ( k = 0; k < sizeBuffer; k++ )
+	for ( k = 0; k < sizeOutput; k++ )
 		pRet[k] = 0;
+	
+	if ( !InitDecodeParams(&myDecodeParams, pStream, len, BITS_MIN, MaxBits) )
+	{
+		*pErrorCode = LZW_ERROR_INIT_DECODE_PARAMS_FAILED;
+		free(pRet);
+		pRet = NULL;
+		return NULL;
+	}
 	
 	pBuffer = (unsigned char*)malloc(sizeBuffer);
 	if ( NULL == pBuffer )
@@ -1518,19 +1878,32 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 	}
 	for ( k = 0; k < sizeBuffer; k++ )
 		pBuffer[k] = '\0';
-
-	InitDecodeParams(&myDecodeParams, pStream, len, 9);
 	
-	if ( !genhtInit(&myHT, 0, GenUint16HashFunc, GenUint16CompareFunc) )
+	if ( !genhtInit(&myHT, tableSize, GenUint16HashFunc, GenUint16CompareFunc) )
 	{
 		//printf("\nERRORE lzwDecode: genhtInit failed.\n");
 		*pErrorCode = LZW_ERROR_TABLE_INIT_FAILED;
 		free(pRet);
 		pRet = NULL;
+		free(pBuffer);
+		pBuffer = NULL;
 		return NULL;
 	}
 		
-	if ( !ReadBits(&code, &myDecodeParams) )
+	switch ( BitsOrder )
+	{
+		case BITS_ORDER_MSB_FIRST:
+			ret = ReadBits(&code, &myDecodeParams);
+			break;
+		case BITS_ORDER_LSB_FIRST:
+			ret = ReadBitsLsbFirst(&code, &myDecodeParams);
+			break;
+		default:
+			ret = ReadBits(&code, &myDecodeParams);
+			break;
+	}
+	
+	if ( !ret )
 	{
 		//printf("ERRORE lzwDecode: ReadBits failed.\n");
 		*pErrorCode = LZW_ERROR_READBITS_FAILED;
@@ -1547,7 +1920,7 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 		{
 			genhtFree(&myHT);
 					
-			if ( !genhtInit(&myHT, 0, GenUint16HashFunc, GenUint16CompareFunc) )
+			if ( !genhtInit(&myHT, tableSize, GenUint16HashFunc, GenUint16CompareFunc) )
 			{
 				//printf("\nERRORE lzwDecode: genhtInit failed.\n");
 				*pErrorCode = LZW_ERROR_TABLE_INIT_FAILED;
@@ -1572,12 +1945,24 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 			}
 			
 			//printf("\nSWITCH TO 9 BITS\n");
-			myDecodeParams.currBitsNum = 9;
+			myDecodeParams.currBitsNum = BITS_MIN;
 			
 			codeOut = M_NEW;
 			
-			
-			if ( !ReadBits(&code, &myDecodeParams) )
+			switch ( BitsOrder )
+			{
+				case BITS_ORDER_MSB_FIRST:
+					ret = ReadBits(&code, &myDecodeParams);
+					break;
+				case BITS_ORDER_LSB_FIRST:
+					ret = ReadBitsLsbFirst(&code, &myDecodeParams);
+					break;
+				default:
+					ret = ReadBits(&code, &myDecodeParams);
+					break;
+			}
+	
+			if ( !ret )
 			{
 				//printf("ERRORE lzwDecode: ReadBits failed.\n");
 				*pErrorCode = LZW_ERROR_READBITS_FAILED;
@@ -1607,23 +1992,14 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 				goto uscita;
 			}
 			
-			if ( (dataSize - 1) >= (sizeBuffer - offsetOutput) )
+			if ( (dataSize - 1) >= (sizeOutput - offsetOutput) )
 			{
-				uint8_t *pBufferTemp = NULL;	
-				sizeBuffer *= 2;
-				
-				pBufferTemp = (uint8_t*)realloc(pBuffer, sizeBuffer);
-				if ( NULL == pBufferTemp )
-				{
-					//printf("\nERRORE lzwDecode: realloc failed.\n");
-					*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
-					free(pRet);
-					pRet = NULL;
-					goto uscita;
-				}
-				pBuffer = pBufferTemp;
-				
-				pBufferTemp = (uint8_t*)realloc(pRet, sizeBuffer);
+				size_t oldSize = sizeOutput;
+				uint8_t *pBufferTemp = NULL;
+					
+				sizeOutput *= 2;
+								
+				pBufferTemp = (uint8_t*)realloc(pRet, sizeOutput);
 				if ( NULL == pBufferTemp )
 				{
 					//printf("\nERRORE lzwDecode: realloc failed.\n");
@@ -1633,8 +2009,10 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 					goto uscita;
 				}
 				pRet = pBufferTemp;
+				for ( size_t i = oldSize; i < sizeOutput; i++ )
+					pRet[i] = 0;
 			}
-			
+						
 			//pData[dataSize - 1] = '\0';
 			//printf("WRITE STRING 1 <");
 			//for ( size_t i = 0; i < dataSize - 1; i++ )
@@ -1660,25 +2038,14 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 			if ( genhtFind(&myHT, &code, sizeof(uint16_t), (void**)&pData, &dataSize) >= 0 )
 			{
 				//WriteString(StringFromCode(Code));
-				//if ( (dataSize - 1) >= (sizeBuffer - offsetOutput) )
-				//if ( (dataSize - 1) >= (sizeBuffer - offsetBuffer) )
-				if ( ((dataSize - 1) >= (sizeBuffer - offsetBuffer)) || ((dataSize - 1) >= (sizeBuffer - offsetOutput)) )
+				if ( (dataSize - 1) >= (sizeOutput - offsetOutput) )
 				{
-					uint8_t *pBufferTemp = NULL;	
-					sizeBuffer *= 2;
-				
-					pBufferTemp = (uint8_t*)realloc(pBuffer, sizeBuffer);
-					if ( NULL == pBufferTemp )
-					{
-						//printf("\nERRORE lzwDecode: realloc failed.\n");
-						*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
-						free(pRet);
-						pRet = NULL;
-						goto uscita;
-					}
-					pBuffer = pBufferTemp;
-				
-					pBufferTemp = (uint8_t*)realloc(pRet, sizeBuffer);
+					size_t oldSize = sizeOutput;
+					uint8_t *pBufferTemp = NULL;
+					
+					sizeOutput *= 2;
+								
+					pBufferTemp = (uint8_t*)realloc(pRet, sizeOutput);
 					if ( NULL == pBufferTemp )
 					{
 						//printf("\nERRORE lzwDecode: realloc failed.\n");
@@ -1688,6 +2055,8 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 						goto uscita;
 					}
 					pRet = pBufferTemp;
+					for ( size_t i = oldSize; i < sizeOutput; i++ )
+						pRet[i] = 0;
 				}
 				
 				//pData[dataSize - 1] = '\0';
@@ -1717,6 +2086,27 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 					pRet[offsetOutput] = '\0';
 					*pLenOut = offsetOutput;
 					goto uscita;
+				}
+				
+				if ( (dataSize - 1) >= (sizeBuffer - offsetBuffer) )
+				{
+					size_t oldSize = sizeBuffer;
+					uint8_t *pBufferTemp = NULL;
+					
+					sizeBuffer *= 2;
+				
+					pBufferTemp = (uint8_t*)realloc(pBuffer, sizeBuffer);
+					if ( NULL == pBufferTemp )
+					{
+						//printf("\nERRORE lzwDecode: realloc failed.\n");
+						*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
+						free(pRet);
+						pRet = NULL;
+						goto uscita;
+					}
+					pBuffer = pBufferTemp;
+					for ( size_t i = oldSize; i < sizeBuffer; i++ )
+						pBuffer[i] = 0;
 				}
 				
 				memcpy(pBuffer + offsetBuffer, pData, dataSize - 1);
@@ -1780,10 +2170,22 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 						//printf("\nSWITCH TO 12 BITS\n");
 						myDecodeParams.currBitsNum = 12;
 						break;
+					case 4095:
+						//printf("\nSWITCH TO 13 BITS\n");
+						myDecodeParams.currBitsNum = 13;
+						break;
+					case 8191:
+						//printf("\nSWITCH TO 14 BITS\n");
+						myDecodeParams.currBitsNum = 14;
+						break;
+					case 16383:
+						//printf("\nSWITCH TO 15 BITS\n");
+						myDecodeParams.currBitsNum = 15;
+						break;					
 					default:
 						break;
 				}
-				
+								
 				oldCode = code;
 			}
 			else
@@ -1812,37 +2214,62 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 					*pLenOut = offsetOutput;
 					goto uscita;
 				}
-				//else
-				//{
-				
-				//if ( (dataSize - 1) >= (sizeBuffer - offsetOutput) )
-				//if ( (dataSize - 1) >= (sizeBuffer - offsetBuffer) )
-				if ( ((dataSize - 1) >= (sizeBuffer - offsetBuffer)) || ((dataSize - 1) >= (sizeBuffer - offsetOutput)) )
-				{
-					uint8_t *pBufferTemp = NULL;	
-					sizeBuffer *= 2;
 					
-					//printf("REALLOC! NEW sizeBuffer = %u\n", sizeBuffer);
+				/*			
+				if ( (dataSize - 1) >= (sizeBuffer - offsetOutput) )
+				{
+					size_t oldSize = sizeBuffer;
+					uint8_t *pBufferTemp = NULL;
+					
+					sizeBuffer *= 2;
 				
 					pBufferTemp = (uint8_t*)realloc(pBuffer, sizeBuffer);
 					if ( NULL == pBufferTemp )
 					{
 						//printf("\nERRORE lzwDecode: realloc failed.\n");
+						*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
 						free(pRet);
 						pRet = NULL;
 						goto uscita;
 					}
 					pBuffer = pBufferTemp;
+					for ( size_t i = oldSize; i < sizeBuffer; i++ )
+						pBuffer[i] = 0;
 				
 					pBufferTemp = (uint8_t*)realloc(pRet, sizeBuffer);
 					if ( NULL == pBufferTemp )
 					{
 						//printf("\nERRORE lzwDecode: realloc failed.\n");
+						*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
 						free(pRet);
 						pRet = NULL;
 						goto uscita;
 					}
 					pRet = pBufferTemp;
+					for ( size_t i = oldSize; i < sizeBuffer; i++ )
+						pRet[i] = 0;
+				}
+				*/
+				
+				if ( (dataSize - 1) >= (sizeBuffer - offsetBuffer) )
+				{
+					size_t oldSize = sizeBuffer;
+					uint8_t *pBufferTemp = NULL;
+					
+					sizeBuffer *= 2;
+				
+					pBufferTemp = (uint8_t*)realloc(pBuffer, sizeBuffer);
+					if ( NULL == pBufferTemp )
+					{
+						//printf("\nERRORE lzwDecode: realloc failed.\n");
+						*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
+						free(pRet);
+						pRet = NULL;
+						goto uscita;
+					}
+					pBuffer = pBufferTemp;
+					for ( size_t i = oldSize; i < sizeBuffer; i++ )
+						pBuffer[i] = 0;
 				}
 				
 				//printf("offsetBuffer = %u; datasize - 1 = %u; sizeBuffer = %u\n", offsetBuffer, dataSize - 1, sizeBuffer);
@@ -1869,6 +2296,27 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 				offsetBuffer++;
 				
 				//WriteString(OutString);
+				
+				if ( dataSize >= (sizeOutput - offsetOutput) )
+				{
+					size_t oldSize = sizeOutput;
+					uint8_t *pBufferTemp = NULL;
+					
+					sizeOutput *= 2;
+								
+					pBufferTemp = (uint8_t*)realloc(pRet, sizeOutput);
+					if ( NULL == pBufferTemp )
+					{
+						//printf("\nERRORE lzwDecode: realloc failed.\n");
+						*pErrorCode = LZW_ERROR_MEMALLOC_FAILED;
+						free(pRet);
+						pRet = NULL;
+						goto uscita;
+					}
+					pRet = pBufferTemp;
+					for ( size_t i = oldSize; i < sizeOutput; i++ )
+						pRet[i] = 0;
+				}
 				
 				//printf("WRITE OUT STRING <");
 				//for ( size_t i = 0; i < dataSize; i++ )
@@ -1908,7 +2356,7 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 				pBuffer[0] = '\0';
 				offsetBuffer = 0;
 				
-				codeOut++;
+				codeOut++;				
 				switch ( codeOut )
 				{
 					case 511:
@@ -1923,16 +2371,40 @@ unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, 
 						//printf("\nSWITCH TO 12 BITS\n");
 						myDecodeParams.currBitsNum = 12;
 						break;
+					case 4095:
+						//printf("\nSWITCH TO 13 BITS\n");
+						myDecodeParams.currBitsNum = 13;
+						break;
+					case 8191:
+						//printf("\nSWITCH TO 14 BITS\n");
+						myDecodeParams.currBitsNum = 14;
+						break;
+					case 16383:
+						//printf("\nSWITCH TO 15 BITS\n");
+						myDecodeParams.currBitsNum = 15;
+						break;					
 					default:
 						break;
 				}
 				
 				oldCode = code;
-				//}			
 			}
 		}
 		
-		if ( !ReadBits(&code, &myDecodeParams) )
+		switch ( BitsOrder )
+		{
+			case BITS_ORDER_MSB_FIRST:
+				ret = ReadBits(&code, &myDecodeParams);
+				break;
+			case BITS_ORDER_LSB_FIRST:
+				ret = ReadBitsLsbFirst(&code, &myDecodeParams);
+				break;
+			default:
+				ret = ReadBits(&code, &myDecodeParams);
+				break;
+		}
+			
+		if ( !ret )
 		{
 			//printf("ERRORE lzwDecode: ReadBits failed.\n");
 			*pErrorCode = LZW_ERROR_READBITS_FAILED;

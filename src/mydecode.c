@@ -493,7 +493,8 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 			{
 				if ( 0 == *pDecodedStreamSize )
 				{
-					pszDecodedStream = lzwDecode(pszEncodedStream, pContent->LengthFromPdf, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					//pszDecodedStream = lzwDecode(pszEncodedStream, pContent->LengthFromPdf, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					pszDecodedStream = lzwDecode(pszEncodedStream, pContent->LengthFromPdf, BITS_ORDER_MSB_FIRST, 12, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
 					if ( LZW_ERROR_NONE != ErrorCode )
 					{
 						if ( NULL != fpErrors )
@@ -547,7 +548,8 @@ unsigned char* DecodeStream(unsigned char *pszEncodedStream, unsigned long int E
 					DecodedStreamSizeTemp = *pDecodedStreamSize; 
 					*pDecodedStreamSize = 0;
 					
-					pszDecodedStream = lzwDecode(pszDecodedStreamTemp, DecodedStreamSizeTemp, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					//pszDecodedStream = lzwDecode(pszDecodedStreamTemp, DecodedStreamSizeTemp, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
+					pszDecodedStream = lzwDecode(pszDecodedStreamTemp, DecodedStreamSizeTemp, BITS_ORDER_MSB_FIRST, 12, (unsigned long int *)pDecodedStreamSize, &ErrorCode);
 					if ( LZW_ERROR_NONE != ErrorCode )
 					{
 						if ( NULL != fpErrors )

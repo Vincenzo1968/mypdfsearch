@@ -41,29 +41,6 @@
 
 #include "mypdfsearch.h"
 
-#define ASCIIHEX_ERROR_NONE                   0
-#define ASCIIHEX_ERROR_EOD_NOT_FOUND          1
-#define ASCIIHEX_ERROR_MEMALLOC_FAILED        2
-#define ASCIIHEX_ERROR_UNEXPECTED_CHAR        3
-
-#define ASCII85_ERROR_NONE                    0
-#define ASCII85_ERROR_EOD_NOT_FOUND           1
-#define ASCII85_ERROR_MEMALLOC_FAILED         2
-#define ASCII85_ERROR_UNEXPECTED_CHAR         3
-
-#define LZW_ERROR_NONE                        0
-#define LZW_ERROR_UNEXPECTED_CODE             1
-#define LZW_ERROR_MEMALLOC_FAILED             2
-#define LZW_ERROR_TABLE_INIT_FAILED           3
-#define LZW_ERROR_TABLE_INSERT_FAILED         4
-#define LZW_ERROR_TABLE_FIND_FAILED           5
-#define LZW_ERROR_WRITEBITS_FAILED            6
-#define LZW_ERROR_READBITS_FAILED             7
-#define LZW_ERROR_STRING_NOT_FOUND_IN_TABLE   8
-#define LZW_ERROR_EOD_NOT_FOUND               9
-
-#define MY_BUFFER_SIZE 4096
-
 #define SwapTwoBytes(data) \
 ( (((data) >> 8) & 0x00FF) | (((data) << 8) & 0xFF00) ) 
 
@@ -83,24 +60,62 @@
 #define INT_BITS_16  ( sizeof(uint16_t) * CHAR_BITS)
 #define INT_BITS_8   ( sizeof(uint8_t)  * CHAR_BITS)
 
-// https://it.wikipedia.org/wiki/Lempel-Ziv-Welch
-
-/* ----------- LZW stuff -------------- */ 
-#define M_CLR 256 /* clear table marker */
-#define M_EOD 257 /* end-of-data marker */
-#define M_NEW 258 /* new code index */
-
-
 #define BIT_SET(byte,nbit)   ((byte) |=  (1 << (nbit)))
 #define BIT_UNSET(byte,nbit) ((byte) &= ~(1 << (nbit)))
 #define BIT_CHECK(byte,nbit) ((byte) &   (1 << (nbit)))
 #define BIT_FLIP(byte,nbit)  ((byte) ^=  (1 << (nbit))) // Se l'ennesimo bit(nbit) è zero, lo imposta a uno; e viceversa.
+
+#define UNUSED(x) (void)(x)
+
+#define MY_BUFFER_SIZE 4096
+#define BLOCK_SIZE 4096
+
+
+
+#define ASCIIHEX_ERROR_NONE                    0
+#define ASCIIHEX_ERROR_EOD_NOT_FOUND           1
+#define ASCIIHEX_ERROR_MEMALLOC_FAILED         2
+#define ASCIIHEX_ERROR_UNEXPECTED_CHAR         3
+
+#define ASCII85_ERROR_NONE                     0
+#define ASCII85_ERROR_EOD_NOT_FOUND            1
+#define ASCII85_ERROR_MEMALLOC_FAILED          2
+#define ASCII85_ERROR_UNEXPECTED_CHAR          3
+
+#define LZW_ERROR_NONE                         0
+#define LZW_ERROR_UNEXPECTED_CODE              1
+#define LZW_ERROR_MEMALLOC_FAILED              2
+#define LZW_ERROR_TABLE_INIT_FAILED            3
+#define LZW_ERROR_TABLE_INSERT_FAILED          4
+#define LZW_ERROR_TABLE_FIND_FAILED            5
+#define LZW_ERROR_WRITEBITS_FAILED             6
+#define LZW_ERROR_READBITS_FAILED              7
+#define LZW_ERROR_STRING_NOT_FOUND_IN_TABLE    8
+#define LZW_ERROR_EOD_NOT_FOUND                9
+#define LZW_ERROR_INIT_ENCODE_PARAMS_FAILED   10
+#define LZW_ERROR_INIT_DECODE_PARAMS_FAILED   11
+
+#define BITS_ORDER_MSB_FIRST 1
+#define BITS_ORDER_LSB_FIRST 2
+
+#define BITS_MIN  9
+#define BITS_MAX 15
+
+#define DEFAULT_MIN_BITS   BITS_MIN
+#define DEFAULT_MAX_BITS   12
+
+#define M_CLR 256 // clear table marker 
+#define M_EOD 257 // end-of-data marker 
+#define M_NEW 258 // new code index 
+
+//#define INIT_MAX_CODE 512
 
 typedef struct tagEncodeParams
 {
 	unsigned char *pOut;
 	size_t sizeOutputStream;
 	uint32_t currBitsNum;
+	uint32_t BitsMax;
 	uint32_t offsetOutputStream;
 	uint32_t BitsWritten;
 } EncodeParams;
@@ -110,6 +125,7 @@ typedef struct tagDecodeParams
 	unsigned char *pIn;
 	size_t lenInput;
 	uint32_t currBitsNum;
+	uint32_t BitsMax;
 	uint32_t offsetInputStream;
 	uint32_t BitsWritten;
 } DecodeParams;
@@ -118,8 +134,8 @@ BEGIN_C_DECLS
 
 int IsLittleEndian();
 
-int InitEncodeParams(EncodeParams *p, unsigned char *pOut, size_t sizeOutputStream,  uint32_t BitsNum);
-int InitDecodeParams(DecodeParams *p, unsigned char *pIn, size_t lenInput, uint32_t BitsNum);
+int InitEncodeParams(EncodeParams *p, unsigned char *pOut, size_t sizeOutputStream,  uint32_t BitsNum, uint32_t BitsMax);
+int InitDecodeParams(DecodeParams *p, unsigned char *pIn, size_t lenInput, uint32_t BitsNum, uint32_t BitsMax);
 
 int WriteBits(uint16_t code, EncodeParams *p);
 int ReadBits(uint16_t *code, DecodeParams *p);
@@ -144,8 +160,8 @@ unsigned char * asciiHexDecode(unsigned char * pStream, size_t len, size_t *pLen
 unsigned char * ascii85Encode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
 unsigned char * ascii85Decode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
 
-unsigned char * lzwEncode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
-unsigned char * lzwDecode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * lzwEncode(unsigned char * pStream, size_t len, int32_t BitsOrder, int32_t MaxBits, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * lzwDecode(unsigned char * pStream, size_t len, int32_t BitsOrder, int32_t MaxBits, size_t *pLenOut, uint32_t *pErrorCode);
 
 END_C_DECLS
 
