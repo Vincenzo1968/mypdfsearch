@@ -39,7 +39,7 @@
 
 #include <stdint.h>
 
-#include "mypdfsearch.h"
+//#include "mypdfsearch.h"
 
 #define SwapTwoBytes(data) \
 ( (((data) >> 8) & 0x00FF) | (((data) << 8) & 0xFF00) ) 
@@ -54,12 +54,6 @@
   (((data) <<  8) & 0x000000FF00000000) | (((data) << 24) & 0x0000FF0000000000) | \
   (((data) << 40) & 0x00FF000000000000) | (((data) << 56) & 0xFF00000000000000) ) 
 
-#define CHAR_BITS    8  // size of character
-#define INT_BITS_64  ( sizeof(uint64_t) * CHAR_BITS)
-#define INT_BITS_32  ( sizeof(uint32_t) * CHAR_BITS)
-#define INT_BITS_16  ( sizeof(uint16_t) * CHAR_BITS)
-#define INT_BITS_8   ( sizeof(uint8_t)  * CHAR_BITS)
-
 #define BIT_SET(byte,nbit)   ((byte) |=  (1 << (nbit)))
 #define BIT_UNSET(byte,nbit) ((byte) &= ~(1 << (nbit)))
 #define BIT_CHECK(byte,nbit) ((byte) &   (1 << (nbit)))
@@ -69,8 +63,6 @@
 
 #define MY_BUFFER_SIZE 4096
 #define BLOCK_SIZE 4096
-
-
 
 #define ASCIIHEX_ERROR_NONE                    0
 #define ASCIIHEX_ERROR_EOD_NOT_FOUND           1
@@ -94,6 +86,7 @@
 #define LZW_ERROR_EOD_NOT_FOUND                9
 #define LZW_ERROR_INIT_ENCODE_PARAMS_FAILED   10
 #define LZW_ERROR_INIT_DECODE_PARAMS_FAILED   11
+#define LZW_ERROR_TOO_MANY_BITS               12
 
 #define BITS_ORDER_MSB_FIRST 1
 #define BITS_ORDER_LSB_FIRST 2
@@ -108,60 +101,51 @@
 #define M_EOD 257 // end-of-data marker 
 #define M_NEW 258 // new code index 
 
-//#define INIT_MAX_CODE 512
 
-typedef struct tagEncodeParams
-{
-	unsigned char *pOut;
-	size_t sizeOutputStream;
-	uint32_t currBitsNum;
-	uint32_t BitsMax;
-	uint32_t offsetOutputStream;
-	uint32_t BitsWritten;
-} EncodeParams;
 
-typedef struct tagDecodeParams
+// Dictionary structures.
+// For encoding, entry at code index is a list of indices that follow current one.
+// For example, if code 99 is 'c', code 481 is 'ci', code 1034 is 'cia', and code 2001 is 'ciao',
+// then
+//   dict[99].next['i'] =  481,
+//  dict[481].next['a'] = 1034,
+// dict[1034].next['o'] = 2001,
+// etc.
+typedef struct tag_lzw_enc
 {
-	unsigned char *pIn;
-	size_t lenInput;
-	uint32_t currBitsNum;
-	uint32_t BitsMax;
-	uint32_t offsetInputStream;
-	uint32_t BitsWritten;
-} DecodeParams;
+	uint16_t next[256];
+} lzw_enc_t;
+ 
+// For decoding, dictionary contains index of whatever prefix index plus trailing byte. For example, like previous:
+// dict[2001] = { c: 'o', prev: 1034 },
+// dict[1034] = { c: 'a', prev:  481 },
+//  dict[481] = { c: 'i', prev:   99 },
+//   dict[99] = { c: 'c', prev:    0 }
+// "back" is used for temporarily chaining indices when resolving a code to bytes
+typedef struct tag_lzw_dec
+{
+	uint16_t prev;
+	uint16_t back;
+	uint8_t  c;
+} lzw_dec_t;
 
 BEGIN_C_DECLS
 
+// --------------------------------------------------------------------------------------------------------------------------
+
 int IsLittleEndian();
-
-int InitEncodeParams(EncodeParams *p, unsigned char *pOut, size_t sizeOutputStream,  uint32_t BitsNum, uint32_t BitsMax);
-int InitDecodeParams(DecodeParams *p, unsigned char *pIn, size_t lenInput, uint32_t BitsNum, uint32_t BitsMax);
-
-int WriteBits(uint16_t code, EncodeParams *p);
-int ReadBits(uint16_t *code, DecodeParams *p);
-
-void PrintInBinary64_Wide(uint64_t n);
-void PrintInBinary64(uint64_t n);
-
-void PrintInBinary32_Wide(uint32_t n);
-void PrintInBinary32(uint32_t n);
-
-void PrintInBinary16_Wide(uint16_t n);
-void PrintInBinary16(uint16_t n);
-
-void PrintInBinary8_Wide(uint8_t n);
-void PrintInBinary8(uint8_t n);
+int IsBigEndian();
 
 // ----------------------------------------------- Public Interface Functions -------------------------------------------------
 
-unsigned char * asciiHexEncode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
-unsigned char * asciiHexDecode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * asciiHexEncode(unsigned char * pInputStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * asciiHexDecode(unsigned char * pInputStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
 
-unsigned char * ascii85Encode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
-unsigned char * ascii85Decode(unsigned char * pStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * ascii85Encode(unsigned char * pInputStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * ascii85Decode(unsigned char * pInputStream, size_t len, size_t *pLenOut, uint32_t *pErrorCode);
 
-unsigned char * lzwEncode(unsigned char * pStream, size_t len, int32_t BitsOrder, int32_t MaxBits, size_t *pLenOut, uint32_t *pErrorCode);
-unsigned char * lzwDecode(unsigned char * pStream, size_t len, int32_t BitsOrder, int32_t MaxBits, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * lzwEncode(unsigned char * pInputStream, size_t len, uint32_t BitsOrder, uint32_t MaxBits, size_t *pLenOut, uint32_t *pErrorCode);
+unsigned char * lzwDecode(unsigned char * pInputStream, size_t len, uint32_t BitsOrder, size_t *pLenOut, uint32_t *pErrorCode);
 
 END_C_DECLS
 
